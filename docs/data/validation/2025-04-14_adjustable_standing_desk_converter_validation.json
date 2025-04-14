@@ -1,7 +1,7 @@
 {
-  "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
-  "post_path": "../docs/posts/2023-05-15_wireless_bluetooth_earbuds_with_noise_cancellation.md",
-  "content_length": 447,
+  "post_title": "Adjustable Standing Desk Converter",
+  "post_path": "../docs/posts/2025-04-14_adjustable_standing_desk_converter.md",
+  "content_length": 1034,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -28,36 +28,36 @@
     "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
-    "overall_score": 54,
+    "overall_score": 62,
     "keyword_counts": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 2,
-      "Wireless": 7,
-      "Wireless review": 0,
-      "best Wireless": 1,
-      "Amazon": 3
+      "Adjustable Standing Desk Converter": 17,
+      "Adjustable": 25,
+      "Adjustable review": 1,
+      "best Adjustable": 2,
+      "Amazon": 8
     },
     "keyword_density": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 0.45,
-      "Wireless": 1.57,
-      "Wireless review": 0.0,
-      "best Wireless": 0.22,
-      "Amazon": 0.67
+      "Adjustable Standing Desk Converter": 1.64,
+      "Adjustable": 2.42,
+      "Adjustable review": 0.1,
+      "best Adjustable": 0.19,
+      "Amazon": 0.77
     },
     "placement_scores": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 10,
-      "Wireless": 10,
-      "Wireless review": 0,
-      "best Wireless": 0,
+      "Adjustable Standing Desk Converter": 5,
+      "Adjustable": 5,
+      "Adjustable review": 0,
+      "best Adjustable": 0,
       "Amazon": 0
     },
     "optimization_scores": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 57,
-      "Wireless": 85,
-      "Wireless review": 14,
-      "best Wireless": 42,
+      "Adjustable Standing Desk Converter": 78,
+      "Adjustable": 78,
+      "Adjustable review": 42,
+      "best Adjustable": 42,
       "Amazon": 70
     },
-    "content_length": 447
+    "content_length": 1034
   },
-  "validation_date": "2025-04-14 12:08:38"
+  "validation_date": "2025-04-14 12:09:02"
 }

@@ -1,0 +1,63 @@
+{
+  "post_title": "Dual Monitor Stand Adjustable",
+  "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
+  "content_length": 254,
+  "quality_check": {
+    "overall_score": 70,
+    "grammar_score": 70,
+    "readability_score": 70,
+    "engagement_score": 70,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
+    "issues": [
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    ],
+    "strengths": [
+      "Unable to determine"
+    ],
+    "improvement_suggestions": [
+      "Manual review required"
+    ]
+  },
+  "plagiarism_check": {
+    "plagiarism_risk": "low",
+    "confidence": 20,
+    "suspicious_segments": [],
+    "explanation": "The content appears to be original, with no unusual phrasing or technical information that would suggest copying from elsewhere. The writing style is consistent throughout the text, and the information provided is current and relevant. The only potential issue is the use of a standard product review format, which may be common in the industry. However, the content does not contain any specific information that would require expertise or suggest copying from older sources."
+  },
+  "keyword_optimization": {
+    "overall_score": 54,
+    "keyword_counts": {
+      "Dual Monitor Stand Adjustable": 4,
+      "Dual": 5,
+      "Dual review": 0,
+      "best Dual": 0,
+      "Amazon": 4
+    },
+    "keyword_density": {
+      "Dual Monitor Stand Adjustable": 1.57,
+      "Dual": 1.97,
+      "Dual review": 0.0,
+      "best Dual": 0.0,
+      "Amazon": 1.57
+    },
+    "placement_scores": {
+      "Dual Monitor Stand Adjustable": 10,
+      "Dual": 10,
+      "Dual review": 0,
+      "best Dual": 0,
+      "Amazon": 0
+    },
+    "optimization_scores": {
+      "Dual Monitor Stand Adjustable": 85,
+      "Dual": 85,
+      "Dual review": 14,
+      "best Dual": 14,
+      "Amazon": 70
+    },
+    "content_length": 254
+  },
+  "validation_date": "2025-04-14 12:08:51"
+}

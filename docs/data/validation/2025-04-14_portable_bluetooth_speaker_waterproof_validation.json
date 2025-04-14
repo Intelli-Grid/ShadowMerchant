@@ -1,7 +1,7 @@
 {
-  "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
-  "post_path": "../docs/posts/2023-05-15_wireless_bluetooth_earbuds_with_noise_cancellation.md",
-  "content_length": 447,
+  "post_title": "Portable Bluetooth Speaker Waterproof",
+  "post_path": "../docs/posts/2025-04-14_portable_bluetooth_speaker_waterproof.md",
+  "content_length": 506,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -28,36 +28,36 @@
     "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
-    "overall_score": 54,
+    "overall_score": 53,
     "keyword_counts": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 2,
-      "Wireless": 7,
-      "Wireless review": 0,
-      "best Wireless": 1,
+      "Portable Bluetooth Speaker Waterproof": 4,
+      "Portable": 8,
+      "Portable review": 0,
+      "best Portable": 1,
       "Amazon": 3
     },
     "keyword_density": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 0.45,
-      "Wireless": 1.57,
-      "Wireless review": 0.0,
-      "best Wireless": 0.22,
-      "Amazon": 0.67
+      "Portable Bluetooth Speaker Waterproof": 0.79,
+      "Portable": 1.58,
+      "Portable review": 0.0,
+      "best Portable": 0.2,
+      "Amazon": 0.59
     },
     "placement_scores": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 10,
-      "Wireless": 10,
-      "Wireless review": 0,
-      "best Wireless": 0,
+      "Portable Bluetooth Speaker Waterproof": 0,
+      "Portable": 0,
+      "Portable review": 0,
+      "best Portable": 0,
       "Amazon": 0
     },
     "optimization_scores": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 57,
-      "Wireless": 85,
-      "Wireless review": 14,
-      "best Wireless": 42,
+      "Portable Bluetooth Speaker Waterproof": 70,
+      "Portable": 70,
+      "Portable review": 14,
+      "best Portable": 42,
       "Amazon": 70
     },
-    "content_length": 447
+    "content_length": 506
   },
-  "validation_date": "2025-04-14 12:08:38"
+  "validation_date": "2025-04-14 12:08:58"
 }

@@ -78,5 +78,21 @@
     "filepath": "../docs/posts/2025-04-14_wireless_mouse_rechargeable.md",
     "date": "2025-04-14",
     "product_link": "https://www.amazon.com/wireless-mouse"
+  },
+  {
+    "title": "Adjustable Standing Desk Converter",
+    "source": "Amazon",
+    "price": "$129.95",
+    "filepath": "../docs/posts/2025-04-14_adjustable_standing_desk_converter.md",
+    "date": "2025-04-14",
+    "product_link": "https://www.amazon.com/standing-desk-converter"
+  },
+  {
+    "title": "Mechanical Keyboard with RGB Lighting",
+    "source": "Amazon",
+    "price": "$79.99",
+    "filepath": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
+    "date": "2025-04-14",
+    "product_link": "https://www.amazon.com/mechanical-keyboard"
   }
 ]
