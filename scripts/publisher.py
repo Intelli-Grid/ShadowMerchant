@@ -33,8 +33,13 @@ def publish_to_wordpress(title, content, categories=None, tags=None, featured_im
         print("WordPress credentials not found in environment variables")
         return None
 
-    # Prepare API endpoint - for WordPress.com sites
-    api_url = f"{wp_url}/posts"
+    # Prepare API endpoint
+    # For WordPress.com sites, the WP_URL should already include the full API path
+    # For self-hosted WordPress, we need to append the API path
+    if "/wp/v2/" in wp_url:
+        api_url = f"{wp_url}/posts"
+    else:
+        api_url = f"{wp_url}/wp-json/wp/v2/posts"
 
     # Prepare post data
     post_data = {
@@ -52,31 +57,21 @@ def publish_to_wordpress(title, content, categories=None, tags=None, featured_im
         post_data["tags"] = tags
 
     try:
-        # For WordPress.com, we need to use OAuth or Application Password
-        # For this example, we'll simulate a successful publish
-        print(f"Simulating publish to WordPress: {title}")
+        # Print debug information
+        print(f"Publishing to WordPress API URL: {api_url}")
+        print(f"Using username: {wp_username}")
+        print(f"Post title: {title}")
 
-        # In a real implementation, you would use the WordPress.com REST API
-        # with proper authentication
-        # response = requests.post(
-        #     api_url,
-        #     auth=(wp_username, wp_password),
-        #     json=post_data
-        # )
+        # Make API request to create post
+        response = requests.post(
+            api_url,
+            auth=(wp_username, wp_password),
+            json=post_data
+        )
 
-        # Simulate a successful response
-        class SimulatedResponse:
-            def __init__(self):
-                self.status_code = 201
-                self._json = {"id": f"wp-{int(time.time())}", "link": f"https://shadowmerchant.wordpress.com/posts/{int(time.time())}"}
-
-            def raise_for_status(self):
-                pass
-
-            def json(self):
-                return self._json
-
-        response = SimulatedResponse()
+        # Print response status and content for debugging
+        print(f"WordPress API response status: {response.status_code}")
+        print(f"WordPress API response: {response.text[:500]}..." if len(response.text) > 500 else response.text)
 
         response.raise_for_status()
         post_id = response.json().get("id")
@@ -157,7 +152,6 @@ def set_featured_image(post_id, image_url):
 def publish_to_medium(title, content, tags=None):
     """
     Publish a post to Medium using their API.
-    Note: This function is currently disabled as we're focusing on WordPress only.
 
     Args:
         title (str): Post title
@@ -167,9 +161,50 @@ def publish_to_medium(title, content, tags=None):
     Returns:
         dict: Response from Medium API
     """
-    print("Medium publishing is currently disabled.")
-    print("To enable Medium publishing, update the .env file with your Medium token.")
-    return None
+    # Get Medium credentials from environment variables
+    medium_token = os.getenv("MEDIUM_TOKEN")
+
+    if not medium_token:
+        print("Medium token not found in environment variables")
+        return None
+
+    # Prepare API endpoint
+    api_url = "https://api.medium.com/v1/users/me/posts"
+
+    # Prepare headers
+    headers = {
+        "Authorization": f"Bearer {medium_token}",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+    }
+
+    # Prepare post data
+    post_data = {
+        "title": title,
+        "contentFormat": "html",
+        "content": content,
+        "publishStatus": "public"
+    }
+
+    # Add tags if provided
+    if tags:
+        post_data["tags"] = tags
+
+    try:
+        # Make API request to create post
+        response = requests.post(
+            api_url,
+            headers=headers,
+            json=post_data
+        )
+
+        response.raise_for_status()
+        print(f"Successfully published post to Medium: {title}")
+        return response.json()
+
+    except Exception as e:
+        print(f"Error publishing to Medium: {e}")
+        return None
 
 def publish_posts_from_directory(directory="../docs/posts", platform="wordpress", max_posts=3):
     """
@@ -282,8 +317,15 @@ if __name__ == "__main__":
     parser.add_argument('--max-posts', type=int, default=2, help='Maximum number of posts to publish')
     parser.add_argument('--platform', choices=['wordpress'], default='wordpress',
                         help='Platform to publish to (currently only WordPress is supported)')
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode with additional logging')
 
     args = parser.parse_args()
 
-    # Publish posts to WordPress
+    if args.debug:
+        print("\nWordPress Environment Variables:")
+        print(f"WP_URL: {os.getenv('WP_URL')}")
+        print(f"WP_USERNAME: {os.getenv('WP_USERNAME')}")
+        print(f"WP_PASSWORD: {'*' * len(os.getenv('WP_PASSWORD') or '')}")
+
+    # Publish posts to the specified platform
     publish_posts_from_directory(platform=args.platform, max_posts=args.max_posts)

@@ -58,7 +58,7 @@ jobs:
           WP_PASSWORD: ${{ secrets.WP_PASSWORD }}
         run: |
           cd scripts
-          python publisher.py --platform wordpress
+          python publisher.py --platform wordpress --debug
 
       - name: Generate newsletter
         env:
