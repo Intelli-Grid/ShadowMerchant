@@ -8,6 +8,8 @@ on:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -73,8 +75,11 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add docs/data/*
-          git add docs/posts/*
-          git add docs/validation.html
-          git commit -m "Update products, posts, and analytics" || echo "No changes to commit"
-          git push
+          # Check if there are any changes to commit
+          if [[ -n "$(git status --porcelain docs/data/ docs/posts/ docs/validation.html 2>/dev/null)" ]]; then
+            git add docs/data/ docs/posts/ docs/validation.html || true
+            git commit -m "Update products, posts, and analytics"
+            git push
+          else
+            echo "No changes to commit"
+          fi
