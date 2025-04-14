@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscribe to Our Newsletter</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-envelope"></i> Subscribe to Our Newsletter</h1>
+            <p class="subtitle">Get the latest product reviews and deals delivered to your inbox</p>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="analytics.html">Analytics</a></li>
+                    <li><a href="posts.html">Posts</a></li>
+                    <li><a href="subscribe.html" class="active">Subscribe</a></li>
+                    <li><a href="validation.html">Validation</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="content">
+            <div class="subscription-container">
+                <div class="subscription-card">
+                    <h2>Join Our Newsletter</h2>
+                    <p>Subscribe to receive our weekly or monthly roundup of the best affiliate products, deals, and reviews.</p>
+
+                    <form id="subscription-form" class="subscription-form">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" placeholder="Your Name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Frequency</label>
+                            <div class="radio-group">
+                                <label>
+                                    <input type="radio" name="frequency" value="weekly" checked>
+                                    Weekly
+                                </label>
+                                <label>
+                                    <input type="radio" name="frequency" value="monthly">
+                                    Monthly
+                                </label>
+                                <label>
+                                    <input type="radio" name="frequency" value="both">
+                                    Both
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Interests (Optional)</label>
+                            <div class="checkbox-group">
+                                <label>
+                                    <input type="checkbox" name="categories" value="tech">
+                                    Tech Products
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="categories" value="home">
+                                    Home & Kitchen
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="categories" value="fitness">
+                                    Health & Fitness
+                                </label>
+                                <label>
+                                    <input type="checkbox" name="categories" value="digital">
+                                    Digital Products
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Subscribe Now</button>
+                    </form>
+
+                    <div id="subscription-success" class="subscription-success" style="display: none;">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Thank You for Subscribing!</h3>
+                        <p>You've been added to our mailing list. Please check your email for a confirmation message.</p>
+                    </div>
+
+                    <div id="subscription-error" class="subscription-error" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Oops! Something went wrong.</h3>
+                        <p>We couldn't process your subscription. Please try again later.</p>
+                    </div>
+                </div>
+
+                <div class="benefits-card">
+                    <h2>Benefits of Subscribing</h2>
+                    <ul class="benefits-list">
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <div>
+                                <h3>Latest Product Reviews</h3>
+                                <p>Be the first to know about new product reviews and recommendations.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <div>
+                                <h3>Exclusive Deals</h3>
+                                <p>Get access to special discounts and limited-time offers.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <div>
+                                <h3>Curated Content</h3>
+                                <p>Receive content tailored to your interests and preferences.</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-check"></i>
+                            <div>
+                                <h3>No Spam</h3>
+                                <p>We respect your inbox and only send valuable content.</p>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="sample-newsletter">
+                        <h3>Preview Our Newsletter</h3>
+                        <a href="data/newsletters/sample_newsletter.html" target="_blank" class="btn btn-secondary">
+                            <i class="fas fa-eye"></i> View Sample Newsletter
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 Affiliate Content Aggregator. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('subscription-form');
+            const successMessage = document.getElementById('subscription-success');
+            const errorMessage = document.getElementById('subscription-error');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // In a real implementation, you would send this data to your server
+                const formData = {
+                    name: form.elements.name.value,
+                    email: form.elements.email.value,
+                    frequency: form.elements.frequency.value,
+                    categories: Array.from(form.elements.categories)
+                        .filter(checkbox => checkbox.checked)
+                        .map(checkbox => checkbox.value)
+                };
+
+                console.log('Subscription data:', formData);
+
+                // Simulate API call
+                setTimeout(function() {
+                    // Show success message (in a real implementation, this would depend on the API response)
+                    form.style.display = 'none';
+                    successMessage.style.display = 'block';
+
+                    // In case of error, you would show the error message instead:
+                    // errorMessage.style.display = 'block';
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

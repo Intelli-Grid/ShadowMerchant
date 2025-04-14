@@ -1,0 +1,55 @@
+name: Daily Content Automation
+
+on:
+  schedule:
+    - cron: "0 12 * * *" # Daily at 12 PM UTC
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Scrape products
+        run: |
+          cd scripts
+          python scraper.py
+
+      - name: Generate content
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_API_BASE: ${{ secrets.GROQ_API_BASE }}
+          AMAZON_AFFILIATE_ID: ${{ secrets.AMAZON_AFFILIATE_ID }}
+        run: |
+          cd scripts
+          python generator.py
+
+      - name: Publish content
+        env:
+          WP_URL: ${{ secrets.WP_URL }}
+          WP_USERNAME: ${{ secrets.WP_USERNAME }}
+          WP_PASSWORD: ${{ secrets.WP_PASSWORD }}
+        run: |
+          cd scripts
+          python publisher.py
+
+      - name: Update dashboard
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add docs/data/*
+          git add docs/posts/*
+          git commit -m "Update products and posts" || echo "No changes to commit"
+          git push

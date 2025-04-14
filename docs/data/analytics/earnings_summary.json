@@ -1,0 +1,126 @@
+{
+  "total_earnings": 199.96,
+  "total_sales": 1087.72,
+  "by_source": {
+    "email": {
+      "earnings": 50.1,
+      "sales": 353.85,
+      "conversions": 5
+    },
+    "facebook": {
+      "earnings": 46.5,
+      "sales": 233.97,
+      "conversions": 5
+    },
+    "blog": {
+      "earnings": 27.7,
+      "sales": 186.94,
+      "conversions": 3
+    },
+    "twitter": {
+      "earnings": 5.16,
+      "sales": 171.96,
+      "conversions": 4
+    },
+    "direct": {
+      "earnings": 70.5,
+      "sales": 141.0,
+      "conversions": 3
+    }
+  },
+  "by_product": {
+    "clickbank_keto_challenge": {
+      "earnings": 141.0,
+      "sales": 282.0,
+      "conversions": 6
+    },
+    "clickbank_yoga_burn": {
+      "earnings": 37.0,
+      "sales": 74.0,
+      "conversions": 2
+    },
+    "amazon_smart_watch": {
+      "earnings": 10.8,
+      "sales": 359.8,
+      "conversions": 4
+    },
+    "amazon_bluetooth_speaker": {
+      "earnings": 2.16,
+      "sales": 71.98,
+      "conversions": 2
+    },
+    "amazon_wireless_earbuds": {
+      "earnings": 9.0,
+      "sales": 299.94,
+      "conversions": 6
+    }
+  },
+  "by_date": {
+    "2025-04-08": {
+      "earnings": 26.2,
+      "sales": 136.95,
+      "conversions": 2
+    },
+    "2025-03-19": {
+      "earnings": 21.5,
+      "sales": 136.98,
+      "conversions": 3
+    },
+    "2025-03-30": {
+      "earnings": 2.7,
+      "sales": 89.95,
+      "conversions": 1
+    },
+    "2025-03-23": {
+      "earnings": 6.48,
+      "sales": 215.89,
+      "conversions": 3
+    },
+    "2025-03-31": {
+      "earnings": 47.0,
+      "sales": 94.0,
+      "conversions": 2
+    },
+    "2025-04-01": {
+      "earnings": 3.0,
+      "sales": 99.98,
+      "conversions": 2
+    },
+    "2025-04-03": {
+      "earnings": 1.08,
+      "sales": 35.99,
+      "conversions": 1
+    },
+    "2025-04-04": {
+      "earnings": 23.5,
+      "sales": 47.0,
+      "conversions": 1
+    },
+    "2025-03-17": {
+      "earnings": 23.5,
+      "sales": 47.0,
+      "conversions": 1
+    },
+    "2025-03-16": {
+      "earnings": 23.5,
+      "sales": 47.0,
+      "conversions": 1
+    },
+    "2025-04-02": {
+      "earnings": 1.5,
+      "sales": 49.99,
+      "conversions": 1
+    },
+    "2025-03-20": {
+      "earnings": 18.5,
+      "sales": 37.0,
+      "conversions": 1
+    },
+    "2025-04-07": {
+      "earnings": 1.5,
+      "sales": 49.99,
+      "conversions": 1
+    }
+  },
+  "last_updated": "2025-04-14 14:42:24"
+}

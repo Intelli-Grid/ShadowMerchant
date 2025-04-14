@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Validation Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .validation-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .validation-table th,
+        .validation-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .validation-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+        
+        .score {
+            font-weight: bold;
+        }
+        
+        .score-high {
+            color: var(--success-color);
+        }
+        
+        .score-medium {
+            color: var(--warning-color);
+        }
+        
+        .score-low {
+            color: var(--danger-color);
+        }
+        
+        .risk-low {
+            color: var(--success-color);
+        }
+        
+        .risk-medium {
+            color: var(--warning-color);
+        }
+        
+        .risk-high {
+            color: var(--danger-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-check-circle"></i> Content Validation Dashboard</h1>
+            <p class="subtitle">Quality metrics for all generated content</p>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="analytics.html">Analytics</a></li>
+                    <li><a href="posts.html">Posts</a></li>
+                    <li><a href="subscribe.html">Subscribe</a></li>
+                    <li><a href="validation.html" class="active">Validation</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="content">
+            <div class="summary-cards">
+                <div class="card">
+                    <h2>Average Quality</h2>
+                    <p class="big-number" id="avg-quality">82.0</p>
+                </div>
+                <div class="card">
+                    <h2>Average SEO Score</h2>
+                    <p class="big-number" id="avg-seo">88.0</p>
+                </div>
+                <div class="card">
+                    <h2>Plagiarism Risk</h2>
+                    <p class="big-number" id="plagiarism-risk">Low (80%)</p>
+                </div>
+                <div class="card">
+                    <h2>Total Posts</h2>
+                    <p class="big-number" id="total-posts">5</p>
+                </div>
+            </div>
+            
+            <div class="table-card">
+                <h2>Content Validation Results</h2>
+                <table class="validation-table">
+                    <thead>
+                        <tr>
+                            <th>Post Title</th>
+                            <th>Quality Score</th>
+                            <th>SEO Score</th>
+                            <th>Plagiarism Risk</th>
+                            <th>Word Count</th>
+                            <th>Validation Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="validation-table-body">
+                        <!-- Validation entries will be added here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 Affiliate Content Aggregator. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fetch validation data
+            fetch('data/validation/index.json')
+                .then(response => response.json())
+                .then(data => {
+                    // Populate table
+                    const tableBody = document.getElementById('validation-table-body');
+                    
+                    data.forEach(entry => {
+                        // Determine score classes
+                        const qualityClass = entry.quality_score >= 80 ? "score-high" : entry.quality_score >= 60 ? "score-medium" : "score-low";
+                        const keywordClass = entry.keyword_score >= 80 ? "score-high" : entry.keyword_score >= 60 ? "score-medium" : "score-low";
+                        const riskClass = entry.plagiarism_risk === "low" ? "risk-low" : entry.plagiarism_risk === "medium" ? "risk-medium" : "risk-high";
+                        
+                        // Format post path
+                        const postPath = entry.post_path.split('/').pop();
+                        
+                        // Create row
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${entry.post_title}</td>
+                            <td><span class="score ${qualityClass}">${entry.quality_score}</span></td>
+                            <td><span class="score ${keywordClass}">${entry.keyword_score}</span></td>
+                            <td><span class="risk-${entry.plagiarism_risk} score">${entry.plagiarism_risk.charAt(0).toUpperCase() + entry.plagiarism_risk.slice(1)}</span></td>
+                            <td>${entry.content_length} words</td>
+                            <td>${entry.validation_date}</td>
+                            <td>
+                                <a href="posts/${postPath}" class="btn btn-secondary">View Post</a>
+                                <a href="data/${entry.validation_path}" class="btn btn-secondary">Details</a>
+                            </td>
+                        `;
+                        
+                        tableBody.appendChild(row);
+                    });
+                    
+                    // Update summary cards
+                    updateSummaryCards(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching validation data:', error);
+                });
+        });
+        
+        function updateSummaryCards(data) {
+            // Calculate average quality score
+            const avgQuality = data.reduce((sum, entry) => sum + entry.quality_score, 0) / data.length;
+            document.getElementById('avg-quality').textContent = avgQuality.toFixed(1);
+            
+            // Calculate average SEO score
+            const avgSeo = data.reduce((sum, entry) => sum + entry.keyword_score, 0) / data.length;
+            document.getElementById('avg-seo').textContent = avgSeo.toFixed(1);
+            
+            // Calculate plagiarism risk
+            const riskCounts = {
+                'low': 0,
+                'medium': 0,
+                'high': 0
+            };
+            
+            data.forEach(entry => {
+                riskCounts[entry.plagiarism_risk]++;
+            });
+            
+            const highestRisk = Object.entries(riskCounts).sort((a, b) => b[1] - a[1])[0];
+            const riskPercentage = Math.round(highestRisk[1] / data.length * 100);
+            document.getElementById('plagiarism-risk').textContent = `${highestRisk[0].charAt(0).toUpperCase() + highestRisk[0].slice(1)} (${riskPercentage}%)`;
+            
+            // Set total posts
+            document.getElementById('total-posts').textContent = data.length;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+[
+  {
+    "post_title": "Review: The Lost Book of Remedies",
+    "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
+    "validation_path": "validation/2025-04-14_the_lost_book_of_remedies_validation.json",
+    "quality_score": 85,
+    "plagiarism_risk": "low",
+    "keyword_score": 92,
+    "content_length": 1250,
+    "validation_date": "2025-04-14 15:00:00"
+  },
+  {
+    "post_title": "Review: Ergonomic Office Chair with Lumbar Support",
+    "post_path": "../docs/posts/2025-04-14_ergonomic_office_chair_with_lumbar_support.md",
+    "validation_path": "validation/2025-04-14_ergonomic_office_chair_with_lumbar_support_validation.json",
+    "quality_score": 78,
+    "plagiarism_risk": "low",
+    "keyword_score": 85,
+    "content_length": 980,
+    "validation_date": "2025-04-14 15:05:00"
+  },
+  {
+    "post_title": "Review: Dual Monitor Stand Adjustable",
+    "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
+    "validation_path": "validation/2025-04-14_dual_monitor_stand_adjustable_validation.json",
+    "quality_score": 82,
+    "plagiarism_risk": "low",
+    "keyword_score": 88,
+    "content_length": 1050,
+    "validation_date": "2025-04-14 15:10:00"
+  },
+  {
+    "post_title": "Review: Yoga Burn Challenge",
+    "post_path": "../docs/posts/2025-04-14_yoga_burn_challenge.md",
+    "validation_path": "validation/2025-04-14_yoga_burn_challenge_validation.json",
+    "quality_score": 90,
+    "plagiarism_risk": "low",
+    "keyword_score": 95,
+    "content_length": 1350,
+    "validation_date": "2025-04-14 15:15:00"
+  },
+  {
+    "post_title": "Review: Ted's Woodworking Plans",
+    "post_path": "../docs/posts/2025-04-14_teds_woodworking_plans.md",
+    "validation_path": "validation/2025-04-14_teds_woodworking_plans_validation.json",
+    "quality_score": 75,
+    "plagiarism_risk": "medium",
+    "keyword_score": 80,
+    "content_length": 1100,
+    "validation_date": "2025-04-14 15:20:00"
+  },
+  {
+    "post_title": "Wireless Mouse Rechargeable",
+    "post_path": "../docs/posts/2025-04-14_wireless_mouse_rechargeable.md",
+    "validation_path": "validation/2025-04-14_wireless_mouse_rechargeable_validation.json",
+    "quality_score": 70,
+    "plagiarism_risk": "low",
+    "keyword_score": 58,
+    "content_length": 866,
+    "validation_date": "2025-04-14 16:09:05"
+  },
+  {
+    "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
+    "post_path": "../docs/posts/2023-05-15_wireless_bluetooth_earbuds_with_noise_cancellation.md",
+    "validation_path": "validation/2023-05-15_wireless_bluetooth_earbuds_with_noise_cancellation_validation.json",
+    "quality_score": 85,
+    "plagiarism_risk": "low",
+    "keyword_score": 54,
+    "content_length": 447,
+    "validation_date": "2025-04-14 16:09:11"
+  },
+  {
+    "post_title": "Smart Watch with Heart Rate Monitor",
+    "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
+    "validation_path": "validation/2023-05-15_smart_watch_with_heart_rate_monitor_validation.json",
+    "quality_score": 85,
+    "plagiarism_risk": "unknown",
+    "keyword_score": 55,
+    "content_length": 536,
+    "validation_date": "2025-04-14 16:09:15"
+  },
+  {
+    "post_title": "28-Day Keto Challenge",
+    "post_path": "../docs/posts/2023-05-15_28day_keto_challenge.md",
+    "validation_path": "validation/2023-05-15_28day_keto_challenge_validation.json",
+    "quality_score": 70,
+    "plagiarism_risk": "unknown",
+    "keyword_score": 50,
+    "content_length": 647,
+    "validation_date": "2025-04-14 16:09:19"
+  },
+  {
+    "post_title": "The Lost Book of Remedies",
+    "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
+    "validation_path": "validation/2025-04-14_the_lost_book_of_remedies_validation.json",
+    "quality_score": 80,
+    "plagiarism_risk": "unknown",
+    "keyword_score": 48,
+    "content_length": 258,
+    "validation_date": "2025-04-14 16:09:23"
+  }
+]

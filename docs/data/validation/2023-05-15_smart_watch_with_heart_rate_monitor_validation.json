@@ -1,0 +1,71 @@
+{
+  "post_title": "Smart Watch with Heart Rate Monitor",
+  "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
+  "content_length": 536,
+  "quality_check": {
+    "overall_score": 85,
+    "grammar_score": 95,
+    "readability_score": 80,
+    "engagement_score": 90,
+    "structure_score": 90,
+    "accuracy_score": 95,
+    "seo_score": 70,
+    "cta_score": 80,
+    "issues": [
+      "Some sentences are quite long and could be broken up for better readability",
+      "The use of bold text is inconsistent",
+      "The conclusion could be more concise and impactful"
+    ],
+    "strengths": [
+      "The content is well-organized and easy to follow",
+      "The use of headings and subheadings is effective",
+      "The tone is informative and engaging"
+    ],
+    "improvement_suggestions": [
+      "Consider using a more varied sentence structure to improve readability",
+      "Use bold text consistently throughout the content",
+      "Add more specific examples or statistics to support the claims made in the content",
+      "Optimize the meta title and description for better SEO",
+      "Consider adding a clear call-to-action at the end of the content"
+    ]
+  },
+  "plagiarism_check": {
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
+    "suspicious_segments": [],
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+  },
+  "keyword_optimization": {
+    "overall_score": 55,
+    "keyword_counts": {
+      "Smart Watch with Heart Rate Monitor": 3,
+      "Smart": 17,
+      "Smart review": 0,
+      "best Smart": 1,
+      "Amazon": 3
+    },
+    "keyword_density": {
+      "Smart Watch with Heart Rate Monitor": 0.56,
+      "Smart": 3.17,
+      "Smart review": 0.0,
+      "best Smart": 0.19,
+      "Amazon": 0.56
+    },
+    "placement_scores": {
+      "Smart Watch with Heart Rate Monitor": 10,
+      "Smart": 13,
+      "Smart review": 0,
+      "best Smart": 0,
+      "Amazon": 0
+    },
+    "optimization_scores": {
+      "Smart Watch with Heart Rate Monitor": 85,
+      "Smart": 62,
+      "Smart review": 14,
+      "best Smart": 42,
+      "Amazon": 70
+    },
+    "content_length": 536
+  },
+  "validation_date": "2025-04-14 16:09:15"
+}

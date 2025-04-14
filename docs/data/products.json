@@ -1,0 +1,66 @@
+[
+  {
+    "title": "Wireless Bluetooth Earbuds with Noise Cancellation",
+    "price": "$49.99",
+    "link": "https://www.amazon.com/wireless-bluetooth-earbuds",
+    "image": "https://example.com/images/earbuds.jpg",
+    "source": "Amazon",
+    "scraped_date": "2023-05-15"
+  },
+  {
+    "title": "Smart Watch with Heart Rate Monitor",
+    "price": "$89.95",
+    "link": "https://www.amazon.com/smart-watch-heart-rate",
+    "image": "https://example.com/images/smartwatch.jpg",
+    "source": "Amazon",
+    "scraped_date": "2023-05-15"
+  },
+  {
+    "title": "Portable Bluetooth Speaker Waterproof",
+    "price": "$35.99",
+    "link": "https://www.amazon.com/portable-bluetooth-speaker",
+    "image": "https://example.com/images/speaker.jpg",
+    "source": "Amazon",
+    "scraped_date": "2023-05-15"
+  },
+  {
+    "title": "Ergonomic Office Chair with Lumbar Support",
+    "price": "$159.99",
+    "link": "https://www.amazon.com/ergonomic-office-chair",
+    "image": "https://example.com/images/chair.jpg",
+    "source": "Amazon",
+    "scraped_date": "2023-05-15"
+  },
+  {
+    "title": "Adjustable Standing Desk Converter",
+    "price": "$129.95",
+    "link": "https://www.amazon.com/standing-desk-converter",
+    "image": "https://example.com/images/desk.jpg",
+    "source": "Amazon",
+    "scraped_date": "2023-05-15"
+  },
+  {
+    "title": "Mechanical Keyboard with RGB Lighting",
+    "price": "$79.99",
+    "link": "https://www.amazon.com/mechanical-keyboard",
+    "image": "https://example.com/images/keyboard.jpg",
+    "source": "Amazon",
+    "scraped_date": "2023-05-15"
+  },
+  {
+    "title": "Wireless Mouse Rechargeable",
+    "price": "$24.99",
+    "link": "https://www.amazon.com/wireless-mouse",
+    "image": "https://example.com/images/mouse.jpg",
+    "source": "Amazon",
+    "scraped_date": "2023-05-15"
+  },
+  {
+    "title": "Dual Monitor Stand Adjustable",
+    "price": "$45.99",
+    "link": "https://www.amazon.com/dual-monitor-stand",
+    "image": "https://example.com/images/monitor-stand.jpg",
+    "source": "Amazon",
+    "scraped_date": "2023-05-15"
+  }
+]

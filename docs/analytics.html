@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiliate Analytics Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Affiliate Analytics Dashboard</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="analytics.html" class="active">Analytics</a></li>
+                <li><a href="posts.html">Posts</a></li>
+                <li><a href="subscribe.html">Subscribe</a></li>
+                <li><a href="validation.html">Validation</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="summary-cards">
+            <div class="card">
+                <h2>Total Earnings</h2>
+                <p class="big-number" id="total-earnings">$0.00</p>
+            </div>
+            <div class="card">
+                <h2>Total Sales</h2>
+                <p class="big-number" id="total-sales">$0.00</p>
+            </div>
+            <div class="card">
+                <h2>Conversion Rate</h2>
+                <p class="big-number" id="conversion-rate">0%</p>
+            </div>
+            <div class="card">
+                <h2>Avg. Commission</h2>
+                <p class="big-number" id="avg-commission">$0.00</p>
+            </div>
+        </section>
+
+        <section class="charts-container">
+            <div class="chart-card">
+                <h2>Earnings by Date</h2>
+                <canvas id="earnings-chart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h2>Earnings by Source</h2>
+                <canvas id="source-chart"></canvas>
+            </div>
+        </section>
+
+        <section class="data-tables">
+            <div class="table-card">
+                <h2>Top Products</h2>
+                <table id="products-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Earnings</th>
+                            <th>Sales</th>
+                            <th>Conversions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-card">
+                <h2>Traffic Sources</h2>
+                <table id="sources-table">
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th>Earnings</th>
+                            <th>Sales</th>
+                            <th>Conversions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Last updated: <span id="last-updated">Never</span></p>
+    </footer>
+
+    <script>
+        // Fetch analytics data
+        async function fetchAnalyticsData() {
+            try {
+                const response = await fetch('data/analytics/earnings_summary.json');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch analytics data');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching analytics data:', error);
+                return null;
+            }
+        }
+
+        // Fetch clicks data
+        async function fetchClicksData() {
+            try {
+                const response = await fetch('data/analytics/clicks.json');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch clicks data');
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching clicks data:', error);
+                return [];
+            }
+        }
+
+        // Update summary cards
+        function updateSummaryCards(data, clicks) {
+            document.getElementById('total-earnings').textContent = `$${data.total_earnings.toFixed(2)}`;
+            document.getElementById('total-sales').textContent = `$${data.total_sales.toFixed(2)}`;
+
+            // Calculate conversion rate
+            const totalClicks = clicks.length;
+            const totalConversions = Object.values(data.by_product).reduce((sum, product) => sum + product.conversions, 0);
+            const conversionRate = totalClicks > 0 ? (totalConversions / totalClicks) * 100 : 0;
+            document.getElementById('conversion-rate').textContent = `${conversionRate.toFixed(2)}%`;
+
+            // Calculate average commission
+            const avgCommission = totalConversions > 0 ? data.total_earnings / totalConversions : 0;
+            document.getElementById('avg-commission').textContent = `$${avgCommission.toFixed(2)}`;
+
+            // Update last updated timestamp
+            document.getElementById('last-updated').textContent = data.last_updated;
+        }
+
+        // Create earnings by date chart
+        function createEarningsChart(data) {
+            const dates = Object.keys(data.by_date).sort();
+            const earnings = dates.map(date => data.by_date[date].earnings);
+
+            const ctx = document.getElementById('earnings-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Earnings ($)',
+                        data: earnings,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create source chart
+        function createSourceChart(data) {
+            const sources = Object.keys(data.by_source);
+            const earnings = sources.map(source => data.by_source[source].earnings);
+
+            const ctx = document.getElementById('source-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: sources,
+                    datasets: [{
+                        label: 'Earnings by Source',
+                        data: earnings,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        }
+
+        // Populate products table
+        function populateProductsTable(data) {
+            const tableBody = document.getElementById('products-table').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            // Sort products by earnings (descending)
+            const sortedProducts = Object.entries(data.by_product)
+                .sort((a, b) => b[1].earnings - a[1].earnings);
+
+            for (const [productId, stats] of sortedProducts) {
+                const row = tableBody.insertRow();
+
+                // Format product ID for display
+                const displayName = productId
+                    .replace('amazon_', '')
+                    .replace('clickbank_', '')
+                    .split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
+
+                row.insertCell(0).textContent = displayName;
+                row.insertCell(1).textContent = `$${stats.earnings.toFixed(2)}`;
+                row.insertCell(2).textContent = `$${stats.sales.toFixed(2)}`;
+                row.insertCell(3).textContent = stats.conversions;
+            }
+        }
+
+        // Populate sources table
+        function populateSourcesTable(data) {
+            const tableBody = document.getElementById('sources-table').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            // Sort sources by earnings (descending)
+            const sortedSources = Object.entries(data.by_source)
+                .sort((a, b) => b[1].earnings - a[1].earnings);
+
+            for (const [source, stats] of sortedSources) {
+                const row = tableBody.insertRow();
+
+                // Format source for display
+                const displayName = source.charAt(0).toUpperCase() + source.slice(1);
+
+                row.insertCell(0).textContent = displayName;
+                row.insertCell(1).textContent = `$${stats.earnings.toFixed(2)}`;
+                row.insertCell(2).textContent = `$${stats.sales.toFixed(2)}`;
+                row.insertCell(3).textContent = stats.conversions;
+            }
+        }
+
+        // Initialize dashboard
+        async function initDashboard() {
+            const data = await fetchAnalyticsData();
+            const clicks = await fetchClicksData();
+
+            if (data) {
+                updateSummaryCards(data, clicks);
+                createEarningsChart(data);
+                createSourceChart(data);
+                populateProductsTable(data);
+                populateSourcesTable(data);
+            }
+        }
+
+        // Load dashboard when page loads
+        window.addEventListener('load', initDashboard);
+    </script>
+</body>
+</html>

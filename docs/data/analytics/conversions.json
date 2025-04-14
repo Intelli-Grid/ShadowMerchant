@@ -1,0 +1,162 @@
+[
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "email",
+    "campaign": "new_year",
+    "amount": 47.0,
+    "commission": 23.5,
+    "timestamp": "2025-04-08 01:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "facebook",
+    "campaign": "black_friday",
+    "amount": 37.0,
+    "commission": 18.5,
+    "timestamp": "2025-03-19 17:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "blog",
+    "campaign": "new_year",
+    "amount": 89.95,
+    "commission": 2.7,
+    "timestamp": "2025-03-30 04:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "twitter",
+    "campaign": "summer_sale",
+    "amount": 35.99,
+    "commission": 1.08,
+    "timestamp": "2025-03-23 10:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "twitter",
+    "campaign": "black_friday",
+    "amount": 49.99,
+    "commission": 1.5,
+    "timestamp": "2025-03-19 04:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "direct",
+    "campaign": "black_friday",
+    "amount": 47.0,
+    "commission": 23.5,
+    "timestamp": "2025-03-31 13:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "facebook",
+    "campaign": "summer_sale",
+    "amount": 49.99,
+    "commission": 1.5,
+    "timestamp": "2025-04-01 19:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "twitter",
+    "campaign": "summer_sale",
+    "amount": 35.99,
+    "commission": 1.08,
+    "timestamp": "2025-04-03 02:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "email",
+    "campaign": null,
+    "amount": 89.95,
+    "commission": 2.7,
+    "timestamp": "2025-04-08 19:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "blog",
+    "campaign": "new_year",
+    "amount": 47.0,
+    "commission": 23.5,
+    "timestamp": "2025-04-04 22:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "email",
+    "campaign": null,
+    "amount": 89.95,
+    "commission": 2.7,
+    "timestamp": "2025-03-23 13:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "direct",
+    "campaign": null,
+    "amount": 47.0,
+    "commission": 23.5,
+    "timestamp": "2025-03-17 02:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "direct",
+    "campaign": "black_friday",
+    "amount": 47.0,
+    "commission": 23.5,
+    "timestamp": "2025-03-31 07:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "facebook",
+    "campaign": "black_friday",
+    "amount": 49.99,
+    "commission": 1.5,
+    "timestamp": "2025-04-01 12:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "email",
+    "campaign": "summer_sale",
+    "amount": 89.95,
+    "commission": 2.7,
+    "timestamp": "2025-03-23 00:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "facebook",
+    "campaign": null,
+    "amount": 47.0,
+    "commission": 23.5,
+    "timestamp": "2025-03-16 07:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "facebook",
+    "campaign": "summer_sale",
+    "amount": 49.99,
+    "commission": 1.5,
+    "timestamp": "2025-04-02 10:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "email",
+    "campaign": "summer_sale",
+    "amount": 37.0,
+    "commission": 18.5,
+    "timestamp": "2025-03-20 10:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "blog",
+    "campaign": "summer_sale",
+    "amount": 49.99,
+    "commission": 1.5,
+    "timestamp": "2025-04-07 02:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "twitter",
+    "campaign": "black_friday",
+    "amount": 49.99,
+    "commission": 1.5,
+    "timestamp": "2025-03-19 06:42:24"
+  }
+]

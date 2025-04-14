@@ -1,0 +1,602 @@
+[
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "email",
+    "campaign": null,
+    "timestamp": "2025-04-05 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "facebook",
+    "campaign": null,
+    "timestamp": "2025-03-15 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "twitter",
+    "campaign": "new_year",
+    "timestamp": "2025-03-23 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "direct",
+    "campaign": "new_year",
+    "timestamp": "2025-04-01 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "twitter",
+    "campaign": null,
+    "timestamp": "2025-03-19 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "twitter",
+    "campaign": null,
+    "timestamp": "2025-03-15 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "direct",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-03 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "facebook",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-04 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "facebook",
+    "campaign": "black_friday",
+    "timestamp": "2025-04-05 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "email",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-13 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "email",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-21 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "twitter",
+    "campaign": "summer_sale",
+    "timestamp": "2025-03-22 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "twitter",
+    "campaign": "new_year",
+    "timestamp": "2025-04-07 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "facebook",
+    "campaign": "new_year",
+    "timestamp": "2025-03-17 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "blog",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-06 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "facebook",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-19 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "twitter",
+    "campaign": "summer_sale",
+    "timestamp": "2025-03-20 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "email",
+    "campaign": "summer_sale",
+    "timestamp": "2025-03-22 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "direct",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-31 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "facebook",
+    "campaign": "summer_sale",
+    "timestamp": "2025-03-16 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "direct",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-13 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "blog",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-12 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "direct",
+    "campaign": "black_friday",
+    "timestamp": "2025-04-06 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "twitter",
+    "campaign": "new_year",
+    "timestamp": "2025-03-19 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "direct",
+    "campaign": "summer_sale",
+    "timestamp": "2025-03-17 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "blog",
+    "campaign": "new_year",
+    "timestamp": "2025-04-05 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "blog",
+    "campaign": "summer_sale",
+    "timestamp": "2025-03-18 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "twitter",
+    "campaign": null,
+    "timestamp": "2025-03-27 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "blog",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-06 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "twitter",
+    "campaign": "black_friday",
+    "timestamp": "2025-04-14 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "blog",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-19 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "facebook",
+    "campaign": "summer_sale",
+    "timestamp": "2025-03-26 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "direct",
+    "campaign": "new_year",
+    "timestamp": "2025-03-20 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "facebook",
+    "campaign": "black_friday",
+    "timestamp": "2025-04-05 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "facebook",
+    "campaign": "black_friday",
+    "timestamp": "2025-04-12 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "email",
+    "campaign": null,
+    "timestamp": "2025-03-22 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "facebook",
+    "campaign": "new_year",
+    "timestamp": "2025-03-17 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "direct",
+    "campaign": null,
+    "timestamp": "2025-04-10 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "facebook",
+    "campaign": "black_friday",
+    "timestamp": "2025-04-03 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "blog",
+    "campaign": "black_friday",
+    "timestamp": "2025-04-11 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "email",
+    "campaign": null,
+    "timestamp": "2025-03-26 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "blog",
+    "campaign": "summer_sale",
+    "timestamp": "2025-03-15 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "blog",
+    "campaign": "new_year",
+    "timestamp": "2025-04-06 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "email",
+    "campaign": "new_year",
+    "timestamp": "2025-04-07 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "direct",
+    "campaign": null,
+    "timestamp": "2025-03-28 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "email",
+    "campaign": null,
+    "timestamp": "2025-04-12 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "facebook",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-08 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "email",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-29 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "twitter",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-17 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "blog",
+    "campaign": "new_year",
+    "timestamp": "2025-03-17 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "twitter",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-22 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "email",
+    "campaign": "summer_sale",
+    "timestamp": "2025-03-19 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "facebook",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-19 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "blog",
+    "campaign": null,
+    "timestamp": "2025-03-20 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "facebook",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-31 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "twitter",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-23 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "email",
+    "campaign": null,
+    "timestamp": "2025-03-15 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "direct",
+    "campaign": "new_year",
+    "timestamp": "2025-04-13 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "blog",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-03 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "blog",
+    "campaign": null,
+    "timestamp": "2025-03-15 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "twitter",
+    "campaign": null,
+    "timestamp": "2025-04-10 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "direct",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-29 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "blog",
+    "campaign": null,
+    "timestamp": "2025-04-04 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "direct",
+    "campaign": "black_friday",
+    "timestamp": "2025-04-02 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "facebook",
+    "campaign": null,
+    "timestamp": "2025-04-10 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "email",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-23 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "email",
+    "campaign": null,
+    "timestamp": "2025-04-08 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "email",
+    "campaign": "new_year",
+    "timestamp": "2025-03-16 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "email",
+    "campaign": "new_year",
+    "timestamp": "2025-04-12 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "blog",
+    "campaign": null,
+    "timestamp": "2025-04-05 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "facebook",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-01 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "blog",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-06 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "direct",
+    "campaign": "new_year",
+    "timestamp": "2025-04-06 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "blog",
+    "campaign": "new_year",
+    "timestamp": "2025-04-04 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "email",
+    "campaign": "summer_sale",
+    "timestamp": "2025-03-15 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "email",
+    "campaign": "new_year",
+    "timestamp": "2025-03-31 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "blog",
+    "campaign": "new_year",
+    "timestamp": "2025-03-17 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "blog",
+    "campaign": "new_year",
+    "timestamp": "2025-03-25 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "blog",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-29 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "blog",
+    "campaign": null,
+    "timestamp": "2025-03-26 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "direct",
+    "campaign": null,
+    "timestamp": "2025-03-22 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "direct",
+    "campaign": null,
+    "timestamp": "2025-03-16 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "twitter",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-06 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "twitter",
+    "campaign": "black_friday",
+    "timestamp": "2025-04-11 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "twitter",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-02 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "email",
+    "campaign": null,
+    "timestamp": "2025-04-14 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "email",
+    "campaign": "new_year",
+    "timestamp": "2025-03-24 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "blog",
+    "campaign": null,
+    "timestamp": "2025-03-31 14:42:24"
+  },
+  {
+    "product_id": "amazon_wireless_earbuds",
+    "source": "twitter",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-18 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "blog",
+    "campaign": "summer_sale",
+    "timestamp": "2025-03-31 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "twitter",
+    "campaign": "summer_sale",
+    "timestamp": "2025-04-02 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "blog",
+    "campaign": "new_year",
+    "timestamp": "2025-03-29 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "email",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-26 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "blog",
+    "campaign": "new_year",
+    "timestamp": "2025-04-10 14:42:24"
+  },
+  {
+    "product_id": "clickbank_yoga_burn",
+    "source": "email",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-22 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "blog",
+    "campaign": null,
+    "timestamp": "2025-03-18 14:42:24"
+  },
+  {
+    "product_id": "amazon_bluetooth_speaker",
+    "source": "facebook",
+    "campaign": "black_friday",
+    "timestamp": "2025-04-04 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "twitter",
+    "campaign": null,
+    "timestamp": "2025-03-21 14:42:24"
+  },
+  {
+    "product_id": "clickbank_keto_challenge",
+    "source": "direct",
+    "campaign": "black_friday",
+    "timestamp": "2025-03-30 14:42:24"
+  },
+  {
+    "product_id": "amazon_smart_watch",
+    "source": "twitter",
+    "campaign": "new_year",
+    "timestamp": "2025-04-01 14:42:24"
+  }
+]
