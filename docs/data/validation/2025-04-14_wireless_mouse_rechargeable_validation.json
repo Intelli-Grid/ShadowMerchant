@@ -1,7 +1,7 @@
 {
   "post_title": "Wireless Mouse Rechargeable",
   "post_path": "../docs/posts/2025-04-14_wireless_mouse_rechargeable.md",
-  "content_length": 866,
+  "content_length": 1196,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -28,20 +28,20 @@
     "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
-    "overall_score": 58,
+    "overall_score": 64,
     "keyword_counts": {
-      "Wireless Mouse Rechargeable": 15,
-      "Wireless": 30,
-      "Wireless review": 1,
-      "best Wireless": 4,
-      "Amazon": 8
+      "Wireless Mouse Rechargeable": 23,
+      "Wireless": 44,
+      "Wireless review": 2,
+      "best Wireless": 6,
+      "Amazon": 10
     },
     "keyword_density": {
-      "Wireless Mouse Rechargeable": 1.73,
-      "Wireless": 3.46,
-      "Wireless review": 0.12,
-      "best Wireless": 0.46,
-      "Amazon": 0.92
+      "Wireless Mouse Rechargeable": 1.92,
+      "Wireless": 3.68,
+      "Wireless review": 0.17,
+      "best Wireless": 0.5,
+      "Amazon": 0.84
     },
     "placement_scores": {
       "Wireless Mouse Rechargeable": 5,
@@ -54,10 +54,10 @@
       "Wireless Mouse Rechargeable": 78,
       "Wireless": 50,
       "Wireless review": 42,
-      "best Wireless": 50,
+      "best Wireless": 78,
       "Amazon": 70
     },
-    "content_length": 866
+    "content_length": 1196
   },
-  "validation_date": "2025-04-14 12:09:00"
+  "validation_date": "2025-04-14 13:37:00"
 }

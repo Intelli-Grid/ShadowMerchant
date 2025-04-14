@@ -1,7 +1,7 @@
 {
   "post_title": "Portable Bluetooth Speaker Waterproof",
   "post_path": "../docs/posts/2025-04-14_portable_bluetooth_speaker_waterproof.md",
-  "content_length": 506,
+  "content_length": 852,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -28,36 +28,36 @@
     "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
-    "overall_score": 53,
+    "overall_score": 56,
     "keyword_counts": {
-      "Portable Bluetooth Speaker Waterproof": 4,
-      "Portable": 8,
-      "Portable review": 0,
-      "best Portable": 1,
-      "Amazon": 3
+      "Portable Bluetooth Speaker Waterproof": 14,
+      "Portable": 25,
+      "Portable review": 1,
+      "best Portable": 2,
+      "Amazon": 8
     },
     "keyword_density": {
-      "Portable Bluetooth Speaker Waterproof": 0.79,
-      "Portable": 1.58,
-      "Portable review": 0.0,
-      "best Portable": 0.2,
-      "Amazon": 0.59
+      "Portable Bluetooth Speaker Waterproof": 1.64,
+      "Portable": 2.93,
+      "Portable review": 0.12,
+      "best Portable": 0.23,
+      "Amazon": 0.94
     },
     "placement_scores": {
-      "Portable Bluetooth Speaker Waterproof": 0,
-      "Portable": 0,
+      "Portable Bluetooth Speaker Waterproof": 5,
+      "Portable": 5,
       "Portable review": 0,
       "best Portable": 0,
       "Amazon": 0
     },
     "optimization_scores": {
-      "Portable Bluetooth Speaker Waterproof": 70,
-      "Portable": 70,
-      "Portable review": 14,
+      "Portable Bluetooth Speaker Waterproof": 78,
+      "Portable": 50,
+      "Portable review": 42,
       "best Portable": 42,
       "Amazon": 70
     },
-    "content_length": 506
+    "content_length": 852
   },
-  "validation_date": "2025-04-14 12:08:58"
+  "validation_date": "2025-04-14 13:36:58"
 }

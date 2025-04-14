@@ -1,34 +1,24 @@
 {
   "post_title": "The Lost Book of Remedies",
   "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
-  "content_length": 258,
+  "content_length": 517,
   "quality_check": {
-    "overall_score": 85,
-    "grammar_score": 95,
-    "readability_score": 80,
+    "overall_score": 70,
+    "grammar_score": 70,
+    "readability_score": 70,
     "engagement_score": 70,
-    "structure_score": 90,
-    "accuracy_score": 95,
-    "seo_score": 60,
-    "cta_score": 40,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "The content is quite generic and lacks a unique tone or perspective.",
-      "There are no specific examples or case studies to support the claims made about the product.",
-      "The language is quite formal and may not resonate with a younger audience.",
-      "The call-to-action is not prominent and could be more effective.",
-      "The content is quite short and may not provide enough value to readers."
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "The content is well-organized and easy to follow.",
-      "The grammar and spelling are mostly correct.",
-      "The content provides a good overview of the product's features and benefits."
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Add more specific examples or case studies to support the claims made about the product.",
-      "Use a more conversational tone to make the content more engaging.",
-      "Consider adding more visuals or images to break up the text and make it more scannable.",
-      "Make the call-to-action more prominent and clear.",
-      "Consider adding more value to the content, such as tips or advice related to the product."
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
@@ -40,18 +30,18 @@
   "keyword_optimization": {
     "overall_score": 48,
     "keyword_counts": {
-      "The Lost Book of Remedies": 4,
-      "The": 12,
-      "The review": 0,
-      "best The": 0,
-      "ClickBank": 3
+      "The Lost Book of Remedies": 14,
+      "The": 27,
+      "The review": 1,
+      "best The": 1,
+      "ClickBank": 8
     },
     "keyword_density": {
-      "The Lost Book of Remedies": 1.55,
-      "The": 4.65,
-      "The review": 0.0,
-      "best The": 0.0,
-      "ClickBank": 1.16
+      "The Lost Book of Remedies": 2.71,
+      "The": 5.22,
+      "The review": 0.19,
+      "best The": 0.19,
+      "ClickBank": 1.55
     },
     "placement_scores": {
       "The Lost Book of Remedies": 10,
@@ -61,13 +51,13 @@
       "ClickBank": 0
     },
     "optimization_scores": {
-      "The Lost Book of Remedies": 85,
-      "The": 57,
-      "The review": 14,
-      "best The": 14,
+      "The Lost Book of Remedies": 57,
+      "The": 29,
+      "The review": 42,
+      "best The": 42,
       "ClickBank": 70
     },
-    "content_length": 258
+    "content_length": 517
   },
-  "validation_date": "2025-04-14 12:08:46"
+  "validation_date": "2025-04-14 13:36:47"
 }

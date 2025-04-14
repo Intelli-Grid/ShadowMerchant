@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 972,
+  "content_length": 1301,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,13 +12,13 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
@@ -30,18 +30,18 @@
   "keyword_optimization": {
     "overall_score": 56,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 13,
-      "Mechanical": 29,
-      "Mechanical review": 1,
-      "best Mechanical": 2,
-      "Amazon": 8
+      "Mechanical Keyboard with RGB Lighting": 20,
+      "Mechanical": 46,
+      "Mechanical review": 2,
+      "best Mechanical": 3,
+      "Amazon": 10
     },
     "keyword_density": {
-      "Mechanical Keyboard with RGB Lighting": 1.34,
-      "Mechanical": 2.98,
-      "Mechanical review": 0.1,
-      "best Mechanical": 0.21,
-      "Amazon": 0.82
+      "Mechanical Keyboard with RGB Lighting": 1.54,
+      "Mechanical": 3.54,
+      "Mechanical review": 0.15,
+      "best Mechanical": 0.23,
+      "Amazon": 0.77
     },
     "placement_scores": {
       "Mechanical Keyboard with RGB Lighting": 5,
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 972
+    "content_length": 1301
   },
-  "validation_date": "2025-04-14 12:09:05"
+  "validation_date": "2025-04-14 13:37:05"
 }

@@ -1,7 +1,7 @@
 {
   "post_title": "Ergonomic Office Chair with Lumbar Support",
   "post_path": "../docs/posts/2025-04-14_ergonomic_office_chair_with_lumbar_support.md",
-  "content_length": 262,
+  "content_length": 539,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -30,18 +30,18 @@
   "keyword_optimization": {
     "overall_score": 54,
     "keyword_counts": {
-      "Ergonomic Office Chair with Lumbar Support": 4,
-      "Ergonomic": 5,
-      "Ergonomic review": 0,
-      "best Ergonomic": 0,
-      "Amazon": 4
+      "Ergonomic Office Chair with Lumbar Support": 14,
+      "Ergonomic": 21,
+      "Ergonomic review": 1,
+      "best Ergonomic": 1,
+      "Amazon": 9
     },
     "keyword_density": {
-      "Ergonomic Office Chair with Lumbar Support": 1.53,
-      "Ergonomic": 1.91,
-      "Ergonomic review": 0.0,
-      "best Ergonomic": 0.0,
-      "Amazon": 1.53
+      "Ergonomic Office Chair with Lumbar Support": 2.6,
+      "Ergonomic": 3.9,
+      "Ergonomic review": 0.19,
+      "best Ergonomic": 0.19,
+      "Amazon": 1.67
     },
     "placement_scores": {
       "Ergonomic Office Chair with Lumbar Support": 10,
@@ -51,13 +51,13 @@
       "Amazon": 0
     },
     "optimization_scores": {
-      "Ergonomic Office Chair with Lumbar Support": 85,
-      "Ergonomic": 85,
-      "Ergonomic review": 14,
-      "best Ergonomic": 14,
+      "Ergonomic Office Chair with Lumbar Support": 57,
+      "Ergonomic": 57,
+      "Ergonomic review": 42,
+      "best Ergonomic": 42,
       "Amazon": 70
     },
-    "content_length": 262
+    "content_length": 539
   },
-  "validation_date": "2025-04-14 12:08:48"
+  "validation_date": "2025-04-14 13:36:49"
 }

@@ -1,7 +1,7 @@
 {
   "post_title": "Yoga Burn Challenge",
   "post_path": "../docs/posts/2025-04-14_yoga_burn_challenge.md",
-  "content_length": 546,
+  "content_length": 891,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -28,36 +28,36 @@
     "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
-    "overall_score": 42,
+    "overall_score": 56,
     "keyword_counts": {
-      "Yoga Burn Challenge": 10,
-      "Yoga": 20,
-      "Yoga review": 0,
-      "best Yoga": 1,
-      "ClickBank": 2
+      "Yoga Burn Challenge": 17,
+      "Yoga": 38,
+      "Yoga review": 1,
+      "best Yoga": 2,
+      "ClickBank": 7
     },
     "keyword_density": {
-      "Yoga Burn Challenge": 1.83,
-      "Yoga": 3.66,
-      "Yoga review": 0.0,
-      "best Yoga": 0.18,
-      "ClickBank": 0.37
+      "Yoga Burn Challenge": 1.91,
+      "Yoga": 4.26,
+      "Yoga review": 0.11,
+      "best Yoga": 0.22,
+      "ClickBank": 0.79
     },
     "placement_scores": {
-      "Yoga Burn Challenge": 0,
-      "Yoga": 0,
+      "Yoga Burn Challenge": 5,
+      "Yoga": 5,
       "Yoga review": 0,
       "best Yoga": 0,
       "ClickBank": 0
     },
     "optimization_scores": {
-      "Yoga Burn Challenge": 70,
-      "Yoga": 42,
-      "Yoga review": 14,
+      "Yoga Burn Challenge": 78,
+      "Yoga": 50,
+      "Yoga review": 42,
       "best Yoga": 42,
-      "ClickBank": 42
+      "ClickBank": 70
     },
-    "content_length": 546
+    "content_length": 891
   },
-  "validation_date": "2025-04-14 12:08:53"
+  "validation_date": "2025-04-14 13:36:54"
 }

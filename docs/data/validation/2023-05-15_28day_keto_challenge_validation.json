@@ -1,7 +1,7 @@
 {
   "post_title": "28-Day Keto Challenge",
   "post_path": "../docs/posts/2023-05-15_28day_keto_challenge.md",
-  "content_length": 647,
+  "content_length": 912,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -28,36 +28,36 @@
     "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
-    "overall_score": 50,
+    "overall_score": 70,
     "keyword_counts": {
-      "28-Day Keto Challenge": 7,
-      "28-Day": 9,
-      "28-Day review": 0,
-      "best 28-Day": 0,
-      "ClickBank": 2
+      "28-Day Keto Challenge": 17,
+      "28-Day": 22,
+      "28-Day review": 1,
+      "best 28-Day": 1,
+      "ClickBank": 7
     },
     "keyword_density": {
-      "28-Day Keto Challenge": 1.08,
-      "28-Day": 1.39,
-      "28-Day review": 0.0,
-      "best 28-Day": 0.0,
-      "ClickBank": 0.31
+      "28-Day Keto Challenge": 1.86,
+      "28-Day": 2.41,
+      "28-Day review": 0.11,
+      "best 28-Day": 0.11,
+      "ClickBank": 0.77
     },
     "placement_scores": {
-      "28-Day Keto Challenge": 13,
-      "28-Day": 13,
+      "28-Day Keto Challenge": 18,
+      "28-Day": 18,
       "28-Day review": 0,
       "best 28-Day": 0,
       "ClickBank": 0
     },
     "optimization_scores": {
-      "28-Day Keto Challenge": 90,
-      "28-Day": 90,
-      "28-Day review": 14,
-      "best 28-Day": 14,
-      "ClickBank": 42
+      "28-Day Keto Challenge": 97,
+      "28-Day": 97,
+      "28-Day review": 42,
+      "best 28-Day": 42,
+      "ClickBank": 70
     },
-    "content_length": 647
+    "content_length": 912
   },
-  "validation_date": "2025-04-14 12:08:42"
+  "validation_date": "2025-04-14 13:36:45"
 }
