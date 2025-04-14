@@ -34,7 +34,20 @@ jobs:
           AMAZON_AFFILIATE_ID: ${{ secrets.AMAZON_AFFILIATE_ID }}
         run: |
           cd scripts
-          python generator.py
+          python generator.py --max-posts 2 --content-length medium
+
+      - name: Validate and optimize content
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_API_BASE: ${{ secrets.GROQ_API_BASE }}
+          SITE_NAME: ${{ secrets.SITE_NAME }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+          SITE_LOGO: ${{ secrets.SITE_LOGO }}
+          SITE_AUTHOR: ${{ secrets.SITE_AUTHOR }}
+        run: |
+          cd scripts
+          python validator.py
+          python seo.py
 
       - name: Publish content
         env:
@@ -43,7 +56,18 @@ jobs:
           WP_PASSWORD: ${{ secrets.WP_PASSWORD }}
         run: |
           cd scripts
-          python publisher.py
+          python publisher.py --platform wordpress
+
+      - name: Generate newsletter
+        env:
+          EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+          EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        run: |
+          cd scripts
+          python newsletter.py
 
       - name: Update dashboard
         run: |
@@ -51,5 +75,6 @@ jobs:
           git config --global user.email "actions@github.com"
           git add docs/data/*
           git add docs/posts/*
-          git commit -m "Update products and posts" || echo "No changes to commit"
+          git add docs/validation.html
+          git commit -m "Update products, posts, and analytics" || echo "No changes to commit"
           git push
