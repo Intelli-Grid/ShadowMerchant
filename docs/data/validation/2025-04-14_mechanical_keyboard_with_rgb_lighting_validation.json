@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 1630,
+  "content_length": 1959,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,23 +25,23 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is straightforward. The inclusion of specific product details, such as the price and availability, suggests that the author has hands-on experience with the product. The only potential red flag is the use of a generic phrase ('Are you tired of using a standard keyboard...') which could be found in multiple sources. However, the surrounding text and the author's name suggest that this is a genuine review. Overall, the plagiarism risk is low."
+    "explanation": "The content appears to be original and written in a clear and concise manner. The language used is simple and easy to understand, which suggests that the author is familiar with the topic. The inclusion of specific details, such as the price and availability of the product, adds credibility to the review. However, the content is relatively short and lacks depth, which may indicate that it was written quickly or with minimal research. Overall, the plagiarism risk is low, but it is still possible that the content may have been copied from another source."
   },
   "keyword_optimization": {
     "overall_score": 56,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 27,
-      "Mechanical": 63,
-      "Mechanical review": 3,
-      "best Mechanical": 4,
-      "Amazon": 12
+      "Mechanical Keyboard with RGB Lighting": 34,
+      "Mechanical": 80,
+      "Mechanical review": 4,
+      "best Mechanical": 5,
+      "Amazon": 14
     },
     "keyword_density": {
-      "Mechanical Keyboard with RGB Lighting": 1.66,
-      "Mechanical": 3.87,
-      "Mechanical review": 0.18,
-      "best Mechanical": 0.25,
-      "Amazon": 0.74
+      "Mechanical Keyboard with RGB Lighting": 1.74,
+      "Mechanical": 4.08,
+      "Mechanical review": 0.2,
+      "best Mechanical": 0.26,
+      "Amazon": 0.71
     },
     "placement_scores": {
       "Mechanical Keyboard with RGB Lighting": 5,
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 1630
+    "content_length": 1959
   },
-  "validation_date": "2025-04-15 13:36:54"
+  "validation_date": "2025-04-16 13:21:09"
 }
