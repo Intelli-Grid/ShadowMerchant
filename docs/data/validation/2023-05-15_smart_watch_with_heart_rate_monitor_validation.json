@@ -1,7 +1,7 @@
 {
   "post_title": "Smart Watch with Heart Rate Monitor",
   "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
-  "content_length": 1304,
+  "content_length": 1546,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,23 +25,23 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be original and does not contain any unusual phrasing, inconsistent writing style, or highly technical information that would require expertise. The meta tags and schema markup are also properly formatted and do not suggest copying from older sources. However, the content is quite general and lacks specific details, which may indicate a low level of originality. Nevertheless, the overall assessment is that the content is likely original and does not pose a significant plagiarism risk."
+    "explanation": "The provided content appears to be a standard SEO metadata and schema markup for a blog post. The text is short and does not contain any unusual phrasing or technical information that would suggest copying from elsewhere. The author's name and logo are also included, which suggests that the content is original. However, the content is very brief and lacks any substantial information, which may indicate that it is a placeholder or a template. Therefore, the plagiarism risk is low, but the confidence level is relatively low due to the brevity of the content."
   },
   "keyword_optimization": {
-    "overall_score": 57,
+    "overall_score": 52,
     "keyword_counts": {
-      "Smart Watch with Heart Rate Monitor": 33,
-      "Smart": 65,
-      "Smart review": 3,
-      "best Smart": 4,
-      "Amazon": 12
+      "Smart Watch with Heart Rate Monitor": 43,
+      "Smart": 81,
+      "Smart review": 4,
+      "best Smart": 5,
+      "Amazon": 14
     },
     "keyword_density": {
-      "Smart Watch with Heart Rate Monitor": 2.53,
-      "Smart": 4.98,
-      "Smart review": 0.23,
-      "best Smart": 0.31,
-      "Amazon": 0.92
+      "Smart Watch with Heart Rate Monitor": 2.78,
+      "Smart": 5.24,
+      "Smart review": 0.26,
+      "best Smart": 0.32,
+      "Amazon": 0.91
     },
     "placement_scores": {
       "Smart Watch with Heart Rate Monitor": 15,
@@ -52,12 +52,12 @@
     },
     "optimization_scores": {
       "Smart Watch with Heart Rate Monitor": 64,
-      "Smart": 69,
+      "Smart": 41,
       "Smart review": 42,
       "best Smart": 42,
       "Amazon": 70
     },
-    "content_length": 1304
+    "content_length": 1546
   },
-  "validation_date": "2025-04-16 13:20:46"
+  "validation_date": "2025-04-17 13:19:16"
 }

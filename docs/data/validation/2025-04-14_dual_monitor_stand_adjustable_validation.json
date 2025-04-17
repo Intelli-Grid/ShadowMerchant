@@ -1,7 +1,7 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 882,
+  "content_length": 1068,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,26 +22,26 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic product review page with minimal text. The writing style is consistent throughout, and the language used is straightforward and lacks technical jargon. The content does not contain any highly specific or technical information that would require expertise. The only potential issue is the lack of original content, as the page seems to be primarily focused on providing meta tags and schema markup for search engine optimization purposes. However, the text itself does not appear to be copied from elsewhere, and the author's name is provided. Overall, the plagiarism risk is low, but it's still important to verify the originality of the content."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 48,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 26,
-      "Dual": 45,
-      "Dual review": 3,
-      "best Dual": 3,
-      "Amazon": 13
+      "Dual Monitor Stand Adjustable": 32,
+      "Dual": 57,
+      "Dual review": 4,
+      "best Dual": 4,
+      "Amazon": 15
     },
     "keyword_density": {
-      "Dual Monitor Stand Adjustable": 2.95,
-      "Dual": 5.1,
-      "Dual review": 0.34,
-      "best Dual": 0.34,
-      "Amazon": 1.47
+      "Dual Monitor Stand Adjustable": 3.0,
+      "Dual": 5.34,
+      "Dual review": 0.37,
+      "best Dual": 0.37,
+      "Amazon": 1.4
     },
     "placement_scores": {
       "Dual Monitor Stand Adjustable": 10,
@@ -57,7 +57,7 @@
       "best Dual": 42,
       "Amazon": 70
     },
-    "content_length": 882
+    "content_length": 1068
   },
-  "validation_date": "2025-04-16 13:20:55"
+  "validation_date": "2025-04-17 13:19:25"
 }
