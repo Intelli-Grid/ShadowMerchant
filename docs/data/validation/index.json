@@ -56,8 +56,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 64,
-    "content_length": 2846,
-    "validation_date": "2025-04-19 13:03:27"
+    "content_length": 3176,
+    "validation_date": "2025-04-20 13:06:17"
   },
   {
     "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
@@ -66,8 +66,8 @@
     "quality_score": 70,
     "plagiarism_risk": "low",
     "keyword_score": 51,
-    "content_length": 1917,
-    "validation_date": "2025-04-19 13:03:05"
+    "content_length": 2155,
+    "validation_date": "2025-04-20 13:05:55"
   },
   {
     "post_title": "Smart Watch with Heart Rate Monitor",
@@ -76,8 +76,8 @@
     "quality_score": 70,
     "plagiarism_risk": "low",
     "keyword_score": 52,
-    "content_length": 2030,
-    "validation_date": "2025-04-19 13:03:08"
+    "content_length": 2272,
+    "validation_date": "2025-04-20 13:05:58"
   },
   {
     "post_title": "28-Day Keto Challenge",
@@ -86,8 +86,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 58,
-    "content_length": 2052,
-    "validation_date": "2025-04-19 13:03:11"
+    "content_length": 2280,
+    "validation_date": "2025-04-20 13:06:00"
   },
   {
     "post_title": "The Lost Book of Remedies",
@@ -96,8 +96,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 48,
-    "content_length": 1477,
-    "validation_date": "2025-04-19 13:03:13"
+    "content_length": 1669,
+    "validation_date": "2025-04-20 13:06:03"
   },
   {
     "post_title": "Adjustable Standing Desk Converter",
@@ -106,8 +106,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 56,
-    "content_length": 2972,
-    "validation_date": "2025-04-19 13:03:29"
+    "content_length": 3295,
+    "validation_date": "2025-04-20 13:06:19"
   },
   {
     "post_title": "Mechanical Keyboard with RGB Lighting",
@@ -116,8 +116,8 @@
     "quality_score": 70,
     "plagiarism_risk": "low",
     "keyword_score": 56,
-    "content_length": 2946,
-    "validation_date": "2025-04-19 13:03:33"
+    "content_length": 3275,
+    "validation_date": "2025-04-20 13:06:21"
   },
   {
     "post_title": "Ergonomic Office Chair with Lumbar Support",
@@ -126,18 +126,18 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 48,
-    "content_length": 1529,
-    "validation_date": "2025-04-19 13:03:15"
+    "content_length": 1727,
+    "validation_date": "2025-04-20 13:06:05"
   },
   {
     "post_title": "Dual Monitor Stand Adjustable",
     "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
     "validation_path": "validation/2025-04-14_dual_monitor_stand_adjustable_validation.json",
     "quality_score": 70,
-    "plagiarism_risk": "low",
+    "plagiarism_risk": "unknown",
     "keyword_score": 48,
-    "content_length": 1440,
-    "validation_date": "2025-04-19 13:03:18"
+    "content_length": 1626,
+    "validation_date": "2025-04-20 13:06:08"
   },
   {
     "post_title": "Yoga Burn Challenge",
@@ -146,8 +146,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 51,
-    "content_length": 2431,
-    "validation_date": "2025-04-19 13:03:20"
+    "content_length": 2739,
+    "validation_date": "2025-04-20 13:06:10"
   },
   {
     "post_title": "Ted's Woodworking Plans",
@@ -156,8 +156,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 51,
-    "content_length": 2539,
-    "validation_date": "2025-04-19 13:03:22"
+    "content_length": 2855,
+    "validation_date": "2025-04-20 13:06:12"
   },
   {
     "post_title": "Portable Bluetooth Speaker Waterproof",
@@ -166,7 +166,7 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 51,
-    "content_length": 2362,
-    "validation_date": "2025-04-19 13:03:24"
+    "content_length": 2664,
+    "validation_date": "2025-04-20 13:06:14"
   }
 ]
