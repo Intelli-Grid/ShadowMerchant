@@ -1,7 +1,7 @@
 {
   "post_title": "Ergonomic Office Chair with Lumbar Support",
   "post_path": "../docs/posts/2025-04-14_ergonomic_office_chair_with_lumbar_support.md",
-  "content_length": 1727,
+  "content_length": 1925,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,26 +22,26 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The provided content appears to be a generic product review with standard SEO tags and schema markup. The writing style is consistent throughout, and the language is straightforward. The content does not contain any highly technical or specific information that would require expertise. The only potential issue is the lack of original content, as the review is likely based on publicly available information. However, the content does not exhibit any obvious signs of plagiarism, and the risk of plagiarism is considered low."
   },
   "keyword_optimization": {
     "overall_score": 48,
     "keyword_counts": {
-      "Ergonomic Office Chair with Lumbar Support": 50,
-      "Ergonomic": 93,
-      "Ergonomic review": 7,
-      "best Ergonomic": 7,
-      "Amazon": 21
+      "Ergonomic Office Chair with Lumbar Support": 56,
+      "Ergonomic": 105,
+      "Ergonomic review": 8,
+      "best Ergonomic": 8,
+      "Amazon": 23
     },
     "keyword_density": {
-      "Ergonomic Office Chair with Lumbar Support": 2.9,
-      "Ergonomic": 5.39,
-      "Ergonomic review": 0.41,
-      "best Ergonomic": 0.41,
-      "Amazon": 1.22
+      "Ergonomic Office Chair with Lumbar Support": 2.91,
+      "Ergonomic": 5.45,
+      "Ergonomic review": 0.42,
+      "best Ergonomic": 0.42,
+      "Amazon": 1.19
     },
     "placement_scores": {
       "Ergonomic Office Chair with Lumbar Support": 10,
@@ -57,7 +57,7 @@
       "best Ergonomic": 42,
       "Amazon": 70
     },
-    "content_length": 1727
+    "content_length": 1925
   },
-  "validation_date": "2025-04-20 13:06:05"
+  "validation_date": "2025-04-21 13:17:55"
 }

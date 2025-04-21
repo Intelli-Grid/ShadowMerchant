@@ -1,7 +1,7 @@
 {
   "post_title": "The Lost Book of Remedies",
   "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
-  "content_length": 1669,
+  "content_length": 1861,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,26 +22,26 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 70,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "Unable to parse detailed analysis. The content appears to be original based on basic analysis."
   },
   "keyword_optimization": {
     "overall_score": 48,
     "keyword_counts": {
-      "The Lost Book of Remedies": 50,
-      "The": 93,
-      "The review": 7,
-      "best The": 7,
-      "ClickBank": 20
+      "The Lost Book of Remedies": 56,
+      "The": 104,
+      "The review": 8,
+      "best The": 8,
+      "ClickBank": 22
     },
     "keyword_density": {
-      "The Lost Book of Remedies": 3.0,
-      "The": 5.57,
-      "The review": 0.42,
-      "best The": 0.42,
-      "ClickBank": 1.2
+      "The Lost Book of Remedies": 3.01,
+      "The": 5.59,
+      "The review": 0.43,
+      "best The": 0.43,
+      "ClickBank": 1.18
     },
     "placement_scores": {
       "The Lost Book of Remedies": 10,
@@ -57,7 +57,7 @@
       "best The": 42,
       "ClickBank": 70
     },
-    "content_length": 1669
+    "content_length": 1861
   },
-  "validation_date": "2025-04-20 13:06:03"
+  "validation_date": "2025-04-21 13:17:53"
 }

@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 3275,
+  "content_length": 3604,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,25 +22,25 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the technical information provided is general and not overly specific. The use of keywords and meta tags is also typical of a standard review article. However, the content is quite generic and lacks unique insights or perspectives, which may indicate a low level of originality. Further analysis may be needed to confirm the authenticity of the content."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 56,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 62,
-      "Mechanical": 148,
-      "Mechanical review": 8,
-      "best Mechanical": 9,
-      "Amazon": 22
+      "Mechanical Keyboard with RGB Lighting": 69,
+      "Mechanical": 165,
+      "Mechanical review": 9,
+      "best Mechanical": 10,
+      "Amazon": 24
     },
     "keyword_density": {
-      "Mechanical Keyboard with RGB Lighting": 1.89,
-      "Mechanical": 4.52,
-      "Mechanical review": 0.24,
-      "best Mechanical": 0.27,
+      "Mechanical Keyboard with RGB Lighting": 1.91,
+      "Mechanical": 4.58,
+      "Mechanical review": 0.25,
+      "best Mechanical": 0.28,
       "Amazon": 0.67
     },
     "placement_scores": {
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 3275
+    "content_length": 3604
   },
-  "validation_date": "2025-04-20 13:06:21"
+  "validation_date": "2025-04-21 13:18:12"
 }
