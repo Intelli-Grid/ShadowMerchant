@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 3604,
+  "content_length": 3933,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,26 +22,26 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language used is straightforward and simple. The technical information provided is basic and does not require expertise. The content is also up-to-date, with no outdated information or references. However, the content is quite generic and lacks unique insights or perspectives, which may indicate a low level of creativity and originality. Overall, the plagiarism risk is low, but the content could benefit from more unique and creative writing."
   },
   "keyword_optimization": {
     "overall_score": 56,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 69,
-      "Mechanical": 165,
-      "Mechanical review": 9,
-      "best Mechanical": 10,
-      "Amazon": 24
+      "Mechanical Keyboard with RGB Lighting": 76,
+      "Mechanical": 182,
+      "Mechanical review": 10,
+      "best Mechanical": 11,
+      "Amazon": 26
     },
     "keyword_density": {
-      "Mechanical Keyboard with RGB Lighting": 1.91,
-      "Mechanical": 4.58,
+      "Mechanical Keyboard with RGB Lighting": 1.93,
+      "Mechanical": 4.63,
       "Mechanical review": 0.25,
       "best Mechanical": 0.28,
-      "Amazon": 0.67
+      "Amazon": 0.66
     },
     "placement_scores": {
       "Mechanical Keyboard with RGB Lighting": 5,
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 3604
+    "content_length": 3933
   },
-  "validation_date": "2025-04-21 13:18:12"
+  "validation_date": "2025-04-22 13:21:12"
 }
