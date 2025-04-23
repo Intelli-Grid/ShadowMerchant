@@ -1,7 +1,7 @@
 {
   "post_title": "28-Day Keto Challenge",
   "post_path": "../docs/posts/2023-05-15_28day_keto_challenge.md",
-  "content_length": 2736,
+  "content_length": 2964,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,35 +12,35 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the technical information is general and not specific to any particular source. The content is also well-structured and easy to understand, suggesting that it was written by the author. However, a more thorough analysis would be necessary to confirm the originality of the content."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 58,
     "keyword_counts": {
-      "28-Day Keto Challenge": 97,
-      "28-Day": 126,
-      "28-Day review": 9,
-      "best 28-Day": 9,
-      "ClickBank": 23
+      "28-Day Keto Challenge": 107,
+      "28-Day": 139,
+      "28-Day review": 10,
+      "best 28-Day": 10,
+      "ClickBank": 25
     },
     "keyword_density": {
-      "28-Day Keto Challenge": 3.55,
-      "28-Day": 4.61,
-      "28-Day review": 0.33,
-      "best 28-Day": 0.33,
+      "28-Day Keto Challenge": 3.61,
+      "28-Day": 4.69,
+      "28-Day review": 0.34,
+      "best 28-Day": 0.34,
       "ClickBank": 0.84
     },
     "placement_scores": {
@@ -57,7 +57,7 @@
       "best 28-Day": 42,
       "ClickBank": 70
     },
-    "content_length": 2736
+    "content_length": 2964
   },
-  "validation_date": "2025-04-22 13:20:49"
+  "validation_date": "2025-04-23 13:36:18"
 }
