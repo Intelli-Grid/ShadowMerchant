@@ -1,7 +1,7 @@
 {
   "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
   "post_path": "../docs/posts/2023-05-15_wireless_bluetooth_earbuds_with_noise_cancellation.md",
-  "content_length": 3107,
+  "content_length": 3345,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -23,23 +23,23 @@
   },
   "plagiarism_check": {
     "plagiarism_risk": "low",
-    "confidence": 20,
+    "confidence": 70,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a unique review of wireless Bluetooth earbuds with noise cancellation. The writing style is consistent throughout, and the language used is descriptive but not overly technical. The inclusion of specific product details, such as the price and availability, suggests that the author has hands-on experience with the product. The content does not contain any unusual phrasing or highly technical information that would require expertise. The only potential issue is the use of general keywords and phrases, but this is common in product reviews. Overall, the content appears to be original and not plagiarized."
+    "explanation": "Unable to parse detailed analysis. The content appears to be original based on basic analysis."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 112,
-      "Wireless": 183,
-      "Wireless review": 11,
-      "best Wireless": 12,
-      "Amazon": 28
+      "Wireless Bluetooth Earbuds with Noise Cancellation": 122,
+      "Wireless": 199,
+      "Wireless review": 12,
+      "best Wireless": 13,
+      "Amazon": 30
     },
     "keyword_density": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 3.6,
-      "Wireless": 5.89,
-      "Wireless review": 0.35,
+      "Wireless Bluetooth Earbuds with Noise Cancellation": 3.65,
+      "Wireless": 5.95,
+      "Wireless review": 0.36,
       "best Wireless": 0.39,
       "Amazon": 0.9
     },
@@ -57,7 +57,7 @@
       "best Wireless": 42,
       "Amazon": 70
     },
-    "content_length": 3107
+    "content_length": 3345
   },
-  "validation_date": "2025-04-24 13:36:54"
+  "validation_date": "2025-04-25 13:19:27"
 }
