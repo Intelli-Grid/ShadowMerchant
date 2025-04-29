@@ -56,8 +56,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 64,
-    "content_length": 5816,
-    "validation_date": "2025-04-28 13:50:58"
+    "content_length": 6146,
+    "validation_date": "2025-04-29 13:45:16"
   },
   {
     "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
@@ -66,18 +66,18 @@
     "quality_score": 70,
     "plagiarism_risk": "low",
     "keyword_score": 51,
-    "content_length": 4059,
-    "validation_date": "2025-04-28 13:50:37"
+    "content_length": 4297,
+    "validation_date": "2025-04-29 13:44:55"
   },
   {
     "post_title": "Smart Watch with Heart Rate Monitor",
     "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
     "validation_path": "validation/2023-05-15_smart_watch_with_heart_rate_monitor_validation.json",
-    "quality_score": 70,
+    "quality_score": 60,
     "plagiarism_risk": "low",
     "keyword_score": 52,
-    "content_length": 4208,
-    "validation_date": "2025-04-28 13:50:40"
+    "content_length": 4450,
+    "validation_date": "2025-04-29 13:44:58"
   },
   {
     "post_title": "28-Day Keto Challenge",
@@ -85,9 +85,9 @@
     "validation_path": "validation/2023-05-15_28day_keto_challenge_validation.json",
     "quality_score": 70,
     "plagiarism_risk": "unknown",
-    "keyword_score": 58,
-    "content_length": 4104,
-    "validation_date": "2025-04-28 13:50:43"
+    "keyword_score": 53,
+    "content_length": 4332,
+    "validation_date": "2025-04-29 13:45:01"
   },
   {
     "post_title": "The Lost Book of Remedies",
@@ -96,8 +96,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 48,
-    "content_length": 3205,
-    "validation_date": "2025-04-28 13:50:45"
+    "content_length": 3397,
+    "validation_date": "2025-04-29 13:45:03"
   },
   {
     "post_title": "Adjustable Standing Desk Converter",
@@ -106,8 +106,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 56,
-    "content_length": 5879,
-    "validation_date": "2025-04-28 13:51:01"
+    "content_length": 6202,
+    "validation_date": "2025-04-29 13:45:18"
   },
   {
     "post_title": "Mechanical Keyboard with RGB Lighting",
@@ -116,8 +116,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 56,
-    "content_length": 5907,
-    "validation_date": "2025-04-28 13:51:03"
+    "content_length": 6236,
+    "validation_date": "2025-04-29 13:45:21"
   },
   {
     "post_title": "Ergonomic Office Chair with Lumbar Support",
@@ -126,8 +126,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 48,
-    "content_length": 3311,
-    "validation_date": "2025-04-28 13:50:47"
+    "content_length": 3509,
+    "validation_date": "2025-04-29 13:45:05"
   },
   {
     "post_title": "Dual Monitor Stand Adjustable",
@@ -136,8 +136,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 48,
-    "content_length": 3114,
-    "validation_date": "2025-04-28 13:50:50"
+    "content_length": 3300,
+    "validation_date": "2025-04-29 13:45:08"
   },
   {
     "post_title": "Yoga Burn Challenge",
@@ -146,8 +146,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 51,
-    "content_length": 5203,
-    "validation_date": "2025-04-28 13:50:52"
+    "content_length": 5511,
+    "validation_date": "2025-04-29 13:45:10"
   },
   {
     "post_title": "Ted's Woodworking Plans",
@@ -156,8 +156,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 51,
-    "content_length": 5383,
-    "validation_date": "2025-04-28 13:50:54"
+    "content_length": 5699,
+    "validation_date": "2025-04-29 13:45:12"
   },
   {
     "post_title": "Portable Bluetooth Speaker Waterproof",
@@ -166,7 +166,7 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 45,
-    "content_length": 5080,
-    "validation_date": "2025-04-28 13:50:56"
+    "content_length": 5382,
+    "validation_date": "2025-04-29 13:45:14"
   }
 ]
