@@ -1,7 +1,7 @@
 {
   "post_title": "The Lost Book of Remedies",
   "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
-  "content_length": 3781,
+  "content_length": 3973,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,29 +12,29 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "Unable to determine"
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The provided content appears to be a meta tag and schema markup for a blog post, and does not contain any written content that could be plagiarized. The tags and markup are standard and do not exhibit any unusual phrasing or inconsistencies that would suggest plagiarism. The content is also relatively short and does not contain any highly technical or specific information that would require expertise. Overall, the content appears to be original and does not pose a significant plagiarism risk."
   },
   "keyword_optimization": {
     "overall_score": 48,
     "keyword_counts": {
-      "The Lost Book of Remedies": 116,
-      "The": 214,
-      "The review": 18,
-      "best The": 18,
-      "ClickBank": 42
+      "The Lost Book of Remedies": 122,
+      "The": 225,
+      "The review": 19,
+      "best The": 19,
+      "ClickBank": 44
     },
     "keyword_density": {
       "The Lost Book of Remedies": 3.07,
@@ -57,7 +57,7 @@
       "best The": 42,
       "ClickBank": 70
     },
-    "content_length": 3781
+    "content_length": 3973
   },
-  "validation_date": "2025-05-01 13:18:19"
+  "validation_date": "2025-05-02 13:19:28"
 }
