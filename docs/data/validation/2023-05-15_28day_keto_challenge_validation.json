@@ -1,53 +1,44 @@
 {
   "post_title": "28-Day Keto Challenge",
   "post_path": "../docs/posts/2023-05-15_28day_keto_challenge.md",
-  "content_length": 5016,
+  "content_length": 5244,
   "quality_check": {
-    "overall_score": 60,
-    "grammar_score": 90,
+    "overall_score": 70,
+    "grammar_score": 70,
     "readability_score": 70,
-    "engagement_score": 40,
-    "structure_score": 80,
-    "accuracy_score": 80,
-    "seo_score": 90,
-    "cta_score": 20,
+    "engagement_score": 70,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "The content lacks a clear and concise introduction to the 28-Day Keto Challenge.",
-      "The tone is somewhat promotional and lacks objectivity.",
-      "The content could benefit from more specific examples and testimonials.",
-      "The structure is somewhat unclear, with multiple sections and subheadings that are not well-defined.",
-      "The content lacks a clear call-to-action (CTA) to encourage readers to take action."
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "The content is well-structured and easy to follow.",
-      "The use of meta tags and schema markup is excellent.",
-      "The content provides a clear overview of the 28-Day Keto Challenge."
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Add a clear and concise introduction to the 28-Day Keto Challenge.",
-      "Use a more objective tone and provide more specific examples and testimonials.",
-      "Define the structure of the content more clearly, with well-defined sections and subheadings.",
-      "Add a clear call-to-action (CTA) to encourage readers to take action."
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language used is clear and concise. The technical information provided is general and does not require expertise, and the references to specific dates (2023-05-15, 2025) are likely intended to be specific to the author's context. The content is well-structured and easy to follow, with no unusual phrasing or inconsistencies that would suggest copying from elsewhere."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 53,
     "keyword_counts": {
-      "28-Day Keto Challenge": 197,
-      "28-Day": 256,
-      "28-Day review": 19,
-      "best 28-Day": 19,
-      "ClickBank": 43
+      "28-Day Keto Challenge": 207,
+      "28-Day": 269,
+      "28-Day review": 20,
+      "best 28-Day": 20,
+      "ClickBank": 45
     },
     "keyword_density": {
-      "28-Day Keto Challenge": 3.93,
-      "28-Day": 5.1,
+      "28-Day Keto Challenge": 3.95,
+      "28-Day": 5.13,
       "28-Day review": 0.38,
       "best 28-Day": 0.38,
       "ClickBank": 0.86
@@ -66,7 +57,7 @@
       "best 28-Day": 42,
       "ClickBank": 70
     },
-    "content_length": 5016
+    "content_length": 5244
   },
-  "validation_date": "2025-05-02 13:19:25"
+  "validation_date": "2025-05-03 13:05:47"
 }
