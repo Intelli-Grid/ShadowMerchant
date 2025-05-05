@@ -1,7 +1,7 @@
 {
   "post_title": "Portable Bluetooth Speaker Waterproof",
   "post_path": "../docs/posts/2025-04-14_portable_bluetooth_speaker_waterproof.md",
-  "content_length": 6892,
+  "content_length": 7194,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,24 +22,24 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is straightforward and easy to understand. The technical information provided about the portable Bluetooth speaker is general and does not require expertise. The content is also up-to-date, with a publication date of 2025. However, the content is quite generic and lacks unique insights or perspectives, which may indicate a lack of originality. Nevertheless, the overall assessment is that the content is likely original, but further review may be necessary to confirm this."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 45,
     "keyword_counts": {
-      "Portable Bluetooth Speaker Waterproof": 214,
-      "Portable": 365,
-      "Portable review": 21,
-      "best Portable": 22,
-      "Amazon": 48
+      "Portable Bluetooth Speaker Waterproof": 224,
+      "Portable": 382,
+      "Portable review": 22,
+      "best Portable": 23,
+      "Amazon": 50
     },
     "keyword_density": {
       "Portable Bluetooth Speaker Waterproof": 3.11,
-      "Portable": 5.3,
-      "Portable review": 0.3,
+      "Portable": 5.31,
+      "Portable review": 0.31,
       "best Portable": 0.32,
       "Amazon": 0.7
     },
@@ -57,7 +57,7 @@
       "best Portable": 42,
       "Amazon": 70
     },
-    "content_length": 6892
+    "content_length": 7194
   },
-  "validation_date": "2025-05-04 13:14:47"
+  "validation_date": "2025-05-05 13:37:09"
 }

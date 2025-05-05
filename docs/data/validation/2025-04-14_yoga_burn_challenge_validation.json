@@ -1,7 +1,7 @@
 {
   "post_title": "Yoga Burn Challenge",
   "post_path": "../docs/posts/2025-04-14_yoga_burn_challenge.md",
-  "content_length": 7051,
+  "content_length": 7359,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,33 +12,33 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is straightforward. The inclusion of specific details, such as the price of the Yoga Burn Challenge, suggests that the author has personal experience with the product. The schema markup and SEO tags are also properly formatted, indicating that the author is familiar with best practices for online content. However, the content is quite generic and lacks unique insights or perspectives, which may indicate a lack of original thought. Overall, while the content is likely original, it may benefit from more distinctive language and ideas to increase its credibility and value."
+    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is simple and clear. The inclusion of specific details, such as the price of the Yoga Burn Challenge, suggests that the author has personal experience with the product. However, the content may still benefit from additional original research and analysis to further establish its credibility."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Yoga Burn Challenge": 157,
-      "Yoga": 398,
-      "Yoga review": 21,
-      "best Yoga": 22,
-      "ClickBank": 47
+      "Yoga Burn Challenge": 164,
+      "Yoga": 416,
+      "Yoga review": 22,
+      "best Yoga": 23,
+      "ClickBank": 49
     },
     "keyword_density": {
       "Yoga Burn Challenge": 2.23,
-      "Yoga": 5.64,
+      "Yoga": 5.65,
       "Yoga review": 0.3,
       "best Yoga": 0.31,
       "ClickBank": 0.67
@@ -57,7 +57,7 @@
       "best Yoga": 42,
       "ClickBank": 70
     },
-    "content_length": 7051
+    "content_length": 7359
   },
-  "validation_date": "2025-05-04 13:14:38"
+  "validation_date": "2025-05-05 13:37:05"
 }
