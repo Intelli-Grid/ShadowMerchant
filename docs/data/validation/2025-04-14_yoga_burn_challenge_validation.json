@@ -1,7 +1,7 @@
 {
   "post_title": "Yoga Burn Challenge",
   "post_path": "../docs/posts/2025-04-14_yoga_burn_challenge.md",
-  "content_length": 7359,
+  "content_length": 7667,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,33 +12,33 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "Unable to determine"
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is simple and clear. The inclusion of specific details, such as the price of the Yoga Burn Challenge, suggests that the author has personal experience with the product. However, the content may still benefit from additional original research and analysis to further establish its credibility."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Yoga Burn Challenge": 164,
-      "Yoga": 416,
-      "Yoga review": 22,
-      "best Yoga": 23,
-      "ClickBank": 49
+      "Yoga Burn Challenge": 171,
+      "Yoga": 434,
+      "Yoga review": 23,
+      "best Yoga": 24,
+      "ClickBank": 51
     },
     "keyword_density": {
       "Yoga Burn Challenge": 2.23,
-      "Yoga": 5.65,
+      "Yoga": 5.66,
       "Yoga review": 0.3,
       "best Yoga": 0.31,
       "ClickBank": 0.67
@@ -57,7 +57,7 @@
       "best Yoga": 42,
       "ClickBank": 70
     },
-    "content_length": 7359
+    "content_length": 7667
   },
-  "validation_date": "2025-05-05 13:37:05"
+  "validation_date": "2025-05-06 12:25:50"
 }

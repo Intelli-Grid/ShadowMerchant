@@ -1,53 +1,44 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 4416,
+  "content_length": 4602,
   "quality_check": {
-    "overall_score": 60,
-    "grammar_score": 90,
+    "overall_score": 70,
+    "grammar_score": 70,
     "readability_score": 70,
-    "engagement_score": 40,
-    "structure_score": 80,
-    "accuracy_score": 90,
-    "seo_score": 80,
-    "cta_score": 0,
+    "engagement_score": 70,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "No content provided",
-      "No meta description provided",
-      "No content optimization for target keywords",
-      "No clear call-to-action",
-      "No internal or external linking"
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "Good use of schema markup",
-      "Clear and concise meta title"
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Provide high-quality and relevant content to engage readers",
-      "Optimize meta description and content for target keywords",
-      "Add a clear and prominent call-to-action",
-      "Include internal or external linking to enhance user experience",
-      "Consider adding images or videos to enhance content"
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic product review or description, with no unusual phrasing or technical information that would suggest copying from elsewhere. The writing style is consistent throughout, and the metadata and schema markup are typical for a WordPress blog post. The content is likely original, but it's difficult to determine without further analysis or comparison to other sources."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 140,
-      "Dual": 273,
-      "Dual review": 22,
-      "best Dual": 22,
-      "Amazon": 51
+      "Dual Monitor Stand Adjustable": 146,
+      "Dual": 285,
+      "Dual review": 23,
+      "best Dual": 23,
+      "Amazon": 53
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.17,
-      "Dual": 6.18,
+      "Dual": 6.19,
       "Dual review": 0.5,
       "best Dual": 0.5,
       "Amazon": 1.15
@@ -66,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 4416
+    "content_length": 4602
   },
-  "validation_date": "2025-05-05 13:37:02"
+  "validation_date": "2025-05-06 12:25:46"
 }

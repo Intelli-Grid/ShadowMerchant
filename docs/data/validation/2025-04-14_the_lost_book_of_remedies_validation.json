@@ -1,7 +1,7 @@
 {
   "post_title": "The Lost Book of Remedies",
   "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
-  "content_length": 4549,
+  "content_length": 4741,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,13 +12,13 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "Unable to determine"
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
@@ -30,17 +30,17 @@
   "keyword_optimization": {
     "overall_score": 48,
     "keyword_counts": {
-      "The Lost Book of Remedies": 140,
-      "The": 258,
-      "The review": 22,
-      "best The": 22,
-      "ClickBank": 50
+      "The Lost Book of Remedies": 146,
+      "The": 269,
+      "The review": 23,
+      "best The": 23,
+      "ClickBank": 52
     },
     "keyword_density": {
       "The Lost Book of Remedies": 3.08,
       "The": 5.67,
-      "The review": 0.48,
-      "best The": 0.48,
+      "The review": 0.49,
+      "best The": 0.49,
       "ClickBank": 1.1
     },
     "placement_scores": {
@@ -57,7 +57,7 @@
       "best The": 42,
       "ClickBank": 70
     },
-    "content_length": 4549
+    "content_length": 4741
   },
-  "validation_date": "2025-05-05 13:36:54"
+  "validation_date": "2025-05-06 12:25:40"
 }
