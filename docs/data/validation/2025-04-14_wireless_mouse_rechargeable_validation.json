@@ -1,7 +1,7 @@
 {
   "post_title": "Wireless Mouse Rechargeable",
   "post_path": "../docs/posts/2025-04-14_wireless_mouse_rechargeable.md",
-  "content_length": 8456,
+  "content_length": 8786,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,33 +12,33 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The content appears to be original, with no unusual phrasing or technical information that would suggest copying from elsewhere. The writing style is consistent throughout, and the language is clear and concise. The only potential issue is the use of generic phrases like 'clunky wired mice' and 'messy workspace', which could be found in multiple sources. However, the overall tone and structure of the content suggest that it was written by the author, and the risk of plagiarism is considered low."
   },
   "keyword_optimization": {
     "overall_score": 64,
     "keyword_counts": {
-      "Wireless Mouse Rechargeable": 199,
-      "Wireless": 352,
-      "Wireless review": 24,
-      "best Wireless": 50,
-      "Amazon": 54
+      "Wireless Mouse Rechargeable": 207,
+      "Wireless": 366,
+      "Wireless review": 25,
+      "best Wireless": 52,
+      "Amazon": 56
     },
     "keyword_density": {
-      "Wireless Mouse Rechargeable": 2.35,
-      "Wireless": 4.16,
+      "Wireless Mouse Rechargeable": 2.36,
+      "Wireless": 4.17,
       "Wireless review": 0.28,
       "best Wireless": 0.59,
       "Amazon": 0.64
@@ -57,7 +57,7 @@
       "best Wireless": 78,
       "Amazon": 70
     },
-    "content_length": 8456
+    "content_length": 8786
   },
-  "validation_date": "2025-05-06 12:25:59"
+  "validation_date": "2025-05-07 12:24:51"
 }

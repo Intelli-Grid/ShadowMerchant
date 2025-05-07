@@ -1,7 +1,7 @@
 {
   "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
   "post_path": "../docs/posts/2023-05-15_wireless_bluetooth_earbuds_with_noise_cancellation.md",
-  "content_length": 5963,
+  "content_length": 6201,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,20 +25,20 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be an original review of wireless Bluetooth earbuds with noise cancellation. The language used is straightforward and lacks unusual phrasing that might be copied from elsewhere. The writing style is consistent throughout the text. The technical information provided is general and does not require expertise. The content does not contain outdated information. The only potential issue is the use of generic keywords and meta tags, which could be easily generated using online tools. However, the content itself does not show any significant signs of plagiarism."
+    "explanation": "The provided content appears to be a product review or description, and the language used is straightforward and general. The technical information provided is minimal, and the writing style is consistent throughout. The content does not contain any unusual phrasing or highly technical information that would suggest copying from elsewhere. The Open Graph and schema markup are also standard and do not raise any suspicions. Overall, the content appears to be original and does not exhibit any significant plagiarism indicators."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 232,
-      "Wireless": 375,
-      "Wireless review": 23,
-      "best Wireless": 24,
-      "Amazon": 52
+      "Wireless Bluetooth Earbuds with Noise Cancellation": 242,
+      "Wireless": 391,
+      "Wireless review": 24,
+      "best Wireless": 25,
+      "Amazon": 54
     },
     "keyword_density": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 3.89,
-      "Wireless": 6.29,
+      "Wireless Bluetooth Earbuds with Noise Cancellation": 3.9,
+      "Wireless": 6.31,
       "Wireless review": 0.39,
       "best Wireless": 0.4,
       "Amazon": 0.87
@@ -57,7 +57,7 @@
       "best Wireless": 42,
       "Amazon": 70
     },
-    "content_length": 5963
+    "content_length": 6201
   },
-  "validation_date": "2025-05-06 12:25:31"
+  "validation_date": "2025-05-07 12:24:24"
 }

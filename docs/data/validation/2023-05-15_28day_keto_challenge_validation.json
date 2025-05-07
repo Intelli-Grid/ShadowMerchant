@@ -1,7 +1,7 @@
 {
   "post_title": "28-Day Keto Challenge",
   "post_path": "../docs/posts/2023-05-15_28day_keto_challenge.md",
-  "content_length": 5928,
+  "content_length": 6156,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,20 +25,20 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a meta description and SEO tags for a blog post. The text is generic and does not contain any unusual phrasing, technical information, or outdated information that would suggest plagiarism. The writing style is consistent throughout the content, and the language used is straightforward and simple. While it's possible that the content may have been copied from another source, the lack of specific or technical information makes it difficult to determine with certainty. Therefore, the plagiarism risk is considered low, and the confidence level is 20 out of 100."
+    "explanation": "The provided content appears to be a meta description and SEO tags for a blog post. The text is straightforward and lacks unusual phrasing, technical jargon, or outdated information that would suggest copying from elsewhere. The writing style is consistent throughout, and the content seems to be original. However, the confidence level is relatively low due to the simplicity of the content and the possibility of it being generated using an SEO tool."
   },
   "keyword_optimization": {
     "overall_score": 53,
     "keyword_counts": {
-      "28-Day Keto Challenge": 237,
-      "28-Day": 308,
-      "28-Day review": 23,
-      "best 28-Day": 23,
-      "ClickBank": 51
+      "28-Day Keto Challenge": 247,
+      "28-Day": 321,
+      "28-Day review": 24,
+      "best 28-Day": 24,
+      "ClickBank": 53
     },
     "keyword_density": {
-      "28-Day Keto Challenge": 4.0,
-      "28-Day": 5.2,
+      "28-Day Keto Challenge": 4.01,
+      "28-Day": 5.21,
       "28-Day review": 0.39,
       "best 28-Day": 0.39,
       "ClickBank": 0.86
@@ -57,7 +57,7 @@
       "best 28-Day": 42,
       "ClickBank": 70
     },
-    "content_length": 5928
+    "content_length": 6156
   },
-  "validation_date": "2025-05-06 12:25:38"
+  "validation_date": "2025-05-07 12:24:30"
 }
