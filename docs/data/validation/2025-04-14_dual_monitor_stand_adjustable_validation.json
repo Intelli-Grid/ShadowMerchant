@@ -1,7 +1,7 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 4788,
+  "content_length": 4974,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,33 +12,33 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic metadata and schema markup for a blog post about a dual monitor stand. The text is minimal and does not contain any unusual phrasing, technical jargon, or outdated information that would suggest plagiarism. The writing style is consistent throughout the content, and the language is straightforward and lacks any distinctive characteristics that would indicate copying from elsewhere. However, it's possible that the content may be copied from a template or a generic schema markup, which could be a potential issue. Further analysis is needed to confirm the originality of the content."
+    "explanation": "The provided content appears to be a basic metadata structure for a blog post, including SEO tags and schema markup. The text is minimal and does not contain any unusual phrasing, technical information, or outdated references that would suggest plagiarism. The writing style is consistent throughout, and the content does not seem to be copied from elsewhere. However, the confidence level is relatively low due to the lack of substantial content, which makes it difficult to rule out the possibility of plagiarism entirely."
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 152,
-      "Dual": 297,
-      "Dual review": 24,
-      "best Dual": 24,
-      "Amazon": 55
+      "Dual Monitor Stand Adjustable": 158,
+      "Dual": 309,
+      "Dual review": 25,
+      "best Dual": 25,
+      "Amazon": 57
     },
     "keyword_density": {
-      "Dual Monitor Stand Adjustable": 3.17,
-      "Dual": 6.2,
+      "Dual Monitor Stand Adjustable": 3.18,
+      "Dual": 6.21,
       "Dual review": 0.5,
       "best Dual": 0.5,
       "Amazon": 1.15
@@ -57,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 4788
+    "content_length": 4974
   },
-  "validation_date": "2025-05-07 12:24:41"
+  "validation_date": "2025-05-08 12:23:50"
 }
