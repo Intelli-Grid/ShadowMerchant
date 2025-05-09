@@ -1,7 +1,7 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 4974,
+  "content_length": 5160,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,26 +22,26 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic metadata structure for a blog post, including SEO tags and schema markup. The text is minimal and does not contain any unusual phrasing, technical information, or outdated references that would suggest plagiarism. The writing style is consistent throughout, and the content does not seem to be copied from elsewhere. However, the confidence level is relatively low due to the lack of substantial content, which makes it difficult to rule out the possibility of plagiarism entirely."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 158,
-      "Dual": 309,
-      "Dual review": 25,
-      "best Dual": 25,
-      "Amazon": 57
+      "Dual Monitor Stand Adjustable": 164,
+      "Dual": 321,
+      "Dual review": 26,
+      "best Dual": 26,
+      "Amazon": 59
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.18,
-      "Dual": 6.21,
+      "Dual": 6.22,
       "Dual review": 0.5,
       "best Dual": 0.5,
-      "Amazon": 1.15
+      "Amazon": 1.14
     },
     "placement_scores": {
       "Dual Monitor Stand Adjustable": 10,
@@ -57,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 4974
+    "content_length": 5160
   },
-  "validation_date": "2025-05-08 12:23:50"
+  "validation_date": "2025-05-09 12:23:12"
 }
