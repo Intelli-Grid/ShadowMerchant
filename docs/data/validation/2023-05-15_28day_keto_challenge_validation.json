@@ -1,7 +1,7 @@
 {
   "post_title": "28-Day Keto Challenge",
   "post_path": "../docs/posts/2023-05-15_28day_keto_challenge.md",
-  "content_length": 6840,
+  "content_length": 7068,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,35 +12,35 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "Unable to determine"
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a meta description and SEO tags for a blog post, which are typically written in a standardized format. The text does not contain any unusual phrasing, inconsistent writing style, or highly technical information that would suggest plagiarism. The date ranges provided (2023-05-15 and 2025) are likely errors and not indicative of plagiarism. Overall, the content appears to be original and does not exhibit any significant plagiarism indicators."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 53,
     "keyword_counts": {
-      "28-Day Keto Challenge": 277,
-      "28-Day": 360,
-      "28-Day review": 27,
-      "best 28-Day": 27,
-      "ClickBank": 59
+      "28-Day Keto Challenge": 287,
+      "28-Day": 373,
+      "28-Day review": 28,
+      "best 28-Day": 28,
+      "ClickBank": 61
     },
     "keyword_density": {
-      "28-Day Keto Challenge": 4.05,
-      "28-Day": 5.26,
-      "28-Day review": 0.39,
-      "best 28-Day": 0.39,
+      "28-Day Keto Challenge": 4.06,
+      "28-Day": 5.28,
+      "28-Day review": 0.4,
+      "best 28-Day": 0.4,
       "ClickBank": 0.86
     },
     "placement_scores": {
@@ -57,7 +57,7 @@
       "best 28-Day": 42,
       "ClickBank": 70
     },
-    "content_length": 6840
+    "content_length": 7068
   },
-  "validation_date": "2025-05-10 12:20:37"
+  "validation_date": "2025-05-11 12:21:08"
 }
