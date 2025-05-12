@@ -1,7 +1,7 @@
 {
   "post_title": "Ted's Woodworking Plans",
   "post_path": "../docs/posts/2025-04-14_teds_woodworking_plans.md",
-  "content_length": 9491,
+  "content_length": 9807,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,19 +22,19 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language used is clear and concise. The technical information provided about Ted's Woodworking Plans is likely based on the product's official description and reviews. The only potential issue is the use of similar phrases and sentences found in other product reviews, but this is not uncommon in the e-commerce space. Overall, the content seems to be a genuine review and not a plagiarized version of someone else's work."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Ted's Woodworking Plans": 294,
-      "Ted's": 350,
-      "Ted's review": 28,
-      "best Ted's": 28,
-      "ClickBank": 61
+      "Ted's Woodworking Plans": 304,
+      "Ted's": 362,
+      "Ted's review": 29,
+      "best Ted's": 29,
+      "ClickBank": 63
     },
     "keyword_density": {
       "Ted's Woodworking Plans": 3.1,
@@ -57,7 +57,7 @@
       "best Ted's": 42,
       "ClickBank": 70
     },
-    "content_length": 9491
+    "content_length": 9807
   },
-  "validation_date": "2025-05-11 12:21:20"
+  "validation_date": "2025-05-12 12:24:38"
 }

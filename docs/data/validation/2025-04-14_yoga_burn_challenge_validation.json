@@ -1,7 +1,7 @@
 {
   "post_title": "Yoga Burn Challenge",
   "post_path": "../docs/posts/2025-04-14_yoga_burn_challenge.md",
-  "content_length": 9207,
+  "content_length": 9515,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,35 +12,35 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is simple and straightforward. The inclusion of specific details such as the price and availability of the Yoga Burn Challenge suggests that the author has personal experience with the product. The only potential red flag is the use of generic phrases such as 'affordable and effective way to improve your flexibility, balance, and overall well-being', which could be found in multiple sources. However, the overall tone and language of the content suggest that it is an original work."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Yoga Burn Challenge": 206,
-      "Yoga": 524,
-      "Yoga review": 28,
-      "best Yoga": 29,
-      "ClickBank": 61
+      "Yoga Burn Challenge": 213,
+      "Yoga": 542,
+      "Yoga review": 29,
+      "best Yoga": 30,
+      "ClickBank": 63
     },
     "keyword_density": {
       "Yoga Burn Challenge": 2.24,
-      "Yoga": 5.69,
+      "Yoga": 5.7,
       "Yoga review": 0.3,
-      "best Yoga": 0.31,
+      "best Yoga": 0.32,
       "ClickBank": 0.66
     },
     "placement_scores": {
@@ -57,7 +57,7 @@
       "best Yoga": 42,
       "ClickBank": 70
     },
-    "content_length": 9207
+    "content_length": 9515
   },
-  "validation_date": "2025-05-11 12:21:18"
+  "validation_date": "2025-05-12 12:24:36"
 }
