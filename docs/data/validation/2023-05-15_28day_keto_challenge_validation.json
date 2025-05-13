@@ -1,7 +1,7 @@
 {
   "post_title": "28-Day Keto Challenge",
   "post_path": "../docs/posts/2023-05-15_28day_keto_challenge.md",
-  "content_length": 7296,
+  "content_length": 7524,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,23 +22,23 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The provided content appears to be a meta description and SEO tags for a blog post. The language and structure are straightforward and do not exhibit any unusual phrasing or technical jargon that would suggest copying from elsewhere. The content is also relatively short and lacks specific information that would require expertise. The only potential red flag is the use of the phrase 'best 28-day 2025' in the meta keywords, which could be a generic term used by multiple authors. However, without further analysis, it is difficult to determine whether this phrase is original or copied from another source. Overall, the plagiarism risk is considered low due to the simplicity and brevity of the content."
   },
   "keyword_optimization": {
     "overall_score": 53,
     "keyword_counts": {
-      "28-Day Keto Challenge": 297,
-      "28-Day": 386,
-      "28-Day review": 29,
-      "best 28-Day": 29,
-      "ClickBank": 63
+      "28-Day Keto Challenge": 307,
+      "28-Day": 399,
+      "28-Day review": 30,
+      "best 28-Day": 30,
+      "ClickBank": 65
     },
     "keyword_density": {
-      "28-Day Keto Challenge": 4.07,
-      "28-Day": 5.29,
+      "28-Day Keto Challenge": 4.08,
+      "28-Day": 5.3,
       "28-Day review": 0.4,
       "best 28-Day": 0.4,
       "ClickBank": 0.86
@@ -57,7 +57,7 @@
       "best 28-Day": 42,
       "ClickBank": 70
     },
-    "content_length": 7296
+    "content_length": 7524
   },
-  "validation_date": "2025-05-12 12:24:26"
+  "validation_date": "2025-05-13 12:24:52"
 }

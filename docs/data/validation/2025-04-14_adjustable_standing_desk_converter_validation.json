@@ -1,33 +1,24 @@
 {
   "post_title": "Adjustable Standing Desk Converter",
   "post_path": "../docs/posts/2025-04-14_adjustable_standing_desk_converter.md",
-  "content_length": 10401,
+  "content_length": 10724,
   "quality_check": {
-    "overall_score": 75,
-    "grammar_score": 95,
-    "readability_score": 80,
+    "overall_score": 70,
+    "grammar_score": 70,
+    "readability_score": 70,
     "engagement_score": 70,
-    "structure_score": 85,
-    "accuracy_score": 90,
-    "seo_score": 95,
-    "cta_score": 60,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "The content is quite short and lacks depth, making it seem more like an advertisement than a comprehensive review.",
-      "The tone is somewhat promotional and lacks objectivity, which may affect the credibility of the content.",
-      "The use of hashtags in the meta keywords is not recommended, as it can be seen as spammy.",
-      "The schema markup is incomplete and missing some required fields."
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "The content is well-structured and easy to follow.",
-      "The use of meta tags and schema markup is good, but could be improved.",
-      "The content is free of major grammar and spelling errors."
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Add more depth and substance to the content to make it more informative and engaging.",
-      "Improve the tone to make it more objective and less promotional.",
-      "Remove the use of hashtags in the meta keywords and focus on more relevant and specific keywords.",
-      "Complete the schema markup and ensure it is accurate and up-to-date.",
-      "Consider adding a clear and prominent call-to-action to encourage readers to take a specific action."
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
@@ -39,11 +30,11 @@
   "keyword_optimization": {
     "overall_score": 56,
     "keyword_counts": {
-      "Adjustable Standing Desk Converter": 220,
-      "Adjustable": 373,
-      "Adjustable review": 30,
-      "best Adjustable": 31,
-      "Amazon": 66
+      "Adjustable Standing Desk Converter": 227,
+      "Adjustable": 385,
+      "Adjustable review": 31,
+      "best Adjustable": 32,
+      "Amazon": 68
     },
     "keyword_density": {
       "Adjustable Standing Desk Converter": 2.12,
@@ -66,7 +57,7 @@
       "best Adjustable": 42,
       "Amazon": 70
     },
-    "content_length": 10401
+    "content_length": 10724
   },
-  "validation_date": "2025-05-12 12:24:46"
+  "validation_date": "2025-05-13 12:25:10"
 }
