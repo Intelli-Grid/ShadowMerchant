@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 10842,
+  "content_length": 11171,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,23 +22,23 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is straightforward and descriptive. The inclusion of specific details, such as the price and availability of the product, suggests that the author has hands-on experience with the product. The only potential issue is the use of generic phrases, such as 'tactile feedback and visual appeal', which could be found in multiple sources. However, the overall tone and structure of the content suggest that it is an original work."
   },
   "keyword_optimization": {
     "overall_score": 56,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 223,
-      "Mechanical": 539,
-      "Mechanical review": 31,
-      "best Mechanical": 32,
-      "Amazon": 68
+      "Mechanical Keyboard with RGB Lighting": 230,
+      "Mechanical": 556,
+      "Mechanical review": 32,
+      "best Mechanical": 33,
+      "Amazon": 70
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.06,
-      "Mechanical": 4.97,
+      "Mechanical": 4.98,
       "Mechanical review": 0.29,
       "best Mechanical": 0.3,
       "Amazon": 0.63
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 10842
+    "content_length": 11171
   },
-  "validation_date": "2025-05-13 12:25:12"
+  "validation_date": "2025-05-14 12:24:00"
 }
