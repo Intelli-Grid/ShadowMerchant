@@ -1,7 +1,7 @@
 {
   "post_title": "Portable Bluetooth Speaker Waterproof",
   "post_path": "../docs/posts/2025-04-14_portable_bluetooth_speaker_waterproof.md",
-  "content_length": 10214,
+  "content_length": 10516,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,7 +12,7 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "Error during analysis: 503 Server Error: Service Unavailable for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
       "Unable to determine"
@@ -25,23 +25,23 @@
     "plagiarism_risk": "unknown",
     "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "Error during analysis: 503 Server Error: Service Unavailable for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 45,
     "keyword_counts": {
-      "Portable Bluetooth Speaker Waterproof": 324,
-      "Portable": 552,
-      "Portable review": 32,
-      "best Portable": 33,
-      "Amazon": 70
+      "Portable Bluetooth Speaker Waterproof": 334,
+      "Portable": 569,
+      "Portable review": 33,
+      "best Portable": 34,
+      "Amazon": 72
     },
     "keyword_density": {
-      "Portable Bluetooth Speaker Waterproof": 3.17,
-      "Portable": 5.4,
+      "Portable Bluetooth Speaker Waterproof": 3.18,
+      "Portable": 5.41,
       "Portable review": 0.31,
       "best Portable": 0.32,
-      "Amazon": 0.69
+      "Amazon": 0.68
     },
     "placement_scores": {
       "Portable Bluetooth Speaker Waterproof": 5,
@@ -57,7 +57,7 @@
       "best Portable": 42,
       "Amazon": 70
     },
-    "content_length": 10214
+    "content_length": 10516
   },
-  "validation_date": "2025-05-15 12:24:19"
+  "validation_date": "2025-05-16 12:24:41"
 }

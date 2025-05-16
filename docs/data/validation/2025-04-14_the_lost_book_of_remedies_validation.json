@@ -1,7 +1,7 @@
 {
   "post_title": "The Lost Book of Remedies",
   "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
-  "content_length": 6469,
+  "content_length": 6661,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,7 +12,7 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "Error during analysis: 503 Server Error: Service Unavailable for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
       "Unable to determine"
@@ -22,25 +22,25 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic meta tag and schema markup for a blog post. The text is short and lacks specific information that would require expertise. The writing style is consistent throughout the content, and there are no unusual phrases that suggest copying from elsewhere. The content is likely original, but it's difficult to determine with certainty without further analysis."
+    "explanation": "Error during analysis: 503 Server Error: Service Unavailable for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
-    "overall_score": 48,
+    "overall_score": 59,
     "keyword_counts": {
-      "The Lost Book of Remedies": 200,
-      "The": 368,
-      "The review": 32,
-      "best The": 32,
-      "ClickBank": 70
+      "The Lost Book of Remedies": 206,
+      "The": 379,
+      "The review": 33,
+      "best The": 33,
+      "ClickBank": 72
     },
     "keyword_density": {
       "The Lost Book of Remedies": 3.09,
       "The": 5.69,
-      "The review": 0.49,
-      "best The": 0.49,
+      "The review": 0.5,
+      "best The": 0.5,
       "ClickBank": 1.08
     },
     "placement_scores": {
@@ -53,11 +53,11 @@
     "optimization_scores": {
       "The Lost Book of Remedies": 57,
       "The": 29,
-      "The review": 42,
-      "best The": 42,
+      "The review": 70,
+      "best The": 70,
       "ClickBank": 70
     },
-    "content_length": 6469
+    "content_length": 6661
   },
-  "validation_date": "2025-05-15 12:24:06"
+  "validation_date": "2025-05-16 12:24:30"
 }

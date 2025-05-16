@@ -1,7 +1,7 @@
 {
   "post_title": "Wireless Mouse Rechargeable",
   "post_path": "../docs/posts/2025-04-14_wireless_mouse_rechargeable.md",
-  "content_length": 11426,
+  "content_length": 11756,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,7 +12,7 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "Error during analysis: 503 Server Error: Service Unavailable for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
       "Unable to determine"
@@ -25,20 +25,20 @@
     "plagiarism_risk": "unknown",
     "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "Error during analysis: 503 Server Error: Service Unavailable for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 64,
     "keyword_counts": {
-      "Wireless Mouse Rechargeable": 271,
-      "Wireless": 478,
-      "Wireless review": 33,
-      "best Wireless": 68,
-      "Amazon": 72
+      "Wireless Mouse Rechargeable": 279,
+      "Wireless": 492,
+      "Wireless review": 34,
+      "best Wireless": 70,
+      "Amazon": 74
     },
     "keyword_density": {
       "Wireless Mouse Rechargeable": 2.37,
-      "Wireless": 4.18,
+      "Wireless": 4.19,
       "Wireless review": 0.29,
       "best Wireless": 0.6,
       "Amazon": 0.63
@@ -57,7 +57,7 @@
       "best Wireless": 78,
       "Amazon": 70
     },
-    "content_length": 11426
+    "content_length": 11756
   },
-  "validation_date": "2025-05-15 12:24:21"
+  "validation_date": "2025-05-16 12:24:43"
 }
