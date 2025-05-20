@@ -1,24 +1,32 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 12816,
+  "content_length": 13145,
   "quality_check": {
     "overall_score": 70,
-    "grammar_score": 70,
-    "readability_score": 70,
-    "engagement_score": 70,
-    "structure_score": 70,
-    "accuracy_score": 70,
-    "seo_score": 70,
-    "cta_score": 70,
+    "grammar_score": 95,
+    "readability_score": 60,
+    "engagement_score": 80,
+    "structure_score": 80,
+    "accuracy_score": 90,
+    "seo_score": 90,
+    "cta_score": 40,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "The content is a bit too long and could be broken up into smaller paragraphs for better readability.",
+      "The tone is somewhat formal and could be adjusted to be more conversational and engaging.",
+      "The review could benefit from more specific details and examples to support the claims made about the product.",
+      "The call-to-action is unclear and could be rephrased to be more direct and actionable."
     ],
     "strengths": [
-      "Unable to determine"
+      "The content is well-structured and easy to follow.",
+      "The use of meta tags and schema markup is excellent and will help with search engine optimization.",
+      "The content is informative and provides a good overview of the product."
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Consider adding more visuals, such as images or videos, to break up the text and make the content more engaging.",
+      "Use a more conversational tone and try to avoid using overly technical language.",
+      "Provide more specific details and examples to support the claims made about the product.",
+      "Rephrase the call-to-action to be more direct and actionable."
     ]
   },
   "plagiarism_check": {
@@ -28,17 +36,17 @@
     "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
-    "overall_score": 56,
+    "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 265,
-      "Mechanical": 641,
-      "Mechanical review": 37,
-      "best Mechanical": 38,
-      "Amazon": 80
+      "Mechanical Keyboard with RGB Lighting": 272,
+      "Mechanical": 658,
+      "Mechanical review": 38,
+      "best Mechanical": 39,
+      "Amazon": 82
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.07,
-      "Mechanical": 5.0,
+      "Mechanical": 5.01,
       "Mechanical review": 0.29,
       "best Mechanical": 0.3,
       "Amazon": 0.62
@@ -52,12 +60,12 @@
     },
     "optimization_scores": {
       "Mechanical Keyboard with RGB Lighting": 78,
-      "Mechanical": 50,
+      "Mechanical": 22,
       "Mechanical review": 42,
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 12816
+    "content_length": 13145
   },
-  "validation_date": "2025-05-19 12:25:10"
+  "validation_date": "2025-05-20 12:25:18"
 }

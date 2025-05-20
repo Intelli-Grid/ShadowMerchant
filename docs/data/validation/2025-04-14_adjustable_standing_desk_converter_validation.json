@@ -1,7 +1,7 @@
 {
   "post_title": "Adjustable Standing Desk Converter",
   "post_path": "../docs/posts/2025-04-14_adjustable_standing_desk_converter.md",
-  "content_length": 12662,
+  "content_length": 12985,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,22 +22,22 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is straightforward and easy to understand. The technical information provided about the Adjustable Standing Desk Converter is basic and does not require specialized expertise. The content does not contain any outdated information, and the keywords and meta tags are relevant to the topic. However, the content is quite generic and lacks unique insights or perspectives, which may indicate a low level of creativity and originality. Overall, while the content is not entirely original, it does not appear to be heavily plagiarized."
   },
   "keyword_optimization": {
     "overall_score": 56,
     "keyword_counts": {
-      "Adjustable Standing Desk Converter": 269,
-      "Adjustable": 457,
-      "Adjustable review": 37,
-      "best Adjustable": 38,
-      "Amazon": 80
+      "Adjustable Standing Desk Converter": 276,
+      "Adjustable": 469,
+      "Adjustable review": 38,
+      "best Adjustable": 39,
+      "Amazon": 82
     },
     "keyword_density": {
-      "Adjustable Standing Desk Converter": 2.12,
+      "Adjustable Standing Desk Converter": 2.13,
       "Adjustable": 3.61,
       "Adjustable review": 0.29,
       "best Adjustable": 0.3,
@@ -57,7 +57,7 @@
       "best Adjustable": 42,
       "Amazon": 70
     },
-    "content_length": 12662
+    "content_length": 12985
   },
-  "validation_date": "2025-05-19 12:25:08"
+  "validation_date": "2025-05-20 12:25:16"
 }
