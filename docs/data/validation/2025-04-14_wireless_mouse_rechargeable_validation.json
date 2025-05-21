@@ -1,7 +1,7 @@
 {
   "post_title": "Wireless Mouse Rechargeable",
   "post_path": "../docs/posts/2025-04-14_wireless_mouse_rechargeable.md",
-  "content_length": 13076,
+  "content_length": 13406,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,19 +22,19 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is straightforward and simple. The technical information provided is basic and does not require expertise. The only potential issue is the use of generic phrases, such as 'Are you tired of using those clunky wired mice that restrict your movement and make your workspace look messy?', which could be found in multiple sources. However, the overall tone and structure of the content suggest that it is an original work."
   },
   "keyword_optimization": {
     "overall_score": 64,
     "keyword_counts": {
-      "Wireless Mouse Rechargeable": 311,
-      "Wireless": 548,
-      "Wireless review": 38,
-      "best Wireless": 78,
-      "Amazon": 82
+      "Wireless Mouse Rechargeable": 319,
+      "Wireless": 562,
+      "Wireless review": 39,
+      "best Wireless": 80,
+      "Amazon": 84
     },
     "keyword_density": {
       "Wireless Mouse Rechargeable": 2.38,
@@ -57,7 +57,7 @@
       "best Wireless": 78,
       "Amazon": 70
     },
-    "content_length": 13076
+    "content_length": 13406
   },
-  "validation_date": "2025-05-20 12:25:13"
+  "validation_date": "2025-05-21 12:24:48"
 }
