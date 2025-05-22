@@ -1,7 +1,7 @@
 {
   "post_title": "The Lost Book of Remedies",
   "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
-  "content_length": 7621,
+  "content_length": 7813,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,20 +25,20 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic meta tag and schema markup for a blog post. The text is short and does not contain any unusual phrasing, technical information, or outdated information that would suggest copying from elsewhere. The writing style is consistent throughout the content. However, the content is very short and lacks any substantial information, which may indicate that it is a placeholder or a template. Therefore, the plagiarism risk is considered low, but it is still important to verify the content's originality."
+    "explanation": "The provided content appears to be a basic SEO meta tag and schema markup for a blog post. The text is minimal and does not contain any unusual phrasing, technical information, or outdated information that would suggest plagiarism. The writing style is consistent throughout the content, and the author's name is provided. While it's possible that the content may have been copied from a template or another source, the lack of specific and technical information makes it unlikely to be a case of plagiarism."
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "The Lost Book of Remedies": 236,
-      "The": 434,
-      "The review": 38,
-      "best The": 38,
-      "ClickBank": 82
+      "The Lost Book of Remedies": 242,
+      "The": 445,
+      "The review": 39,
+      "best The": 39,
+      "ClickBank": 84
     },
     "keyword_density": {
       "The Lost Book of Remedies": 3.1,
-      "The": 5.69,
+      "The": 5.7,
       "The review": 0.5,
       "best The": 0.5,
       "ClickBank": 1.08
@@ -57,7 +57,7 @@
       "best The": 70,
       "ClickBank": 70
     },
-    "content_length": 7621
+    "content_length": 7813
   },
-  "validation_date": "2025-05-21 12:24:33"
+  "validation_date": "2025-05-22 12:25:08"
 }

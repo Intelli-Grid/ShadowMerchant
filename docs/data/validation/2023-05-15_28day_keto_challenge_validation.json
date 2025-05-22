@@ -1,7 +1,7 @@
 {
   "post_title": "28-Day Keto Challenge",
   "post_path": "../docs/posts/2023-05-15_28day_keto_challenge.md",
-  "content_length": 9348,
+  "content_length": 9576,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,20 +25,20 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a meta description and SEO tags for a blog post. The text is generic and does not contain any unusual phrasing or technical information that would suggest plagiarism. The writing style is consistent throughout the content, and the author's name is provided. The only potential issue is the use of the same title and description across multiple platforms, which may be a common practice for SEO purposes. However, without further analysis, it is difficult to determine if this is a genuine concern."
+    "explanation": "The provided content appears to be a meta description and SEO tags for a blog post. The text is straightforward and lacks unusual phrasing, technical jargon, or outdated information that would suggest copying from elsewhere. The writing style is consistent throughout, and the content seems to be original. However, the confidence level is relatively low due to the simplicity of the content and the lack of distinctive language or ideas."
   },
   "keyword_optimization": {
     "overall_score": 53,
     "keyword_counts": {
-      "28-Day Keto Challenge": 387,
-      "28-Day": 503,
-      "28-Day review": 38,
-      "best 28-Day": 38,
-      "ClickBank": 81
+      "28-Day Keto Challenge": 397,
+      "28-Day": 516,
+      "28-Day review": 39,
+      "best 28-Day": 39,
+      "ClickBank": 83
     },
     "keyword_density": {
-      "28-Day Keto Challenge": 4.14,
-      "28-Day": 5.38,
+      "28-Day Keto Challenge": 4.15,
+      "28-Day": 5.39,
       "28-Day review": 0.41,
       "best 28-Day": 0.41,
       "ClickBank": 0.87
@@ -57,7 +57,7 @@
       "best 28-Day": 42,
       "ClickBank": 70
     },
-    "content_length": 9348
+    "content_length": 9576
   },
-  "validation_date": "2025-05-21 12:24:30"
+  "validation_date": "2025-05-22 12:25:06"
 }
