@@ -1,7 +1,7 @@
 {
   "post_title": "Ted's Woodworking Plans",
   "post_path": "../docs/posts/2025-04-14_teds_woodworking_plans.md",
-  "content_length": 12967,
+  "content_length": 13283,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,13 +12,13 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
@@ -30,11 +30,11 @@
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Ted's Woodworking Plans": 404,
-      "Ted's": 482,
-      "Ted's review": 39,
-      "best Ted's": 39,
-      "ClickBank": 83
+      "Ted's Woodworking Plans": 414,
+      "Ted's": 494,
+      "Ted's review": 40,
+      "best Ted's": 40,
+      "ClickBank": 85
     },
     "keyword_density": {
       "Ted's Woodworking Plans": 3.12,
@@ -57,7 +57,7 @@
       "best Ted's": 42,
       "ClickBank": 70
     },
-    "content_length": 12967
+    "content_length": 13283
   },
-  "validation_date": "2025-05-22 12:25:18"
+  "validation_date": "2025-05-23 12:23:27"
 }
