@@ -1,7 +1,7 @@
 {
   "post_title": "28-Day Keto Challenge",
   "post_path": "../docs/posts/2023-05-15_28day_keto_challenge.md",
-  "content_length": 10032,
+  "content_length": 10260,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,23 +22,23 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a meta description and SEO tags for a blog post. The text is straightforward and lacks unusual phrasing, technical jargon, or outdated information that would suggest copying from elsewhere. The writing style is consistent throughout, and the author's name is provided. While it's possible that some of the content may be copied from other sources, the overall risk of plagiarism appears to be low."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 53,
     "keyword_counts": {
-      "28-Day Keto Challenge": 417,
-      "28-Day": 542,
-      "28-Day review": 41,
-      "best 28-Day": 41,
-      "ClickBank": 87
+      "28-Day Keto Challenge": 427,
+      "28-Day": 555,
+      "28-Day review": 42,
+      "best 28-Day": 42,
+      "ClickBank": 89
     },
     "keyword_density": {
       "28-Day Keto Challenge": 4.16,
-      "28-Day": 5.4,
+      "28-Day": 5.41,
       "28-Day review": 0.41,
       "best 28-Day": 0.41,
       "ClickBank": 0.87
@@ -57,7 +57,7 @@
       "best 28-Day": 42,
       "ClickBank": 70
     },
-    "content_length": 10032
+    "content_length": 10260
   },
-  "validation_date": "2025-05-24 12:21:20"
+  "validation_date": "2025-05-25 12:21:24"
 }
