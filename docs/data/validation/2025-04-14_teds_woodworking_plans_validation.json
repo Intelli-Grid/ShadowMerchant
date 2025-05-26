@@ -1,24 +1,30 @@
 {
   "post_title": "Ted's Woodworking Plans",
   "post_path": "../docs/posts/2025-04-14_teds_woodworking_plans.md",
-  "content_length": 13915,
+  "content_length": 14231,
   "quality_check": {
     "overall_score": 70,
-    "grammar_score": 70,
-    "readability_score": 70,
-    "engagement_score": 70,
-    "structure_score": 70,
-    "accuracy_score": 70,
-    "seo_score": 70,
-    "cta_score": 70,
+    "grammar_score": 95,
+    "readability_score": 60,
+    "engagement_score": 80,
+    "structure_score": 75,
+    "accuracy_score": 90,
+    "seo_score": 85,
+    "cta_score": 40,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "The content is quite long and could be broken up into smaller paragraphs for better readability.",
+      "There is no clear call-to-action (CTA) to encourage readers to take action.",
+      "The content could benefit from more specific examples and case studies to support the claims made about Ted's Woodworking Plans."
     ],
     "strengths": [
-      "Unable to determine"
+      "The content provides a clear and concise overview of Ted's Woodworking Plans and its features.",
+      "The use of meta tags and schema markup is thorough and accurate.",
+      "The content is well-organized and easy to follow."
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Consider adding more visuals, such as images or videos, to break up the text and make the content more engaging.",
+      "Provide more specific details about the benefits and results that readers can expect from using Ted's Woodworking Plans.",
+      "Consider adding a clear CTA, such as a link to a free trial or a special offer, to encourage readers to take action."
     ]
   },
   "plagiarism_check": {
@@ -30,11 +36,11 @@
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Ted's Woodworking Plans": 434,
-      "Ted's": 518,
-      "Ted's review": 42,
-      "best Ted's": 42,
-      "ClickBank": 89
+      "Ted's Woodworking Plans": 444,
+      "Ted's": 530,
+      "Ted's review": 43,
+      "best Ted's": 43,
+      "ClickBank": 91
     },
     "keyword_density": {
       "Ted's Woodworking Plans": 3.12,
@@ -57,7 +63,7 @@
       "best Ted's": 42,
       "ClickBank": 70
     },
-    "content_length": 13915
+    "content_length": 14231
   },
-  "validation_date": "2025-05-25 12:21:36"
+  "validation_date": "2025-05-26 12:23:25"
 }

@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 14790,
+  "content_length": 15119,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,23 +22,23 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original and written in a natural style. The language used is simple and easy to understand, suggesting that the author is familiar with the topic. The inclusion of specific details, such as the price and features of the mechanical keyboard, adds credibility to the review. However, the content is quite generic and lacks unique insights or perspectives, which may indicate a low level of creativity and originality. Overall, the plagiarism risk is low, but the content could benefit from more distinctive writing and analysis."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 307,
-      "Mechanical": 743,
-      "Mechanical review": 43,
-      "best Mechanical": 44,
-      "Amazon": 92
+      "Mechanical Keyboard with RGB Lighting": 314,
+      "Mechanical": 760,
+      "Mechanical review": 44,
+      "best Mechanical": 45,
+      "Amazon": 94
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.08,
-      "Mechanical": 5.02,
+      "Mechanical": 5.03,
       "Mechanical review": 0.29,
       "best Mechanical": 0.3,
       "Amazon": 0.62
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 14790
+    "content_length": 15119
   },
-  "validation_date": "2025-05-25 12:21:44"
+  "validation_date": "2025-05-26 12:23:34"
 }
