@@ -1,7 +1,7 @@
 {
   "post_title": "Ergonomic Office Chair with Lumbar Support",
   "post_path": "../docs/posts/2025-04-14_ergonomic_office_chair_with_lumbar_support.md",
-  "content_length": 8855,
+  "content_length": 9053,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,19 +22,19 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic SEO metadata and schema markup for a blog post about an ergonomic office chair with lumbar support. The text is short and lacks specific details, technical information, or expertise. The writing style is consistent throughout the content. There are no unusual phrasing or highly technical information that would suggest copying from elsewhere. The content seems to be original and does not show any signs of plagiarism."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 48,
     "keyword_counts": {
-      "Ergonomic Office Chair with Lumbar Support": 266,
-      "Ergonomic": 525,
-      "Ergonomic review": 43,
-      "best Ergonomic": 43,
-      "Amazon": 93
+      "Ergonomic Office Chair with Lumbar Support": 272,
+      "Ergonomic": 537,
+      "Ergonomic review": 44,
+      "best Ergonomic": 44,
+      "Amazon": 95
     },
     "keyword_density": {
       "Ergonomic Office Chair with Lumbar Support": 3.0,
@@ -57,7 +57,7 @@
       "best Ergonomic": 42,
       "Amazon": 70
     },
-    "content_length": 8855
+    "content_length": 9053
   },
-  "validation_date": "2025-05-26 12:23:17"
+  "validation_date": "2025-05-27 12:24:48"
 }
