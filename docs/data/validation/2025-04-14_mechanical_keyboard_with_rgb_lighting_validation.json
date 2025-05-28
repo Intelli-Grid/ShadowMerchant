@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 15448,
+  "content_length": 15777,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,19 +22,19 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The content appears to be original and written in a clear and concise manner. The language used is straightforward, and the structure is logical. The use of specific details, such as the price and features of the mechanical keyboard, suggests that the author has hands-on experience with the product. The content does not contain any unusual phrasing or technical jargon that would raise suspicions of plagiarism. The only potential issue is the use of a generic template for the SEO tags, which could be a sign of copying from a pre-made template. However, this is a minor issue and does not significantly impact the overall plagiarism risk."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 321,
-      "Mechanical": 777,
-      "Mechanical review": 45,
-      "best Mechanical": 46,
-      "Amazon": 96
+      "Mechanical Keyboard with RGB Lighting": 328,
+      "Mechanical": 794,
+      "Mechanical review": 46,
+      "best Mechanical": 47,
+      "Amazon": 98
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.08,
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 15448
+    "content_length": 15777
   },
-  "validation_date": "2025-05-27 12:25:03"
+  "validation_date": "2025-05-28 12:25:16"
 }
