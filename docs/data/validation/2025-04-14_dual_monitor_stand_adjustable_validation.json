@@ -1,7 +1,7 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 9066,
+  "content_length": 9252,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,29 +12,29 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The provided content appears to be a basic meta tag and schema markup for a blog post about a dual monitor stand. The text is short and lacks specific information, making it less likely to be plagiarized. The writing style is consistent throughout, and the language is straightforward. There are no unusual phrasing or technical terms that would suggest copying from elsewhere. The content seems to be original and intended for a specific purpose, such as optimizing a blog post for search engines."
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 290,
-      "Dual": 573,
-      "Dual review": 47,
-      "best Dual": 47,
-      "Amazon": 101
+      "Dual Monitor Stand Adjustable": 296,
+      "Dual": 585,
+      "Dual review": 48,
+      "best Dual": 48,
+      "Amazon": 103
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.2,
@@ -57,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 9066
+    "content_length": 9252
   },
-  "validation_date": "2025-05-30 12:23:58"
+  "validation_date": "2025-05-31 12:21:42"
 }
