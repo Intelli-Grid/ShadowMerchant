@@ -1,37 +1,24 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 9438,
+  "content_length": 9624,
   "quality_check": {
-    "overall_score": 60,
-    "grammar_score": 90,
-    "readability_score": 40,
-    "engagement_score": 20,
-    "structure_score": 30,
-    "accuracy_score": 80,
-    "seo_score": 90,
-    "cta_score": 0,
+    "overall_score": 70,
+    "grammar_score": 70,
+    "readability_score": 70,
+    "engagement_score": 70,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "The content lacks a clear and concise title, making it difficult to understand the topic.",
-      "The description meta tag is empty, which may negatively impact search engine rankings.",
-      "The content lacks a clear and concise introduction, making it difficult to understand the purpose of the article.",
-      "The article lacks a clear and concise conclusion, making it difficult to understand the main points.",
-      "The content lacks a call-to-action, making it difficult to encourage readers to take action.",
-      "The schema markup is incomplete and lacks important information such as the product description and price.",
-      "The content lacks internal and external linking, making it difficult to provide additional information and resources."
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "The content uses relevant and specific keywords, making it easier to find in search engines.",
-      "The schema markup is present, which can help improve search engine rankings and provide additional information to search engines."
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Add a clear and concise title that accurately reflects the content of the article.",
-      "Fill in the description meta tag with a clear and concise summary of the article.",
-      "Add a clear and concise introduction that sets the tone and purpose of the article.",
-      "Add a clear and concise conclusion that summarizes the main points and encourages readers to take action.",
-      "Add a call-to-action that encourages readers to take action, such as purchasing the product or visiting the website.",
-      "Complete the schema markup by adding important information such as the product description and price.",
-      "Add internal and external linking to provide additional information and resources to readers."
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
@@ -43,11 +30,11 @@
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 302,
-      "Dual": 597,
-      "Dual review": 49,
-      "best Dual": 49,
-      "Amazon": 105
+      "Dual Monitor Stand Adjustable": 308,
+      "Dual": 609,
+      "Dual review": 50,
+      "best Dual": 50,
+      "Amazon": 107
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.2,
@@ -70,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 9438
+    "content_length": 9624
   },
-  "validation_date": "2025-06-01 12:22:26"
+  "validation_date": "2025-06-02 12:25:13"
 }
