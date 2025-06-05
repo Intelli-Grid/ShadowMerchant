@@ -1,7 +1,7 @@
 {
   "post_title": "The Lost Book of Remedies",
   "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
-  "content_length": 10309,
+  "content_length": 10501,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,29 +12,29 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic metadata structure for a blog post, including SEO tags and schema markup. The text is minimal and does not contain any unusual phrasing, technical information, or outdated references that would suggest plagiarism. The writing style is consistent throughout the content, and the author's name is mentioned. Overall, the content appears to be original and does not exhibit any significant plagiarism indicators."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "The Lost Book of Remedies": 320,
-      "The": 588,
-      "The review": 52,
-      "best The": 52,
-      "ClickBank": 110
+      "The Lost Book of Remedies": 326,
+      "The": 599,
+      "The review": 53,
+      "best The": 53,
+      "ClickBank": 112
     },
     "keyword_density": {
       "The Lost Book of Remedies": 3.1,
@@ -57,7 +57,7 @@
       "best The": 70,
       "ClickBank": 70
     },
-    "content_length": 10309
+    "content_length": 10501
   },
-  "validation_date": "2025-06-04 12:24:58"
+  "validation_date": "2025-06-05 12:25:06"
 }
