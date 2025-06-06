@@ -1,7 +1,7 @@
 {
   "post_title": "The Lost Book of Remedies",
   "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
-  "content_length": 10501,
+  "content_length": 10693,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,35 +12,35 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "Unable to determine"
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The provided content appears to be a basic product review with minimal technical information. The writing style is consistent throughout, and the language used is straightforward. The only potential red flag is the use of generic keywords in the meta tags, which could be indicative of a template-based approach. However, without further analysis, it is difficult to determine whether this is a genuine review or a copied one. The low plagiarism risk is based on the lack of unusual phrasing, technical jargon, or outdated information."
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "The Lost Book of Remedies": 326,
-      "The": 599,
-      "The review": 53,
-      "best The": 53,
-      "ClickBank": 112
+      "The Lost Book of Remedies": 332,
+      "The": 610,
+      "The review": 54,
+      "best The": 54,
+      "ClickBank": 114
     },
     "keyword_density": {
       "The Lost Book of Remedies": 3.1,
       "The": 5.7,
-      "The review": 0.5,
-      "best The": 0.5,
+      "The review": 0.51,
+      "best The": 0.51,
       "ClickBank": 1.07
     },
     "placement_scores": {
@@ -57,7 +57,7 @@
       "best The": 70,
       "ClickBank": 70
     },
-    "content_length": 10501
+    "content_length": 10693
   },
-  "validation_date": "2025-06-05 12:25:06"
+  "validation_date": "2025-06-06 12:23:55"
 }

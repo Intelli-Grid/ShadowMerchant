@@ -1,24 +1,32 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 18409,
+  "content_length": 18738,
   "quality_check": {
     "overall_score": 70,
-    "grammar_score": 70,
-    "readability_score": 70,
-    "engagement_score": 70,
-    "structure_score": 70,
-    "accuracy_score": 70,
-    "seo_score": 70,
-    "cta_score": 70,
+    "grammar_score": 90,
+    "readability_score": 60,
+    "engagement_score": 80,
+    "structure_score": 80,
+    "accuracy_score": 90,
+    "seo_score": 90,
+    "cta_score": 40,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "The content is a bit lengthy and could be broken up into smaller paragraphs for better readability.",
+      "The tone is somewhat formal, but it could be more engaging and conversational.",
+      "The review could benefit from more specific details about the keyboard's features and performance.",
+      "The call-to-action is not clear and could be more prominent."
     ],
     "strengths": [
-      "Unable to determine"
+      "The content is well-structured and easy to follow.",
+      "The use of meta tags and schema markup is excellent.",
+      "The content is informative and provides a good overview of the product."
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Consider breaking up the content into smaller paragraphs and using headings to improve readability.",
+      "Use a more conversational tone to engage the reader.",
+      "Provide more specific details about the keyboard's features and performance.",
+      "Make the call-to-action more prominent and clear."
     ]
   },
   "plagiarism_check": {
@@ -30,11 +38,11 @@
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 384,
-      "Mechanical": 930,
-      "Mechanical review": 54,
-      "best Mechanical": 55,
-      "Amazon": 114
+      "Mechanical Keyboard with RGB Lighting": 391,
+      "Mechanical": 947,
+      "Mechanical review": 55,
+      "best Mechanical": 56,
+      "Amazon": 116
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.09,
@@ -57,7 +65,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 18409
+    "content_length": 18738
   },
-  "validation_date": "2025-06-05 12:25:24"
+  "validation_date": "2025-06-06 12:24:15"
 }

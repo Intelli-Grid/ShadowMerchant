@@ -1,7 +1,7 @@
 {
   "post_title": "28-Day Keto Challenge",
   "post_path": "../docs/posts/2023-05-15_28day_keto_challenge.md",
-  "content_length": 12768,
+  "content_length": 12996,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,29 +12,29 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "Unable to determine"
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The provided content appears to be a meta description and SEO tags for a blog post. The text is generic and does not contain any unusual phrasing or technical information that would suggest copying from elsewhere. The writing style is consistent throughout, and the content does not contain any outdated information. The only potential issue is the use of generic keywords, but this is a common practice in SEO optimization."
   },
   "keyword_optimization": {
     "overall_score": 53,
     "keyword_counts": {
-      "28-Day Keto Challenge": 537,
-      "28-Day": 698,
-      "28-Day review": 53,
-      "best 28-Day": 53,
-      "ClickBank": 111
+      "28-Day Keto Challenge": 547,
+      "28-Day": 711,
+      "28-Day review": 54,
+      "best 28-Day": 54,
+      "ClickBank": 113
     },
     "keyword_density": {
       "28-Day Keto Challenge": 4.21,
@@ -57,7 +57,7 @@
       "best 28-Day": 42,
       "ClickBank": 70
     },
-    "content_length": 12768
+    "content_length": 12996
   },
-  "validation_date": "2025-06-05 12:25:03"
+  "validation_date": "2025-06-06 12:23:52"
 }
