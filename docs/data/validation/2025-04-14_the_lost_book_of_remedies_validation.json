@@ -1,7 +1,7 @@
 {
   "post_title": "The Lost Book of Remedies",
   "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
-  "content_length": 10693,
+  "content_length": 10885,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,33 +12,33 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic product review with minimal technical information. The writing style is consistent throughout, and the language used is straightforward. The only potential red flag is the use of generic keywords in the meta tags, which could be indicative of a template-based approach. However, without further analysis, it is difficult to determine whether this is a genuine review or a copied one. The low plagiarism risk is based on the lack of unusual phrasing, technical jargon, or outdated information."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "The Lost Book of Remedies": 332,
-      "The": 610,
-      "The review": 54,
-      "best The": 54,
-      "ClickBank": 114
+      "The Lost Book of Remedies": 338,
+      "The": 621,
+      "The review": 55,
+      "best The": 55,
+      "ClickBank": 116
     },
     "keyword_density": {
-      "The Lost Book of Remedies": 3.1,
-      "The": 5.7,
+      "The Lost Book of Remedies": 3.11,
+      "The": 5.71,
       "The review": 0.51,
       "best The": 0.51,
       "ClickBank": 1.07
@@ -57,7 +57,7 @@
       "best The": 70,
       "ClickBank": 70
     },
-    "content_length": 10693
+    "content_length": 10885
   },
-  "validation_date": "2025-06-06 12:23:55"
+  "validation_date": "2025-06-07 12:21:36"
 }

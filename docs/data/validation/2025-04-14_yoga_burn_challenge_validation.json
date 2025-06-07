@@ -1,7 +1,7 @@
 {
   "post_title": "Yoga Burn Challenge",
   "post_path": "../docs/posts/2025-04-14_yoga_burn_challenge.md",
-  "content_length": 17215,
+  "content_length": 17523,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,19 +22,19 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is clear and concise. The inclusion of specific details, such as the price and availability of the Yoga Burn Challenge, suggests that the author has firsthand knowledge of the product. The only potential red flag is the use of generic phrases, such as 'affordable and effective way to improve your flexibility, balance, and overall well-being', which could be found in multiple sources. However, the overall tone and language of the content suggest that it is an original work."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Yoga Burn Challenge": 388,
-      "Yoga": 992,
-      "Yoga review": 54,
-      "best Yoga": 55,
-      "ClickBank": 113
+      "Yoga Burn Challenge": 395,
+      "Yoga": 1010,
+      "Yoga review": 55,
+      "best Yoga": 56,
+      "ClickBank": 115
     },
     "keyword_density": {
       "Yoga Burn Challenge": 2.25,
@@ -57,7 +57,7 @@
       "best Yoga": 42,
       "ClickBank": 70
     },
-    "content_length": 17215
+    "content_length": 17523
   },
-  "validation_date": "2025-06-06 12:24:03"
+  "validation_date": "2025-06-07 12:21:43"
 }
