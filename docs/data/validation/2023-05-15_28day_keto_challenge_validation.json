@@ -1,7 +1,7 @@
 {
   "post_title": "28-Day Keto Challenge",
   "post_path": "../docs/posts/2023-05-15_28day_keto_challenge.md",
-  "content_length": 13224,
+  "content_length": 13452,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,13 +12,13 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "Unable to determine"
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
@@ -30,15 +30,15 @@
   "keyword_optimization": {
     "overall_score": 53,
     "keyword_counts": {
-      "28-Day Keto Challenge": 557,
-      "28-Day": 724,
-      "28-Day review": 55,
-      "best 28-Day": 55,
-      "ClickBank": 115
+      "28-Day Keto Challenge": 567,
+      "28-Day": 737,
+      "28-Day review": 56,
+      "best 28-Day": 56,
+      "ClickBank": 117
     },
     "keyword_density": {
       "28-Day Keto Challenge": 4.21,
-      "28-Day": 5.47,
+      "28-Day": 5.48,
       "28-Day review": 0.42,
       "best 28-Day": 0.42,
       "ClickBank": 0.87
@@ -57,7 +57,7 @@
       "best 28-Day": 42,
       "ClickBank": 70
     },
-    "content_length": 13224
+    "content_length": 13452
   },
-  "validation_date": "2025-06-07 12:21:34"
+  "validation_date": "2025-06-08 12:21:46"
 }

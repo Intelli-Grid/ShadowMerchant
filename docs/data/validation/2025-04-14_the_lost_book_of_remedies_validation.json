@@ -1,7 +1,7 @@
 {
   "post_title": "The Lost Book of Remedies",
   "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
-  "content_length": 10885,
+  "content_length": 11077,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,19 +22,19 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The provided content appears to be a basic metadata structure for a blog post, including SEO tags and schema markup. The text is minimal and does not contain any unusual phrasing, technical information, or outdated references that would suggest plagiarism. The writing style is consistent throughout the content, and the author's name is provided. While it's impossible to rule out plagiarism with absolute certainty, the low risk assessment is based on the lack of suspicious indicators in the provided content."
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "The Lost Book of Remedies": 338,
-      "The": 621,
-      "The review": 55,
-      "best The": 55,
-      "ClickBank": 116
+      "The Lost Book of Remedies": 344,
+      "The": 632,
+      "The review": 56,
+      "best The": 56,
+      "ClickBank": 118
     },
     "keyword_density": {
       "The Lost Book of Remedies": 3.11,
@@ -57,7 +57,7 @@
       "best The": 70,
       "ClickBank": 70
     },
-    "content_length": 10885
+    "content_length": 11077
   },
-  "validation_date": "2025-06-07 12:21:36"
+  "validation_date": "2025-06-08 12:21:49"
 }
