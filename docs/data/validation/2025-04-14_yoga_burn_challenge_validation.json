@@ -1,33 +1,24 @@
 {
   "post_title": "Yoga Burn Challenge",
   "post_path": "../docs/posts/2025-04-14_yoga_burn_challenge.md",
-  "content_length": 17831,
+  "content_length": 18139,
   "quality_check": {
     "overall_score": 70,
-    "grammar_score": 90,
-    "readability_score": 60,
-    "engagement_score": 80,
-    "structure_score": 80,
-    "accuracy_score": 90,
-    "seo_score": 90,
-    "cta_score": 40,
+    "grammar_score": 70,
+    "readability_score": 70,
+    "engagement_score": 70,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "The content is quite short and lacks depth, making it seem more like an advertisement than a comprehensive review.",
-      "There is no clear introduction or conclusion, making it difficult to follow the content.",
-      "The tone is promotional and lacks objectivity, which may raise concerns about the credibility of the review.",
-      "The content does not provide any specific details about the Yoga Burn Challenge, such as its benefits, features, or target audience."
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "The content is well-structured and easy to follow.",
-      "The use of meta tags and schema markup is excellent, making it SEO-friendly.",
-      "The content is concise and to the point, making it easy to read."
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Add a clear introduction and conclusion to provide context and summarize the main points.",
-      "Provide more specific details about the Yoga Burn Challenge, such as its benefits, features, and target audience.",
-      "Use a more objective tone and provide a balanced review, highlighting both the pros and cons of the product.",
-      "Consider adding more visuals, such as images or videos, to break up the text and make the content more engaging.",
-      "Optimize the call-to-action by making it more specific and actionable, such as providing a clear link to the product or a limited-time offer."
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
@@ -39,11 +30,11 @@
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Yoga Burn Challenge": 402,
-      "Yoga": 1028,
-      "Yoga review": 56,
-      "best Yoga": 57,
-      "ClickBank": 117
+      "Yoga Burn Challenge": 409,
+      "Yoga": 1046,
+      "Yoga review": 57,
+      "best Yoga": 58,
+      "ClickBank": 119
     },
     "keyword_density": {
       "Yoga Burn Challenge": 2.25,
@@ -66,7 +57,7 @@
       "best Yoga": 42,
       "ClickBank": 70
     },
-    "content_length": 17831
+    "content_length": 18139
   },
-  "validation_date": "2025-06-08 12:21:56"
+  "validation_date": "2025-06-09 12:24:41"
 }
