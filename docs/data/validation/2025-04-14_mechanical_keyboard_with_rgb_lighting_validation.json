@@ -1,40 +1,50 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 19725,
+  "content_length": 20054,
   "quality_check": {
     "overall_score": 70,
-    "grammar_score": 70,
-    "readability_score": 70,
-    "engagement_score": 70,
-    "structure_score": 70,
-    "accuracy_score": 70,
-    "seo_score": 70,
-    "cta_score": 70,
+    "grammar_score": 95,
+    "readability_score": 80,
+    "engagement_score": 60,
+    "structure_score": 75,
+    "accuracy_score": 90,
+    "seo_score": 85,
+    "cta_score": 40,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "The content is quite short and lacks depth, making it seem more like a product description than a review.",
+      "The tone is somewhat promotional and lacks objectivity, which may raise suspicions about the reviewer's credibility.",
+      "The use of repetitive keywords ('Mechanical Keyboard with RGB Lighting', 'rgb lighting', 'best mechanical 2025', etc.) may be seen as spammy.",
+      "The meta description is too long and may be truncated in search engine results.",
+      "The schema markup is incomplete and lacks essential information, such as the product's weight, dimensions, and warranty."
     ],
     "strengths": [
-      "Unable to determine"
+      "The content is well-structured and easy to follow.",
+      "The use of meta tags and schema markup is a good start for SEO optimization.",
+      "The reviewer provides a clear and concise summary of the product's features."
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Expand the content to provide more in-depth information about the product's features, pros, and cons.",
+      "Improve the tone to make it more objective and less promotional.",
+      "Vary the keyword usage to avoid repetition and potential spam flags.",
+      "Shorten the meta description to make it more concise and effective.",
+      "Complete the schema markup to provide more accurate and detailed information about the product."
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is straightforward. The inclusion of specific details, such as the price and availability of the product, suggests that the author has hands-on experience with the product. The only potential red flag is the use of a generic phrase ('Look no further!') which could be a common phrase used in many reviews. However, the overall tone and language of the content suggest that it is an original work."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 412,
-      "Mechanical": 998,
-      "Mechanical review": 58,
-      "best Mechanical": 59,
-      "Amazon": 122
+      "Mechanical Keyboard with RGB Lighting": 419,
+      "Mechanical": 1015,
+      "Mechanical review": 59,
+      "best Mechanical": 60,
+      "Amazon": 124
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.09,
@@ -57,7 +67,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 19725
+    "content_length": 20054
   },
-  "validation_date": "2025-06-09 12:24:52"
+  "validation_date": "2025-06-10 12:25:45"
 }
