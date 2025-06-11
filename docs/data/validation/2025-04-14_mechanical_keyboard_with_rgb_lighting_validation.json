@@ -1,34 +1,24 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 20054,
+  "content_length": 20383,
   "quality_check": {
     "overall_score": 70,
-    "grammar_score": 95,
-    "readability_score": 80,
-    "engagement_score": 60,
-    "structure_score": 75,
-    "accuracy_score": 90,
-    "seo_score": 85,
-    "cta_score": 40,
+    "grammar_score": 70,
+    "readability_score": 70,
+    "engagement_score": 70,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "The content is quite short and lacks depth, making it seem more like a product description than a review.",
-      "The tone is somewhat promotional and lacks objectivity, which may raise suspicions about the reviewer's credibility.",
-      "The use of repetitive keywords ('Mechanical Keyboard with RGB Lighting', 'rgb lighting', 'best mechanical 2025', etc.) may be seen as spammy.",
-      "The meta description is too long and may be truncated in search engine results.",
-      "The schema markup is incomplete and lacks essential information, such as the product's weight, dimensions, and warranty."
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "The content is well-structured and easy to follow.",
-      "The use of meta tags and schema markup is a good start for SEO optimization.",
-      "The reviewer provides a clear and concise summary of the product's features."
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Expand the content to provide more in-depth information about the product's features, pros, and cons.",
-      "Improve the tone to make it more objective and less promotional.",
-      "Vary the keyword usage to avoid repetition and potential spam flags.",
-      "Shorten the meta description to make it more concise and effective.",
-      "Complete the schema markup to provide more accurate and detailed information about the product."
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
@@ -40,11 +30,11 @@
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 419,
-      "Mechanical": 1015,
-      "Mechanical review": 59,
-      "best Mechanical": 60,
-      "Amazon": 124
+      "Mechanical Keyboard with RGB Lighting": 426,
+      "Mechanical": 1032,
+      "Mechanical review": 60,
+      "best Mechanical": 61,
+      "Amazon": 126
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.09,
@@ -67,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 20054
+    "content_length": 20383
   },
-  "validation_date": "2025-06-10 12:25:45"
+  "validation_date": "2025-06-11 12:25:46"
 }
