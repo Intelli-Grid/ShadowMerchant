@@ -1,7 +1,7 @@
 {
   "post_title": "Smart Watch with Heart Rate Monitor",
   "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
-  "content_length": 15098,
+  "content_length": 15340,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,19 +25,19 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic SEO meta tag setup and schema markup for a blog post. The text is original and does not contain any unusual phrasing or technical information that would suggest copying from elsewhere. The keywords and meta descriptions are also generic and do not raise any suspicions of plagiarism. However, the confidence level is relatively low due to the simplicity of the content and the lack of specific information that would require expertise."
+    "explanation": "The provided content appears to be a standard SEO meta tag and schema markup for a blog post. The text is generic and does not contain any unusual phrasing or technical information that would suggest copying from elsewhere. The author name and logo URL are also unique, which reduces the likelihood of plagiarism. However, it's always possible that the content could be copied or adapted from another source, so a low plagiarism risk is assigned."
   },
   "keyword_optimization": {
     "overall_score": 52,
     "keyword_counts": {
-      "Smart Watch with Heart Rate Monitor": 603,
-      "Smart": 977,
-      "Smart review": 60,
-      "best Smart": 61,
-      "Amazon": 126
+      "Smart Watch with Heart Rate Monitor": 613,
+      "Smart": 993,
+      "Smart review": 61,
+      "best Smart": 62,
+      "Amazon": 128
     },
     "keyword_density": {
-      "Smart Watch with Heart Rate Monitor": 3.99,
+      "Smart Watch with Heart Rate Monitor": 4.0,
       "Smart": 6.47,
       "Smart review": 0.4,
       "best Smart": 0.4,
@@ -57,7 +57,7 @@
       "best Smart": 42,
       "Amazon": 70
     },
-    "content_length": 15098
+    "content_length": 15340
   },
-  "validation_date": "2025-06-12 12:24:29"
+  "validation_date": "2025-06-13 12:24:39"
 }
