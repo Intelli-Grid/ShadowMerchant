@@ -1,7 +1,7 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 11856,
+  "content_length": 12042,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,29 +12,29 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The provided content appears to be a basic metadata structure for a blog post, including SEO tags and schema markup. The text is short and lacks specific information, making it unlikely to be plagiarized. The writing style is consistent throughout, and there are no unusual phrasing or technical information that would suggest copying from elsewhere. The content is likely original and created by the author."
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 380,
-      "Dual": 753,
-      "Dual review": 62,
-      "best Dual": 62,
-      "Amazon": 131
+      "Dual Monitor Stand Adjustable": 386,
+      "Dual": 765,
+      "Dual review": 63,
+      "best Dual": 63,
+      "Amazon": 133
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.21,
@@ -57,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 11856
+    "content_length": 12042
   },
-  "validation_date": "2025-06-14 12:21:55"
+  "validation_date": "2025-06-15 12:22:28"
 }
