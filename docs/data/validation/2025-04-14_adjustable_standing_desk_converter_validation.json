@@ -1,7 +1,7 @@
 {
   "post_title": "Adjustable Standing Desk Converter",
   "post_path": "../docs/posts/2025-04-14_adjustable_standing_desk_converter.md",
-  "content_length": 22352,
+  "content_length": 22675,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,19 +22,19 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is straightforward. The use of specific details, such as the price and product name, suggests that the author has hands-on experience with the product. The only potential red flag is the use of a generic phrase ('Are you tired of sitting for hours on end, feeling sluggish and unmotivated?') that could be found in multiple sources. However, the surrounding text and the author's name suggest that this is a genuine attempt to engage the reader rather than a copied phrase. Overall, the content appears to be original and well-written."
   },
   "keyword_optimization": {
     "overall_score": 56,
     "keyword_counts": {
-      "Adjustable Standing Desk Converter": 479,
-      "Adjustable": 817,
-      "Adjustable review": 67,
-      "best Adjustable": 68,
-      "Amazon": 140
+      "Adjustable Standing Desk Converter": 486,
+      "Adjustable": 829,
+      "Adjustable review": 68,
+      "best Adjustable": 69,
+      "Amazon": 142
     },
     "keyword_density": {
       "Adjustable Standing Desk Converter": 2.14,
@@ -57,7 +57,7 @@
       "best Adjustable": 42,
       "Amazon": 70
     },
-    "content_length": 22352
+    "content_length": 22675
   },
-  "validation_date": "2025-06-18 12:25:47"
+  "validation_date": "2025-06-19 12:25:26"
 }
