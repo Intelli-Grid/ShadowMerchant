@@ -1,7 +1,7 @@
 {
   "post_title": "Smart Watch with Heart Rate Monitor",
   "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
-  "content_length": 16792,
+  "content_length": 17034,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,22 +25,22 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a meta tag and schema markup for a blog post about a smart watch with a heart rate monitor. The content is primarily composed of metadata and does not contain any unusual phrasing, inconsistent writing style, or highly technical information that would suggest plagiarism. The metadata is also up-to-date and does not appear to be copied from older sources. However, the low confidence score is due to the fact that the content is primarily composed of metadata and does not contain any original content that can be analyzed for plagiarism."
+    "explanation": "The provided content appears to be a standard SEO meta tag and schema markup for a blog post. The text is straightforward and lacks unusual phrasing or technical jargon that would suggest copying from elsewhere. The author's name and organization are also provided, which suggests original content. However, the content is relatively short and lacks depth, which may indicate a low level of originality. Further analysis would be needed to confirm the authenticity of the content."
   },
   "keyword_optimization": {
     "overall_score": 52,
     "keyword_counts": {
-      "Smart Watch with Heart Rate Monitor": 673,
-      "Smart": 1089,
-      "Smart review": 67,
-      "best Smart": 68,
-      "Amazon": 140
+      "Smart Watch with Heart Rate Monitor": 683,
+      "Smart": 1105,
+      "Smart review": 68,
+      "best Smart": 69,
+      "Amazon": 142
     },
     "keyword_density": {
       "Smart Watch with Heart Rate Monitor": 4.01,
       "Smart": 6.49,
       "Smart review": 0.4,
-      "best Smart": 0.4,
+      "best Smart": 0.41,
       "Amazon": 0.83
     },
     "placement_scores": {
@@ -57,7 +57,7 @@
       "best Smart": 42,
       "Amazon": 70
     },
-    "content_length": 16792
+    "content_length": 17034
   },
-  "validation_date": "2025-06-19 12:25:05"
+  "validation_date": "2025-06-20 12:24:42"
 }
