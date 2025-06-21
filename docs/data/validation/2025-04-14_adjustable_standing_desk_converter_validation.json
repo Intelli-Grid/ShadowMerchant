@@ -1,7 +1,7 @@
 {
   "post_title": "Adjustable Standing Desk Converter",
   "post_path": "../docs/posts/2025-04-14_adjustable_standing_desk_converter.md",
-  "content_length": 22998,
+  "content_length": 23321,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,19 +22,19 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no unusual phrasing or technical information that would suggest copying from elsewhere. The writing style is consistent throughout the text, and the language is straightforward and easy to understand. The only potential issue is the use of a generic template for the SEO tags and schema markup, which could be a sign of copying from a template or another source. However, the content itself does not appear to be plagiarized, and the risk of plagiarism is low."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 56,
     "keyword_counts": {
-      "Adjustable Standing Desk Converter": 493,
-      "Adjustable": 841,
-      "Adjustable review": 69,
-      "best Adjustable": 70,
-      "Amazon": 144
+      "Adjustable Standing Desk Converter": 500,
+      "Adjustable": 853,
+      "Adjustable review": 70,
+      "best Adjustable": 71,
+      "Amazon": 146
     },
     "keyword_density": {
       "Adjustable Standing Desk Converter": 2.14,
@@ -57,7 +57,7 @@
       "best Adjustable": 42,
       "Amazon": 70
     },
-    "content_length": 22998
+    "content_length": 23321
   },
-  "validation_date": "2025-06-20 12:25:07"
+  "validation_date": "2025-06-21 12:22:04"
 }
