@@ -1,7 +1,7 @@
 {
   "post_title": "Smart Watch with Heart Rate Monitor",
   "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
-  "content_length": 17518,
+  "content_length": 17760,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a standard SEO meta tags and schema markup for a blog post. The text does not contain any unusual phrasing, inconsistent writing style, or highly technical information that would require expertise. The keywords and meta descriptions are generic and do not suggest copying from specific sources. The only potential issue is the use of a generic logo image, but this is a common practice in SEO optimization. Overall, the content does not exhibit any significant plagiarism indicators."
+    "explanation": "The provided content appears to be a standard SEO metadata and schema markup for a blog post. The text is generic and does not contain any unusual phrasing or technical information that would suggest copying from elsewhere. The author's name and logo are also included, which suggests that the content is original. However, the content is quite short and lacks specific details, which may indicate that it is a template or a basic outline. Therefore, the plagiarism risk is considered low, but it is still possible that the content may have been copied from a similar source."
   },
   "keyword_optimization": {
     "overall_score": 52,
     "keyword_counts": {
-      "Smart Watch with Heart Rate Monitor": 703,
-      "Smart": 1137,
-      "Smart review": 70,
-      "best Smart": 71,
-      "Amazon": 146
+      "Smart Watch with Heart Rate Monitor": 713,
+      "Smart": 1153,
+      "Smart review": 71,
+      "best Smart": 72,
+      "Amazon": 148
     },
     "keyword_density": {
       "Smart Watch with Heart Rate Monitor": 4.01,
@@ -57,7 +57,7 @@
       "best Smart": 42,
       "Amazon": 70
     },
-    "content_length": 17518
+    "content_length": 17760
   },
-  "validation_date": "2025-06-22 12:21:47"
+  "validation_date": "2025-06-23 12:26:25"
 }

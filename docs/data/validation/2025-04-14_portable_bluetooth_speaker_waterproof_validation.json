@@ -1,7 +1,7 @@
 {
   "post_title": "Portable Bluetooth Speaker Waterproof",
   "post_path": "../docs/posts/2025-04-14_portable_bluetooth_speaker_waterproof.md",
-  "content_length": 21690,
+  "content_length": 21992,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,29 +12,29 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "Unable to determine"
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is straightforward and simple. The technical information provided is basic and does not require expertise. The content is also up-to-date, with a recent publication date. However, the content is quite generic and lacks unique insights or perspectives, which may indicate a low level of creativity and originality. Overall, the plagiarism risk is low, but the content could benefit from more unique and creative writing."
   },
   "keyword_optimization": {
     "overall_score": 45,
     "keyword_counts": {
-      "Portable Bluetooth Speaker Waterproof": 704,
-      "Portable": 1198,
-      "Portable review": 70,
-      "best Portable": 71,
-      "Amazon": 146
+      "Portable Bluetooth Speaker Waterproof": 714,
+      "Portable": 1215,
+      "Portable review": 71,
+      "best Portable": 72,
+      "Amazon": 148
     },
     "keyword_density": {
       "Portable Bluetooth Speaker Waterproof": 3.25,
@@ -57,7 +57,7 @@
       "best Portable": 42,
       "Amazon": 70
     },
-    "content_length": 21690
+    "content_length": 21992
   },
-  "validation_date": "2025-06-22 12:22:04"
+  "validation_date": "2025-06-23 12:28:10"
 }

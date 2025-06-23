@@ -56,8 +56,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 64,
-    "content_length": 23966,
-    "validation_date": "2025-06-22 12:22:06"
+    "content_length": 24296,
+    "validation_date": "2025-06-23 12:28:12"
   },
   {
     "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
@@ -66,8 +66,8 @@
     "quality_score": 70,
     "plagiarism_risk": "low",
     "keyword_score": 51,
-    "content_length": 17149,
-    "validation_date": "2025-06-22 12:21:44"
+    "content_length": 17387,
+    "validation_date": "2025-06-23 12:26:21"
   },
   {
     "post_title": "Smart Watch with Heart Rate Monitor",
@@ -76,8 +76,8 @@
     "quality_score": 70,
     "plagiarism_risk": "low",
     "keyword_score": 52,
-    "content_length": 17518,
-    "validation_date": "2025-06-22 12:21:47"
+    "content_length": 17760,
+    "validation_date": "2025-06-23 12:26:25"
   },
   {
     "post_title": "28-Day Keto Challenge",
@@ -86,8 +86,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 53,
-    "content_length": 16644,
-    "validation_date": "2025-06-22 12:21:50"
+    "content_length": 16872,
+    "validation_date": "2025-06-23 12:26:27"
   },
   {
     "post_title": "The Lost Book of Remedies",
@@ -96,8 +96,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 59,
-    "content_length": 13765,
-    "validation_date": "2025-06-22 12:21:52"
+    "content_length": 13957,
+    "validation_date": "2025-06-23 12:26:29"
   },
   {
     "post_title": "Adjustable Standing Desk Converter",
@@ -106,18 +106,18 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 56,
-    "content_length": 23644,
-    "validation_date": "2025-06-22 12:22:08"
+    "content_length": 23967,
+    "validation_date": "2025-06-23 12:28:14"
   },
   {
     "post_title": "Mechanical Keyboard with RGB Lighting",
     "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
     "validation_path": "validation/2025-04-14_mechanical_keyboard_with_rgb_lighting_validation.json",
     "quality_score": 70,
-    "plagiarism_risk": "unknown",
+    "plagiarism_risk": "low",
     "keyword_score": 51,
-    "content_length": 24002,
-    "validation_date": "2025-06-22 12:22:11"
+    "content_length": 24331,
+    "validation_date": "2025-06-23 12:28:17"
   },
   {
     "post_title": "Ergonomic Office Chair with Lumbar Support",
@@ -126,8 +126,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 48,
-    "content_length": 14201,
-    "validation_date": "2025-06-22 12:21:54"
+    "content_length": 14399,
+    "validation_date": "2025-06-23 12:26:32"
   },
   {
     "post_title": "Dual Monitor Stand Adjustable",
@@ -136,8 +136,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 59,
-    "content_length": 13344,
-    "validation_date": "2025-06-22 12:21:57"
+    "content_length": 13530,
+    "validation_date": "2025-06-23 12:26:35"
   },
   {
     "post_title": "Yoga Burn Challenge",
@@ -146,27 +146,27 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 51,
-    "content_length": 22143,
-    "validation_date": "2025-06-22 12:21:59"
+    "content_length": 22451,
+    "validation_date": "2025-06-23 12:28:03"
   },
   {
     "post_title": "Ted's Woodworking Plans",
     "post_path": "../docs/posts/2025-04-14_teds_woodworking_plans.md",
     "validation_path": "validation/2025-04-14_teds_woodworking_plans_validation.json",
     "quality_score": 70,
-    "plagiarism_risk": "unknown",
+    "plagiarism_risk": "low",
     "keyword_score": 51,
-    "content_length": 22763,
-    "validation_date": "2025-06-22 12:22:02"
+    "content_length": 23079,
+    "validation_date": "2025-06-23 12:28:06"
   },
   {
     "post_title": "Portable Bluetooth Speaker Waterproof",
     "post_path": "../docs/posts/2025-04-14_portable_bluetooth_speaker_waterproof.md",
     "validation_path": "validation/2025-04-14_portable_bluetooth_speaker_waterproof_validation.json",
     "quality_score": 70,
-    "plagiarism_risk": "unknown",
+    "plagiarism_risk": "low",
     "keyword_score": 45,
-    "content_length": 21690,
-    "validation_date": "2025-06-22 12:22:04"
+    "content_length": 21992,
+    "validation_date": "2025-06-23 12:28:10"
   }
 ]
