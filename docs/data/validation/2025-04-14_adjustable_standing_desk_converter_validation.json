@@ -1,7 +1,7 @@
 {
   "post_title": "Adjustable Standing Desk Converter",
   "post_path": "../docs/posts/2025-04-14_adjustable_standing_desk_converter.md",
-  "content_length": 23967,
+  "content_length": 24290,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,19 +22,19 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is straightforward and easy to understand. The technical information provided about the Adjustable Standing Desk Converter is general and does not require specialized expertise. The only potential issue is the use of a similar phrase ('Are you tired of sitting for hours on end, feeling sluggish and unmotivated?') in multiple places, but this could be due to the author's style or a deliberate attempt to emphasize the benefits of the product. Overall, the content appears to be original and does not show any significant signs of plagiarism."
   },
   "keyword_optimization": {
     "overall_score": 56,
     "keyword_counts": {
-      "Adjustable Standing Desk Converter": 514,
-      "Adjustable": 877,
-      "Adjustable review": 72,
-      "best Adjustable": 73,
-      "Amazon": 150
+      "Adjustable Standing Desk Converter": 521,
+      "Adjustable": 889,
+      "Adjustable review": 73,
+      "best Adjustable": 74,
+      "Amazon": 152
     },
     "keyword_density": {
       "Adjustable Standing Desk Converter": 2.14,
@@ -57,7 +57,7 @@
       "best Adjustable": 42,
       "Amazon": 70
     },
-    "content_length": 23967
+    "content_length": 24290
   },
-  "validation_date": "2025-06-23 12:28:14"
+  "validation_date": "2025-06-24 12:25:44"
 }

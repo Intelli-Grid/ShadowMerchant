@@ -56,8 +56,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 64,
-    "content_length": 24296,
-    "validation_date": "2025-06-23 12:28:12"
+    "content_length": 24626,
+    "validation_date": "2025-06-24 12:25:41"
   },
   {
     "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
@@ -66,8 +66,8 @@
     "quality_score": 70,
     "plagiarism_risk": "low",
     "keyword_score": 51,
-    "content_length": 17387,
-    "validation_date": "2025-06-23 12:26:21"
+    "content_length": 17625,
+    "validation_date": "2025-06-24 12:25:18"
   },
   {
     "post_title": "Smart Watch with Heart Rate Monitor",
@@ -76,8 +76,8 @@
     "quality_score": 70,
     "plagiarism_risk": "low",
     "keyword_score": 52,
-    "content_length": 17760,
-    "validation_date": "2025-06-23 12:26:25"
+    "content_length": 18002,
+    "validation_date": "2025-06-24 12:25:22"
   },
   {
     "post_title": "28-Day Keto Challenge",
@@ -86,8 +86,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 53,
-    "content_length": 16872,
-    "validation_date": "2025-06-23 12:26:27"
+    "content_length": 17100,
+    "validation_date": "2025-06-24 12:25:24"
   },
   {
     "post_title": "The Lost Book of Remedies",
@@ -96,38 +96,38 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 59,
-    "content_length": 13957,
-    "validation_date": "2025-06-23 12:26:29"
+    "content_length": 14149,
+    "validation_date": "2025-06-24 12:25:26"
   },
   {
     "post_title": "Adjustable Standing Desk Converter",
     "post_path": "../docs/posts/2025-04-14_adjustable_standing_desk_converter.md",
     "validation_path": "validation/2025-04-14_adjustable_standing_desk_converter_validation.json",
     "quality_score": 70,
-    "plagiarism_risk": "unknown",
+    "plagiarism_risk": "low",
     "keyword_score": 56,
-    "content_length": 23967,
-    "validation_date": "2025-06-23 12:28:14"
+    "content_length": 24290,
+    "validation_date": "2025-06-24 12:25:44"
   },
   {
     "post_title": "Mechanical Keyboard with RGB Lighting",
     "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
     "validation_path": "validation/2025-04-14_mechanical_keyboard_with_rgb_lighting_validation.json",
     "quality_score": 70,
-    "plagiarism_risk": "low",
+    "plagiarism_risk": "unknown",
     "keyword_score": 51,
-    "content_length": 24331,
-    "validation_date": "2025-06-23 12:28:17"
+    "content_length": 24660,
+    "validation_date": "2025-06-24 12:25:46"
   },
   {
     "post_title": "Ergonomic Office Chair with Lumbar Support",
     "post_path": "../docs/posts/2025-04-14_ergonomic_office_chair_with_lumbar_support.md",
     "validation_path": "validation/2025-04-14_ergonomic_office_chair_with_lumbar_support_validation.json",
     "quality_score": 70,
-    "plagiarism_risk": "unknown",
+    "plagiarism_risk": "low",
     "keyword_score": 48,
-    "content_length": 14399,
-    "validation_date": "2025-06-23 12:26:32"
+    "content_length": 14597,
+    "validation_date": "2025-06-24 12:25:30"
   },
   {
     "post_title": "Dual Monitor Stand Adjustable",
@@ -136,8 +136,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 59,
-    "content_length": 13530,
-    "validation_date": "2025-06-23 12:26:35"
+    "content_length": 13716,
+    "validation_date": "2025-06-24 12:25:32"
   },
   {
     "post_title": "Yoga Burn Challenge",
@@ -146,27 +146,27 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 51,
-    "content_length": 22451,
-    "validation_date": "2025-06-23 12:28:03"
+    "content_length": 22759,
+    "validation_date": "2025-06-24 12:25:34"
   },
   {
     "post_title": "Ted's Woodworking Plans",
     "post_path": "../docs/posts/2025-04-14_teds_woodworking_plans.md",
     "validation_path": "validation/2025-04-14_teds_woodworking_plans_validation.json",
     "quality_score": 70,
-    "plagiarism_risk": "low",
+    "plagiarism_risk": "unknown",
     "keyword_score": 51,
-    "content_length": 23079,
-    "validation_date": "2025-06-23 12:28:06"
+    "content_length": 23395,
+    "validation_date": "2025-06-24 12:25:36"
   },
   {
     "post_title": "Portable Bluetooth Speaker Waterproof",
     "post_path": "../docs/posts/2025-04-14_portable_bluetooth_speaker_waterproof.md",
     "validation_path": "validation/2025-04-14_portable_bluetooth_speaker_waterproof_validation.json",
     "quality_score": 70,
-    "plagiarism_risk": "low",
+    "plagiarism_risk": "unknown",
     "keyword_score": 45,
-    "content_length": 21992,
-    "validation_date": "2025-06-23 12:28:10"
+    "content_length": 22294,
+    "validation_date": "2025-06-24 12:25:38"
   }
 ]
