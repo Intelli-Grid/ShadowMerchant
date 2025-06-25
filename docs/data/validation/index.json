@@ -56,8 +56,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 64,
-    "content_length": 24626,
-    "validation_date": "2025-06-24 12:25:41"
+    "content_length": 24956,
+    "validation_date": "2025-06-25 12:25:47"
   },
   {
     "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
@@ -66,8 +66,8 @@
     "quality_score": 70,
     "plagiarism_risk": "low",
     "keyword_score": 51,
-    "content_length": 17625,
-    "validation_date": "2025-06-24 12:25:18"
+    "content_length": 17863,
+    "validation_date": "2025-06-25 12:25:26"
   },
   {
     "post_title": "Smart Watch with Heart Rate Monitor",
@@ -76,8 +76,8 @@
     "quality_score": 70,
     "plagiarism_risk": "low",
     "keyword_score": 52,
-    "content_length": 18002,
-    "validation_date": "2025-06-24 12:25:22"
+    "content_length": 18244,
+    "validation_date": "2025-06-25 12:25:29"
   },
   {
     "post_title": "28-Day Keto Challenge",
@@ -86,8 +86,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 53,
-    "content_length": 17100,
-    "validation_date": "2025-06-24 12:25:24"
+    "content_length": 17328,
+    "validation_date": "2025-06-25 12:25:31"
   },
   {
     "post_title": "The Lost Book of Remedies",
@@ -96,18 +96,18 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 59,
-    "content_length": 14149,
-    "validation_date": "2025-06-24 12:25:26"
+    "content_length": 14341,
+    "validation_date": "2025-06-25 12:25:34"
   },
   {
     "post_title": "Adjustable Standing Desk Converter",
     "post_path": "../docs/posts/2025-04-14_adjustable_standing_desk_converter.md",
     "validation_path": "validation/2025-04-14_adjustable_standing_desk_converter_validation.json",
     "quality_score": 70,
-    "plagiarism_risk": "low",
+    "plagiarism_risk": "unknown",
     "keyword_score": 56,
-    "content_length": 24290,
-    "validation_date": "2025-06-24 12:25:44"
+    "content_length": 24613,
+    "validation_date": "2025-06-25 12:25:49"
   },
   {
     "post_title": "Mechanical Keyboard with RGB Lighting",
@@ -116,18 +116,18 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 51,
-    "content_length": 24660,
-    "validation_date": "2025-06-24 12:25:46"
+    "content_length": 24989,
+    "validation_date": "2025-06-25 12:25:51"
   },
   {
     "post_title": "Ergonomic Office Chair with Lumbar Support",
     "post_path": "../docs/posts/2025-04-14_ergonomic_office_chair_with_lumbar_support.md",
     "validation_path": "validation/2025-04-14_ergonomic_office_chair_with_lumbar_support_validation.json",
     "quality_score": 70,
-    "plagiarism_risk": "low",
+    "plagiarism_risk": "unknown",
     "keyword_score": 48,
-    "content_length": 14597,
-    "validation_date": "2025-06-24 12:25:30"
+    "content_length": 14795,
+    "validation_date": "2025-06-25 12:25:36"
   },
   {
     "post_title": "Dual Monitor Stand Adjustable",
@@ -136,8 +136,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 59,
-    "content_length": 13716,
-    "validation_date": "2025-06-24 12:25:32"
+    "content_length": 13902,
+    "validation_date": "2025-06-25 12:25:38"
   },
   {
     "post_title": "Yoga Burn Challenge",
@@ -146,8 +146,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 51,
-    "content_length": 22759,
-    "validation_date": "2025-06-24 12:25:34"
+    "content_length": 23067,
+    "validation_date": "2025-06-25 12:25:40"
   },
   {
     "post_title": "Ted's Woodworking Plans",
@@ -156,8 +156,8 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 51,
-    "content_length": 23395,
-    "validation_date": "2025-06-24 12:25:36"
+    "content_length": 23711,
+    "validation_date": "2025-06-25 12:25:43"
   },
   {
     "post_title": "Portable Bluetooth Speaker Waterproof",
@@ -166,7 +166,7 @@
     "quality_score": 70,
     "plagiarism_risk": "unknown",
     "keyword_score": 45,
-    "content_length": 22294,
-    "validation_date": "2025-06-24 12:25:38"
+    "content_length": 22596,
+    "validation_date": "2025-06-25 12:25:45"
   }
 ]
