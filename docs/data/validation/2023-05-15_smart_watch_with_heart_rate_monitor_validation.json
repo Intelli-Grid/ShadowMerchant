@@ -1,7 +1,7 @@
 {
   "post_title": "Smart Watch with Heart Rate Monitor",
   "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
-  "content_length": 18486,
+  "content_length": 18728,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,19 +22,19 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a standard SEO metadata and schema markup for a blog post. The text is short and does not contain any unusual phrasing or technical information that would suggest copying from elsewhere. The author's name and logo are also included, which suggests that the content is original. However, the content is very brief and does not provide any unique insights or information, which may indicate that it is a template or a generic description."
+    "explanation": "Error during analysis: 503 Server Error: Service Unavailable for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 52,
     "keyword_counts": {
-      "Smart Watch with Heart Rate Monitor": 743,
-      "Smart": 1201,
-      "Smart review": 74,
-      "best Smart": 75,
-      "Amazon": 154
+      "Smart Watch with Heart Rate Monitor": 753,
+      "Smart": 1217,
+      "Smart review": 75,
+      "best Smart": 76,
+      "Amazon": 156
     },
     "keyword_density": {
       "Smart Watch with Heart Rate Monitor": 4.02,
@@ -57,7 +57,7 @@
       "best Smart": 42,
       "Amazon": 70
     },
-    "content_length": 18486
+    "content_length": 18728
   },
-  "validation_date": "2025-06-26 12:24:53"
+  "validation_date": "2025-06-27 12:24:22"
 }
