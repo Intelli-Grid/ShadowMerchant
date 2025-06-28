@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 25647,
+  "content_length": 25976,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,23 +22,23 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is clear and concise. The inclusion of specific details, such as the price and features of the mechanical keyboard, suggests that the author has hands-on experience with the product. The only potential red flag is the use of generic phrases, such as 'Are you tired of using a standard keyboard...,' which could be found in multiple sources. However, the overall tone and structure of the content suggest that it is an original work."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 538,
-      "Mechanical": 1304,
-      "Mechanical review": 76,
-      "best Mechanical": 77,
-      "Amazon": 158
+      "Mechanical Keyboard with RGB Lighting": 545,
+      "Mechanical": 1321,
+      "Mechanical review": 77,
+      "best Mechanical": 78,
+      "Amazon": 160
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.1,
-      "Mechanical": 5.08,
+      "Mechanical": 5.09,
       "Mechanical review": 0.3,
       "best Mechanical": 0.3,
       "Amazon": 0.62
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 25647
+    "content_length": 25976
   },
-  "validation_date": "2025-06-27 12:24:45"
+  "validation_date": "2025-06-28 12:22:33"
 }
