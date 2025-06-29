@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 25976,
+  "content_length": 26305,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is clear and concise. The inclusion of specific details, such as the price and features of the mechanical keyboard, suggests that the author has hands-on experience with the product. The only potential red flag is the use of generic phrases, such as 'Are you tired of using a standard keyboard...,' which could be found in multiple sources. However, the overall tone and structure of the content suggest that it is an original work."
+    "explanation": "The content appears to be original, with no unusual phrasing or technical information that would suggest copying from elsewhere. The writing style is consistent throughout, and the keywords and meta tags are relevant to the content. The only potential issue is the use of a generic phrase 'Are you tired of using a standard keyboard...' which could be found in multiple sources, but it's not a strong indicator of plagiarism. Overall, the content appears to be original and well-written."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 545,
-      "Mechanical": 1321,
-      "Mechanical review": 77,
-      "best Mechanical": 78,
-      "Amazon": 160
+      "Mechanical Keyboard with RGB Lighting": 552,
+      "Mechanical": 1338,
+      "Mechanical review": 78,
+      "best Mechanical": 79,
+      "Amazon": 162
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.1,
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 25976
+    "content_length": 26305
   },
-  "validation_date": "2025-06-28 12:22:33"
+  "validation_date": "2025-06-29 12:23:07"
 }
