@@ -1,35 +1,24 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 14646,
+  "content_length": 14832,
   "quality_check": {
-    "overall_score": 60,
-    "grammar_score": 90,
-    "readability_score": 40,
-    "engagement_score": 20,
-    "structure_score": 30,
-    "accuracy_score": 80,
-    "seo_score": 80,
-    "cta_score": 0,
+    "overall_score": 70,
+    "grammar_score": 70,
+    "readability_score": 70,
+    "engagement_score": 70,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "No content provided",
-      "No meta description provided",
-      "No clear call-to-action",
-      "No images or multimedia content",
-      "No internal or external linking",
-      "No clear structure or organization"
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "Good use of schema markup",
-      "Proper use of meta tags"
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Add content to provide value to readers",
-      "Write a clear and concise meta description",
-      "Include a clear call-to-action to encourage engagement",
-      "Add images or multimedia content to enhance user experience",
-      "Include internal or external linking to provide additional resources",
-      "Organize content using headings, subheadings, and paragraphs"
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
@@ -41,11 +30,11 @@
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 470,
-      "Dual": 933,
-      "Dual review": 77,
-      "best Dual": 77,
-      "Amazon": 161
+      "Dual Monitor Stand Adjustable": 476,
+      "Dual": 945,
+      "Dual review": 78,
+      "best Dual": 78,
+      "Amazon": 163
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.21,
@@ -68,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 14646
+    "content_length": 14832
   },
-  "validation_date": "2025-06-29 12:22:53"
+  "validation_date": "2025-06-30 12:25:28"
 }
