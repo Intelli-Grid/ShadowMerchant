@@ -1,7 +1,7 @@
 {
   "post_title": "Smart Watch with Heart Rate Monitor",
   "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
-  "content_length": 19696,
+  "content_length": 19938,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,20 +25,20 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a standard SEO meta tags and schema markup for a blog post. The text is original and does not contain any unusual phrasing or technical information that would suggest copying from elsewhere. The author's name and logo are also included, which suggests that the content is original and not plagiarized. However, the confidence level is low due to the lack of substantial content in the provided text."
+    "explanation": "The provided content appears to be a basic metadata setup for a blog post, including SEO tags and schema markup. The text is short and does not contain any unusual phrasing, technical information, or outdated references that would suggest plagiarism. The writing style is consistent throughout, and the content does not seem to be copied from elsewhere. However, the content is very brief and lacks any substantial information, which may indicate that it is a placeholder or a template. Further analysis would be needed to confirm the authenticity of the content."
   },
   "keyword_optimization": {
     "overall_score": 52,
     "keyword_counts": {
-      "Smart Watch with Heart Rate Monitor": 793,
-      "Smart": 1281,
-      "Smart review": 79,
-      "best Smart": 80,
-      "Amazon": 164
+      "Smart Watch with Heart Rate Monitor": 803,
+      "Smart": 1297,
+      "Smart review": 80,
+      "best Smart": 81,
+      "Amazon": 166
     },
     "keyword_density": {
       "Smart Watch with Heart Rate Monitor": 4.03,
-      "Smart": 6.5,
+      "Smart": 6.51,
       "Smart review": 0.4,
       "best Smart": 0.41,
       "Amazon": 0.83
@@ -57,7 +57,7 @@
       "best Smart": 42,
       "Amazon": 70
     },
-    "content_length": 19696
+    "content_length": 19938
   },
-  "validation_date": "2025-07-01 12:25:34"
+  "validation_date": "2025-07-02 12:24:43"
 }
