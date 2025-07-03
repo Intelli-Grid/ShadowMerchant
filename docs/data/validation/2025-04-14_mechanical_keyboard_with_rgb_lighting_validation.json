@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 27292,
+  "content_length": 27621,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language used is clear and concise. The technical information provided about the mechanical keyboard is general and does not seem to be copied from a specific source. The only potential issue is the use of similar phrases and sentences found in other reviews and articles about mechanical keyboards, but this is a common phenomenon in the review writing genre. Overall, the content appears to be original and does not pose a significant plagiarism risk."
+    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language used is clear and concise. The inclusion of specific details, such as the price and features of the mechanical keyboard, suggests that the author has hands-on experience with the product. The only potential red flag is the use of a generic phrase 'Look no further!' which is a common phrase used in many product reviews. However, without further analysis, it is difficult to determine if this phrase is an exact copy or simply a common phrase used in the industry."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 573,
-      "Mechanical": 1389,
-      "Mechanical review": 81,
-      "best Mechanical": 82,
-      "Amazon": 168
+      "Mechanical Keyboard with RGB Lighting": 580,
+      "Mechanical": 1406,
+      "Mechanical review": 82,
+      "best Mechanical": 83,
+      "Amazon": 170
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.1,
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 27292
+    "content_length": 27621
   },
-  "validation_date": "2025-07-02 12:25:06"
+  "validation_date": "2025-07-03 12:25:49"
 }
