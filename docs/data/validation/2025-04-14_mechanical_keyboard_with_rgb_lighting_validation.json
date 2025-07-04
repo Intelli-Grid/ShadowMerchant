@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 27621,
+  "content_length": 27950,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,19 +22,19 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language used is clear and concise. The inclusion of specific details, such as the price and features of the mechanical keyboard, suggests that the author has hands-on experience with the product. The only potential red flag is the use of a generic phrase 'Look no further!' which is a common phrase used in many product reviews. However, without further analysis, it is difficult to determine if this phrase is an exact copy or simply a common phrase used in the industry."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 580,
-      "Mechanical": 1406,
-      "Mechanical review": 82,
-      "best Mechanical": 83,
-      "Amazon": 170
+      "Mechanical Keyboard with RGB Lighting": 587,
+      "Mechanical": 1423,
+      "Mechanical review": 83,
+      "best Mechanical": 84,
+      "Amazon": 172
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.1,
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 27621
+    "content_length": 27950
   },
-  "validation_date": "2025-07-03 12:25:49"
+  "validation_date": "2025-07-04 12:25:04"
 }

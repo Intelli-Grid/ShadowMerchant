@@ -1,7 +1,7 @@
 {
   "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
   "post_path": "../docs/posts/2023-05-15_wireless_bluetooth_earbuds_with_noise_cancellation.md",
-  "content_length": 19767,
+  "content_length": 20005,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no unusual phrasing or technical information that would suggest copying from elsewhere. The writing style is consistent throughout the text. The meta tags and schema markup are properly formatted and do not contain any suspicious information. The content is likely to be an original review or article about wireless Bluetooth earbuds with noise cancellation."
+    "explanation": "The provided content appears to be an original review of wireless Bluetooth earbuds with noise cancellation. The language used is straightforward and lacks unusual phrasing that might be copied from elsewhere. The technical information provided is basic and does not require expertise. The content does not contain outdated information, and the author's name and logo are included. However, the content's simplicity and lack of complex ideas may indicate a low plagiarism risk."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 812,
-      "Wireless": 1303,
-      "Wireless review": 81,
-      "best Wireless": 82,
-      "Amazon": 168
+      "Wireless Bluetooth Earbuds with Noise Cancellation": 822,
+      "Wireless": 1319,
+      "Wireless review": 82,
+      "best Wireless": 83,
+      "Amazon": 170
     },
     "keyword_density": {
       "Wireless Bluetooth Earbuds with Noise Cancellation": 4.11,
@@ -57,7 +57,7 @@
       "best Wireless": 42,
       "Amazon": 70
     },
-    "content_length": 19767
+    "content_length": 20005
   },
-  "validation_date": "2025-07-03 12:25:23"
+  "validation_date": "2025-07-04 12:24:39"
 }
