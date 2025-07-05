@@ -1,7 +1,7 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 15576,
+  "content_length": 15762,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic metadata and schema markup for a blog post about a dual monitor stand. The text is short and lacks specific information that would require expertise. The phrasing is straightforward, and there are no unusual phrases that might be copied from elsewhere. The writing style is consistent throughout the text. The metadata and schema markup are typical for a blog post and do not contain any highly technical or specific information that would suggest copying from older sources. Overall, the content appears to be original and does not exhibit any significant plagiarism indicators."
+    "explanation": "The provided content appears to be a basic metadata setup for a blog post, including SEO tags and schema markup. The text is short and lacks specific information that would require expertise. The writing style is consistent throughout, and there are no unusual phrasing or technical terms that would suggest copying from elsewhere. The content is likely original and not plagiarized."
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 500,
-      "Dual": 993,
-      "Dual review": 82,
-      "best Dual": 82,
-      "Amazon": 171
+      "Dual Monitor Stand Adjustable": 506,
+      "Dual": 1005,
+      "Dual review": 83,
+      "best Dual": 83,
+      "Amazon": 173
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.21,
@@ -57,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 15576
+    "content_length": 15762
   },
-  "validation_date": "2025-07-04 12:24:51"
+  "validation_date": "2025-07-05 12:22:15"
 }
