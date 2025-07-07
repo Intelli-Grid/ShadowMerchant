@@ -1,7 +1,7 @@
 {
   "post_title": "Smart Watch with Heart Rate Monitor",
   "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
-  "content_length": 20906,
+  "content_length": 21148,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a standard SEO metadata and schema markup for a blog post. The text is short and does not contain any unusual phrasing, technical jargon, or outdated information that would suggest copying from elsewhere. The author's name and organization are also provided, which suggests original content. However, the content is very brief and lacks any substantial information, which may indicate a low level of originality. Nevertheless, the overall assessment is that the content is likely original, but further analysis would be needed to confirm this."
+    "explanation": "The provided content appears to be a standard SEO meta tag and schema markup for a blog post. The text is generic and does not contain any unusual phrasing or technical information that would suggest copying from elsewhere. The author name and logo are also included, which suggests that the content is original. However, the content is quite short and lacks any distinctive writing style or unique insights, which may indicate a low level of originality. Overall, the plagiarism risk is considered low, but it is still possible that the content may have been copied from a similar source."
   },
   "keyword_optimization": {
     "overall_score": 52,
     "keyword_counts": {
-      "Smart Watch with Heart Rate Monitor": 843,
-      "Smart": 1361,
-      "Smart review": 84,
-      "best Smart": 85,
-      "Amazon": 174
+      "Smart Watch with Heart Rate Monitor": 853,
+      "Smart": 1377,
+      "Smart review": 85,
+      "best Smart": 86,
+      "Amazon": 176
     },
     "keyword_density": {
       "Smart Watch with Heart Rate Monitor": 4.03,
@@ -57,7 +57,7 @@
       "best Smart": 42,
       "Amazon": 70
     },
-    "content_length": 20906
+    "content_length": 21148
   },
-  "validation_date": "2025-07-06 12:22:22"
+  "validation_date": "2025-07-07 12:25:17"
 }
