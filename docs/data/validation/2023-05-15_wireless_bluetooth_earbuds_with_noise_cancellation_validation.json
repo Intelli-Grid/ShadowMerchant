@@ -1,7 +1,7 @@
 {
   "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
   "post_path": "../docs/posts/2023-05-15_wireless_bluetooth_earbuds_with_noise_cancellation.md",
-  "content_length": 21433,
+  "content_length": 21671,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The content appears to be an original review of wireless Bluetooth earbuds with noise cancellation, with no obvious signs of plagiarism. The writing style is consistent throughout, and the technical information provided is general and not highly specific. The use of keywords and meta tags is typical for a blog post, and the schema markup is correctly implemented. The content does not contain any unusual phrasing or outdated information that would suggest copying from elsewhere."
+    "explanation": "The provided content appears to be original and does not contain any unusual phrasing or technical information that would suggest copying from elsewhere. The writing style is consistent throughout the text, and the language used is straightforward and easy to understand. The only potential issue is the use of generic keywords and meta tags, which could be easily generated using online tools. However, the content itself does not show any signs of plagiarism."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 882,
-      "Wireless": 1415,
-      "Wireless review": 88,
-      "best Wireless": 89,
-      "Amazon": 182
+      "Wireless Bluetooth Earbuds with Noise Cancellation": 892,
+      "Wireless": 1431,
+      "Wireless review": 89,
+      "best Wireless": 90,
+      "Amazon": 184
     },
     "keyword_density": {
       "Wireless Bluetooth Earbuds with Noise Cancellation": 4.12,
@@ -57,7 +57,7 @@
       "best Wireless": 42,
       "Amazon": 70
     },
-    "content_length": 21433
+    "content_length": 21671
   },
-  "validation_date": "2025-07-10 12:25:39"
+  "validation_date": "2025-07-11 12:24:42"
 }
