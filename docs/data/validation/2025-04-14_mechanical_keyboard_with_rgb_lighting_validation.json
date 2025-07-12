@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 30253,
+  "content_length": 30582,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language is simple and straightforward. The use of technical terms such as 'tactile feedback' and 'RGB lighting' suggests that the author has a good understanding of the topic. The content is also well-structured and easy to follow. However, the confidence level is relatively low due to the possibility of unintentional plagiarism or the use of common phrases and sentences that may be found in other sources."
+    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language used is clear and concise. The inclusion of specific details, such as the price and features of the mechanical keyboard, suggests that the author has hands-on experience with the product. The schema markup and SEO tags also appear to be correctly implemented. However, a more thorough analysis may be necessary to confirm the originality of the content."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 636,
-      "Mechanical": 1542,
-      "Mechanical review": 90,
-      "best Mechanical": 91,
-      "Amazon": 186
+      "Mechanical Keyboard with RGB Lighting": 643,
+      "Mechanical": 1559,
+      "Mechanical review": 91,
+      "best Mechanical": 92,
+      "Amazon": 188
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.1,
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 30253
+    "content_length": 30582
   },
-  "validation_date": "2025-07-11 12:25:11"
+  "validation_date": "2025-07-12 12:22:49"
 }

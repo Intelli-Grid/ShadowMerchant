@@ -1,7 +1,7 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 16878,
+  "content_length": 17064,
   "quality_check": {
     "overall_score": 60,
     "grammar_score": 90,
@@ -12,23 +12,25 @@
     "seo_score": 90,
     "cta_score": 0,
     "issues": [
-      "No content provided",
-      "No meta description provided",
-      "No content optimization for target keywords",
+      "Lack of descriptive content",
       "No clear call-to-action",
-      "No internal or external linking",
-      "No images or multimedia content"
+      "Meta description and title are empty",
+      "No clear structure or organization",
+      "No specific details about the product",
+      "No images or multimedia to enhance engagement"
     ],
     "strengths": [
       "Good use of schema markup",
-      "Well-structured meta tags"
+      "Well-structured meta tags",
+      "Clear authorship"
     ],
     "improvement_suggestions": [
-      "Provide high-quality content related to the topic",
-      "Optimize meta description and content for target keywords",
-      "Add a clear call-to-action to encourage user engagement",
-      "Include internal or external linking to relevant content",
-      "Add images or multimedia content to enhance user experience"
+      "Add descriptive content about the product",
+      "Include a clear call-to-action",
+      "Fill in the meta description and title",
+      "Organize the content with headings and subheadings",
+      "Provide specific details about the product",
+      "Add images or multimedia to enhance engagement"
     ]
   },
   "plagiarism_check": {
@@ -40,11 +42,11 @@
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 542,
-      "Dual": 1077,
-      "Dual review": 89,
-      "best Dual": 89,
-      "Amazon": 185
+      "Dual Monitor Stand Adjustable": 548,
+      "Dual": 1089,
+      "Dual review": 90,
+      "best Dual": 90,
+      "Amazon": 187
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.21,
@@ -67,7 +69,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 16878
+    "content_length": 17064
   },
-  "validation_date": "2025-07-11 12:24:55"
+  "validation_date": "2025-07-12 12:22:35"
 }
