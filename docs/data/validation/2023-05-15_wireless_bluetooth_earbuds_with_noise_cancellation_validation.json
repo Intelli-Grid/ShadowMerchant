@@ -1,7 +1,7 @@
 {
   "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
   "post_path": "../docs/posts/2023-05-15_wireless_bluetooth_earbuds_with_noise_cancellation.md",
-  "content_length": 21909,
+  "content_length": 22147,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,20 +25,20 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be an original review of wireless Bluetooth earbuds with noise cancellation. The writing style is consistent throughout, and the technical information provided is general and not highly specific. The content does not contain any unusual phrasing or outdated information that would suggest copying from elsewhere. The schema markup and SEO tags are also properly formatted and do not raise any suspicions of plagiarism."
+    "explanation": "The provided content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the technical information provided is general and not highly specific. The use of keywords and meta tags is common in SEO content, and the schema markup is correctly formatted. However, a more thorough analysis would require a larger sample size or comparison to other sources."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 902,
-      "Wireless": 1447,
-      "Wireless review": 90,
-      "best Wireless": 91,
-      "Amazon": 186
+      "Wireless Bluetooth Earbuds with Noise Cancellation": 912,
+      "Wireless": 1463,
+      "Wireless review": 91,
+      "best Wireless": 92,
+      "Amazon": 188
     },
     "keyword_density": {
       "Wireless Bluetooth Earbuds with Noise Cancellation": 4.12,
-      "Wireless": 6.6,
+      "Wireless": 6.61,
       "Wireless review": 0.41,
       "best Wireless": 0.42,
       "Amazon": 0.85
@@ -57,7 +57,7 @@
       "best Wireless": 42,
       "Amazon": 70
     },
-    "content_length": 21909
+    "content_length": 22147
   },
-  "validation_date": "2025-07-12 12:22:22"
+  "validation_date": "2025-07-13 12:23:14"
 }

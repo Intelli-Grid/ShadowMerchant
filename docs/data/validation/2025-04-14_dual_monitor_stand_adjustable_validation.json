@@ -1,36 +1,24 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 17064,
+  "content_length": 17250,
   "quality_check": {
-    "overall_score": 60,
-    "grammar_score": 90,
-    "readability_score": 40,
-    "engagement_score": 30,
+    "overall_score": 70,
+    "grammar_score": 70,
+    "readability_score": 70,
+    "engagement_score": 70,
     "structure_score": 70,
-    "accuracy_score": 80,
-    "seo_score": 90,
-    "cta_score": 0,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "Lack of descriptive content",
-      "No clear call-to-action",
-      "Meta description and title are empty",
-      "No clear structure or organization",
-      "No specific details about the product",
-      "No images or multimedia to enhance engagement"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Good use of schema markup",
-      "Well-structured meta tags",
-      "Clear authorship"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Add descriptive content about the product",
-      "Include a clear call-to-action",
-      "Fill in the meta description and title",
-      "Organize the content with headings and subheadings",
-      "Provide specific details about the product",
-      "Add images or multimedia to enhance engagement"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
@@ -42,11 +30,11 @@
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 548,
-      "Dual": 1089,
-      "Dual review": 90,
-      "best Dual": 90,
-      "Amazon": 187
+      "Dual Monitor Stand Adjustable": 554,
+      "Dual": 1101,
+      "Dual review": 91,
+      "best Dual": 91,
+      "Amazon": 189
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.21,
@@ -69,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 17064
+    "content_length": 17250
   },
-  "validation_date": "2025-07-12 12:22:35"
+  "validation_date": "2025-07-13 12:23:30"
 }

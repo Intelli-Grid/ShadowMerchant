@@ -1,40 +1,48 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 30582,
+  "content_length": 30911,
   "quality_check": {
-    "overall_score": 70,
-    "grammar_score": 70,
-    "readability_score": 70,
+    "overall_score": 75,
+    "grammar_score": 95,
+    "readability_score": 80,
     "engagement_score": 70,
-    "structure_score": 70,
-    "accuracy_score": 70,
-    "seo_score": 70,
-    "cta_score": 70,
+    "structure_score": 85,
+    "accuracy_score": 90,
+    "seo_score": 80,
+    "cta_score": 60,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "The content is quite short and lacks depth, making it seem more like a product description than a review.",
+      "The tone is somewhat formal, but could be more engaging and conversational.",
+      "The use of keywords is heavy-handed, which may negatively impact search engine rankings.",
+      "The call to action is unclear and lacks a clear sense of urgency."
     ],
     "strengths": [
-      "Unable to determine"
+      "The content is well-structured and easy to follow.",
+      "The use of meta tags and schema markup is thorough and accurate.",
+      "The content is free of major grammatical errors."
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Expand the content to provide more depth and analysis of the product.",
+      "Use a more conversational tone to engage readers.",
+      "Use keywords more naturally and avoid over-optimization.",
+      "Add a clear and compelling call to action to encourage readers to take action."
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language used is clear and concise. The inclusion of specific details, such as the price and features of the mechanical keyboard, suggests that the author has hands-on experience with the product. The schema markup and SEO tags also appear to be correctly implemented. However, a more thorough analysis may be necessary to confirm the originality of the content."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 643,
-      "Mechanical": 1559,
-      "Mechanical review": 91,
-      "best Mechanical": 92,
-      "Amazon": 188
+      "Mechanical Keyboard with RGB Lighting": 650,
+      "Mechanical": 1576,
+      "Mechanical review": 92,
+      "best Mechanical": 93,
+      "Amazon": 190
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.1,
@@ -57,7 +65,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 30582
+    "content_length": 30911
   },
-  "validation_date": "2025-07-12 12:22:49"
+  "validation_date": "2025-07-13 12:23:44"
 }
