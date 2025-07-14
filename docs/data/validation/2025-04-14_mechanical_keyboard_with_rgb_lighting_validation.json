@@ -1,32 +1,32 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 30911,
+  "content_length": 31240,
   "quality_check": {
     "overall_score": 75,
-    "grammar_score": 95,
+    "grammar_score": 90,
     "readability_score": 80,
     "engagement_score": 70,
     "structure_score": 85,
-    "accuracy_score": 90,
-    "seo_score": 80,
+    "accuracy_score": 95,
+    "seo_score": 90,
     "cta_score": 60,
     "issues": [
-      "The content is quite short and lacks depth, making it seem more like a product description than a review.",
-      "The tone is somewhat formal, but could be more engaging and conversational.",
-      "The use of keywords is heavy-handed, which may negatively impact search engine rankings.",
-      "The call to action is unclear and lacks a clear sense of urgency."
+      "The content is a bit lengthy and could be broken up into smaller paragraphs for better readability.",
+      "The tone is somewhat formal, but could be more conversational to engage the reader.",
+      "The review could benefit from more specific details about the keyboard's features and performance.",
+      "The call-to-action is not very clear and could be rephrased for better effectiveness."
     ],
     "strengths": [
       "The content is well-structured and easy to follow.",
-      "The use of meta tags and schema markup is thorough and accurate.",
-      "The content is free of major grammatical errors."
+      "The use of meta tags and schema markup is excellent for SEO purposes.",
+      "The content is accurate and provides a good overview of the product."
     ],
     "improvement_suggestions": [
-      "Expand the content to provide more depth and analysis of the product.",
-      "Use a more conversational tone to engage readers.",
-      "Use keywords more naturally and avoid over-optimization.",
-      "Add a clear and compelling call to action to encourage readers to take action."
+      "Consider adding more visuals, such as images or videos, to break up the text and make the content more engaging.",
+      "Use a more conversational tone to make the content feel more approachable and relatable.",
+      "Provide more specific details about the product's features and performance to help readers make an informed decision.",
+      "Rephrase the call-to-action to make it more clear and effective."
     ]
   },
   "plagiarism_check": {
@@ -38,11 +38,11 @@
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 650,
-      "Mechanical": 1576,
-      "Mechanical review": 92,
-      "best Mechanical": 93,
-      "Amazon": 190
+      "Mechanical Keyboard with RGB Lighting": 657,
+      "Mechanical": 1593,
+      "Mechanical review": 93,
+      "best Mechanical": 94,
+      "Amazon": 192
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.1,
@@ -65,7 +65,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 30911
+    "content_length": 31240
   },
-  "validation_date": "2025-07-13 12:23:44"
+  "validation_date": "2025-07-14 12:26:56"
 }
