@@ -1,24 +1,32 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 17436,
+  "content_length": 17622,
   "quality_check": {
-    "overall_score": 70,
-    "grammar_score": 70,
+    "overall_score": 60,
+    "grammar_score": 90,
     "readability_score": 70,
-    "engagement_score": 70,
-    "structure_score": 70,
-    "accuracy_score": 70,
-    "seo_score": 70,
-    "cta_score": 70,
+    "engagement_score": 40,
+    "structure_score": 80,
+    "accuracy_score": 90,
+    "seo_score": 80,
+    "cta_score": 0,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Missing meta description and title tags",
+      "No clear structure or organization",
+      "No engaging content or tone",
+      "No clear call to action"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Good use of schema markup",
+      "Clear and concise meta tags"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Add a clear and concise meta description and title tags",
+      "Organize the content with headings and subheadings",
+      "Use a more engaging tone and style",
+      "Add a clear call to action, such as a link to the product page",
+      "Consider adding more specific and relevant keywords to the meta tags"
     ]
   },
   "plagiarism_check": {
@@ -30,11 +38,11 @@
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 560,
-      "Dual": 1113,
-      "Dual review": 92,
-      "best Dual": 92,
-      "Amazon": 191
+      "Dual Monitor Stand Adjustable": 566,
+      "Dual": 1125,
+      "Dual review": 93,
+      "best Dual": 93,
+      "Amazon": 193
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.21,
@@ -57,7 +65,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 17436
+    "content_length": 17622
   },
-  "validation_date": "2025-07-14 12:26:41"
+  "validation_date": "2025-07-15 12:27:02"
 }
