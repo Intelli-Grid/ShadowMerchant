@@ -1,32 +1,24 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 17622,
+  "content_length": 17808,
   "quality_check": {
-    "overall_score": 60,
-    "grammar_score": 90,
+    "overall_score": 70,
+    "grammar_score": 70,
     "readability_score": 70,
-    "engagement_score": 40,
-    "structure_score": 80,
-    "accuracy_score": 90,
-    "seo_score": 80,
-    "cta_score": 0,
+    "engagement_score": 70,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "Missing meta description and title tags",
-      "No clear structure or organization",
-      "No engaging content or tone",
-      "No clear call to action"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Good use of schema markup",
-      "Clear and concise meta tags"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Add a clear and concise meta description and title tags",
-      "Organize the content with headings and subheadings",
-      "Use a more engaging tone and style",
-      "Add a clear call to action, such as a link to the product page",
-      "Consider adding more specific and relevant keywords to the meta tags"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
@@ -38,11 +30,11 @@
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 566,
-      "Dual": 1125,
-      "Dual review": 93,
-      "best Dual": 93,
-      "Amazon": 193
+      "Dual Monitor Stand Adjustable": 572,
+      "Dual": 1137,
+      "Dual review": 94,
+      "best Dual": 94,
+      "Amazon": 195
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.21,
@@ -65,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 17622
+    "content_length": 17808
   },
-  "validation_date": "2025-07-15 12:27:02"
+  "validation_date": "2025-07-16 12:26:57"
 }
