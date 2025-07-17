@@ -55,6 +55,79 @@ schema_markup: |
   "@type": "Review",
   "reviewRating": {
   "@type": "Rating",
+  "ratingValue": "4.1",
+  "bestRating": "5"
+  },
+  "author": {
+  "@type": "Person",
+  "name": "Shadow Merchant Expert Advisor"
+  },
+  "itemReviewed": {
+  "@type": "Product",
+  "name": "Ted's Woodworking Plans",
+  "offers": {
+  "@type": "Offer",
+  "price": "67.00",
+  "priceCurrency": "USD",
+  "availability": "https://schema.org/InStock",
+  "url": "https://www.clickbank.com/teds-woodworking"
+  }
+  }
+  }
+  }
+  </script>
+---
+
+seo_tags: |
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="Ted's Woodworking Plans">
+  <meta name="description" content="Are you a woodworking enthusiast looking for a comprehensive guide to help you create stunning projects? Look no further than Ted's Woodworking Plans! As the...">
+  <meta name="keywords" content="Ted's Woodworking Plans, woodworking plans, best ted's 2025, ted's review, ClickBank products">
+  <meta name="author" content="Shadow Merchant Expert Advisor">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://shadowmerchant.wordpress.com/posts/2025-04-14_teds_woodworking_plans.md">
+  <meta property="og:title" content="Ted's Woodworking Plans">
+  <meta property="og:description" content="Are you a woodworking enthusiast looking for a comprehensive guide to help you create stunning projects? Look no further than Ted's Woodworking Plans! As the...">
+  <meta property="og:image" content="https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://shadowmerchant.wordpress.com/posts/2025-04-14_teds_woodworking_plans.md">
+  <meta property="twitter:title" content="Ted's Woodworking Plans">
+  <meta property="twitter:description" content="Are you a woodworking enthusiast looking for a comprehensive guide to help you create stunning projects? Look no further than Ted's Woodworking Plans! As the...">
+  <meta property="twitter:image" content="https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png">
+schema_markup: |
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+  "@type": "WebPage",
+  "@id": "https://shadowmerchant.wordpress.com/posts/2025-04-14_teds_woodworking_plans.md"
+  },
+  "headline": "Ted's Woodworking Plans",
+  "description": "Are you a woodworking enthusiast looking for a comprehensive guide to help you create stunning projects? Look no further than Ted's Woodworking Plans! As the best woodworking plan package of 2023, this affordable solution has revolutionized the way woodworkers approach their craft. In this review, we'll dive into the key features and benefits, pros and cons, and compare it to similar products on the market.",
+  "image": "https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png",
+  "author": {
+  "@type": "Person",
+  "name": "Shadow Merchant Expert Advisor"
+  },
+  "publisher": {
+  "@type": "Organization",
+  "name": "Shadow Merchant",
+  "logo": {
+  "@type": "ImageObject",
+  "url": "https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png"
+  }
+  },
+  "datePublished": "2025-04-14T00:00:00+00:00",
+  "dateModified": "2025-04-14T00:00:00+00:00",
+  "review": {
+  "@type": "Review",
+  "reviewRating": {
+  "@type": "Rating",
   "ratingValue": "4.7",
   "bestRating": "5"
   },
