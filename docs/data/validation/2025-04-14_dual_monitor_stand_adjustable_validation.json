@@ -1,7 +1,7 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 17994,
+  "content_length": 18180,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -22,19 +22,19 @@
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The provided content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the technical information is general and not highly specific. The meta tags and schema markup are also properly formatted and do not contain any suspicious or outdated information. However, the content is relatively short and lacks depth, which may indicate a lack of expertise or original research. A more detailed analysis would be necessary to confirm the authenticity of the content."
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 578,
-      "Dual": 1149,
-      "Dual review": 95,
-      "best Dual": 95,
-      "Amazon": 197
+      "Dual Monitor Stand Adjustable": 584,
+      "Dual": 1161,
+      "Dual review": 96,
+      "best Dual": 96,
+      "Amazon": 199
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.21,
@@ -57,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 17994
+    "content_length": 18180
   },
-  "validation_date": "2025-07-17 12:26:26"
+  "validation_date": "2025-07-18 12:26:21"
 }
