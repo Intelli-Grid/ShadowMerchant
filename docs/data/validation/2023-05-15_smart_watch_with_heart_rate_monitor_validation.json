@@ -1,7 +1,7 @@
 {
   "post_title": "Smart Watch with Heart Rate Monitor",
   "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
-  "content_length": 24052,
+  "content_length": 24294,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a standard SEO meta tag and schema markup for a blog post. The text is generic and does not contain any unusual phrasing or technical information that would suggest copying from elsewhere. The author name and logo URL are also unique, which suggests that the content is original. However, the content is very brief and lacks specific details, which may indicate that it is a template or a placeholder. Further analysis is needed to determine the authenticity of the content."
+    "explanation": "The provided content appears to be a standard SEO meta tag and schema markup for a blog post. The text is generic and does not contain any unusual phrasing or technical information that would suggest copying from elsewhere. The author's name and logo are also included, which suggests that the content is original. However, the content is quite short and lacks specific details, which may indicate that it is a template or a basic outline. Overall, the plagiarism risk is low, but it is still important to verify the originality of the content through further analysis."
   },
   "keyword_optimization": {
     "overall_score": 52,
     "keyword_counts": {
-      "Smart Watch with Heart Rate Monitor": 973,
-      "Smart": 1569,
-      "Smart review": 97,
-      "best Smart": 98,
-      "Amazon": 200
+      "Smart Watch with Heart Rate Monitor": 983,
+      "Smart": 1585,
+      "Smart review": 98,
+      "best Smart": 99,
+      "Amazon": 202
     },
     "keyword_density": {
       "Smart Watch with Heart Rate Monitor": 4.05,
@@ -57,7 +57,7 @@
       "best Smart": 42,
       "Amazon": 70
     },
-    "content_length": 24052
+    "content_length": 24294
   },
-  "validation_date": "2025-07-19 12:23:10"
+  "validation_date": "2025-07-20 12:23:44"
 }
