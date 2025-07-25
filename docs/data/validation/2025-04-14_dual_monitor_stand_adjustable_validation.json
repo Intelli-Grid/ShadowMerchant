@@ -1,7 +1,7 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 19296,
+  "content_length": 19482,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,29 +12,29 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The provided content appears to be a basic product review with minimal text. The writing style is consistent throughout, and the language used is straightforward. The content does not contain any highly technical or specific information that would require expertise. The meta tags and schema markup are also standard and do not suggest copying from older sources. However, the content is quite short and lacks depth, which may indicate a low level of originality. Overall, the plagiarism risk is low, but it is still possible that the content may have been copied from a similar source."
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 620,
-      "Dual": 1233,
-      "Dual review": 102,
-      "best Dual": 102,
-      "Amazon": 211
+      "Dual Monitor Stand Adjustable": 626,
+      "Dual": 1245,
+      "Dual review": 103,
+      "best Dual": 103,
+      "Amazon": 213
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.21,
@@ -57,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 19296
+    "content_length": 19482
   },
-  "validation_date": "2025-07-24 12:27:29"
+  "validation_date": "2025-07-25 12:26:15"
 }
