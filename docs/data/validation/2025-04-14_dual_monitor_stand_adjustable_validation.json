@@ -1,49 +1,40 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 20226,
+  "content_length": 20412,
   "quality_check": {
-    "overall_score": 60,
-    "grammar_score": 90,
-    "readability_score": 40,
-    "engagement_score": 30,
+    "overall_score": 70,
+    "grammar_score": 70,
+    "readability_score": 70,
+    "engagement_score": 70,
     "structure_score": 70,
-    "accuracy_score": 80,
-    "seo_score": 80,
-    "cta_score": 0,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "No content provided",
-      "No meta description provided",
-      "No content optimization for target keywords",
-      "No clear call-to-action",
-      "No internal or external linking"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Well-structured schema markup",
-      "Good use of meta tags"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Provide high-quality, engaging content that addresses the topic",
-      "Optimize the meta description and content for target keywords",
-      "Add a clear call-to-action to encourage user interaction",
-      "Include internal or external linking to enhance user experience and SEO",
-      "Consider adding images or multimedia to enhance content and engagement"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 70,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "Unable to parse detailed analysis. The content appears to be original based on basic analysis."
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 650,
-      "Dual": 1293,
-      "Dual review": 107,
-      "best Dual": 107,
-      "Amazon": 221
+      "Dual Monitor Stand Adjustable": 656,
+      "Dual": 1305,
+      "Dual review": 108,
+      "best Dual": 108,
+      "Amazon": 223
     },
     "keyword_density": {
       "Dual Monitor Stand Adjustable": 3.21,
@@ -66,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 20226
+    "content_length": 20412
   },
-  "validation_date": "2025-07-29 12:28:24"
+  "validation_date": "2025-07-30 12:27:52"
 }
