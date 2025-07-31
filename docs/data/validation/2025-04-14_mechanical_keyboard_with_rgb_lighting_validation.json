@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 36504,
+  "content_length": 36833,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the language used is clear and concise. The inclusion of specific details about the product, such as its price and features, suggests that the author has hands-on experience with the product. However, the content may benefit from more varied sentence structures and a more engaging tone to make it more compelling to readers."
+    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the technical information provided is general and not highly specific. The use of keywords and meta tags is also typical of a standard review article. However, the content is relatively short and lacks depth, which may indicate a lack of expertise or original research. Further analysis would be needed to confirm the authenticity of the content."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 769,
-      "Mechanical": 1865,
-      "Mechanical review": 109,
-      "best Mechanical": 110,
-      "Amazon": 224
+      "Mechanical Keyboard with RGB Lighting": 776,
+      "Mechanical": 1882,
+      "Mechanical review": 110,
+      "best Mechanical": 111,
+      "Amazon": 226
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.11,
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 36504
+    "content_length": 36833
   },
-  "validation_date": "2025-07-30 12:28:06"
+  "validation_date": "2025-07-31 12:26:02"
 }
