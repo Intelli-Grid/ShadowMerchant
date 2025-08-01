@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 36833,
+  "content_length": 37162,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the technical information provided is general and not highly specific. The use of keywords and meta tags is also typical of a standard review article. However, the content is relatively short and lacks depth, which may indicate a lack of expertise or original research. Further analysis would be needed to confirm the authenticity of the content."
+    "explanation": "The content appears to be original, with some minor phrasing similarities to common product review templates. The writing style is consistent throughout, and the technical information provided seems accurate and relevant. The use of schema markup and SEO tags suggests an effort to optimize the content for search engines, which may be a normal practice for a product review. Overall, while some phrases may be similar to those found in other reviews, there is no strong evidence to suggest plagiarism."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 776,
-      "Mechanical": 1882,
-      "Mechanical review": 110,
-      "best Mechanical": 111,
-      "Amazon": 226
+      "Mechanical Keyboard with RGB Lighting": 783,
+      "Mechanical": 1899,
+      "Mechanical review": 111,
+      "best Mechanical": 112,
+      "Amazon": 228
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.11,
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 36833
+    "content_length": 37162
   },
-  "validation_date": "2025-07-31 12:26:02"
+  "validation_date": "2025-08-01 12:27:04"
 }

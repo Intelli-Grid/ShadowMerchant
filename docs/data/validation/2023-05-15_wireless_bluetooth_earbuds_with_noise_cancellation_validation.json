@@ -1,7 +1,7 @@
 {
   "post_title": "Wireless Bluetooth Earbuds with Noise Cancellation",
   "post_path": "../docs/posts/2023-05-15_wireless_bluetooth_earbuds_with_noise_cancellation.md",
-  "content_length": 26431,
+  "content_length": 26669,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,20 +25,20 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be an original review of wireless Bluetooth earbuds with noise cancellation. The language used is straightforward and lacks unusual phrasing that might be copied from elsewhere. The writing style is consistent throughout the text. The technical information provided is basic and does not require expertise. The content does not contain outdated information. Overall, the content seems to be an original creation."
+    "explanation": "The provided content appears to be original and does not contain any obvious plagiarism indicators. The writing style is consistent throughout, and the technical information provided is relevant and accurate. The content is also well-structured and easy to follow. However, it's always possible that some minor phrases or sentences may have been inspired by other sources without proper citation. Further analysis would be required to determine the level of originality and potential plagiarism."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Wireless Bluetooth Earbuds with Noise Cancellation": 1092,
-      "Wireless": 1751,
-      "Wireless review": 109,
-      "best Wireless": 110,
-      "Amazon": 224
+      "Wireless Bluetooth Earbuds with Noise Cancellation": 1102,
+      "Wireless": 1767,
+      "Wireless review": 110,
+      "best Wireless": 111,
+      "Amazon": 226
     },
     "keyword_density": {
       "Wireless Bluetooth Earbuds with Noise Cancellation": 4.13,
-      "Wireless": 6.62,
+      "Wireless": 6.63,
       "Wireless review": 0.41,
       "best Wireless": 0.42,
       "Amazon": 0.85
@@ -57,7 +57,7 @@
       "best Wireless": 42,
       "Amazon": 70
     },
-    "content_length": 26431
+    "content_length": 26669
   },
-  "validation_date": "2025-07-31 12:25:33"
+  "validation_date": "2025-08-01 12:26:37"
 }
