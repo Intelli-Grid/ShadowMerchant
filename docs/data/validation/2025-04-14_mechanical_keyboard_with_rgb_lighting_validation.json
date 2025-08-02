@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 37162,
+  "content_length": 37491,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with some minor phrasing similarities to common product review templates. The writing style is consistent throughout, and the technical information provided seems accurate and relevant. The use of schema markup and SEO tags suggests an effort to optimize the content for search engines, which may be a normal practice for a product review. Overall, while some phrases may be similar to those found in other reviews, there is no strong evidence to suggest plagiarism."
+    "explanation": "The content appears to be original, with no unusual phrasing or technical information that would suggest copying from elsewhere. The writing style is consistent throughout the text, and the language is clear and concise. The only potential issue is the use of generic keywords and phrases, but this is not uncommon in SEO-optimized content. Overall, the content appears to be a genuine review of a mechanical keyboard with RGB lighting, and the plagiarism risk is low."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 783,
-      "Mechanical": 1899,
-      "Mechanical review": 111,
-      "best Mechanical": 112,
-      "Amazon": 228
+      "Mechanical Keyboard with RGB Lighting": 790,
+      "Mechanical": 1916,
+      "Mechanical review": 112,
+      "best Mechanical": 113,
+      "Amazon": 230
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.11,
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 37162
+    "content_length": 37491
   },
-  "validation_date": "2025-08-01 12:27:04"
+  "validation_date": "2025-08-02 12:24:30"
 }
