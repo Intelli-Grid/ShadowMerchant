@@ -1,7 +1,7 @@
 {
   "post_title": "28-Day Keto Challenge",
   "post_path": "../docs/posts/2023-05-15_28day_keto_challenge.md",
-  "content_length": 26448,
+  "content_length": 26676,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,29 +12,29 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "Unable to determine"
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The provided content appears to be a meta tag and schema markup for a blog post, and does not contain any unusual phrasing, inconsistent writing style, or highly technical information that would suggest plagiarism. The content is also relatively short and does not contain any outdated information. However, the confidence level is low due to the possibility of the content being generated using a template or a tool, which could potentially lead to minor plagiarism issues."
   },
   "keyword_optimization": {
     "overall_score": 53,
     "keyword_counts": {
-      "28-Day Keto Challenge": 1137,
-      "28-Day": 1478,
-      "28-Day review": 113,
-      "best 28-Day": 113,
-      "ClickBank": 231
+      "28-Day Keto Challenge": 1147,
+      "28-Day": 1491,
+      "28-Day review": 114,
+      "best 28-Day": 114,
+      "ClickBank": 233
     },
     "keyword_density": {
       "28-Day Keto Challenge": 4.3,
@@ -57,7 +57,7 @@
       "best 28-Day": 42,
       "ClickBank": 70
     },
-    "content_length": 26448
+    "content_length": 26676
   },
-  "validation_date": "2025-08-04 12:28:29"
+  "validation_date": "2025-08-05 12:28:32"
 }

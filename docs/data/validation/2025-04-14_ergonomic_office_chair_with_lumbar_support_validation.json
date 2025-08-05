@@ -1,7 +1,7 @@
 {
   "post_title": "Ergonomic Office Chair with Lumbar Support",
   "post_path": "../docs/posts/2025-04-14_ergonomic_office_chair_with_lumbar_support.md",
-  "content_length": 22715,
+  "content_length": 22913,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,29 +12,29 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "Unable to determine"
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Manual review required"
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The provided content appears to be a basic product review with minimal technical information. The writing style is consistent throughout, and the language is straightforward. The use of meta tags and schema markup suggests a well-structured and organized content. However, the content lacks depth and specific details, which could indicate a lack of original thought or research. The confidence level is low due to the simplicity of the content and the lack of unusual phrasing or technical jargon."
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Ergonomic Office Chair with Lumbar Support": 686,
-      "Ergonomic": 1365,
-      "Ergonomic review": 113,
-      "best Ergonomic": 113,
-      "Amazon": 233
+      "Ergonomic Office Chair with Lumbar Support": 692,
+      "Ergonomic": 1377,
+      "Ergonomic review": 114,
+      "best Ergonomic": 114,
+      "Amazon": 235
     },
     "keyword_density": {
       "Ergonomic Office Chair with Lumbar Support": 3.02,
@@ -57,7 +57,7 @@
       "best Ergonomic": 70,
       "Amazon": 70
     },
-    "content_length": 22715
+    "content_length": 22913
   },
-  "validation_date": "2025-08-04 12:28:34"
+  "validation_date": "2025-08-05 12:28:39"
 }
