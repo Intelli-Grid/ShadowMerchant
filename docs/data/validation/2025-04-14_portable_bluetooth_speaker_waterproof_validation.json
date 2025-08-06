@@ -1,34 +1,24 @@
 {
   "post_title": "Portable Bluetooth Speaker Waterproof",
   "post_path": "../docs/posts/2025-04-14_portable_bluetooth_speaker_waterproof.md",
-  "content_length": 34978,
+  "content_length": 35280,
   "quality_check": {
     "overall_score": 70,
-    "grammar_score": 90,
-    "readability_score": 60,
-    "engagement_score": 80,
-    "structure_score": 80,
-    "accuracy_score": 90,
-    "seo_score": 90,
-    "cta_score": 40,
+    "grammar_score": 70,
+    "readability_score": 70,
+    "engagement_score": 70,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "The content is quite short and lacks depth, making it seem more like a product description than a review.",
-      "The tone is somewhat promotional and lacks objectivity.",
-      "The structure is mostly based on meta tags and lacks a clear introduction, body, and conclusion.",
-      "The content does not provide any specific details about the product's features, specifications, or performance.",
-      "The call-to-action is weak and does not encourage the reader to take any specific action."
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "The content is well-structured and easy to read.",
-      "The use of meta tags is correct and provides relevant information about the product.",
-      "The content is accurate and provides a clear summary of the product's features."
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Expand the content to provide more depth and detail about the product.",
-      "Improve the tone to make it more objective and less promotional.",
-      "Add a clear introduction, body, and conclusion to the content.",
-      "Provide specific details about the product's features, specifications, and performance.",
-      "Make the call-to-action more specific and encouraging."
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
@@ -40,11 +30,11 @@
   "keyword_optimization": {
     "overall_score": 45,
     "keyword_counts": {
-      "Portable Bluetooth Speaker Waterproof": 1144,
-      "Portable": 1946,
-      "Portable review": 114,
-      "best Portable": 115,
-      "Amazon": 234
+      "Portable Bluetooth Speaker Waterproof": 1154,
+      "Portable": 1963,
+      "Portable review": 115,
+      "best Portable": 116,
+      "Amazon": 236
     },
     "keyword_density": {
       "Portable Bluetooth Speaker Waterproof": 3.27,
@@ -67,7 +57,7 @@
       "best Portable": 42,
       "Amazon": 70
     },
-    "content_length": 34978
+    "content_length": 35280
   },
-  "validation_date": "2025-08-05 12:28:50"
+  "validation_date": "2025-08-06 12:28:43"
 }

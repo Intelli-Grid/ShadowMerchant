@@ -1,7 +1,7 @@
 {
   "post_title": "The Lost Book of Remedies",
   "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
-  "content_length": 22213,
+  "content_length": 22405,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic meta tag and schema markup for a blog post. The text is minimal and does not contain any unusual phrasing, technical information, or outdated information that would suggest copying from elsewhere. The writing style is consistent throughout the content, and the author's name and logo are provided. While it's possible that some of the content may have been copied from a template or a previous work, the overall risk of plagiarism appears to be low."
+    "explanation": "The provided content appears to be a basic metadata structure for a blog post, including SEO tags and schema markup. The text is short and lacks specific technical or scientific information, which reduces the likelihood of plagiarism. The writing style is consistent throughout, and the language is simple and straightforward. While it's possible that some phrases may be copied from other sources, the overall structure and content do not suggest intentional plagiarism. A more thorough analysis would require a larger sample size of text."
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "The Lost Book of Remedies": 692,
-      "The": 1270,
-      "The review": 114,
-      "best The": 114,
-      "ClickBank": 234
+      "The Lost Book of Remedies": 698,
+      "The": 1281,
+      "The review": 115,
+      "best The": 115,
+      "ClickBank": 236
     },
     "keyword_density": {
       "The Lost Book of Remedies": 3.12,
@@ -57,7 +57,7 @@
       "best The": 70,
       "ClickBank": 70
     },
-    "content_length": 22213
+    "content_length": 22405
   },
-  "validation_date": "2025-08-05 12:28:36"
+  "validation_date": "2025-08-06 12:28:29"
 }

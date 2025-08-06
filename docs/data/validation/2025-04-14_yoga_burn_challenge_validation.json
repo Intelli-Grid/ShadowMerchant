@@ -1,32 +1,24 @@
 {
   "post_title": "Yoga Burn Challenge",
   "post_path": "../docs/posts/2025-04-14_yoga_burn_challenge.md",
-  "content_length": 35695,
+  "content_length": 36003,
   "quality_check": {
     "overall_score": 70,
-    "grammar_score": 90,
-    "readability_score": 60,
-    "engagement_score": 40,
-    "structure_score": 80,
-    "accuracy_score": 90,
-    "seo_score": 90,
-    "cta_score": 20,
+    "grammar_score": 70,
+    "readability_score": 70,
+    "engagement_score": 70,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "The content is quite short and lacks depth, making it seem more like an advertisement than a comprehensive review.",
-      "The tone is promotional and lacks objectivity, which may raise concerns about the credibility of the review.",
-      "The content does not provide any specific examples or testimonials to support the claims made about the Yoga Burn Challenge.",
-      "The call-to-action is weak and does not provide a clear sense of urgency or incentive to take action."
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "The content is well-structured and easy to follow.",
-      "The use of meta tags and schema markup is excellent and will likely improve search engine rankings.",
-      "The content is free of major grammatical errors and is easy to understand."
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Add more depth and detail to the content to make it more comprehensive and informative.",
-      "Use a more objective tone and provide specific examples or testimonials to support the claims made about the Yoga Burn Challenge.",
-      "Make the call-to-action more prominent and provide a clear sense of urgency or incentive to take action.",
-      "Consider adding more visuals, such as images or videos, to break up the text and make the content more engaging."
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
@@ -38,15 +30,15 @@
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Yoga Burn Challenge": 808,
-      "Yoga": 2072,
-      "Yoga review": 114,
-      "best Yoga": 115,
-      "ClickBank": 233
+      "Yoga Burn Challenge": 815,
+      "Yoga": 2090,
+      "Yoga review": 115,
+      "best Yoga": 116,
+      "ClickBank": 235
     },
     "keyword_density": {
       "Yoga Burn Challenge": 2.26,
-      "Yoga": 5.8,
+      "Yoga": 5.81,
       "Yoga review": 0.32,
       "best Yoga": 0.32,
       "ClickBank": 0.65
@@ -65,7 +57,7 @@
       "best Yoga": 42,
       "ClickBank": 70
     },
-    "content_length": 35695
+    "content_length": 36003
   },
-  "validation_date": "2025-08-05 12:28:45"
+  "validation_date": "2025-08-06 12:28:38"
 }
