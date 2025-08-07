@@ -1,52 +1,40 @@
 {
   "post_title": "Ergonomic Office Chair with Lumbar Support",
   "post_path": "../docs/posts/2025-04-14_ergonomic_office_chair_with_lumbar_support.md",
-  "content_length": 23111,
+  "content_length": 23309,
   "quality_check": {
-    "overall_score": 60,
-    "grammar_score": 90,
-    "readability_score": 40,
+    "overall_score": 70,
+    "grammar_score": 70,
+    "readability_score": 70,
     "engagement_score": 70,
-    "structure_score": 80,
-    "accuracy_score": 90,
-    "seo_score": 80,
-    "cta_score": 0,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "Meta description is empty",
-      "No clear call-to-action",
-      "No introduction or background information on the product",
-      "No detailed review or comparison with other similar products",
-      "No clear conclusion or summary",
-      "No formatting or styling for better readability"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Good use of schema markup",
-      "Well-structured meta tags",
-      "Use of relevant keywords"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Add a clear and concise meta description",
-      "Include a brief introduction or background information on the product",
-      "Provide a detailed review or comparison with other similar products",
-      "Add a clear call-to-action",
-      "Use formatting and styling to improve readability",
-      "Consider adding images or videos to support the review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be original, with no obvious signs of plagiarism. The writing style is consistent throughout, and the technical information provided is general and not highly specific. The meta tags and schema markup are also properly formatted and do not contain any suspicious or outdated information. However, the content is quite brief and lacks depth, which may indicate a lack of expertise or original research. Further analysis would be necessary to confirm the authenticity of the content."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Ergonomic Office Chair with Lumbar Support": 698,
-      "Ergonomic": 1389,
-      "Ergonomic review": 115,
-      "best Ergonomic": 115,
-      "Amazon": 237
+      "Ergonomic Office Chair with Lumbar Support": 704,
+      "Ergonomic": 1401,
+      "Ergonomic review": 116,
+      "best Ergonomic": 116,
+      "Amazon": 239
     },
     "keyword_density": {
       "Ergonomic Office Chair with Lumbar Support": 3.02,
@@ -69,7 +57,7 @@
       "best Ergonomic": 70,
       "Amazon": 70
     },
-    "content_length": 23111
+    "content_length": 23309
   },
-  "validation_date": "2025-08-06 12:28:32"
+  "validation_date": "2025-08-07 12:28:31"
 }

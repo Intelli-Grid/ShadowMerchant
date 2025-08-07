@@ -1,7 +1,7 @@
 {
   "post_title": "The Lost Book of Remedies",
   "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
-  "content_length": 22405,
+  "content_length": 22597,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,29 +12,29 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "low",
-    "confidence": 20,
+    "plagiarism_risk": "unknown",
+    "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic metadata structure for a blog post, including SEO tags and schema markup. The text is short and lacks specific technical or scientific information, which reduces the likelihood of plagiarism. The writing style is consistent throughout, and the language is simple and straightforward. While it's possible that some phrases may be copied from other sources, the overall structure and content do not suggest intentional plagiarism. A more thorough analysis would require a larger sample size of text."
+    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "The Lost Book of Remedies": 698,
-      "The": 1281,
-      "The review": 115,
-      "best The": 115,
-      "ClickBank": 236
+      "The Lost Book of Remedies": 704,
+      "The": 1292,
+      "The review": 116,
+      "best The": 116,
+      "ClickBank": 238
     },
     "keyword_density": {
       "The Lost Book of Remedies": 3.12,
@@ -57,7 +57,7 @@
       "best The": 70,
       "ClickBank": 70
     },
-    "content_length": 22405
+    "content_length": 22597
   },
-  "validation_date": "2025-08-06 12:28:29"
+  "validation_date": "2025-08-07 12:28:29"
 }

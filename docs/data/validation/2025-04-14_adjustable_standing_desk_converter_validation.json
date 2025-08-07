@@ -1,7 +1,7 @@
 {
   "post_title": "Adjustable Standing Desk Converter",
   "post_path": "../docs/posts/2025-04-14_adjustable_standing_desk_converter.md",
-  "content_length": 38179,
+  "content_length": 38502,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,13 +12,13 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Unable to parse detailed analysis"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "Content appears to be of reasonable quality"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider manual review"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
@@ -30,11 +30,11 @@
   "keyword_optimization": {
     "overall_score": 56,
     "keyword_counts": {
-      "Adjustable Standing Desk Converter": 822,
-      "Adjustable": 1405,
-      "Adjustable review": 116,
-      "best Adjustable": 117,
-      "Amazon": 238
+      "Adjustable Standing Desk Converter": 829,
+      "Adjustable": 1417,
+      "Adjustable review": 117,
+      "best Adjustable": 118,
+      "Amazon": 240
     },
     "keyword_density": {
       "Adjustable Standing Desk Converter": 2.15,
@@ -57,7 +57,7 @@
       "best Adjustable": 42,
       "Amazon": 70
     },
-    "content_length": 38179
+    "content_length": 38502
   },
-  "validation_date": "2025-08-06 12:28:48"
+  "validation_date": "2025-08-07 12:28:45"
 }
