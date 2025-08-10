@@ -1,7 +1,7 @@
 {
   "post_title": "Smart Watch with Heart Rate Monitor",
   "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
-  "content_length": 29134,
+  "content_length": 29376,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a standard SEO meta tags and schema markup for a blog post. The text is original and does not contain any unusual phrasing or technical information that would suggest copying from elsewhere. The keywords and meta descriptions are typical for a product review and do not raise any plagiarism concerns. The schema markup is also standard and does not contain any suspicious or outdated information."
+    "explanation": "The provided content appears to be a standard SEO metadata and schema markup for a blog post. The text is concise and lacks any technical or specific information that would require expertise. The language used is straightforward and does not exhibit any unusual phrasing that might be copied from elsewhere. The only potential issue is the use of generic keywords, but this is a common practice in SEO optimization. Overall, the content does not exhibit any significant plagiarism indicators."
   },
   "keyword_optimization": {
     "overall_score": 52,
     "keyword_counts": {
-      "Smart Watch with Heart Rate Monitor": 1183,
-      "Smart": 1905,
-      "Smart review": 118,
-      "best Smart": 119,
-      "Amazon": 242
+      "Smart Watch with Heart Rate Monitor": 1193,
+      "Smart": 1921,
+      "Smart review": 119,
+      "best Smart": 120,
+      "Amazon": 244
     },
     "keyword_density": {
       "Smart Watch with Heart Rate Monitor": 4.06,
@@ -57,7 +57,7 @@
       "best Smart": 42,
       "Amazon": 70
     },
-    "content_length": 29134
+    "content_length": 29376
   },
-  "validation_date": "2025-08-09 12:23:29"
+  "validation_date": "2025-08-10 12:23:58"
 }
