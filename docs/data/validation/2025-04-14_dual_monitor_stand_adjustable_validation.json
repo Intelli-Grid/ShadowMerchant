@@ -1,31 +1,24 @@
 {
   "post_title": "Dual Monitor Stand Adjustable",
   "post_path": "../docs/posts/2025-04-14_dual_monitor_stand_adjustable.md",
-  "content_length": 22644,
+  "content_length": 22830,
   "quality_check": {
-    "overall_score": 60,
-    "grammar_score": 90,
+    "overall_score": 70,
+    "grammar_score": 70,
     "readability_score": 70,
-    "engagement_score": 40,
-    "structure_score": 80,
-    "accuracy_score": 90,
-    "seo_score": 80,
-    "cta_score": 0,
+    "engagement_score": 70,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "Missing meta description in primary meta tags",
-      "No content provided in the article",
-      "No clear call-to-action (CTA) in the content",
-      "Some schema markup is missing or incomplete"
+      "Unable to parse detailed analysis"
     ],
     "strengths": [
-      "Good use of schema markup for product review",
-      "Clear and concise meta title and keywords"
+      "Content appears to be of reasonable quality"
     ],
     "improvement_suggestions": [
-      "Add a meta description to the primary meta tags",
-      "Provide actual content in the article",
-      "Include a clear CTA in the content",
-      "Review and complete schema markup for product review"
+      "Consider manual review"
     ]
   },
   "plagiarism_check": {
@@ -37,14 +30,14 @@
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Dual Monitor Stand Adjustable": 728,
-      "Dual": 1449,
-      "Dual review": 120,
-      "best Dual": 120,
-      "Amazon": 247
+      "Dual Monitor Stand Adjustable": 734,
+      "Dual": 1461,
+      "Dual review": 121,
+      "best Dual": 121,
+      "Amazon": 249
     },
     "keyword_density": {
-      "Dual Monitor Stand Adjustable": 3.21,
+      "Dual Monitor Stand Adjustable": 3.22,
       "Dual": 6.4,
       "Dual review": 0.53,
       "best Dual": 0.53,
@@ -64,7 +57,7 @@
       "best Dual": 70,
       "Amazon": 70
     },
-    "content_length": 22644
+    "content_length": 22830
   },
-  "validation_date": "2025-08-11 12:27:45"
+  "validation_date": "2025-08-12 12:25:43"
 }
