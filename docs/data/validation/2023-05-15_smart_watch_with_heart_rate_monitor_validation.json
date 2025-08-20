@@ -1,7 +1,7 @@
 {
   "post_title": "Smart Watch with Heart Rate Monitor",
   "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
-  "content_length": 31554,
+  "content_length": 31796,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be a basic metadata and schema markup for a blog post about a smart watch with a heart rate monitor. The text is short and does not contain any unusual phrasing, technical jargon, or outdated information that would suggest plagiarism. The writing style is consistent throughout the content, and the language used is straightforward and simple. While it is possible that the content may have been copied from another source, the lack of any distinctive or suspicious language patterns suggests a low plagiarism risk."
+    "explanation": "The provided content appears to be a standard SEO metadata and schema markup for a blog post. The text is generic and does not contain any unusual phrasing, technical jargon, or outdated information that would suggest plagiarism. The author's name and logo are also included, which suggests that the content is original. However, a more thorough analysis would require a larger sample size of text to determine the overall plagiarism risk."
   },
   "keyword_optimization": {
     "overall_score": 52,
     "keyword_counts": {
-      "Smart Watch with Heart Rate Monitor": 1283,
-      "Smart": 2065,
-      "Smart review": 128,
-      "best Smart": 129,
-      "Amazon": 262
+      "Smart Watch with Heart Rate Monitor": 1293,
+      "Smart": 2081,
+      "Smart review": 129,
+      "best Smart": 130,
+      "Amazon": 264
     },
     "keyword_density": {
       "Smart Watch with Heart Rate Monitor": 4.07,
@@ -57,7 +57,7 @@
       "best Smart": 42,
       "Amazon": 70
     },
-    "content_length": 31554
+    "content_length": 31796
   },
-  "validation_date": "2025-08-19 12:24:40"
+  "validation_date": "2025-08-20 12:24:27"
 }
