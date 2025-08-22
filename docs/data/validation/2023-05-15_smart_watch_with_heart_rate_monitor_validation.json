@@ -1,7 +1,7 @@
 {
   "post_title": "Smart Watch with Heart Rate Monitor",
   "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
-  "content_length": 32038,
+  "content_length": 32280,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The provided content appears to be original and does not contain any obvious signs of plagiarism. The SEO tags and schema markup are properly formatted and do not contain any suspicious phrases. However, the review section may be based on existing reviews, and further analysis would be required to confirm originality. Overall, the risk of plagiarism appears to be low, but it is always recommended to verify the authenticity of content through multiple channels."
+    "explanation": "The provided content appears to be a standard SEO meta tags and schema markup for a blog post. The text is straightforward and does not contain any unusual phrasing or technical information that would suggest copying from elsewhere. The author name and logo are also included, which suggests that the content is original. However, the confidence level is relatively low due to the simplicity of the content and the potential for automated generation."
   },
   "keyword_optimization": {
     "overall_score": 52,
     "keyword_counts": {
-      "Smart Watch with Heart Rate Monitor": 1303,
-      "Smart": 2097,
-      "Smart review": 130,
-      "best Smart": 131,
-      "Amazon": 266
+      "Smart Watch with Heart Rate Monitor": 1313,
+      "Smart": 2113,
+      "Smart review": 131,
+      "best Smart": 132,
+      "Amazon": 268
     },
     "keyword_density": {
       "Smart Watch with Heart Rate Monitor": 4.07,
@@ -57,7 +57,7 @@
       "best Smart": 42,
       "Amazon": 70
     },
-    "content_length": 32038
+    "content_length": 32280
   },
-  "validation_date": "2025-08-21 12:24:39"
+  "validation_date": "2025-08-22 12:23:29"
 }
