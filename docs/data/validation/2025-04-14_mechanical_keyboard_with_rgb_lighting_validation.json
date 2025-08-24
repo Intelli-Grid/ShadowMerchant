@@ -1,48 +1,40 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 44400,
+  "content_length": 44729,
   "quality_check": {
-    "overall_score": 80,
-    "grammar_score": 95,
+    "overall_score": 70,
+    "grammar_score": 70,
     "readability_score": 70,
-    "engagement_score": 60,
-    "structure_score": 85,
-    "accuracy_score": 90,
-    "seo_score": 95,
-    "cta_score": 40,
+    "engagement_score": 70,
+    "structure_score": 70,
+    "accuracy_score": 70,
+    "seo_score": 70,
+    "cta_score": 70,
     "issues": [
-      "The content is a bit too long and could be condensed for better readability",
-      "The tone is somewhat formal, but could be more conversational to engage the reader",
-      "The review could benefit from more specific details about the keyboard's features and performance",
-      "The call-to-action is not clear and could be improved"
+      "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
-      "The content is well-structured and easy to follow",
-      "The use of meta tags and schema markup is excellent for SEO",
-      "The content is informative and provides a good overview of the product"
+      "Unable to determine"
     ],
     "improvement_suggestions": [
-      "Consider using a more conversational tone to engage the reader",
-      "Provide more specific details about the keyboard's features and performance",
-      "Consider adding images or videos to break up the text and make it more visually appealing",
-      "Improve the call-to-action to encourage readers to take a specific action"
+      "Manual review required"
     ]
   },
   "plagiarism_check": {
-    "plagiarism_risk": "unknown",
-    "confidence": 0,
+    "plagiarism_risk": "low",
+    "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 429 Client Error: Too Many Requests for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "The content appears to be original, with no unusual phrasing or technical information that would suggest copying from elsewhere. The writing style is consistent throughout the text, and the language used is straightforward and easy to understand. The only potential red flag is the use of a generic template for the SEO tags, but this is a common practice and does not necessarily indicate plagiarism. Overall, the content appears to be original and written by the author."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 937,
-      "Mechanical": 2273,
-      "Mechanical review": 133,
-      "best Mechanical": 134,
-      "Amazon": 272
+      "Mechanical Keyboard with RGB Lighting": 944,
+      "Mechanical": 2290,
+      "Mechanical review": 134,
+      "best Mechanical": 135,
+      "Amazon": 274
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.11,
@@ -65,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 44400
+    "content_length": 44729
   },
-  "validation_date": "2025-08-23 12:22:00"
+  "validation_date": "2025-08-24 12:22:28"
 }
