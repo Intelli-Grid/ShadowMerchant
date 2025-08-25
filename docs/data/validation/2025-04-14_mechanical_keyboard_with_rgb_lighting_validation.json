@@ -1,7 +1,7 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 44729,
+  "content_length": 45058,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -25,16 +25,16 @@
     "plagiarism_risk": "low",
     "confidence": 20,
     "suspicious_segments": [],
-    "explanation": "The content appears to be original, with no unusual phrasing or technical information that would suggest copying from elsewhere. The writing style is consistent throughout the text, and the language used is straightforward and easy to understand. The only potential red flag is the use of a generic template for the SEO tags, but this is a common practice and does not necessarily indicate plagiarism. Overall, the content appears to be original and written by the author."
+    "explanation": "The content appears to be original, with no unusual phrasing or technical information that would suggest copying from elsewhere. The writing style is consistent throughout the text, and the information provided seems to be up-to-date. The only potential issue is the use of generic phrases such as 'Are you tired of using a standard keyboard...' which could be found in multiple sources, but this is not uncommon in product reviews."
   },
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 944,
-      "Mechanical": 2290,
-      "Mechanical review": 134,
-      "best Mechanical": 135,
-      "Amazon": 274
+      "Mechanical Keyboard with RGB Lighting": 951,
+      "Mechanical": 2307,
+      "Mechanical review": 135,
+      "best Mechanical": 136,
+      "Amazon": 276
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.11,
@@ -57,7 +57,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 44729
+    "content_length": 45058
   },
-  "validation_date": "2025-08-24 12:22:28"
+  "validation_date": "2025-08-25 12:25:24"
 }
