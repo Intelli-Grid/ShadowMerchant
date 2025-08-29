@@ -1,32 +1,32 @@
 {
   "post_title": "Mechanical Keyboard with RGB Lighting",
   "post_path": "../docs/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md",
-  "content_length": 46045,
+  "content_length": 46374,
   "quality_check": {
-    "overall_score": 80,
-    "grammar_score": 95,
-    "readability_score": 70,
-    "engagement_score": 85,
-    "structure_score": 75,
+    "overall_score": 70,
+    "grammar_score": 90,
+    "readability_score": 60,
+    "engagement_score": 80,
+    "structure_score": 80,
     "accuracy_score": 90,
-    "seo_score": 95,
-    "cta_score": 60,
+    "seo_score": 90,
+    "cta_score": 40,
     "issues": [
       "The content is a bit lengthy and could be broken up into smaller paragraphs for better readability.",
-      "The tone is somewhat promotional and could be more balanced with neutral language.",
-      "The review section lacks specific details about the product's performance and features.",
-      "The meta description is a bit too long and could be shortened for better search engine optimization."
+      "The tone is somewhat formal, but it could be more engaging and conversational.",
+      "The review could benefit from more specific details about the keyboard's features and performance.",
+      "The call-to-action is not clear and could be more prominent."
     ],
     "strengths": [
       "The content is well-structured and easy to follow.",
-      "The use of meta tags and schema markup is excellent for search engine optimization.",
-      "The content provides a clear and concise overview of the product's features and benefits."
+      "The use of meta tags and schema markup is excellent.",
+      "The content is informative and provides a good overview of the product."
     ],
     "improvement_suggestions": [
-      "Consider adding more specific details about the product's performance and features in the review section.",
-      "Use more neutral language to balance the promotional tone.",
       "Break up the content into smaller paragraphs for better readability.",
-      "Shorten the meta description for better search engine optimization."
+      "Use a more conversational tone to engage the reader.",
+      "Provide more specific details about the keyboard's features and performance.",
+      "Make the call-to-action more prominent and clear."
     ]
   },
   "plagiarism_check": {
@@ -38,11 +38,11 @@
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Mechanical Keyboard with RGB Lighting": 972,
-      "Mechanical": 2358,
-      "Mechanical review": 138,
-      "best Mechanical": 139,
-      "Amazon": 282
+      "Mechanical Keyboard with RGB Lighting": 979,
+      "Mechanical": 2375,
+      "Mechanical review": 139,
+      "best Mechanical": 140,
+      "Amazon": 284
     },
     "keyword_density": {
       "Mechanical Keyboard with RGB Lighting": 2.11,
@@ -65,7 +65,7 @@
       "best Mechanical": 42,
       "Amazon": 70
     },
-    "content_length": 46045
+    "content_length": 46374
   },
-  "validation_date": "2025-08-28 12:24:30"
+  "validation_date": "2025-08-29 12:23:48"
 }
