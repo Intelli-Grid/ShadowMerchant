@@ -55,6 +55,79 @@ schema_markup: |
   "@type": "Review",
   "reviewRating": {
   "@type": "Rating",
+  "ratingValue": "4.2",
+  "bestRating": "5"
+  },
+  "author": {
+  "@type": "Person",
+  "name": "Shadow Merchant Expert Advisor"
+  },
+  "itemReviewed": {
+  "@type": "Product",
+  "name": "28-Day Keto Challenge",
+  "offers": {
+  "@type": "Offer",
+  "price": "47.00",
+  "priceCurrency": "USD",
+  "availability": "https://schema.org/InStock",
+  "url": "https://www.clickbank.com/28-day-keto-challenge"
+  }
+  }
+  }
+  }
+  </script>
+---
+
+seo_tags: |
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="28-Day Keto Challenge">
+  <meta name="description" content=" 28-Day Keto Challenge: Transform Your Body and Health in Just Four Weeks">
+  <meta name="keywords" content="28-Day Keto Challenge, keto challenge, best 28-day 2025, 28-day review, ClickBank products">
+  <meta name="author" content="Shadow Merchant Expert Advisor">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://shadowmerchant.wordpress.com/posts/2023-05-15_28day_keto_challenge.md">
+  <meta property="og:title" content="28-Day Keto Challenge">
+  <meta property="og:description" content=" 28-Day Keto Challenge: Transform Your Body and Health in Just Four Weeks">
+  <meta property="og:image" content="https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://shadowmerchant.wordpress.com/posts/2023-05-15_28day_keto_challenge.md">
+  <meta property="twitter:title" content="28-Day Keto Challenge">
+  <meta property="twitter:description" content=" 28-Day Keto Challenge: Transform Your Body and Health in Just Four Weeks">
+  <meta property="twitter:image" content="https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png">
+schema_markup: |
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+  "@type": "WebPage",
+  "@id": "https://shadowmerchant.wordpress.com/posts/2023-05-15_28day_keto_challenge.md"
+  },
+  "headline": "28-Day Keto Challenge",
+  "description": " 28-Day Keto Challenge: Transform Your Body and Health in Just Four Weeks",
+  "image": "https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png",
+  "author": {
+  "@type": "Person",
+  "name": "Shadow Merchant Expert Advisor"
+  },
+  "publisher": {
+  "@type": "Organization",
+  "name": "Shadow Merchant",
+  "logo": {
+  "@type": "ImageObject",
+  "url": "https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png"
+  }
+  },
+  "datePublished": "2023-05-15T00:00:00+00:00",
+  "dateModified": "2023-05-15T00:00:00+00:00",
+  "review": {
+  "@type": "Review",
+  "reviewRating": {
+  "@type": "Rating",
   "ratingValue": "4.4",
   "bestRating": "5"
   },
