@@ -55,6 +55,79 @@ schema_markup: |
   "@type": "Review",
   "reviewRating": {
   "@type": "Rating",
+  "ratingValue": "4.9",
+  "bestRating": "5"
+  },
+  "author": {
+  "@type": "Person",
+  "name": "Shadow Merchant Expert Advisor"
+  },
+  "itemReviewed": {
+  "@type": "Product",
+  "name": "Ergonomic Office Chair with Lumbar Support",
+  "offers": {
+  "@type": "Offer",
+  "price": "159.99",
+  "priceCurrency": "USD",
+  "availability": "https://schema.org/InStock",
+  "url": "https://www.amazon.com/ergonomic-office-chair"
+  }
+  }
+  }
+  }
+  </script>
+---
+
+seo_tags: |
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="Ergonomic Office Chair with Lumbar Support">
+  <meta name="description" content="">
+  <meta name="keywords" content="Ergonomic Office Chair with Lumbar Support, lumbar support, best ergonomic 2025, ergonomic review, Amazon products">
+  <meta name="author" content="Shadow Merchant Expert Advisor">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://shadowmerchant.wordpress.com/posts/2025-04-14_ergonomic_office_chair_with_lumbar_support.md">
+  <meta property="og:title" content="Ergonomic Office Chair with Lumbar Support">
+  <meta property="og:description" content="">
+  <meta property="og:image" content="https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://shadowmerchant.wordpress.com/posts/2025-04-14_ergonomic_office_chair_with_lumbar_support.md">
+  <meta property="twitter:title" content="Ergonomic Office Chair with Lumbar Support">
+  <meta property="twitter:description" content="">
+  <meta property="twitter:image" content="https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png">
+schema_markup: |
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+  "@type": "WebPage",
+  "@id": "https://shadowmerchant.wordpress.com/posts/2025-04-14_ergonomic_office_chair_with_lumbar_support.md"
+  },
+  "headline": "Ergonomic Office Chair with Lumbar Support",
+  "description": "",
+  "image": "https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png",
+  "author": {
+  "@type": "Person",
+  "name": "Shadow Merchant Expert Advisor"
+  },
+  "publisher": {
+  "@type": "Organization",
+  "name": "Shadow Merchant",
+  "logo": {
+  "@type": "ImageObject",
+  "url": "https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png"
+  }
+  },
+  "datePublished": "2025-04-14T00:00:00+00:00",
+  "dateModified": "2025-04-14T00:00:00+00:00",
+  "review": {
+  "@type": "Review",
+  "reviewRating": {
+  "@type": "Rating",
   "ratingValue": "4.2",
   "bestRating": "5"
   },
