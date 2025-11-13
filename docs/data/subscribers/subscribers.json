@@ -1,282 +1,282 @@
 [
   {
-    "email": "robert.miller@outlook.com",
-    "name": "Robert Miller",
+    "email": "michael.brown@gmail.com",
+    "name": "Michael Brown",
+    "preferences": {
+      "frequency": "monthly",
+      "categories": [
+        "fitness"
+      ]
+    },
+    "status": "active",
+    "created_at": "2025-08-15 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "david.moore@gmail.com",
+    "name": "David Moore",
     "preferences": {
       "frequency": "weekly",
       "categories": [
         "home",
+        "digital"
+      ]
+    },
+    "status": "active",
+    "created_at": "2025-11-09 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "william.wilson@hotmail.com",
+    "name": "William Wilson",
+    "preferences": {
+      "frequency": "both",
+      "categories": [
+        "all",
+        "digital",
         "tech"
+      ]
+    },
+    "status": "active",
+    "created_at": "2025-09-28 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "robert.smith@outlook.com",
+    "name": "Robert Smith",
+    "preferences": {
+      "frequency": "weekly",
+      "categories": [
+        "tech"
+      ]
+    },
+    "status": "active",
+    "created_at": "2025-09-23 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "john.wilson@example.com",
+    "name": "John Wilson",
+    "preferences": {
+      "frequency": "both",
+      "categories": [
+        "home",
+        "digital"
       ]
     },
     "status": "unsubscribed",
-    "created_at": "2025-09-15 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
+    "created_at": "2025-10-29 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
   },
   {
-    "email": "emily.wilson@example.com",
-    "name": "Emily Wilson",
+    "email": "jennifer.jones@hotmail.com",
+    "name": "Jennifer Jones",
     "preferences": {
       "frequency": "weekly",
-      "categories": [
-        "home",
-        "fitness",
-        "all"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-10-03 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "william.davis@hotmail.com",
-    "name": "William Davis",
-    "preferences": {
-      "frequency": "weekly",
-      "categories": [
-        "tech",
-        "fitness"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-08-17 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "robert.jones@yahoo.com",
-    "name": "Robert Jones",
-    "preferences": {
-      "frequency": "monthly",
-      "categories": [
-        "all",
-        "fitness"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-11-07 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "michael.miller@gmail.com",
-    "name": "Michael Miller",
-    "preferences": {
-      "frequency": "monthly",
       "categories": [
         "tech"
       ]
     },
     "status": "active",
-    "created_at": "2025-11-10 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
+    "created_at": "2025-08-17 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
   },
   {
-    "email": "john.brown@gmail.com",
-    "name": "John Brown",
+    "email": "sarah.moore@outlook.com",
+    "name": "Sarah Moore",
     "preferences": {
       "frequency": "monthly",
       "categories": [
-        "digital",
-        "home",
-        "fitness"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-10-23 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "robert.smith@hotmail.com",
-    "name": "Robert Smith",
-    "preferences": {
-      "frequency": "both",
-      "categories": [
-        "tech"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-10-06 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "lisa.jones@outlook.com",
-    "name": "Lisa Jones",
-    "preferences": {
-      "frequency": "weekly",
-      "categories": [
-        "all",
-        "home",
-        "fitness"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-10-03 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "robert.johnson@yahoo.com",
-    "name": "Robert Johnson",
-    "preferences": {
-      "frequency": "both",
-      "categories": [
-        "all"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-11-01 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "lisa.moore@gmail.com",
-    "name": "Lisa Moore",
-    "preferences": {
-      "frequency": "weekly",
-      "categories": [
-        "tech",
         "digital"
       ]
     },
     "status": "active",
-    "created_at": "2025-09-01 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
+    "created_at": "2025-10-17 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
   },
   {
-    "email": "michael.davis@yahoo.com",
-    "name": "Michael Davis",
-    "preferences": {
-      "frequency": "monthly",
-      "categories": [
-        "fitness",
-        "tech"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-08-16 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "robert.smith@example.com",
-    "name": "Robert Smith",
-    "preferences": {
-      "frequency": "monthly",
-      "categories": [
-        "fitness",
-        "home"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-08-26 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "lisa.smith@example.com",
-    "name": "Lisa Smith",
-    "preferences": {
-      "frequency": "monthly",
-      "categories": [
-        "all"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-10-04 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "david.johnson@hotmail.com",
-    "name": "David Johnson",
-    "preferences": {
-      "frequency": "weekly",
-      "categories": [
-        "digital",
-        "all",
-        "fitness"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-09-14 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "jennifer.davis@yahoo.com",
-    "name": "Jennifer Davis",
-    "preferences": {
-      "frequency": "both",
-      "categories": [
-        "home"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-11-02 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "jane.johnson@yahoo.com",
-    "name": "Jane Johnson",
-    "preferences": {
-      "frequency": "weekly",
-      "categories": [
-        "home",
-        "tech"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-11-09 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "lisa.miller@example.com",
-    "name": "Lisa Miller",
-    "preferences": {
-      "frequency": "both",
-      "categories": [
-        "home",
-        "all",
-        "fitness"
-      ]
-    },
-    "status": "active",
-    "created_at": "2025-11-06 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
-  },
-  {
-    "email": "william.taylor@example.com",
+    "email": "william.taylor@outlook.com",
     "name": "William Taylor",
     "preferences": {
-      "frequency": "both",
+      "frequency": "weekly",
       "categories": [
+        "digital",
         "tech",
-        "digital"
+        "home"
       ]
     },
     "status": "active",
-    "created_at": "2025-09-14 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
+    "created_at": "2025-10-28 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
   },
   {
-    "email": "michael.jones@hotmail.com",
-    "name": "Michael Jones",
+    "email": "william.brown@gmail.com",
+    "name": "William Brown",
+    "preferences": {
+      "frequency": "weekly",
+      "categories": [
+        "fitness",
+        "all"
+      ]
+    },
+    "status": "active",
+    "created_at": "2025-10-15 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "william.miller@hotmail.com",
+    "name": "William Miller",
+    "preferences": {
+      "frequency": "weekly",
+      "categories": [
+        "tech",
+        "digital",
+        "all"
+      ]
+    },
+    "status": "active",
+    "created_at": "2025-10-26 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "jane.taylor@example.com",
+    "name": "Jane Taylor",
+    "preferences": {
+      "frequency": "monthly",
+      "categories": [
+        "home",
+        "digital",
+        "all"
+      ]
+    },
+    "status": "active",
+    "created_at": "2025-08-24 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "lisa.wilson@example.com",
+    "name": "Lisa Wilson",
+    "preferences": {
+      "frequency": "weekly",
+      "categories": [
+        "home"
+      ]
+    },
+    "status": "unsubscribed",
+    "created_at": "2025-08-22 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "robert.smith@outlook.com",
+    "name": "Robert Smith",
     "preferences": {
       "frequency": "monthly",
       "categories": [
         "all",
+        "tech"
+      ]
+    },
+    "status": "active",
+    "created_at": "2025-10-07 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "emily.miller@yahoo.com",
+    "name": "Emily Miller",
+    "preferences": {
+      "frequency": "weekly",
+      "categories": [
+        "home"
+      ]
+    },
+    "status": "active",
+    "created_at": "2025-10-28 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "robert.wilson@hotmail.com",
+    "name": "Robert Wilson",
+    "preferences": {
+      "frequency": "weekly",
+      "categories": [
+        "digital",
         "home",
         "fitness"
       ]
     },
     "status": "active",
-    "created_at": "2025-10-04 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
+    "created_at": "2025-09-19 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
   },
   {
-    "email": "emily.brown@gmail.com",
-    "name": "Emily Brown",
+    "email": "jane.brown@hotmail.com",
+    "name": "Jane Brown",
+    "preferences": {
+      "frequency": "weekly",
+      "categories": [
+        "all"
+      ]
+    },
+    "status": "active",
+    "created_at": "2025-11-01 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "jane.davis@gmail.com",
+    "name": "Jane Davis",
+    "preferences": {
+      "frequency": "both",
+      "categories": [
+        "fitness",
+        "all"
+      ]
+    },
+    "status": "active",
+    "created_at": "2025-08-28 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "jennifer.taylor@hotmail.com",
+    "name": "Jennifer Taylor",
+    "preferences": {
+      "frequency": "weekly",
+      "categories": [
+        "all",
+        "home"
+      ]
+    },
+    "status": "active",
+    "created_at": "2025-10-29 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "jane.davis@outlook.com",
+    "name": "Jane Davis",
     "preferences": {
       "frequency": "monthly",
       "categories": [
+        "home",
+        "all",
         "digital"
       ]
     },
     "status": "active",
-    "created_at": "2025-10-11 12:26:38",
-    "updated_at": "2025-11-12 12:26:38"
+    "created_at": "2025-09-14 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
+  },
+  {
+    "email": "john.miller@yahoo.com",
+    "name": "John Miller",
+    "preferences": {
+      "frequency": "weekly",
+      "categories": [
+        "home",
+        "fitness",
+        "all"
+      ]
+    },
+    "status": "active",
+    "created_at": "2025-08-28 12:27:12",
+    "updated_at": "2025-11-13 12:27:12"
   }
 ]
