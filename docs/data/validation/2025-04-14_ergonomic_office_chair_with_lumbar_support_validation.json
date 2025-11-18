@@ -1,7 +1,7 @@
 {
   "post_title": "Ergonomic Office Chair with Lumbar Support",
   "post_path": "../docs/posts/2025-04-14_ergonomic_office_chair_with_lumbar_support.md",
-  "content_length": 43505,
+  "content_length": 43703,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,7 +12,7 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+      "Error during analysis: 500 Server Error: Internal Server Error for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
       "Unable to determine"
@@ -25,16 +25,16 @@
     "plagiarism_risk": "unknown",
     "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "Error during analysis: 500 Server Error: Internal Server Error for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "Ergonomic Office Chair with Lumbar Support": 1316,
-      "Ergonomic": 2625,
-      "Ergonomic review": 218,
-      "best Ergonomic": 218,
-      "Amazon": 443
+      "Ergonomic Office Chair with Lumbar Support": 1322,
+      "Ergonomic": 2637,
+      "Ergonomic review": 219,
+      "best Ergonomic": 219,
+      "Amazon": 445
     },
     "keyword_density": {
       "Ergonomic Office Chair with Lumbar Support": 3.02,
@@ -57,7 +57,7 @@
       "best Ergonomic": 70,
       "Amazon": 70
     },
-    "content_length": 43505
+    "content_length": 43703
   },
-  "validation_date": "2025-11-17 12:26:09"
+  "validation_date": "2025-11-18 12:26:39"
 }

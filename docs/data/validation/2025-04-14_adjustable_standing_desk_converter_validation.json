@@ -1,7 +1,7 @@
 {
   "post_title": "Adjustable Standing Desk Converter",
   "post_path": "../docs/posts/2025-04-14_adjustable_standing_desk_converter.md",
-  "content_length": 71448,
+  "content_length": 71771,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -12,7 +12,7 @@
     "seo_score": 70,
     "cta_score": 70,
     "issues": [
-      "Error during analysis: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+      "Error during analysis: 500 Server Error: Internal Server Error for url: https://api.groq.com/openai/v1/chat/completions"
     ],
     "strengths": [
       "Unable to determine"
@@ -25,16 +25,16 @@
     "plagiarism_risk": "unknown",
     "confidence": 0,
     "suspicious_segments": [],
-    "explanation": "Error during analysis: 400 Client Error: Bad Request for url: https://api.groq.com/openai/v1/chat/completions"
+    "explanation": "Error during analysis: 500 Server Error: Internal Server Error for url: https://api.groq.com/openai/v1/chat/completions"
   },
   "keyword_optimization": {
     "overall_score": 56,
     "keyword_counts": {
-      "Adjustable Standing Desk Converter": 1543,
-      "Adjustable": 2641,
-      "Adjustable review": 219,
-      "best Adjustable": 220,
-      "Amazon": 444
+      "Adjustable Standing Desk Converter": 1550,
+      "Adjustable": 2653,
+      "Adjustable review": 220,
+      "best Adjustable": 221,
+      "Amazon": 446
     },
     "keyword_density": {
       "Adjustable Standing Desk Converter": 2.16,
@@ -57,7 +57,7 @@
       "best Adjustable": 42,
       "Amazon": 70
     },
-    "content_length": 71448
+    "content_length": 71771
   },
-  "validation_date": "2025-11-17 12:26:22"
+  "validation_date": "2025-11-18 12:26:52"
 }
