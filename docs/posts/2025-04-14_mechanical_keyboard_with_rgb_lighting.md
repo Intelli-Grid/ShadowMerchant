@@ -128,6 +128,79 @@ schema_markup: |
   "@type": "Review",
   "reviewRating": {
   "@type": "Rating",
+  "ratingValue": "4.9",
+  "bestRating": "5"
+  },
+  "author": {
+  "@type": "Person",
+  "name": "Shadow Merchant Expert Advisor"
+  },
+  "itemReviewed": {
+  "@type": "Product",
+  "name": "Mechanical Keyboard with RGB Lighting",
+  "offers": {
+  "@type": "Offer",
+  "price": "79.99",
+  "priceCurrency": "USD",
+  "availability": "https://schema.org/InStock",
+  "url": "https://www.amazon.com/mechanical-keyboard"
+  }
+  }
+  }
+  }
+  </script>
+---
+
+seo_tags: |
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="Mechanical Keyboard with RGB Lighting">
+  <meta name="description" content="Are you tired of using a standard keyboard that lacks the tactile feedback and visual appeal of a mechanical keyboard? Look no further! In this review, we'll...">
+  <meta name="keywords" content="Mechanical Keyboard with RGB Lighting, rgb lighting, best mechanical 2025, mechanical review, Amazon products">
+  <meta name="author" content="Shadow Merchant Expert Advisor">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://shadowmerchant.wordpress.com/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md">
+  <meta property="og:title" content="Mechanical Keyboard with RGB Lighting">
+  <meta property="og:description" content="Are you tired of using a standard keyboard that lacks the tactile feedback and visual appeal of a mechanical keyboard? Look no further! In this review, we'll...">
+  <meta property="og:image" content="https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://shadowmerchant.wordpress.com/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md">
+  <meta property="twitter:title" content="Mechanical Keyboard with RGB Lighting">
+  <meta property="twitter:description" content="Are you tired of using a standard keyboard that lacks the tactile feedback and visual appeal of a mechanical keyboard? Look no further! In this review, we'll...">
+  <meta property="twitter:image" content="https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png">
+schema_markup: |
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+  "@type": "WebPage",
+  "@id": "https://shadowmerchant.wordpress.com/posts/2025-04-14_mechanical_keyboard_with_rgb_lighting.md"
+  },
+  "headline": "Mechanical Keyboard with RGB Lighting",
+  "description": "Are you tired of using a standard keyboard that lacks the tactile feedback and visual appeal of a mechanical keyboard? Look no further! In this review, we'll be taking a closer look at the Mechanical Keyboard with RGB Lighting, priced at an affordable $79.99. This keyboard is packed with features that will take your typing experience to the next level.",
+  "image": "https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png",
+  "author": {
+  "@type": "Person",
+  "name": "Shadow Merchant Expert Advisor"
+  },
+  "publisher": {
+  "@type": "Organization",
+  "name": "Shadow Merchant",
+  "logo": {
+  "@type": "ImageObject",
+  "url": "https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png"
+  }
+  },
+  "datePublished": "2025-04-14T00:00:00+00:00",
+  "dateModified": "2025-04-14T00:00:00+00:00",
+  "review": {
+  "@type": "Review",
+  "reviewRating": {
+  "@type": "Rating",
   "ratingValue": "4.5",
   "bestRating": "5"
   },
