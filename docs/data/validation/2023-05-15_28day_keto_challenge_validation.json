@@ -1,7 +1,7 @@
 {
   "post_title": "28-Day Keto Challenge",
   "post_path": "../docs/posts/2023-05-15_28day_keto_challenge.md",
-  "content_length": 64068,
+  "content_length": 64296,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -30,15 +30,15 @@
   "keyword_optimization": {
     "overall_score": 53,
     "keyword_counts": {
-      "28-Day Keto Challenge": 2787,
-      "28-Day": 3623,
-      "28-Day review": 278,
-      "best 28-Day": 278,
-      "ClickBank": 561
+      "28-Day Keto Challenge": 2797,
+      "28-Day": 3636,
+      "28-Day review": 279,
+      "best 28-Day": 279,
+      "ClickBank": 563
     },
     "keyword_density": {
       "28-Day Keto Challenge": 4.35,
-      "28-Day": 5.65,
+      "28-Day": 5.66,
       "28-Day review": 0.43,
       "best 28-Day": 0.43,
       "ClickBank": 0.88
@@ -57,7 +57,7 @@
       "best 28-Day": 42,
       "ClickBank": 70
     },
-    "content_length": 64068
+    "content_length": 64296
   },
-  "validation_date": "2026-01-16 12:28:12"
+  "validation_date": "2026-01-17 12:24:49"
 }
