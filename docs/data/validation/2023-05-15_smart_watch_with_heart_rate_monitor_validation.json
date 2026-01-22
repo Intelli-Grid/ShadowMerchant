@@ -1,7 +1,7 @@
 {
   "post_title": "Smart Watch with Heart Rate Monitor",
   "post_path": "../docs/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md",
-  "content_length": 69064,
+  "content_length": 69306,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -30,11 +30,11 @@
   "keyword_optimization": {
     "overall_score": 52,
     "keyword_counts": {
-      "Smart Watch with Heart Rate Monitor": 2833,
-      "Smart": 4545,
-      "Smart review": 283,
-      "best Smart": 284,
-      "Amazon": 572
+      "Smart Watch with Heart Rate Monitor": 2843,
+      "Smart": 4561,
+      "Smart review": 284,
+      "best Smart": 285,
+      "Amazon": 574
     },
     "keyword_density": {
       "Smart Watch with Heart Rate Monitor": 4.1,
@@ -57,7 +57,7 @@
       "best Smart": 42,
       "Amazon": 70
     },
-    "content_length": 69064
+    "content_length": 69306
   },
-  "validation_date": "2026-01-21 12:31:21"
+  "validation_date": "2026-01-22 12:31:21"
 }
