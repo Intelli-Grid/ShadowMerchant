@@ -1,7 +1,7 @@
 {
   "post_title": "The Lost Book of Remedies",
   "post_path": "../docs/posts/2025-04-14_the_lost_book_of_remedies.md",
-  "content_length": 62725,
+  "content_length": 62917,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -30,15 +30,15 @@
   "keyword_optimization": {
     "overall_score": 59,
     "keyword_counts": {
-      "The Lost Book of Remedies": 1958,
-      "The": 3591,
-      "The review": 325,
-      "best The": 325,
-      "ClickBank": 656
+      "The Lost Book of Remedies": 1964,
+      "The": 3602,
+      "The review": 326,
+      "best The": 326,
+      "ClickBank": 658
     },
     "keyword_density": {
       "The Lost Book of Remedies": 3.12,
-      "The": 5.72,
+      "The": 5.73,
       "The review": 0.52,
       "best The": 0.52,
       "ClickBank": 1.05
@@ -57,7 +57,7 @@
       "best The": 70,
       "ClickBank": 70
     },
-    "content_length": 62725
+    "content_length": 62917
   },
-  "validation_date": "2026-03-04 12:36:45"
+  "validation_date": "2026-03-05 12:40:07"
 }
