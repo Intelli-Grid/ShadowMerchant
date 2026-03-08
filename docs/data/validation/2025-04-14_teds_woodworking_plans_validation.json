@@ -1,7 +1,7 @@
 {
   "post_title": "Ted's Woodworking Plans",
   "post_path": "../docs/posts/2025-04-14_teds_woodworking_plans.md",
-  "content_length": 104291,
+  "content_length": 104607,
   "quality_check": {
     "overall_score": 70,
     "grammar_score": 70,
@@ -30,11 +30,11 @@
   "keyword_optimization": {
     "overall_score": 51,
     "keyword_counts": {
-      "Ted's Woodworking Plans": 3294,
-      "Ted's": 3950,
-      "Ted's review": 328,
-      "best Ted's": 328,
-      "ClickBank": 661
+      "Ted's Woodworking Plans": 3304,
+      "Ted's": 3962,
+      "Ted's review": 329,
+      "best Ted's": 329,
+      "ClickBank": 663
     },
     "keyword_density": {
       "Ted's Woodworking Plans": 3.16,
@@ -57,7 +57,7 @@
       "best Ted's": 42,
       "ClickBank": 70
     },
-    "content_length": 104291
+    "content_length": 104607
   },
-  "validation_date": "2026-03-07 12:29:28"
+  "validation_date": "2026-03-08 12:30:25"
 }
