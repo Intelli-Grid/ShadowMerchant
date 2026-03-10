@@ -55,6 +55,79 @@ schema_markup: |
   "@type": "Review",
   "reviewRating": {
   "@type": "Rating",
+  "ratingValue": "4.9",
+  "bestRating": "5"
+  },
+  "author": {
+  "@type": "Person",
+  "name": "Shadow Merchant Expert Advisor"
+  },
+  "itemReviewed": {
+  "@type": "Product",
+  "name": "Smart Watch with Heart Rate Monitor",
+  "offers": {
+  "@type": "Offer",
+  "price": "89.95",
+  "priceCurrency": "USD",
+  "availability": "https://schema.org/InStock",
+  "url": "https://www.amazon.com/smart-watch-heart-rate"
+  }
+  }
+  }
+  }
+  </script>
+---
+
+seo_tags: |
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="Smart Watch with Heart Rate Monitor">
+  <meta name="description" content=" Smart Watch with Heart Rate Monitor: Your Health and Fitness Companion">
+  <meta name="keywords" content="Smart Watch with Heart Rate Monitor, rate monitor, best smart 2026, smart review, Amazon products">
+  <meta name="author" content="Shadow Merchant Expert Advisor">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://shadowmerchant.wordpress.com/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md">
+  <meta property="og:title" content="Smart Watch with Heart Rate Monitor">
+  <meta property="og:description" content=" Smart Watch with Heart Rate Monitor: Your Health and Fitness Companion">
+  <meta property="og:image" content="https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://shadowmerchant.wordpress.com/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md">
+  <meta property="twitter:title" content="Smart Watch with Heart Rate Monitor">
+  <meta property="twitter:description" content=" Smart Watch with Heart Rate Monitor: Your Health and Fitness Companion">
+  <meta property="twitter:image" content="https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png">
+schema_markup: |
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+  "@type": "WebPage",
+  "@id": "https://shadowmerchant.wordpress.com/posts/2023-05-15_smart_watch_with_heart_rate_monitor.md"
+  },
+  "headline": "Smart Watch with Heart Rate Monitor",
+  "description": " Smart Watch with Heart Rate Monitor: Your Health and Fitness Companion",
+  "image": "https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png",
+  "author": {
+  "@type": "Person",
+  "name": "Shadow Merchant Expert Advisor"
+  },
+  "publisher": {
+  "@type": "Organization",
+  "name": "Shadow Merchant",
+  "logo": {
+  "@type": "ImageObject",
+  "url": "https://shadowmerchant.wordpress.com/wp-content/uploads/2025/04/cropped-our-rewards-hub-logo-new.png"
+  }
+  },
+  "datePublished": "2023-05-15T00:00:00+00:00",
+  "dateModified": "2023-05-15T00:00:00+00:00",
+  "review": {
+  "@type": "Review",
+  "reviewRating": {
+  "@type": "Rating",
   "ratingValue": "4.6",
   "bestRating": "5"
   },
