@@ -31,14 +31,14 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           
           {/* Logo */}
-          <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer">
+          <Link href="/" className="flex-shrink-0 flex items-center gap-2 cursor-pointer">
             <div className="w-8 h-8 rounded bg-gradient-to-br from-[#FF6B00] to-[#FF9900] flex items-center justify-center font-black text-black shadow-lg shadow-[#FF6B00]/20">
               SM
             </div>
-            <Link href="/" className="font-extrabold text-xl tracking-tight text-white hidden sm:block">
+            <span className="font-extrabold text-xl tracking-tight text-white hidden sm:block">
               Shadow<span className="text-[#FF6B00]">Merchant</span>
-            </Link>
-          </div>
+            </span>
+          </Link>
 
           {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center space-x-8">
