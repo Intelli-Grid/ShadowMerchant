@@ -11,13 +11,20 @@ const STORE_META: Record<string, { label: string; color: string; tagline: string
 };
 
 async function getDealsByPlatform(platform: string): Promise<Deal[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/deals?platform=${platform}&sort=score&limit=24`,
-    { cache: 'no-store' }
-  );
-  if (!res.ok) return [];
-  const data = await res.json();
-  return data.deals || [];
+  try {
+    const { connectDB } = await import('@/lib/db');
+    await connectDB();
+    const Deal = (await import('@/models/Deal')).default;
+    const deals = await Deal.find({ 
+      is_active: true, 
+      source_platform: platform.toLowerCase() 
+    }).sort({ deal_score: -1 }).limit(48).lean();
+    
+    return JSON.parse(JSON.stringify(deals));
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

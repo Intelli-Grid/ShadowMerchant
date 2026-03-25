@@ -4,25 +4,51 @@ import { UpgradeCTA } from '@/components/pro/UpgradeCTA';
 import { Deal } from '@/types';
 
 async function getDeals(searchParams: { [key: string]: string | string[] | undefined }) {
-  const query = new URLSearchParams();
-  if (searchParams.platform) query.set('platform', searchParams.platform as string);
-  if (searchParams.category) query.set('category', searchParams.category as string);
-  if (searchParams.sort) query.set('sort', searchParams.sort as string);
-  
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/deals?${query.toString()}`, {
-    cache: 'no-store'
-  });
-  
-  if (!res.ok) return { deals: [], total: 0 };
-  return res.json();
+  try {
+    const { connectDB } = await import('@/lib/db');
+    await connectDB();
+    const Deal = (await import('@/models/Deal')).default;
+    
+    const query: any = { is_active: true };
+    if (searchParams.platform) query.source_platform = (searchParams.platform as string).toLowerCase();
+    
+    // Category mapping (similar to API logic)
+    if (searchParams.category) {
+      const cat = (searchParams.category as string).toLowerCase();
+      if (cat === 'electronics') {
+        query.category = { $in: ['Electronics', 'Laptops', 'Mobiles', 'Audio'] };
+      } else if (cat === 'fashion') {
+        query.category = { $in: ['Fashion', 'Clothing', 'Shoes', 'Accessories'] };
+      } else if (cat === 'beauty') {
+        query.category = { $in: ['Beauty', 'Personal Care', 'Makeup'] };
+      } else {
+        query.category = new RegExp(cat, 'i');
+      }
+    }
+
+    let sortObj: any = { deal_score: -1 };
+    if (searchParams.sort === 'discount') sortObj = { discount_percent: -1 };
+    if (searchParams.sort === 'newest') sortObj = { published_at: -1 };
+
+    const [deals, total] = await Promise.all([
+      Deal.find(query).sort(sortObj).limit(48).lean(),
+      Deal.countDocuments(query)
+    ]);
+
+    return { deals: JSON.parse(JSON.stringify(deals)), total };
+  } catch (e) {
+    console.error(e);
+    return { deals: [], total: 0 };
+  }
 }
 
 export default async function DealsFeedPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const data = await getDeals(searchParams);
+  const resolvedParams = await searchParams;
+  const data = await getDeals(resolvedParams);
   const deals: Deal[] = data.deals || [];
 
   return (

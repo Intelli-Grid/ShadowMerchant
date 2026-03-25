@@ -8,11 +8,28 @@ import { Star, ExternalLink, ShieldCheck, Clock } from 'lucide-react';
 import { Deal } from '@/types';
 
 async function getDealDetails(id: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/deals/${id}`, {
-    cache: 'no-store'
-  });
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    const { connectDB } = await import('@/lib/db');
+    await connectDB();
+    const Deal = (await import('@/models/Deal')).default;
+    const deal = await Deal.findById(id).lean();
+    if (!deal) return null;
+    
+    const similar_deals = await Deal.find({
+      is_active: true,
+      category: deal.category,
+      _id: { $ne: id }
+    }).sort({ deal_score: -1 }).limit(4).lean();
+    
+    return JSON.parse(JSON.stringify({
+      deal,
+      price_history: deal.price_history || [],
+      similar_deals
+    }));
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
 }
 
 export default async function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {

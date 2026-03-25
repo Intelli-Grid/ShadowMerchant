@@ -18,13 +18,15 @@ async function getDashboardData(clerkId: string) {
   return { user, totalDeals, recentDeals };
 }
 
-export default async function DashboardPage({ searchParams }: { searchParams: { upgraded?: string } }) {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ upgraded?: string }> }) {
   const clerkUser = await currentUser();
   if (!clerkUser) redirect('/sign-in');
 
   const { user, totalDeals, recentDeals } = await getDashboardData(clerkUser.id);
   const isPro = user?.subscription_tier === 'pro';
-  const justUpgraded = searchParams?.upgraded === 'true';
+  
+  const resolvedParams = await searchParams;
+  const justUpgraded = resolvedParams?.upgraded === 'true';
 
   return (
     <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

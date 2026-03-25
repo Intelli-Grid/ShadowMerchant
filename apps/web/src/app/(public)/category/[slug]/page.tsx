@@ -13,13 +13,31 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 async function getDealsByCategory(category: string): Promise<Deal[]> {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/deals?category=${category}&sort=score&limit=24`,
-    { cache: 'no-store' }
-  );
-  if (!res.ok) return [];
-  const data = await res.json();
-  return data.deals || [];
+  try {
+    const { connectDB } = await import('@/lib/db');
+    await connectDB();
+    const Deal = (await import('@/models/Deal')).default;
+    
+    let queryCat: any = new RegExp(category, 'i');
+    const cat = category.toLowerCase();
+    if (cat === 'electronics') {
+      queryCat = { $in: ['Electronics', 'Laptops', 'Mobiles', 'Audio'] };
+    } else if (cat === 'fashion') {
+      queryCat = { $in: ['Fashion', 'Clothing', 'Shoes', 'Accessories'] };
+    } else if (cat === 'beauty') {
+      queryCat = { $in: ['Beauty', 'Personal Care', 'Makeup'] };
+    }
+
+    const deals = await Deal.find({ is_active: true, category: queryCat })
+      .sort({ deal_score: -1 })
+      .limit(48)
+      .lean();
+    
+    return JSON.parse(JSON.stringify(deals));
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
