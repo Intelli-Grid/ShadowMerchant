@@ -20,18 +20,20 @@ async function getDealsByPlatform(platform: string): Promise<Deal[]> {
   return data.deals || [];
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const meta = STORE_META[params.slug];
-  const label = meta?.label || params.slug;
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const meta = STORE_META[slug];
+  const label = meta?.label || slug;
   return {
     title: `${label} Deals Today | ShadowMerchant`,
     description: `${meta?.tagline || `Best ${label} deals`}. AI-ranked and updated every 6 hours.`,
   };
 }
 
-export default async function StorePage({ params }: { params: { slug: string } }) {
-  const meta = STORE_META[params.slug] || { label: params.slug, color: '#FF6B00', tagline: '' };
-  const deals = await getDealsByPlatform(params.slug);
+export default async function StorePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const meta = STORE_META[slug] || { label: slug, color: '#FF6B00', tagline: '' };
+  const deals = await getDealsByPlatform(slug);
 
   return (
     <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">

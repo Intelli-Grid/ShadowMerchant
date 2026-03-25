@@ -15,8 +15,9 @@ async function getDealDetails(id: string) {
   return res.json();
 }
 
-export default async function DealDetailPage({ params }: { params: { id: string } }) {
-  const data = await getDealDetails(params.id);
+export default async function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const data = await getDealDetails(id);
   
   if (!data || !data.deal) {
     notFound();

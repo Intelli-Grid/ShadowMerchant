@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import Deal from '@/models/Deal';
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   await connectDB();
-  const deal = await Deal.findById(params.id).lean();
+  const { id } = await params;
+  const deal = await Deal.findById(id).lean();
   if (!deal) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
   const similar = await Deal.find({

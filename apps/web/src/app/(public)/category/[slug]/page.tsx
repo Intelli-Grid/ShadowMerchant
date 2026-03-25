@@ -22,17 +22,19 @@ async function getDealsByCategory(category: string): Promise<Deal[]> {
   return data.deals || [];
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const label = CATEGORY_LABELS[params.slug] || params.slug;
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const label = CATEGORY_LABELS[slug] || slug;
   return {
     title: `Best ${label} Deals in India | ShadowMerchant`,
     description: `Discover the highest-discounted ${label} deals from Amazon, Flipkart, and more. AI-ranked by deal quality.`,
   };
 }
 
-export default async function CategoryPage({ params }: { params: { slug: string } }) {
-  const label = CATEGORY_LABELS[params.slug] || params.slug;
-  const deals = await getDealsByCategory(params.slug);
+export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const label = CATEGORY_LABELS[slug] || slug;
+  const deals = await getDealsByCategory(slug);
 
   return (
     <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
