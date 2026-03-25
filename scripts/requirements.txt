@@ -11,3 +11,4 @@ brevo-python==3.1.0
 lxml==5.2.2
 cloudinary==1.40.0
 algoliasearch==4.2.0
+pytrends==4.9.2
