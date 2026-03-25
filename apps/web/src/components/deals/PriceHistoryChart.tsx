@@ -74,7 +74,7 @@ export function PriceHistoryChart({ data }: PriceHistoryChartProps) {
             contentStyle={{ backgroundColor: '#1A1A24', border: '1px solid #7C3AED', borderRadius: '8px' }}
             itemStyle={{ color: '#FF6B00', fontWeight: 'bold' }}
             labelStyle={{ color: '#F0F0F0', marginBottom: '4px' }}
-            formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Price']}
+            formatter={(value: any) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Price']}
           />
           
           <Area 
