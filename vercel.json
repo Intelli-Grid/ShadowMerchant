@@ -4,7 +4,6 @@
   "outputDirectory": "apps/web/.next",
   "installCommand": "pnpm install",
   "devCommand": "cd apps/web && pnpm dev",
-  "rootDirectory": null,
   "regions": ["bom1"],
   "env": {},
   "build": {
