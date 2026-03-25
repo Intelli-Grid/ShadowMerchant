@@ -1,0 +1,47 @@
+name: Database Migrations
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "packages/database/migrations/**"
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: 18
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd packages/database
+          npm ci
+
+      - name: Run migrations
+        run: |
+          cd packages/database
+          npm run migrate:prod
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+
+      - name: Notify on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "⚠️ Database migration failed!\nRepo: ${{ github.repository }}\nWorkflow: ${{ github.workflow }}\nCommit: ${{ github.sha }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

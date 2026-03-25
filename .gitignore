@@ -1,0 +1,90 @@
+# ============================================================
+# ShadowMerchant .gitignore
+# Only deployment-essential code is committed. No secrets,
+# no docs, no blueprints, no test scripts.
+# ============================================================
+
+# ---------- Environment / Secrets ----------
+.env
+.env.*
+*.env
+apps/web/.env.local
+apps/web/.env.development
+apps/web/.env.production
+apps/web/.env.test
+scripts/.env
+
+# ---------- Node / Next.js ----------
+node_modules/
+.next/
+out/
+dist/
+.turbo/
+*.tgz
+*.tar.gz
+.vercel
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---------- Python ----------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+*.egg
+build/
+.pytest_cache/
+.mypy_cache/
+
+# ---------- Logs ----------
+*.log
+logs/
+coverage/
+.nyc_output/
+
+# ---------- Editor / OS ----------
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/settings.json
+.vscode/extensions.json
+.idea/
+desktop.ini
+
+# ---------- Docs / Blueprints / Internal Files ----------
+# These contain sensitive internal strategy info
+*.md
+!README.md
+docs/
+*.blueprint.*
+*Blueprint*
+*_blueprint*
+*BLUEPRINT*
+
+# ---------- Test / Debug scripts ----------
+scripts/test_scrapers.py
+scripts/debug_*.py
+scripts/check_*.py
+**/scratch_*.py
+test_*.py
+test_*.mjs
+
+# ---------- Data / Exports ----------
+*.csv
+*.json.bak
+data/
+exports/
+output/
+
+# ---------- Misc ----------
+*.tmp
+*.bak
+*.orig

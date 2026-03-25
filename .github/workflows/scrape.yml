@@ -1,0 +1,52 @@
+name: Deal Scraper
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # Every 6 hours
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Install Playwright Chromium
+        run: playwright install chromium
+
+      - name: Run scraper pipeline
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          AMAZON_AFFILIATE_TAG: ${{ secrets.AMAZON_AFFILIATE_TAG }}
+          FLIPKART_AFFILIATE_TAG: ${{ secrets.FLIPKART_AFFILIATE_TAG }}
+          MYNTRA_AFFILIATE_TAG: ${{ secrets.MYNTRA_AFFILIATE_TAG }}
+        run: python scripts/run_pipeline.py
+
+      - name: Process & mirror images to Cloudinary
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+        run: python scripts/processors/image_processor.py
+
+      - name: Re-index Algolia search
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+          ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
+          ALGOLIA_INDEX_NAME: ${{ secrets.ALGOLIA_INDEX_NAME }}
+        run: python scripts/index_algolia.py
+
+      - name: Update price history
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: python scripts/processors/price_tracker.py
