@@ -7,7 +7,7 @@ import os
 class AmazonScraper(BaseScraper):
     def __init__(self):
         super().__init__("amazon")
-        self.affiliate_tag = os.getenv("AMAZON_AFFILIATE_TAG", "YOUR_TAG-21")
+        self.affiliate_tag = os.getenv("AMAZON_AFFILIATE_TAG", "shadowmerc0a0-21")
 
     def scrape_deals(self) -> list[RawDeal]:
         deals = []

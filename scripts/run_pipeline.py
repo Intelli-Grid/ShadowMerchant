@@ -88,50 +88,50 @@ def process_and_save(all_deals: list) -> int:
         saved = 0
         for deal in all_deals:
             try:
-                # Build document
-                raw = deal if isinstance(deal, dict) else deal.__dict__
-                title         = str(raw.get("title", "")).strip()
-                platform      = raw.get("platform", raw.get("source_platform", "unknown"))
-                orig_price    = float(raw.get("original_price", 0) or 0)
-                disc_price    = float(raw.get("discounted_price", 0) or 0)
-                discount_pct  = raw.get("discount_percent", None)
+                # score_deal handles both RawDeal objects and dicts
+                deal_score = score_deal(deal)
+
+                # Extract fields — works for both RawDeal dataclass and dict
+                def _f(field, default=""):
+                    if isinstance(deal, dict):
+                        return deal.get(field, default)
+                    return getattr(deal, field, default)
+
+                title        = str(_f("title", "")).strip()
+                platform     = str(_f("platform", _f("source_platform", "unknown")))
+                orig_price   = float(_f("original_price", 0) or 0)
+                disc_price   = float(_f("discounted_price", 0) or 0)
+                discount_pct = _f("discount_percent", None)
                 if discount_pct is None:
                     discount_pct = int(round((1 - disc_price / orig_price) * 100)) if orig_price > disc_price > 0 else 0
-                product_url   = str(raw.get("product_url", raw.get("affiliate_url", ""))).strip()
-                image_url     = str(raw.get("image_url", "")).strip()
-                category      = raw.get("category", "other")
+                # product_url: RawDeal uses product_url, some older code used affiliate_url
+                product_url  = str(_f("product_url", "") or _f("affiliate_url", "")).strip()
+                image_url    = str(_f("image_url", "") or "").strip()
+                category     = str(_f("category", "other") or "other")
 
                 if not title or disc_price <= 0 or not product_url:
+                    logger.debug(f"Skipping deal — missing required field: title={bool(title)} price={disc_price} url={bool(product_url)}")
                     continue
-
-                # Score
-                try:
-                    deal_score = score_deal({
-                        "discount_percent": discount_pct,
-                        "discounted_price": disc_price,
-                        "original_price": orig_price,
-                        "category": category,
-                    })
-                except Exception:
-                    deal_score = min(discount_pct, 100)
 
                 doc = {
                     "title":            title,
                     "platform":         platform,
                     "original_price":   orig_price,
                     "discounted_price": disc_price,
-                    "discount_percent": discount_pct,
-                    "deal_score":       deal_score,
+                    "discount_percent": int(discount_pct),
+                    "deal_score":       int(deal_score),
                     "product_url":      product_url,
                     "affiliate_url":    product_url,
                     "image_url":        image_url,
                     "category":         category,
+                    "brand":            str(_f("brand", "") or ""),
+                    "rating":           float(_f("rating", 0) or 0),
+                    "rating_count":     int(_f("rating_count", 0) or 0),
                     "is_active":        True,
                     "is_pro_exclusive": False,
                     "updated_at":       datetime.utcnow(),
                 }
 
-                # Upsert by URL (idempotent)
                 result = db.deals.update_one(
                     {"product_url": product_url},
                     {"$set": doc, "$setOnInsert": {"created_at": datetime.utcnow()}},
