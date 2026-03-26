@@ -10,8 +10,7 @@ import { MobileMenu } from './MobileMenu';
 
 const NAV_LINKS = [
   { label: 'Top Deals', href: '/deals' },
-  { label: 'Electronics', href: '/category/electronics' },
-  { label: 'Fashion', href: '/category/fashion' },
+  { label: 'Categories', href: '/#categories' },
 ];
 
 export function Navbar() {

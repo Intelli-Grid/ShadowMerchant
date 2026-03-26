@@ -9,7 +9,11 @@ const CATEGORY_LABELS: Record<string, string> = {
   sports: 'Sports & Outdoors',
   books: 'Books',
   toys: 'Toys & Games',
-  grocery: 'Grocery & Food',
+  health: 'Health & Nutrition',
+  automotive: 'Automotive & Car Care',
+  grocery: 'Grocery & Staples',
+  travel: 'Travel & Luggage',
+  gaming: 'Gaming',
 };
 
 async function getDealsByCategory(category: string): Promise<Deal[]> {
@@ -18,15 +22,9 @@ async function getDealsByCategory(category: string): Promise<Deal[]> {
     await connectDB();
     const Deal = (await import('@/models/Deal')).default;
     
-    let queryCat: any = new RegExp(category, 'i');
-    const cat = category.toLowerCase();
-    if (cat === 'electronics') {
-      queryCat = { $in: ['Electronics', 'Laptops', 'Mobiles', 'Audio'] };
-    } else if (cat === 'fashion') {
-      queryCat = { $in: ['Fashion', 'Clothing', 'Shoes', 'Accessories'] };
-    } else if (cat === 'beauty') {
-      queryCat = { $in: ['Beauty', 'Personal Care', 'Makeup'] };
-    }
+    // In Phase A we normalized all new incoming deals to have the exact lowercased universal category
+    // as the 'category' field.
+    const queryCat = category.toLowerCase();
 
     const deals = await Deal.find({ is_active: true, category: queryCat })
       .sort({ deal_score: -1 })

@@ -42,7 +42,7 @@ export function CategoryBrowser() {
   }, []);
 
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <section id="categories" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 scroll-mt-24">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-black text-white">
           <span className="text-[#FF6B00]">|</span> Shop by Category
