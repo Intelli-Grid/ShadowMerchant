@@ -19,10 +19,25 @@ export interface Deal {
   is_pro_exclusive: boolean;
   is_active: boolean;
   price_history: { date: string; price: number }[];
+  scraped_at: string;
   published_at?: string;
   expires_at?: string;
   created_at: string;
   updated_at: string;
+
+  // Added in Phase A Schema Updates:
+  is_trending?: boolean;
+  score_breakdown?: {
+    discount_score: number;
+    price_drop_score: number;
+    staleness_penalty: number;
+    popularity_score: number;
+    base_rating_score: number;
+  };
+  alternate_links?: { platform: string; url: string; price: number }[];
+  title_normalized?: string;
+  click_count?: number;
+  view_count?: number;
 }
 
 export interface User {
