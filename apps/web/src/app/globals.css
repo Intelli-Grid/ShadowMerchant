@@ -128,28 +128,150 @@
     @apply font-sans;
   }
 }
-/* ShadowMerchant Brand Theme (Sec 11) */
+
+/* ════════════════════════════════════════════════════
+   SHADOWMERCHANT DESIGN SYSTEM — "Dark Marketplace Intelligence"
+════════════════════════════════════════════════════ */
+
 @theme {
-  --color-background: #0A0A0F;
-  --color-card: #13131A;
-  --color-primary: #FF6B00;
-  --color-secondary: #00C853;
+  --color-background: #0A0A0B;
+  --color-card: #111113;
+  --color-primary: #FF6B2C;
+  --color-secondary: #00D4FF;
   --color-accent: #7C3AED;
 }
 
 :root {
-  --brand-primary: #FF6B00;
-  --brand-secondary: #00C853;
-  --brand-accent: #7C3AED;
-  --bg-base: #0A0A0F;
-  --bg-card: #13131A;
-  --bg-elevated: #1A1A24;
-  --text-primary: #F0F0F0;
-  --text-muted: #6B7280;
-  --border: #2A2A35;
+  /* Backgrounds */
+  --bg-base:       #0A0A0B;
+  --bg-surface:    #111113;
+  --bg-raised:     #18181C;
+  --bg-overlay:    #202025;
+
+  /* Brand */
+  --sm-accent:       #FF6B2C;
+  --sm-accent-dim:   rgba(255, 107, 44, 0.15);
+  --sm-accent-glow:  rgba(255, 107, 44, 0.08);
+  --sm-cyan:         #00D4FF;
+  --sm-cyan-dim:     rgba(0, 212, 255, 0.12);
+
+  /* Text */
+  --text-primary:    #F2F2F3;
+  --text-secondary:  #8A8A96;
+  --text-muted:      #4A4A55;
+
+  /* Borders */
+  --sm-border:       rgba(255,255,255,0.07);
+  --sm-border-hover: rgba(255,255,255,0.14);
+
+  /* Score traffic lights */
+  --score-high:  #22C55E;
+  --score-mid:   #F59E0B;
+  --score-low:   #EF4444;
+
+  /* Fonts */
+  --font-display: var(--font-syne, 'Syne'), sans-serif;
+  --font-body:    var(--font-dm, 'DM Sans'), sans-serif;
+
+  /* Radius */
+  --sm-radius-sm: 6px;
+  --sm-radius-md: 10px;
+  --sm-radius-lg: 16px;
+  --sm-radius-xl: 20px;
+
+  /* Legacy compat */
+  --brand-primary: #FF6B2C;
+  --bg-card:       #111113;
+  --bg-elevated:   #18181C;
 }
 
+/* Body atmosphere */
 body {
   background-color: var(--bg-base);
   color: var(--text-primary);
+  font-family: var(--font-body);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.022'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
 }
+
+/* Page-top radial orange glow */
+.hero-atmosphere {
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 600px;
+  background: radial-gradient(ellipse at center, rgba(255,107,44,0.055) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ════════════════════════════════════════════════════
+   ANIMATIONS & MICRO-INTERACTIONS
+════════════════════════════════════════════════════ */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
+}
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0   rgba(255, 107, 44, 0.45); }
+  70%  { box-shadow: 0 0 0 8px rgba(255, 107, 44, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(255, 107, 44, 0); }
+}
+
+@keyframes heartPop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+/* Staggered deal card entry */
+.deal-card-enter {
+  animation: fadeInUp 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+.deal-card-enter:nth-child(1) { animation-delay: 0.04s; }
+.deal-card-enter:nth-child(2) { animation-delay: 0.08s; }
+.deal-card-enter:nth-child(3) { animation-delay: 0.12s; }
+.deal-card-enter:nth-child(4) { animation-delay: 0.16s; }
+.deal-card-enter:nth-child(5) { animation-delay: 0.20s; }
+.deal-card-enter:nth-child(6) { animation-delay: 0.24s; }
+.deal-card-enter:nth-child(7) { animation-delay: 0.28s; }
+.deal-card-enter:nth-child(8) { animation-delay: 0.32s; }
+
+/* Skeleton shimmer */
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--bg-raised) 25%, var(--bg-overlay) 50%, var(--bg-raised) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+/* Score bar — starts collapsed, animates via JS adding .animate class */
+.score-bar-fill {
+  width: 0%;
+  transition: width 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.score-bar-fill.animate {
+  width: var(--score-target, 0%);
+}
+
+/* Wishlist heart pop */
+.heart-active {
+  animation: heartPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Hot deal pulse (score >= 90) */
+.badge-hot {
+  animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+
+/* Scrollbar hide utility */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }

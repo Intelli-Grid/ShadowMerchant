@@ -1,148 +1,244 @@
-"use client";
+'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Deal } from '@/types';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Star, Lock, ExternalLink } from 'lucide-react';
+import { Lock, ExternalLink, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { getPlatform } from '@/lib/platforms';
 
 interface DealCardProps {
   deal: Deal;
   isUserPro?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
 }
 
-export function DealCard({ deal, isUserPro = false }: DealCardProps) {
-  const [isLocked] = useState(deal.is_pro_exclusive && !isUserPro);
+export function DealCard({ deal, isUserPro = false, size = 'md', className }: DealCardProps) {
+  const router = useRouter();
   const [imgError, setImgError] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [scoreVisible, setScoreVisible] = useState(false);
+  const scoreBarRef = useRef<HTMLDivElement>(null);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-IN', {
+  const isLocked = deal.is_pro_exclusive && !isUserPro;
+  const platform = getPlatform(deal.source_platform);
+  const score = deal.deal_score ?? 0;
+  const isHot = score >= 90;
+
+  const scoreColor =
+    score >= 80 ? 'var(--score-high)' :
+    score >= 55 ? 'var(--score-mid)' :
+    'var(--score-low)';
+
+  // Intersection observer — animate score bar when card enters viewport
+  useEffect(() => {
+    const el = scoreBarRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setScoreVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(price);
-  };
 
-  const platformColors: Record<string, string> = {
-    amazon: 'bg-[#FF9900] text-black',
-    flipkart: 'bg-[#2874F0] text-white',
-    myntra: 'bg-[#FF3F6C] text-white',
-    meesho: 'bg-[#F43397] text-white',
-    nykaa: 'bg-[#FC2779] text-white',
-    croma: 'bg-[#00E9BF] text-black',
+  const sizeClasses = {
+    sm: 'text-xs',
+    md: 'text-sm',
+    lg: 'text-base',
   };
 
   return (
-    <div className="relative group w-full bg-[#13131A] rounded-xl border border-[#2A2A35] overflow-hidden transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-[#FF6B00]/10 flex flex-col h-full">
-      <Link href={`/deals/${deal._id}`} className="absolute inset-0 z-0" aria-label={`View details for ${deal.title}`} />
+    <article
+      className={cn(
+        'deal-card-enter group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-200 cursor-pointer',
+        'hover:-translate-y-0.5',
+        className
+      )}
+      style={{
+        background: 'var(--bg-surface)',
+        borderColor: 'var(--sm-border)',
+        height: '100%',
+      }}
+      onMouseEnter={() => router.prefetch(`/deals/${deal._id}`)}
+      onMouseLeave={() => undefined}
+      // Upgrade border glow on hover via inline style trick
+    >
+      {/* Hover glow border effect */}
+      <style jsx>{`
+        article:hover {
+          border-color: var(--sm-border-hover);
+          box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,107,44,0.08);
+        }
+      `}</style>
 
-      {/* Platform Badge Label */}
-      <div className="absolute top-3 left-3 z-10 font-bold uppercase tracking-wider text-[10px] px-2 py-1 rounded-sm shadow-md" style={{ background: platformColors[deal.source_platform]?.split(' ')[0], color: platformColors[deal.source_platform]?.split(' ')[2] }}>
-        {deal.source_platform}
-      </div>
+      {/* Invisible full-card link */}
+      <Link
+        href={`/deals/${deal._id}`}
+        className="absolute inset-0 z-0"
+        aria-label={`View ${deal.title}`}
+      />
 
-      {/* Discount Badge */}
-      <div className="absolute top-3 right-3 z-10 bg-[#00C853] text-black font-extrabold text-xs px-2 py-1 rounded shadow-md">
-        {deal.discount_percent}% OFF
-      </div>
-
-      {/* Product Image Area */}
-      <div className="relative w-full aspect-square bg-[#FFFFFF] p-4 flex items-center justify-center">
+      {/* ── IMAGE SECTION ── */}
+      <div className="relative overflow-hidden" style={{ aspectRatio: '4/3', background: 'var(--bg-raised)' }}>
         {deal.image_url && !imgError ? (
           <Image
             src={deal.image_url}
             alt={deal.title}
             fill
-            className="object-contain mix-blend-multiply p-4"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-contain p-3 transition-transform duration-500 group-hover:scale-[1.06]"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 260px"
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#13131A] to-[#1E1E2E] gap-2">
-            <div
-              className="w-16 h-16 rounded-lg flex items-center justify-center font-black text-xl shadow-lg"
-              style={{ background: platformColors[deal.source_platform] || 'bg-gray-700' }}
-            >
-              {deal.source_platform?.[0]?.toUpperCase() || '?'}
-            </div>
-            <span className="text-gray-500 text-xs capitalize">{deal.source_platform}</span>
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ background: 'var(--bg-raised)' }}>
+            <span className="text-4xl">{platform.emoji}</span>
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{platform.name}</span>
           </div>
         )}
+
+        {/* Platform badge — top left */}
+        <span
+          className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1 rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wider shadow-md"
+          style={{ background: platform.bg, color: platform.text }}
+        >
+          <span>{platform.emoji}</span>
+          {platform.name}
+        </span>
+
+        {/* Discount badge — top right */}
+        <span
+          className={cn(
+            'absolute top-2.5 right-2.5 z-10 rounded px-2 py-1 text-[11px] font-extrabold tracking-wide text-white shadow-md',
+            isHot && 'badge-hot'
+          )}
+          style={{ background: 'var(--sm-accent)' }}
+        >
+          {deal.discount_percent}% OFF
+        </span>
+
+        {/* Wishlist button */}
+        <button
+          className={cn(
+            'absolute bottom-2.5 right-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm transition-colors hover:bg-black/70',
+            wishlisted && 'heart-active'
+          )}
+          onClick={(e) => { e.preventDefault(); setWishlisted(w => !w); }}
+          aria-label="Save to wishlist"
+        >
+          <Heart className={cn('h-3.5 w-3.5', wishlisted ? 'fill-red-500 text-red-500' : 'text-white')} />
+        </button>
       </div>
 
-      {/* Action / Lock Content Overlay */}
-      {isLocked && (
-        <div className="absolute inset-0 z-20 bg-background/60 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center pointer-events-auto">
-          <div className="w-12 h-12 bg-[#7C3AED] rounded-full flex items-center justify-center mb-4 shadow-lg shadow-[#7C3AED]/40">
-            <Lock className="w-6 h-6 text-white" />
-          </div>
-          <h3 className="text-xl font-bold text-white mb-2">Pro Exclusive</h3>
-          <p className="text-sm text-gray-300 mb-4 line-clamp-2">This is a highly discounted flash deal only accessible to Pro members.</p>
-          <Button className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white w-full font-bold relative z-30">
-            Unlock with Pro
-          </Button>
-        </div>
-      )}
+      {/* ── CONTENT SECTION ── */}
+      <div className={cn('flex flex-col flex-1 p-3.5', isLocked && 'opacity-25 blur-[2px] pointer-events-none', sizeClasses[size])}>
 
-      {/* Information Area */}
-      <div className={cn("p-4 flex flex-col flex-grow", isLocked && "opacity-20 blur-[2px] pointer-events-none")}>
-        
-        {/* Deal Score Bar */}
-        <div className="mb-3 flex items-center gap-2">
-          <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
-            <div 
-              className="h-full rounded-full transition-all duration-1000" 
-              style={{ 
-                width: `${deal.deal_score}%`, 
-                backgroundColor: deal.deal_score >= 80 ? '#FF6B00' : deal.deal_score >= 60 ? '#F59E0B' : '#10B981'
-              }}
+        {/* Score row */}
+        <div className="mb-2.5 flex items-center gap-2" ref={scoreBarRef}>
+          <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-overlay)' }}>
+            <div
+              className="score-bar-fill h-full rounded-full"
+              style={{
+                '--score-target': `${score}%`,
+                backgroundColor: scoreColor,
+                width: scoreVisible ? `${score}%` : '0%',
+                transition: 'width 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              } as React.CSSProperties}
             />
           </div>
-          <span className="text-[10px] text-gray-400 font-bold w-14 text-right">
-            SCORE: {deal.deal_score}
+          <span
+            className="text-[10px] font-bold min-w-[28px] text-right"
+            style={{ fontFamily: 'var(--font-display)', color: scoreColor }}
+          >
+            {score}
           </span>
         </div>
 
         {/* Title */}
-        <h3 className="text-[#F0F0F0] font-semibold text-sm line-clamp-2 mb-3 min-h-[40px]" title={deal.title}>
+        <h3
+          className="line-clamp-2 font-medium leading-snug mb-2"
+          style={{ color: 'var(--text-primary)', letterSpacing: '-0.01em', minHeight: size === 'sm' ? '2.4em' : '2.8em' }}
+          title={deal.title}
+        >
           {deal.title}
         </h3>
 
-        {/* Rating and Reviews */}
+        {/* Rating */}
         {(deal.rating || deal.rating_count) ? (
-          <div className="flex items-center gap-1.5 mb-3 text-xs text-gray-400">
-            <Star className="w-3.5 h-3.5 fill-[#FFB400] text-[#FFB400]" />
-            <span className="font-medium text-gray-300">{deal.rating?.toFixed(1) || 'N/A'}</span>
-            <span>({deal.rating_count?.toLocaleString() || 0})</span>
+          <div className="flex items-center gap-1 mb-2" style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>
+            <span style={{ color: '#F59E0B' }}>★</span>
+            <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
+              {deal.rating?.toFixed(1) ?? 'N/A'}
+            </span>
+            <span>({deal.rating_count?.toLocaleString('en-IN') ?? 0})</span>
           </div>
         ) : (
-          <div className="h-6 mb-3" />
+          <div className="mb-2" style={{ height: '16px' }} />
         )}
 
-        {/* Pricing & CTA */}
-        <div className="mt-auto flex items-end justify-between gap-2 relative z-30 pointer-events-auto">
-          <div className="flex flex-col">
-            <span className="text-gray-500 line-through text-xs font-medium">
+        {/* Pricing */}
+        <div className="flex items-baseline gap-2 mt-auto mb-2.5">
+          {deal.original_price > 0 && (
+            <span className="text-xs line-through" style={{ color: 'var(--text-muted)' }}>
               {formatPrice(deal.original_price)}
             </span>
-            <span className="text-white font-black text-xl leading-none mt-1">
-              {formatPrice(deal.discounted_price)}
-            </span>
-          </div>
-
-          <Button 
-            asChild
-            className="bg-[#FF6B00] hover:bg-[#E66000] text-white font-bold h-10 px-4 whitespace-nowrap"
+          )}
+          <span
+            className="font-bold"
+            style={{ fontFamily: 'var(--font-display)', fontSize: size === 'lg' ? '22px' : '18px', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}
           >
-            <a href={deal.affiliate_url} target="_blank" rel="noopener noreferrer">
-              Get Deal <ExternalLink className="w-4 h-4 ml-1.5 opacity-80" />
-            </a>
-          </Button>
+            {formatPrice(deal.discounted_price)}
+          </span>
         </div>
+
+        {/* CTA */}
+        <a
+          href={deal.affiliate_url || '#'}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative z-10 flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
+          style={{ background: 'var(--sm-accent)', letterSpacing: '0.01em' }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          Get Deal
+          <ExternalLink className="h-3.5 w-3.5 opacity-80" />
+        </a>
       </div>
-    </div>
+
+      {/* Pro lock overlay */}
+      {isLocked && (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center pointer-events-auto backdrop-blur-md" style={{ background: 'rgba(10,10,11,0.6)' }}>
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full shadow-lg" style={{ background: '#7C3AED', boxShadow: '0 0 20px rgba(124,58,237,0.4)' }}>
+            <Lock className="h-6 w-6 text-white" />
+          </div>
+          <h3 className="text-lg font-bold text-white mb-1">Pro Exclusive</h3>
+          <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+            Flash deal for Pro members only.
+          </p>
+          <Link
+            href="/pro"
+            className="rounded-lg px-4 py-2 text-sm font-bold text-white w-full text-center"
+            style={{ background: '#7C3AED' }}
+          >
+            Unlock with Pro →
+          </Link>
+        </div>
+      )}
+    </article>
   );
 }
