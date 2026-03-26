@@ -4,6 +4,10 @@
 # no docs, no blueprints, no test scripts.
 # ============================================================
 
+# ---------- Accidental files ----------
+New Text Document.txt
+
+
 # ---------- Environment / Secrets ----------
 .env
 .env.*
