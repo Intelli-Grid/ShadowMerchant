@@ -11,8 +11,19 @@ const CATEGORY_META: Record<string, { icon: any; color: string; gradient: string
   home:        { icon: Home,      color: '#10B981', gradient: 'from-emerald-900/40 to-emerald-800/10' },
   sports:      { icon: Dumbbell,  color: '#F59E0B', gradient: 'from-amber-900/40 to-amber-800/10' },
   books:       { icon: BookOpen,  color: '#6366F1', gradient: 'from-indigo-900/40 to-indigo-800/10' },
-  mobile:      { icon: Smartphone,color: '#FF6B00', gradient: 'from-orange-900/40 to-orange-800/10' },
+  toys:        { icon: Laptop,    color: '#EC4899', gradient: 'from-pink-900/40 to-pink-800/10' }, 
+  health:      { icon: Sparkles,  color: '#14B8A6', gradient: 'from-teal-900/40 to-teal-800/10' },
+  automotive:  { icon: Smartphone,color: '#64748B', gradient: 'from-slate-900/40 to-slate-800/10' },
+  grocery:     { icon: Home,      color: '#84CC16', gradient: 'from-lime-900/40 to-lime-800/10' },
+  travel:      { icon: BookOpen,  color: '#06B6D4', gradient: 'from-cyan-900/40 to-cyan-800/10' },
+  gaming:      { icon: Laptop,    color: '#8B5CF6', gradient: 'from-violet-900/40 to-violet-800/10' },
 };
+
+// The 12 universal categories defined in ShadowMerchant Blueprint
+const UNIVERSAL_CATEGORIES = [
+  'electronics', 'fashion', 'beauty', 'home', 'sports', 'books', 
+  'toys', 'health', 'automotive', 'grocery', 'travel', 'gaming'
+];
 
 interface Category {
   category: string;
@@ -21,16 +32,14 @@ interface Category {
 }
 
 export function CategoryBrowser() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [dbCategories, setDbCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     fetch('/api/categories')
       .then(r => r.json())
-      .then(data => Array.isArray(data) && setCategories(data))
+      .then(data => Array.isArray(data) && setDbCategories(data))
       .catch(() => {});
   }, []);
-
-  if (categories.length === 0) return null;
 
   return (
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -41,9 +50,14 @@ export function CategoryBrowser() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {categories.map(({ category, count, avg_discount }) => {
+        {UNIVERSAL_CATEGORIES.map((category) => {
           const meta = CATEGORY_META[category] || { icon: Laptop, color: '#FF6B00', gradient: 'from-orange-900/40 to-orange-800/10' };
           const Icon = meta.icon;
+          
+          // Find if we have live DB stats for this category
+          const dbStat = dbCategories.find(c => c.category === category);
+          const count = dbStat ? dbStat.count : 0;
+          const avg_discount = dbStat ? dbStat.avg_discount : 0;
 
           return (
             <Link
@@ -58,11 +72,18 @@ export function CategoryBrowser() {
                 <Icon className="w-5 h-5" style={{ color: meta.color }} />
               </div>
               <p className="text-white font-bold text-sm capitalize">{category}</p>
-              <p className="text-gray-500 text-xs mt-0.5">{count} deals</p>
-              {avg_discount > 0 && (
-                <span className="mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${meta.color}20`, color: meta.color }}>
-                  avg {avg_discount}% off
-                </span>
+              
+              {count > 0 ? (
+                <>
+                  <p className="text-gray-500 text-xs mt-0.5">{count} deals</p>
+                  {avg_discount > 0 && (
+                    <span className="mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: `${meta.color}20`, color: meta.color }}>
+                      avg {avg_discount}% off
+                    </span>
+                  )}
+                </>
+              ) : (
+                <p className="text-gray-600 text-xs mt-0.5 font-mono italic tracking-tighter">— Scanning —</p>
               )}
             </Link>
           );
