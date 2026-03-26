@@ -80,16 +80,21 @@ def process_and_save(all_deals: list) -> int:
         return 0
     try:
         import pymongo
-        from processors.deal_scorer import score_deal
+        from processors.deal_scorer import score_deal_with_breakdown
+        from processors.deduplicator import deduplicate_deals
 
         client = pymongo.MongoClient(os.getenv("MONGO_URI"), serverSelectionTimeoutMS=10000)
         db = client.shadowmerchant
 
+        # ── Deduplicate cross-platform duplicates before inserting ──────────
+        deduped_deals = deduplicate_deals(all_deals)
+        logger.info(f"After deduplication: {len(deduped_deals)}/{len(all_deals)} unique deals")
+
         saved = 0
-        for deal in all_deals:
+        for deal in deduped_deals:
             try:
-                # score_deal handles both RawDeal objects and dicts
-                deal_score = score_deal(deal)
+                # score_deal_with_breakdown returns (score, breakdown_dict)
+                deal_score, score_breakdown = score_deal_with_breakdown(deal)
 
                 # Extract fields — works for both RawDeal dataclass and dict
                 def _f(field, default=""):
@@ -104,37 +109,42 @@ def process_and_save(all_deals: list) -> int:
                 discount_pct = _f("discount_percent", None)
                 if discount_pct is None:
                     discount_pct = int(round((1 - disc_price / orig_price) * 100)) if orig_price > disc_price > 0 else 0
-                # product_url: RawDeal uses product_url, some older code used affiliate_url
                 product_url  = str(_f("product_url", "") or _f("affiliate_url", "")).strip()
                 image_url    = str(_f("image_url", "") or "").strip()
                 category     = str(_f("category", "other") or "other")
+                alternate_links = _f("alternate_links", []) or []
 
                 if not title or disc_price <= 0 or not product_url:
                     logger.debug(f"Skipping deal — missing required field: title={bool(title)} price={disc_price} url={bool(product_url)}")
                     continue
 
+                # ── is_pro_exclusive: True if score >= 85 ──────────────────
+                is_pro_exclusive = deal_score >= 85
+
                 doc = {
                     "title":            title,
-                    "platform":         platform,
+                    "source_platform":  platform,
                     "original_price":   orig_price,
                     "discounted_price": disc_price,
                     "discount_percent": int(discount_pct),
                     "deal_score":       int(deal_score),
-                    "product_url":      product_url,
+                    "score_breakdown":  score_breakdown,
                     "affiliate_url":    product_url,
                     "image_url":        image_url,
                     "category":         category,
                     "brand":            str(_f("brand", "") or ""),
                     "rating":           float(_f("rating", 0) or 0),
                     "rating_count":     int(_f("rating_count", 0) or 0),
+                    "alternate_links":  alternate_links,
                     "is_active":        True,
-                    "is_pro_exclusive": False,
+                    "is_pro_exclusive": is_pro_exclusive,
+                    "scraped_at":       datetime.utcnow(),
                     "updated_at":       datetime.utcnow(),
                 }
 
                 result = db.deals.update_one(
-                    {"product_url": product_url},
-                    {"$set": doc, "$setOnInsert": {"created_at": datetime.utcnow()}},
+                    {"affiliate_url": product_url},
+                    {"$set": doc, "$setOnInsert": {"created_at": datetime.utcnow(), "deal_id": str(__import__('uuid').uuid4())}},
                     upsert=True,
                 )
                 if result.upserted_id or result.modified_count:
@@ -144,7 +154,7 @@ def process_and_save(all_deals: list) -> int:
                 logger.debug(f"Deal save error: {e}")
 
         client.close()
-        logger.info(f"💾 Saved/updated {saved}/{len(all_deals)} deals to MongoDB")
+        logger.info(f"💾 Saved/updated {saved}/{len(deduped_deals)} deals to MongoDB")
         return saved
 
     except Exception as e:

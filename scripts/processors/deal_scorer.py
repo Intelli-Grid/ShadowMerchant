@@ -1,50 +1,150 @@
-from scrapers.base_scraper import RawDeal
+"""
+ShadowMerchant Deal Scoring Engine — v2.0
+Implements the 5-component weighted formula from the Implementation Plan §4.2:
+
+  Score = (discount × 0.35) + (abs_price_drop × 0.20) + (popularity × 0.20)
+        + (rating × 0.15) + (freshness × 0.10)
+
+Returns both a final score (0–100) and a detailed breakdown dict.
+"""
+
+from datetime import datetime, timezone
 from typing import Union
 
-def score_deal(deal: Union[RawDeal, dict]) -> int:
-    """Score a deal 0-100. Accepts either a RawDeal object or a plain dict."""
-    score = 0
 
-    def _get(field, default=0):
-        if isinstance(deal, dict):
-            return deal.get(field, default)
-        return getattr(deal, field, default)
+def _get(deal, field: str, default=0):
+    """Safely get a field from either a RawDeal dataclass or a plain dict."""
+    if isinstance(deal, dict):
+        return deal.get(field, default)
+    return getattr(deal, field, default)
 
-    discount_pct  = float(_get("discount_percent", 0) or 0)
-    rating        = float(_get("rating", 0) or 0)
-    rating_count  = int(_get("rating_count", 0) or 0)
-    disc_price    = float(_get("discounted_price", 0) or 0)
-    brand         = str(_get("brand", "") or "").lower()
-    category      = str(_get("category", "") or "").lower()
 
-    # Discount % (max 40 points)
-    if discount_pct >= 70:   score += 40
-    elif discount_pct >= 50: score += 30
-    elif discount_pct >= 40: score += 20
-    elif discount_pct >= 30: score += 10
-    elif discount_pct >= 15: score += 5
+def compute_discount_score(discount_pct: float) -> float:
+    """
+    Discount % component — weight 35%.
+    Normalized 0–1. Capped at 1.0 if discount >= 70%.
+    """
+    return min(float(discount_pct) / 70.0, 1.0)
 
-    # Rating (max 20 points)
-    if rating >= 4.5:   score += 20
-    elif rating >= 4.0: score += 15
-    elif rating >= 3.5: score += 8
 
-    # Rating count (max 10 points)
-    if rating_count >= 10000:  score += 10
-    elif rating_count >= 1000: score += 7
-    elif rating_count >= 100:  score += 4
+def compute_price_drop_score(original_price: float, discounted_price: float) -> float:
+    """
+    Absolute Price Drop component — weight 20%.
+    Rewards large absolute ₹ drops, not just percentage.
+    Formula: (original - sale) / original → normalized 0–1.
+    """
+    if original_price <= 0 or discounted_price <= 0:
+        return 0.0
+    if discounted_price >= original_price:
+        return 0.0
+    return min((original_price - discounted_price) / original_price, 1.0)
 
-    # Price in impulse range Rs.200-Rs.5000 (10 points)
-    if 200 <= disc_price <= 5000: score += 10
 
-    # Known brand bonus (10 points)
-    known_brands = [
-        "samsung", "apple", "boat", "sony", "lg", "mi", "realme",
-        "nike", "adidas", "lakme", "maybelline", "prestige", "levi"
-    ]
-    if any(b in brand for b in known_brands): score += 10
+def compute_popularity_score(rating_count: int) -> float:
+    """
+    Popularity component — weight 20%.
+    Uses review count as a proxy. Normalized to 10,000 reviews = 1.0.
+    """
+    return min(float(int(rating_count)) / 10_000.0, 1.0)
 
-    # Category bonus (10 points)
-    if category in ["fashion", "beauty", "electronics"]: score += 10
 
-    return min(score, 100)
+def compute_rating_score(rating: float) -> float:
+    """
+    Rating component — weight 15%.
+    Normalized: rating / 5.0.
+    """
+    return min(float(rating) / 5.0, 1.0)
+
+
+def compute_freshness_score(scraped_at=None) -> float:
+    """
+    Freshness decay component — weight 10%.
+    A deal scraped right now = 1.0. A 7-day-old deal = 0.0.
+    Formula: max(0, 1 - hours_old / 168)
+    """
+    if scraped_at is None:
+        return 1.0  # Assume brand new if not specified
+
+    now = datetime.now(timezone.utc)
+
+    # Handle both timezone-aware and naive datetimes
+    if isinstance(scraped_at, str):
+        try:
+            scraped_at = datetime.fromisoformat(scraped_at.replace("Z", "+00:00"))
+        except Exception:
+            return 1.0
+
+    if scraped_at.tzinfo is None:
+        scraped_at = scraped_at.replace(tzinfo=timezone.utc)
+
+    hours_old = (now - scraped_at).total_seconds() / 3600.0
+    return max(0.0, 1.0 - hours_old / 168.0)
+
+
+def score_deal(deal: Union[object, dict]) -> int:
+    """
+    Main scoring entry point. Accepts a RawDeal dataclass or a plain dict.
+    Returns final deal score as integer 0–100 (for backward compatibility).
+    """
+    score, _ = score_deal_with_breakdown(deal)
+    return score
+
+
+def score_deal_with_breakdown(deal: Union[object, dict]) -> tuple[int, dict]:
+    """
+    Full scoring with breakdown. Returns (score_int, breakdown_dict).
+
+    breakdown_dict keys:
+      discount_score, price_drop_score, popularity_score, rating_score, freshness_score
+    """
+    discount_pct   = float(_get(deal, "discount_percent", 0) or 0)
+    original_price = float(_get(deal, "original_price", 0) or 0)
+    disc_price     = float(_get(deal, "discounted_price", 0) or 0)
+    rating         = float(_get(deal, "rating", 0) or 0)
+    rating_count   = int(_get(deal, "rating_count", 0) or 0)
+    scraped_at     = _get(deal, "scraped_at", None) or _get(deal, "created_at", None)
+
+    # ── Component Scores (each 0.0 – 1.0) ──────────────────────────────────
+    s_discount   = compute_discount_score(discount_pct)
+    s_price_drop = compute_price_drop_score(original_price, disc_price)
+    s_popularity = compute_popularity_score(rating_count)
+    s_rating     = compute_rating_score(rating)
+    s_freshness  = compute_freshness_score(scraped_at)
+
+    # ── Weighted Formula ────────────────────────────────────────────────────
+    weighted = (
+        s_discount   * 0.35
+        + s_price_drop * 0.20
+        + s_popularity * 0.20
+        + s_rating     * 0.15
+        + s_freshness  * 0.10
+    )
+
+    final_score = int(round(weighted * 100))
+    final_score = max(0, min(100, final_score))
+
+    breakdown = {
+        "discount_score":   round(s_discount, 4),
+        "price_drop_score": round(s_price_drop, 4),
+        "popularity_score": round(s_popularity, 4),
+        "rating_score":     round(s_rating, 4),
+        "freshness_score":  round(s_freshness, 4),
+    }
+
+    return final_score, breakdown
+
+
+if __name__ == "__main__":
+    # Quick sanity test
+    sample = {
+        "title": "Sony WH-1000XM5",
+        "discount_percent": 55,
+        "original_price": 34990,
+        "discounted_price": 15745,
+        "rating": 4.6,
+        "rating_count": 12450,
+        "scraped_at": None,  # assume just scraped
+    }
+    score, breakdown = score_deal_with_breakdown(sample)
+    print(f"Score: {score}/100")
+    print(f"Breakdown: {breakdown}")
