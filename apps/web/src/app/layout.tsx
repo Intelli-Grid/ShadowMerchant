@@ -34,6 +34,9 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_IN',
   },
+  other: {
+    'verify-admitad': 'ccea15b445',
+  },
 };
 
 export default function RootLayout({
