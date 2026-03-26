@@ -1,17 +1,18 @@
-"use client";
+'use client';
 
 import { useMemo } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { Sparkles } from 'lucide-react';
 
 interface PriceHistoryChartProps {
   data: { date: string | Date; price: number }[];
+  platformColor?: string;
 }
 
-export function PriceHistoryChart({ data }: PriceHistoryChartProps) {
+export function PriceHistoryChart({ data, platformColor = '#7C3AED' }: PriceHistoryChartProps) {
   const chartData = useMemo(() => {
     if (!data || data.length === 0) return [];
     
-    // Sort chronologically and format dates for the X-axis
     return [...data]
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .map((item) => {
@@ -30,40 +31,58 @@ export function PriceHistoryChart({ data }: PriceHistoryChartProps) {
 
   if (chartData.length < 2) {
     return (
-      <div className="w-full h-48 flex items-center justify-center bg-[#13131A] rounded-xl border border-[#2A2A35]">
-        <p className="text-gray-500 text-sm">Not enough price tracking data yet.</p>
+      <div className="w-full h-48 flex items-center justify-center rounded-2xl border" style={{ background: 'var(--bg-raised)', borderColor: 'var(--sm-border)' }}>
+        <p className="text-sm font-medium flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
+          <Sparkles className="w-4 h-4 opacity-70" /> ShadowMerchant hasn't tracked enough price drops yet.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-64 bg-[#13131A] rounded-xl border border-[#2A2A35] p-4 relative overflow-hidden">
-      <h3 className="text-sm font-bold text-gray-300 mb-4 ml-2 uppercase tracking-wide">
-        Price Tracker
-      </h3>
-      <ResponsiveContainer width="100%" height="80%">
+    <div className="w-full h-[320px] rounded-2xl border p-4 sm:p-6 relative overflow-hidden" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>
+      {/* Background glow that matches the platform color */}
+      <div 
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] blur-[100px] opacity-[0.05] pointer-events-none rounded-full"
+        style={{ background: platformColor }}
+      />
+      
+      <div className="flex justify-between items-center mb-6 pl-2 z-10 relative">
+        <h3 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>
+          Price Volatility Tracker
+        </h3>
+        <span className="text-xs px-2 py-1 rounded font-semibold" style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)' }}>
+          30 Days
+        </span>
+      </div>
+
+      <ResponsiveContainer width="100%" height="80%" className="z-10 relative">
         <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
           <defs>
-            <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#FF6B00" stopOpacity={0.3}/>
-              <stop offset="95%" stopColor="#FF6B00" stopOpacity={0}/>
+            <linearGradient id="colorPriceDynamic" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={platformColor} stopOpacity={0.4}/>
+              <stop offset="95%" stopColor={platformColor} stopOpacity={0}/>
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#2A2A35" vertical={false} />
+          
+          <CartesianGrid strokeDasharray="4 4" stroke="var(--sm-border)" vertical={false} opacity={0.6} />
           
           <XAxis 
             dataKey="date" 
-            stroke="#6B7280" 
+            stroke="var(--text-muted)" 
             fontSize={12}
+            fontFamily="var(--font-sans)"
             tickLine={false}
             axisLine={false}
             dy={10}
+            minTickGap={30}
           />
           
           <YAxis 
             domain={['auto', 'auto']}
-            stroke="#6B7280" 
+            stroke="var(--text-muted)" 
             fontSize={12}
+            fontFamily="var(--font-sans)"
             tickFormatter={formatYAxis}
             tickLine={false}
             axisLine={false}
@@ -71,19 +90,28 @@ export function PriceHistoryChart({ data }: PriceHistoryChartProps) {
           />
           
           <Tooltip 
-            contentStyle={{ backgroundColor: '#1A1A24', border: '1px solid #7C3AED', borderRadius: '8px' }}
-            itemStyle={{ color: '#FF6B00', fontWeight: 'bold' }}
-            labelStyle={{ color: '#F0F0F0', marginBottom: '4px' }}
-            formatter={(value: any) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Price']}
+            contentStyle={{ 
+              backgroundColor: 'rgba(10,10,11,0.95)', 
+              backdropFilter: 'blur(10px)',
+              border: '1px solid var(--sm-border)', 
+              borderRadius: '12px',
+              fontFamily: 'var(--font-sans)',
+              boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)'
+            }}
+            itemStyle={{ color: platformColor, fontWeight: '900', fontSize: '1.2rem', fontFamily: 'var(--font-display)' }}
+            labelStyle={{ color: 'var(--text-secondary)', marginBottom: '8px', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+            formatter={(value: any) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Drop Price']}
+            cursor={{ stroke: platformColor, strokeWidth: 1, strokeDasharray: '4 4' }}
           />
           
           <Area 
             type="monotone" 
             dataKey="price" 
-            stroke="#FF6B00" 
+            stroke={platformColor}
             strokeWidth={3}
             fillOpacity={1} 
-            fill="url(#colorPrice)" 
+            fill="url(#colorPriceDynamic)"
+            activeDot={{ r: 6, strokeWidth: 0, fill: '#fff', style: { filter: `drop-shadow(0 0 8px ${platformColor})` } }}
           />
         </AreaChart>
       </ResponsiveContainer>
