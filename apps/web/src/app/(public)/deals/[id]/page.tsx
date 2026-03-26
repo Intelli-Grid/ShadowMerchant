@@ -1,3 +1,4 @@
+import type { Metadata, ResolvingMetadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { DealCard } from '@/components/deals/DealCard';
@@ -31,6 +32,33 @@ async function getDealDetails(id: string) {
   }
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
+  const { id } = await params;
+  const data = await getDealDetails(id);
+  
+  if (!data || !data.deal) {
+    return {
+      title: 'Deal Not Found | ShadowMerchant',
+    };
+  }
+
+  const deal = data.deal;
+  
+  return {
+    title: `${Math.round(deal.discount_percent)}% OFF: ${deal.title} | ShadowMerchant`,
+    description: `Current Deal: ₹${deal.discounted_price.toLocaleString('en-IN')} (MSRP ₹${deal.original_price.toLocaleString('en-IN')}). Buy ${deal.title} on ${deal.source_platform}.`,
+    openGraph: {
+      title: `${Math.round(deal.discount_percent)}% OFF: ${deal.title}`,
+      description: `Just dropped to ₹${deal.discounted_price.toLocaleString('en-IN')}! Original price: ₹${deal.original_price.toLocaleString('en-IN')}.`,
+      images: deal.image_url ? [deal.image_url] : [],
+      type: 'website',
+    },
+    alternates: {
+      canonical: `/deals/${deal._id}`,
+    }
+  };
+}
+
 export default async function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const data = await getDealDetails(id);
@@ -56,8 +84,41 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
     scoreConfig.text = 'Skip It';
   }
 
+  // Generate Product JSON-LD
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: deal.title,
+    image: deal.image_url ? [deal.image_url] : undefined,
+    description: deal.description || `Buy ${deal.title} on ${platform.name}`,
+    sku: deal.deal_id || deal._id,
+    brand: {
+      '@type': 'Brand',
+      name: deal.brand || platform.name,
+    },
+    offers: {
+      '@type': 'Offer',
+      url: deal.affiliate_url || '',
+      priceCurrency: 'INR',
+      price: deal.discounted_price,
+      priceValidUntil: deal.expires_at ? new Date(deal.expires_at).toISOString().split('T')[0] : new Date(Date.now() + 86400000).toISOString().split('T')[0],
+      itemCondition: 'https://schema.org/NewCondition',
+      availability: deal.is_active ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+      seller: {
+        '@type': 'Organization',
+        name: platform.name,
+      },
+    },
+    aggregateRating: deal.rating_count && deal.rating_count > 0 ? {
+      '@type': 'AggregateRating',
+      ratingValue: deal.rating,
+      reviewCount: deal.rating_count,
+    } : undefined,
+  };
+
   return (
     <main className="flex-1 w-full pb-20 relative">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       
       {/* Brand Strip Gradient Overlay (Absolute) */}
       <div 
