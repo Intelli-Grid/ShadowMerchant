@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Search, Bell, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -53,16 +54,14 @@ export function Navbar() {
     >
       {/* ── Logo ── */}
       <Link href="/" className="flex-shrink-0 flex items-center gap-2.5 group">
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black shadow-lg transition-transform group-hover:scale-105"
-          style={{
-            background: 'linear-gradient(135deg, var(--sm-accent), #FF9500)',
-            color: '#000',
-            boxShadow: '0 0 16px rgba(255,107,44,0.3)',
-          }}
-        >
-          SM
-        </div>
+        <Image
+          src="/logo.png"
+          alt="ShadowMerchant"
+          width={36}
+          height={36}
+          className="rounded-lg transition-transform group-hover:scale-105"
+          style={{ objectFit: 'contain' }}
+        />
         <span
           className="font-extrabold text-xl tracking-tight hidden sm:block"
           style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}

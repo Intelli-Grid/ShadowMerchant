@@ -2,7 +2,6 @@ import { DealCard } from '@/components/deals/DealCard';
 import { CategoryBrowser } from '@/components/CategoryBrowser';
 import { Deal } from '@/types';
 import Link from 'next/link';
-import { auth } from '@clerk/nextjs/server';
 import { connectDB } from '@/lib/db';
 
 // Fetch the top 8 trending deals (is_trending=true, mix of free + pro)
@@ -22,19 +21,8 @@ async function getTrendingDeals(): Promise<Deal[]> {
 }
 
 export default async function Home() {
-  const { userId } = await auth();
+  // Trending deals are shown to everyone — no pro gating on homepage
   const trendingDeals: Deal[] = await getTrendingDeals();
-
-  // Check if user has pro subscription
-  let isUserPro = false;
-  if (userId) {
-    try {
-      await connectDB();
-      const User = (await import('@/models/User')).default;
-      const user = await User.findOne({ clerk_id: userId }).select('subscription').lean() as any;
-      isUserPro = user?.subscription?.plan === 'pro' && user?.subscription?.status === 'active';
-    } catch { /* non-fatal */ }
-  }
 
   return (
     <main className="flex-1 w-full flex flex-col items-center">
@@ -80,7 +68,9 @@ export default async function Home() {
         {trendingDeals.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {trendingDeals.map((deal) => (
-              <DealCard key={deal._id} deal={deal} isUserPro={isUserPro} />
+              // isUserPro=true: trending deals are always fully visible on homepage
+              // The pro lock only appears on the Deal Feed page
+              <DealCard key={deal._id} deal={deal} isUserPro={true} />
             ))}
           </div>
         ) : (
