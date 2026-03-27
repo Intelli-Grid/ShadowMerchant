@@ -1,11 +1,17 @@
 import { Redis } from '@upstash/redis';
 
+// Only create a real Redis instance if the URL is provided, otherwise use a
+// no-op mock so the app runs without cache (MongoDB is queried directly instead).
+const redisMock = {
+  get:  async (_key: string)                          => null,
+  set:  async (_key: string, _val: unknown, _opts?: unknown) => null,
+  keys: async (_pattern: string)                      => [] as string[],
+  del:  async (..._keys: string[])                    => 0,
+};
 
-
-// Only create a real Redis instance if the URL is provided, otherwise mock it so Next.js doesn't crash
-export const redis = process.env.UPSTASH_REDIS_REST_URL 
+export const redis: Redis | typeof redisMock = process.env.UPSTASH_REDIS_REST_URL
   ? new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN || '' })
-  : { get: async () => null, set: async () => null };
+  : redisMock;
 
 export const CACHE_KEYS = {
   TRENDING_DEALS: 'deals:trending',
