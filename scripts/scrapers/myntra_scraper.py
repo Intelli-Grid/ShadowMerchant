@@ -1,113 +1,131 @@
+"""
+Myntra Scraper — httpx + stealth session bootstrap.
+Uses Myntra's internal gateway search API with a valid session.
+"""
 import sys
 import os
-import asyncio
 import logging
+import httpx
 from pathlib import Path
+from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base_scraper import BaseScraper, RawDeal
+from scrapers.session_bootstrap import get_session
 
+load_dotenv()
 logger = logging.getLogger(__name__)
 
-MYNTRA_URLS = [
-    "https://www.myntra.com/sale",
-    "https://www.myntra.com/men-tshirts?rawQuery=men%20tshirts&sort=discount",
-]
-
 AFFILIATE_TAG = os.getenv("MYNTRA_AFFILIATE_TAG", "")
+
+CATEGORY_QUERIES = {
+    "fashion":   ["sale", "men-tshirts", "women-dresses", "shoes"],
+    "beauty":    ["beauty"],
+    "sports":    ["sportswear", "sports-shoes"],
+    "travel":    ["luggage-bags", "backpacks"],
+}
 
 
 class MyntraScraper(BaseScraper):
     def __init__(self):
         super().__init__(platform_name="myntra")
+        self._cookies: dict = {}
+        self._headers: dict = {}
+
+    def _bootstrap(self):
+        logger.info("Myntra: bootstrapping session...")
+        self._cookies, self._headers = get_session("https://www.myntra.com/sale", wait_ms=3000)
+        self._headers.update({
+            "Accept": "application/json, text/plain, */*",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "X-Myntra-Abtest": "pdp_glance:true",
+        })
+        logger.info(f"Myntra: session ready — {len(self._cookies)} cookies")
+
+    def _search(self, query: str) -> list[dict]:
+        """Call Myntra's gateway search API."""
+        url = f"https://www.myntra.com/gateway/v2/search/{query}"
+        params = {"p": 1, "rows": 40, "o": 0, "plaEnabled": "false", "sort": "popularity_desc"}
+        try:
+            resp = httpx.get(
+                url,
+                params=params,
+                headers=self._headers,
+                cookies=self._cookies,
+                timeout=15,
+                follow_redirects=True,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                return data.get("searchData", {}).get("results", []) or data.get("products", []) or []
+            logger.debug(f"Myntra search {query}: status {resp.status_code}")
+        except Exception as e:
+            logger.debug(f"Myntra search error for {query}: {e}")
+        return []
 
     def scrape_deals(self) -> list[RawDeal]:
-        try:
-            return asyncio.run(self._scrape_playwright())
-        except Exception as e:
-            logger.error(f"Myntra scraper error: {e}")
-            return []
-
-    async def _scrape_playwright(self) -> list[RawDeal]:
-        from playwright.async_api import async_playwright, TimeoutError as PWTimeout
+        self._bootstrap()
         deals = []
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            context = await browser.new_context(
-                user_agent=self.get_random_ua(),
-                viewport={"width": 1366, "height": 900},
-                locale="en-IN",
-                timezone_id="Asia/Kolkata",
-            )
-            page = await context.new_page()
-            for url in MYNTRA_URLS:
+
+        for cat_slug, queries in CATEGORY_QUERIES.items():
+            for query in queries:
                 try:
-                    await page.goto(url, wait_until="domcontentloaded", timeout=30000)
-                    await page.wait_for_timeout(4000)
-                    # Myntra product cards
-                    cards = await page.query_selector_all("li.product-base")
-                    logger.info(f"Myntra Playwright: {len(cards)} cards on {url}")
-                    for card in cards[:25]:
-                        try:
-                            brand_el  = await card.query_selector("h3.product-brand")
-                            name_el   = await card.query_selector("h4.product-product")
-                            disc_el   = await card.query_selector("span.product-discountedPrice")
-                            orig_el   = await card.query_selector("span.product-strike")
-                            pct_el    = await card.query_selector("span.product-discountPercentage")
-                            img_el    = await card.query_selector("img")
-                            link_el   = await card.query_selector("a")
-
-                            brand = (await brand_el.inner_text()).strip() if brand_el else ""
-                            name  = (await name_el.inner_text()).strip() if name_el else ""
-                            title = f"{brand} {name}".strip()
-
-                            disc_raw = await disc_el.inner_text() if disc_el else ""
-                            orig_raw = await orig_el.inner_text() if orig_el else ""
-                            pct_raw  = await pct_el.inner_text() if pct_el else ""
-
-                            disc_price = self._parse_price(disc_raw)
-                            orig_price = self._parse_price(orig_raw) if orig_raw else disc_price
-                            discount   = int("".join(filter(str.isdigit, pct_raw)) or 0) if pct_raw else 0
-
-                            image = await img_el.get_attribute("src") if img_el else ""
-                            href  = await link_el.get_attribute("href") if link_el else ""
-                            product_url = f"https://www.myntra.com/{href}" if href and not href.startswith("http") else href
-
-                            if not title or disc_price <= 0:
-                                continue
-
-                            deals.append(RawDeal(
-                                title=title[:200],
-                                platform="myntra",
-                                original_price=orig_price,
-                                discounted_price=disc_price,
-                                discount_percent=discount,
-                                affiliate_url=product_url or "",
-                                image_url=image or "",
-                                category="fashion",
-                            ))
-                        except Exception as e:
-                            logger.debug(f"Myntra card parse error: {e}")
-                except PWTimeout:
-                    logger.warning(f"Myntra timeout on {url}")
+                    products = self._search(query)
+                    logger.info(f"Myntra [{cat_slug}/{query}]: {len(products)} products")
+                    for p in products[:15]:
+                        deal = self._product_to_deal(p, cat_slug)
+                        if deal:
+                            deals.append(deal)
                 except Exception as e:
-                    logger.error(f"Myntra error on {url}: {e}")
-            await browser.close()
-        logger.info(f"Myntra scraper found {len(deals)} deals")
+                    logger.error(f"Myntra [{cat_slug}] error: {e}")
+
+        logger.info(f"Myntra: {len(deals)} deals scraped")
         return deals
 
-    def _parse_price(self, text: str) -> float:
+    def _product_to_deal(self, p: dict, cat_slug: str) -> RawDeal | None:
         try:
-            cleaned = "".join(c for c in text if c.isdigit() or c == ".")
-            return float(cleaned) if cleaned else 0.0
-        except:
-            return 0.0
+            title = (
+                (p.get("product") or "")
+                + " " +
+                (p.get("brand") or "")
+            ).strip() or p.get("productName", "")
+            if not title:
+                return None
+
+            disc_price = float(p.get("price", {}).get("discounted", 0) or p.get("discountedPrice", 0) or 0)
+            orig_price = float(p.get("price", {}).get("mrp", 0) or p.get("mrp", disc_price) or disc_price)
+
+            if disc_price <= 0:
+                return None
+
+            pid = p.get("productId") or p.get("id") or ""
+            product_url = f"https://www.myntra.com/{pid}" if pid else ""
+
+            images = p.get("images", [{}])
+            image_url = (
+                images[0].get("src", "") if isinstance(images[0], dict) else images[0]
+            ) if images else p.get("image", "")
+
+            return RawDeal(
+                title=title[:200],
+                platform="myntra",
+                original_price=orig_price,
+                discounted_price=disc_price,
+                product_url=product_url,
+                image_url=image_url or "",
+                category=cat_slug,
+            )
+        except Exception as e:
+            logger.debug(f"Myntra product parse error: {e}")
+            return None
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     s = MyntraScraper()
     results = s.scrape_deals()
-    print(f"Found {len(results)} deals")
-    for r in results[:3]:
-        print(f"  {r.title[:60]} | ₹{r.discounted_price} | {r.discount_percent}% off")
+    print(f"\nTotal: {len(results)} deals")
+    for r in results[:5]:
+        print(f"[{r.category}] {r.title[:55]} | Rs.{r.discounted_price} | {r.discount_percent}% off")

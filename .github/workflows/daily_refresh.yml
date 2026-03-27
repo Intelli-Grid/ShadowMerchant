@@ -1,0 +1,62 @@
+name: Daily Deal Refresh
+
+on:
+  schedule:
+    # 2 runs per day (UTC) = 06:30 IST + 20:30 IST
+    - cron: '0 1 * * *'    # 06:30 IST
+    - cron: '0 15 * * *'   # 20:30 IST
+  workflow_dispatch:        # Allow manual trigger from GitHub UI
+    inputs:
+      scrapers:
+        description: 'Scrapers to run (space-separated, leave blank for all)'
+        required: false
+        default: ''
+
+jobs:
+  scrape-and-refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r scripts/requirements.txt
+
+      - name: Install Playwright browsers (Chromium only)
+        run: playwright install chromium --with-deps
+
+      - name: Run scraper pipeline
+        env:
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          AMAZON_AFFILIATE_TAG: ${{ secrets.AMAZON_AFFILIATE_TAG }}
+          FLIPKART_AFFILIATE_TAG: ${{ secrets.FLIPKART_AFFILIATE_TAG }}
+          MEESHO_AFFILIATE_TAG: ${{ secrets.MEESHO_AFFILIATE_TAG }}
+          MYNTRA_AFFILIATE_TAG: ${{ secrets.MYNTRA_AFFILIATE_TAG }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          cd scripts
+          SCRAPERS="${{ github.event.inputs.scrapers }}"
+          if [ -z "$SCRAPERS" ]; then
+            python scheduler.py --run-now --scrapers meesho amazon
+          else
+            python scheduler.py --run-now --scrapers $SCRAPERS
+          fi
+
+      - name: Report results
+        if: always()
+        run: |
+          echo "Pipeline run complete at $(date)"
+          if [ -f scripts/scheduler.log ]; then
+            echo "=== Last 30 lines of scheduler.log ==="
+            tail -30 scripts/scheduler.log
+          fi

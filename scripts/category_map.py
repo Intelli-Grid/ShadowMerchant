@@ -28,7 +28,7 @@ CATEGORY_MAP = {
         "myntra": None,  # Myntra has no electronics
         "nykaa": None,   # Nykaa has no electronics
         "meesho": {
-            "url": "https://www.meesho.com/electronics",
+            "url": "https://www.meesho.com/search?q=electronics",
         },
         "croma": {
             "url": "https://www.croma.com/sales/best-deals",
@@ -56,7 +56,11 @@ CATEGORY_MAP = {
             "url": "https://www.nykaafashion.com/sp?id=6&root=nav",
         },
         "meesho": {
-            "url": "https://www.meesho.com/fashion",
+            "url": "https://www.meesho.com/search?q=fashion",
+            "extra_urls": [
+                "https://www.meesho.com/search?q=mens clothing",
+                "https://www.meesho.com/search?q=sarees",
+            ]
         },
         "croma": None,
     },
@@ -82,7 +86,7 @@ CATEGORY_MAP = {
             ],
         },
         "meesho": {
-            "url": "https://www.meesho.com/beauty-and-health",
+            "url": "https://www.meesho.com/search?q=beauty",
         },
         "croma": None,
     },
@@ -99,7 +103,8 @@ CATEGORY_MAP = {
         "myntra": None,
         "nykaa": None,
         "meesho": {
-            "url": "https://www.meesho.com/home-and-kitchen",
+            "url": "https://www.meesho.com/search?q=home decor",
+            "extra_urls": ["https://www.meesho.com/search?q=furniture"],
         },
         "croma": {
             "url": "https://www.croma.com/home-appliances",
@@ -120,7 +125,7 @@ CATEGORY_MAP = {
         },
         "nykaa": None,
         "meesho": {
-            "url": "https://www.meesho.com/sports-and-fitness",
+            "url": "https://www.meesho.com/search?q=sports",
         },
         "croma": None,
     },
@@ -152,7 +157,7 @@ CATEGORY_MAP = {
         "myntra": None,
         "nykaa": None,
         "meesho": {
-            "url": "https://www.meesho.com/kids-and-toys",
+            "url": "https://www.meesho.com/search?q=kids clothing",
         },
         "croma": None,
     },
@@ -171,7 +176,7 @@ CATEGORY_MAP = {
             "url": "https://www.nykaa.com/wellness/c/5267?sort=discount",
         },
         "meesho": {
-            "url": "https://www.meesho.com/health-and-wellness",
+            "url": "https://www.meesho.com/search?q=health wellness",
         },
         "croma": None,
     },
@@ -188,7 +193,7 @@ CATEGORY_MAP = {
         "myntra": None,
         "nykaa": None,
         "meesho": {
-            "url": "https://www.meesho.com/car-and-motorbike",
+            "url": "https://www.meesho.com/search?q=car bike accessories",
         },
         "croma": None,
     },
@@ -205,7 +210,7 @@ CATEGORY_MAP = {
         "myntra": None,
         "nykaa": None,
         "meesho": {
-            "url": "https://www.meesho.com/food-and-health",
+            "url": "https://www.meesho.com/search?q=food grocery",
         },
         "croma": None,
     },
@@ -224,7 +229,7 @@ CATEGORY_MAP = {
         },
         "nykaa": None,
         "meesho": {
-            "url": "https://www.meesho.com/bags-and-wallets",
+            "url": "https://www.meesho.com/search?q=travel bags",
         },
         "croma": None,
     },

@@ -1,166 +1,140 @@
+"""
+Croma Scraper — httpx + stealth session bootstrap.
+Croma's search API requires cookies from a browser session. We bootstrap
+via stealth Playwright then hit their JSON API with valid session cookies.
+"""
 import sys
 import os
-import json
-import asyncio
 import logging
+import httpx
 from pathlib import Path
+from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base_scraper import BaseScraper, RawDeal
+from scrapers.session_bootstrap import get_session
 
+load_dotenv()
 logger = logging.getLogger(__name__)
 
-# Croma's internal search API (JSON) – much more reliable than HTML scraping
-CROMA_API_URLS = [
-    "https://api.croma.com/searchservices/v2/search?q=:relevance:isOnOffer:True&currentPage=0&pageSize=24&sort=discount",
-    "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&sort=discount&category=Laptops",
-    "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&sort=discount&category=Mobiles",
-]
-
-CROMA_PLAYWRIGHT_URLS = [
-    "https://www.croma.com/searchB?q=%3Arelevance%3AisOnOffer%3ATrue&currentPage=0&sortBy=discount",
-]
+CROMA_CATEGORIES = {
+    "electronics": [
+        "https://api.croma.com/searchservices/v2/search?q=:relevance:isOnOffer:True&currentPage=0&pageSize=24&sort=discount",
+        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Mobiles",
+        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Laptops",
+        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Televisions",
+        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Headphones-and-Earphones",
+    ],
+    "home": [
+        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Air-Conditioners",
+        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Refrigerators",
+    ],
+    "gaming": [
+        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Gaming",
+    ],
+}
 
 
 class CromaScraper(BaseScraper):
     def __init__(self):
         super().__init__(platform_name="croma")
+        self._cookies: dict = {}
+        self._headers: dict = {}
 
-    def scrape_deals(self) -> list[RawDeal]:
-        # Try API first (fast, reliable)
-        deals = self._try_api()
-        if deals:
-            logger.info(f"Croma API returned {len(deals)} deals")
-            return deals
-        # Fallback to Playwright
-        logger.info("Croma API returned nothing, falling back to Playwright")
-        try:
-            deals = asyncio.run(self._scrape_playwright())
-        except Exception as e:
-            logger.error(f"Croma Playwright fallback failed: {e}")
-        logger.info(f"Croma scraper found {len(deals)} deals total")
-        return deals
-
-    def _try_api(self) -> list[RawDeal]:
-        """Try Croma's internal JSON search API."""
-        deals = []
-        headers = {
-            "User-Agent": self.get_random_ua(),
+    def _bootstrap(self):
+        logger.info("Croma: bootstrapping session...")
+        self._cookies, self._headers = get_session("https://www.croma.com/best-deals", wait_ms=4000)
+        self._headers.update({
             "Accept": "application/json",
-            "Referer": "https://www.croma.com/",
-            "x-requested-with": "XMLHttpRequest",
-        }
-        for url in CROMA_API_URLS:
-            try:
-                resp = self.session.get(url, headers=headers, timeout=15)
-                if resp.status_code != 200:
-                    continue
+            "X-Requested-With": "XMLHttpRequest",
+        })
+        logger.info(f"Croma: session ready — {len(self._cookies)} cookies")
+
+    def _fetch_api(self, url: str) -> list[dict]:
+        try:
+            resp = httpx.get(
+                url,
+                headers=self._headers,
+                cookies=self._cookies,
+                timeout=15,
+                follow_redirects=True,
+            )
+            if resp.status_code == 200:
                 data = resp.json()
-                products = (
+                return (
                     data.get("searchresult", {}).get("results", [])
                     or data.get("products", [])
-                    or data.get("data", {}).get("products", [])
+                    or []
                 )
-                logger.info(f"Croma API: {len(products)} products from {url}")
-                for p in products[:20]:
-                    try:
-                        title = p.get("name", "") or p.get("title", "")
-                        disc_price = float(p.get("price", {}).get("value", 0) or p.get("discountedPrice", 0) or 0)
-                        orig_price = float(p.get("mrp", {}).get("value", 0) or p.get("mrpPrice", 0) or disc_price)
-                        discount = int(p.get("discountPercent", 0) or (round((1 - disc_price / orig_price) * 100) if orig_price > disc_price > 0 else 0))
-                        image = p.get("images", [{}])[0].get("url", "") if p.get("images") else ""
-                        slug = p.get("url", "") or p.get("slug", "")
-                        product_url = f"https://www.croma.com{slug}" if slug.startswith("/") else slug
-                        if not title or disc_price <= 0:
-                            continue
-                        deals.append(RawDeal(
-                            title=title[:200],
-                            platform="croma",
-                            original_price=orig_price,
-                            discounted_price=disc_price,
-                            discount_percent=discount,
-                            affiliate_url=product_url,
-                            image_url=image,
-                            category="electronics",
-                        ))
-                    except Exception as e:
-                        logger.debug(f"Croma API card parse error: {e}")
-            except Exception as e:
-                logger.debug(f"Croma API request failed for {url}: {e}")
-        return deals
+            logger.debug(f"Croma API status {resp.status_code} for {url[:60]}")
+        except Exception as e:
+            logger.debug(f"Croma API error: {e}")
+        return []
 
-    async def _scrape_playwright(self) -> list[RawDeal]:
-        """Playwright fallback - renders JS and scrapes product cards."""
-        from playwright.async_api import async_playwright, TimeoutError as PWTimeout
-        deals = []
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            context = await browser.new_context(
-                user_agent=self.get_random_ua(),
-                viewport={"width": 1280, "height": 900},
-                locale="en-IN",
-                timezone_id="Asia/Kolkata",
-            )
-            page = await context.new_page()
-            for url in CROMA_PLAYWRIGHT_URLS:
-                try:
-                    await page.goto(url, wait_until="domcontentloaded", timeout=30000)
-                    await page.wait_for_timeout(4000)
-                    cards = await page.query_selector_all("li.product-item")
-                    logger.info(f"Croma Playwright: {len(cards)} cards on {url}")
-                    for card in cards[:20]:
-                        try:
-                            title_el = await card.query_selector("h3.product-title")
-                            price_el = await card.query_selector("span.pdp-price strong, span.discounted-price")
-                            orig_el  = await card.query_selector("s.amount, span.price-through")
-                            img_el   = await card.query_selector("img")
-                            link_el  = await card.query_selector("a")
-
-                            title = await title_el.inner_text() if title_el else ""
-                            disc_raw = await price_el.inner_text() if price_el else ""
-                            orig_raw = await orig_el.inner_text() if orig_el else ""
-                            image = await img_el.get_attribute("src") if img_el else ""
-                            href  = await link_el.get_attribute("href") if link_el else ""
-
-                            disc_price = self._parse_price(disc_raw)
-                            orig_price = self._parse_price(orig_raw) if orig_raw else disc_price
-                            discount   = int(round((1 - disc_price / orig_price) * 100)) if orig_price > disc_price > 0 else 0
-                            product_url = f"https://www.croma.com{href}" if href.startswith("/") else href
-
-                            if not title.strip() or disc_price <= 0:
-                                continue
-
-                            deals.append(RawDeal(
-                                title=title.strip()[:200],
-                                platform="croma",
-                                original_price=orig_price,
-                                discounted_price=disc_price,
-                                discount_percent=discount,
-                                affiliate_url=product_url,
-                                image_url=image or "",
-                                category="electronics",
-                            ))
-                        except Exception as e:
-                            logger.debug(f"Croma PW card error: {e}")
-                except PWTimeout:
-                    logger.warning(f"Croma Playwright timeout on {url}")
-                except Exception as e:
-                    logger.error(f"Croma Playwright error on {url}: {e}")
-            await browser.close()
-        return deals
-
-    def _parse_price(self, text: str) -> float:
+    def _product_to_deal(self, p: dict, cat_slug: str) -> RawDeal | None:
         try:
-            cleaned = "".join(c for c in text if c.isdigit() or c == ".")
-            return float(cleaned) if cleaned else 0.0
-        except:
-            return 0.0
+            title = p.get("name") or p.get("title") or ""
+            if not title:
+                return None
+
+            price_obj = p.get("price", {})
+            mrp_obj   = p.get("mrp", {})
+            disc_price = float(
+                price_obj.get("value", 0) if isinstance(price_obj, dict) else price_obj or 0
+            )
+            orig_price = float(
+                mrp_obj.get("value", 0) if isinstance(mrp_obj, dict) else mrp_obj or disc_price
+            )
+
+            if disc_price <= 0:
+                return None
+
+            slug = p.get("url") or p.get("slug") or ""
+            product_url = f"https://www.croma.com{slug}" if slug.startswith("/") else slug
+
+            images = p.get("images", [])
+            image_url = ""
+            if images:
+                first = images[0]
+                image_url = first.get("url", "") if isinstance(first, dict) else str(first)
+
+            return RawDeal(
+                title=title.strip()[:200],
+                platform="croma",
+                original_price=orig_price,
+                discounted_price=disc_price,
+                product_url=product_url,
+                image_url=image_url,
+                category=cat_slug,
+            )
+        except Exception as e:
+            logger.debug(f"Croma product parse error: {e}")
+            return None
+
+    def scrape_deals(self) -> list[RawDeal]:
+        self._bootstrap()
+        deals = []
+
+        for cat_slug, urls in CROMA_CATEGORIES.items():
+            for url in urls:
+                try:
+                    products = self._fetch_api(url)
+                    logger.info(f"Croma [{cat_slug}]: {len(products)} products from {url.split('category=')[-1][:30]}")
+                    for p in products[:24]:
+                        deal = self._product_to_deal(p, cat_slug)
+                        if deal:
+                            deals.append(deal)
+                except Exception as e:
+                    logger.error(f"Croma [{cat_slug}] error: {e}")
+
+        logger.info(f"Croma: {len(deals)} deals scraped")
+        return deals
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     s = CromaScraper()
     results = s.scrape_deals()
-    print(f"Found {len(results)} deals")
-    for r in results[:3]:
-        print(f"  {r.title[:60]} | ₹{r.discounted_price} | {r.discount_percent}% off")
+    print(f"\nTotal: {len(results)} deals")
+    for r in results[:5]:
+        print(f"[{r.category}] {r.title[:55]} | Rs.{r.discounted_price} | {r.discount_percent}% off")

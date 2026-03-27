@@ -2,20 +2,19 @@ import { DealCard } from '@/components/deals/DealCard';
 import { CategoryBrowser } from '@/components/CategoryBrowser';
 import { Deal } from '@/types';
 import Link from 'next/link';
+import { auth } from '@clerk/nextjs/server';
+import { connectDB } from '@/lib/db';
 
-// Helper to fetch the trending deals — calls DB directly on server (no HTTP round-trip)
-async function getTrendingDeals() {
+// Fetch the top 8 trending deals (is_trending=true, mix of free + pro)
+async function getTrendingDeals(): Promise<Deal[]> {
   try {
-    // Server component: import DB directly instead of HTTP fetch
-    // This works in both dev (localhost) and Vercel without relying on NEXT_PUBLIC_APP_URL
-    const { connectDB } = await import('@/lib/db');
     await connectDB();
     const DealModel = (await import('@/models/Deal')).default;
-    const deals = await DealModel.find({ is_active: true, is_pro_exclusive: false })
+    const deals = await DealModel.find({ is_active: true, is_trending: true })
       .sort({ deal_score: -1 })
-      .limit(20)
+      .limit(8)
       .lean();
-    return JSON.parse(JSON.stringify(deals)); // serialize for RSC
+    return JSON.parse(JSON.stringify(deals));
   } catch (e) {
     console.error('getTrendingDeals error:', e);
     return [];
@@ -23,7 +22,19 @@ async function getTrendingDeals() {
 }
 
 export default async function Home() {
+  const { userId } = await auth();
   const trendingDeals: Deal[] = await getTrendingDeals();
+
+  // Check if user has pro subscription
+  let isUserPro = false;
+  if (userId) {
+    try {
+      await connectDB();
+      const User = (await import('@/models/User')).default;
+      const user = await User.findOne({ clerk_id: userId }).select('subscription').lean() as any;
+      isUserPro = user?.subscription?.plan === 'pro' && user?.subscription?.status === 'active';
+    } catch { /* non-fatal */ }
+  }
 
   return (
     <main className="flex-1 w-full flex flex-col items-center">
@@ -69,7 +80,7 @@ export default async function Home() {
         {trendingDeals.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {trendingDeals.map((deal) => (
-              <DealCard key={deal._id} deal={deal} isUserPro={false} />
+              <DealCard key={deal._id} deal={deal} isUserPro={isUserPro} />
             ))}
           </div>
         ) : (

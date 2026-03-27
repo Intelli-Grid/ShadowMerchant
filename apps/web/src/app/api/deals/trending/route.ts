@@ -8,9 +8,11 @@ export async function GET() {
   if (cached) return NextResponse.json(cached);
 
   await connectDB();
-  const deals = await Deal.find({ is_active: true, is_pro_exclusive: false })
+
+  // Use is_trending flag — set by pipeline after each run (top 10 by deal_score)
+  const deals = await Deal.find({ is_active: true, is_trending: true })
     .sort({ deal_score: -1 })
-    .limit(20)
+    .limit(10)
     .lean();
 
   await redis.set(CACHE_KEYS.TRENDING_DEALS, deals, { ex: CACHE_TTL.TRENDING });

@@ -5,16 +5,18 @@ import { PlatformFilter } from '@/components/PlatformFilter';
 import { CategorySwimlane } from '@/components/CategorySwimlane';
 import { Deal } from '@/types';
 import Link from 'next/link';
+import { auth } from '@clerk/nextjs/server';
+import { connectDB } from '@/lib/db';
 
 export const revalidate = 21600; // ISR cache logic: 6 hours matches scrape frequency
 
 async function getDealsData(platform?: string) {
   try {
-    const { connectDB } = await import('@/lib/db');
     await connectDB();
     const DealModel = (await import('@/models/Deal')).default;
 
-    const baseQuery: any = { is_active: true, is_pro_exclusive: false };
+    // Show ALL active deals — free shown normally, pro shown as locked teasers
+    const baseQuery: any = { is_active: true };
     if (platform) baseQuery.source_platform = platform;
 
     // Fetch the #1 highest-scored deal for the Hero banner
@@ -86,10 +88,20 @@ async function getDealsData(platform?: string) {
 }
 
 export default async function DealFeedPage({ searchParams }: { searchParams: Promise<{ platform?: string }> }) {
-  // Await the entire searchParams promise (Next.js 15+ requirement)
   const resolvedParams = await searchParams;
   const platform = resolvedParams?.platform;
-  
+
+  const { userId } = await auth();
+  let isUserPro = false;
+  if (userId) {
+    try {
+      await connectDB();
+      const User = (await import('@/models/User')).default;
+      const user = await User.findOne({ clerk_id: userId }).select('subscription').lean() as any;
+      isUserPro = user?.subscription?.plan === 'pro' && user?.subscription?.status === 'active';
+    } catch { /* non-fatal */ }
+  }
+
   const { hero, topDeals, swimlanes } = await getDealsData(platform);
 
   return (
