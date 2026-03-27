@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Force Vercel to use a fresh build (busts restored build cache)
+  generateBuildId: async () => `build-${Date.now()}`,
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
