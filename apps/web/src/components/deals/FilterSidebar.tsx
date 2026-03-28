@@ -9,6 +9,8 @@ const UNIVERSAL_CATEGORIES = [
   'toys', 'health', 'automotive', 'grocery', 'travel', 'gaming'
 ];
 
+const inputCls = 'w-4 h-4'; // accent-gold via CSS
+
 export function FilterSidebar() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,41 +33,46 @@ export function FilterSidebar() {
     [router, searchParams]
   );
 
+  const sectionLabel = 'text-[10px] font-bold uppercase tracking-widest mb-3';
+  const divider = { borderTop: '1px solid var(--sm-border)' };
+
   return (
     <aside className="w-full md:w-64 flex-shrink-0">
-      <div className="bg-[#13131A] p-6 rounded-xl border border-[#2A2A35] sticky top-24">
-        
-        <div className="flex items-center justify-between mb-4">
+      <div
+        className="p-6 rounded-xl sticky top-24"
+        style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)' }}
+      >
+        <div className="flex items-center justify-between mb-5">
           <h3 className="font-bold text-lg text-white">Filters</h3>
           {(currentCat !== 'all' || currentPlat !== 'all') && (
             <button
               onClick={() => router.push('/deals')}
-              className="text-xs text-[#FF6B00] hover:underline"
+              className="text-xs font-semibold transition-colors"
+              style={{ color: 'var(--gold)' }}
             >
               Clear All
             </button>
           )}
         </div>
-        
+
         <div className="space-y-6">
-          
+
           {/* Categories */}
           <div>
-            <h4 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Category</h4>
-            <div className="flex flex-col space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+            <h4 className={sectionLabel} style={{ color: 'var(--text-muted)' }}>Category</h4>
+            <div className="flex flex-col space-y-2 max-h-60 overflow-y-auto pr-1">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input
                   type="radio"
                   name="category"
                   checked={currentCat === 'all'}
                   onChange={() => updateFilters('category', 'all')}
-                  className="accent-[#FF6B00] w-4 h-4 bg-[#1A1A24] border-[#2A2A35] focus:ring-[#FF6B00]"
+                  className={cn(inputCls, 'accent-yellow-500')}
                 />
-                <span className={cn("text-sm transition-colors", currentCat === 'all' ? "text-white font-medium" : "text-gray-400 group-hover:text-gray-200")}>
+                <span className={cn('text-sm transition-colors', currentCat === 'all' ? 'text-white font-medium' : 'group-hover:text-white')} style={{ color: currentCat === 'all' ? 'var(--text-primary)' : 'var(--text-muted)' }}>
                   All Categories
                 </span>
               </label>
-              
               {UNIVERSAL_CATEGORIES.map((cat) => (
                 <label key={cat} className="flex items-center gap-2 cursor-pointer group">
                   <input
@@ -73,9 +80,9 @@ export function FilterSidebar() {
                     name="category"
                     checked={currentCat === cat}
                     onChange={() => updateFilters('category', cat)}
-                    className="accent-[#FF6B00] w-4 h-4 bg-[#1A1A24] border-[#2A2A35] focus:ring-[#FF6B00]"
+                    className={cn(inputCls, 'accent-yellow-500')}
                   />
-                  <span className={cn("text-sm capitalize transition-colors", currentCat === cat ? "text-white font-medium" : "text-gray-400 group-hover:text-gray-200")}>
+                  <span className={cn('text-sm capitalize transition-colors', currentCat === cat ? 'font-medium' : '')} style={{ color: currentCat === cat ? 'var(--gold)' : 'var(--text-muted)' }}>
                     {cat}
                   </span>
                 </label>
@@ -83,11 +90,9 @@ export function FilterSidebar() {
             </div>
           </div>
 
-          <hr className="border-[#2A2A35]" />
-
-          {/* Platforms */}
-          <div>
-            <h4 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Platform</h4>
+          <div style={divider} className="pt-6">
+            {/* Platforms */}
+            <h4 className={sectionLabel} style={{ color: 'var(--text-muted)' }}>Platform</h4>
             <div className="flex flex-col space-y-2">
               <label className="flex items-center gap-2 cursor-pointer group">
                 <input
@@ -95,9 +100,9 @@ export function FilterSidebar() {
                   name="platform"
                   checked={currentPlat === 'all'}
                   onChange={() => updateFilters('platform', 'all')}
-                  className="accent-[#FF6B00] w-4 h-4 bg-[#1A1A24] border-[#2A2A35] focus:ring-[#FF6B00]"
+                  className={cn(inputCls, 'accent-yellow-500')}
                 />
-                <span className={cn("text-sm transition-colors", currentPlat === 'all' ? "text-white font-medium" : "text-gray-400 group-hover:text-gray-200")}>
+                <span className="text-sm transition-colors" style={{ color: currentPlat === 'all' ? 'var(--text-primary)' : 'var(--text-muted)' }}>
                   Any Store
                 </span>
               </label>
@@ -108,9 +113,9 @@ export function FilterSidebar() {
                     name="platform"
                     checked={currentPlat === plat}
                     onChange={() => updateFilters('platform', plat)}
-                    className="accent-[#FF6B00] w-4 h-4 bg-[#1A1A24] border-[#2A2A35] focus:ring-[#FF6B00]"
+                    className={cn(inputCls, 'accent-yellow-500')}
                   />
-                  <span className={cn("text-sm capitalize transition-colors", currentPlat === plat ? "text-white font-medium" : "text-gray-400 group-hover:text-gray-200")}>
+                  <span className="text-sm capitalize transition-colors" style={{ color: currentPlat === plat ? 'var(--gold)' : 'var(--text-muted)' }}>
                     {plat}
                   </span>
                 </label>
@@ -118,11 +123,9 @@ export function FilterSidebar() {
             </div>
           </div>
 
-          <hr className="border-[#2A2A35]" />
-
-          {/* Timeframe */}
-          <div>
-            <h4 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Freshness</h4>
+          <div style={divider} className="pt-6">
+            {/* Timeframe */}
+            <h4 className={sectionLabel} style={{ color: 'var(--text-muted)' }}>Freshness</h4>
             <div className="flex flex-col space-y-2">
               {[
                 { val: '1', label: 'Last 24 Hours' },
@@ -136,9 +139,9 @@ export function FilterSidebar() {
                     name="days"
                     checked={currentDays === val || (currentDays === '7' && val === 'all')}
                     onChange={() => updateFilters('days', val)}
-                    className="accent-[#FF6B00] w-4 h-4 bg-[#1A1A24] border-[#2A2A35] focus:ring-[#FF6B00]"
+                    className={cn(inputCls, 'accent-yellow-500')}
                   />
-                  <span className={cn("text-sm transition-colors", currentDays === val ? "text-white font-medium" : "text-gray-400 group-hover:text-gray-200")}>
+                  <span className="text-sm transition-colors" style={{ color: currentDays === val ? 'var(--gold)' : 'var(--text-muted)' }}>
                     {label}
                   </span>
                 </label>
@@ -146,22 +149,26 @@ export function FilterSidebar() {
             </div>
           </div>
 
-          <hr className="border-[#2A2A35]" />
-
-          {/* Sort */}
-          <div>
-            <h4 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Sort By</h4>
-            <select 
+          <div style={divider} className="pt-6">
+            {/* Sort */}
+            <h4 className={sectionLabel} style={{ color: 'var(--text-muted)' }}>Sort By</h4>
+            <select
               value={currentSort}
               onChange={(e) => updateFilters('sort', e.target.value)}
-              className="w-full bg-[#1A1A24] border border-[#2A2A35] text-white text-sm rounded-md px-3 py-2 outline-none focus:ring-1 focus:ring-[#FF6B00]"
+              className="w-full text-sm rounded-md px-3 py-2 outline-none"
+              style={{
+                background: 'var(--bg-raised)',
+                border: '1px solid var(--sm-border)',
+                color: 'var(--text-primary)',
+              }}
+              onFocus={(e) => (e.target.style.borderColor = 'var(--gold)')}
+              onBlur={(e) => (e.target.style.borderColor = 'var(--sm-border)')}
             >
               <option value="score">Highest Score (AI)</option>
               <option value="discount">Biggest Discount</option>
               <option value="newest">Newest Scraped</option>
             </select>
           </div>
-
         </div>
       </div>
     </aside>

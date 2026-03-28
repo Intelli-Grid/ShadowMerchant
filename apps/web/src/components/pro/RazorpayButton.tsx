@@ -46,7 +46,7 @@ export function RazorpayButton({ plan = 'monthly', label = 'Upgrade to Pro â€” â
         name: 'ShadowMerchant',
         description: `Pro ${plan === 'annual' ? 'Annual' : 'Monthly'} Plan`,
         image: '/logo.png',
-        theme: { color: '#FF6B00' },
+        theme: { color: '#C9A84C' },
         handler: () => {
           router.push('/dashboard?upgraded=true');
         },
@@ -72,7 +72,8 @@ export function RazorpayButton({ plan = 'monthly', label = 'Upgrade to Pro â€” â
       <Button
         onClick={handleUpgrade}
         disabled={loading}
-        className={`bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-extrabold h-14 text-lg shadow-lg shadow-[#7C3AED]/30 transition-all hover:scale-[1.02] active:scale-95 gap-2 ${className}`}
+        className={`font-extrabold h-14 text-lg transition-all hover:scale-[1.02] active:scale-95 gap-2 ${className}`}
+        style={{ background: 'var(--gold)', color: '#0A0A0A', boxShadow: '0 8px 24px rgba(201,168,76,0.25)' }}
         id="razorpay-upgrade-btn"
       >
         {loading ? (

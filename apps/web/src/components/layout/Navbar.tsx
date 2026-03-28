@@ -20,7 +20,6 @@ export function Navbar() {
   const { isLoaded, isSignedIn } = useAuth();
   const [scrolled, setScrolled] = useState(false);
 
-  // Add .scrolled class past 20px scroll
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handler, { passive: true });
@@ -44,29 +43,35 @@ export function Navbar() {
       style={{
         padding: '0 clamp(16px, 4vw, 32px)',
         background: scrolled
-          ? 'rgba(10, 10, 11, 0.94)'
-          : 'rgba(10, 10, 11, 0.72)',
+          ? 'rgba(10, 10, 10, 0.96)'
+          : 'rgba(10, 10, 10, 0.75)',
         backdropFilter: 'blur(20px) saturate(180%)',
         WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-        borderBottom: `1px solid ${scrolled ? 'var(--sm-border-hover)' : 'var(--sm-border)'}`,
-        boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.3)' : 'none',
+        borderBottom: scrolled
+          ? '1px solid rgba(201, 168, 76, 0.15)'
+          : '1px solid rgba(255,255,255,0.06)',
+        boxShadow: scrolled
+          ? '0 4px 32px rgba(0,0,0,0.5), 0 1px 0 rgba(201,168,76,0.08)'
+          : 'none',
       }}
     >
       {/* ── Logo ── */}
-      <Link href="/" className="flex-shrink-0 flex items-center gap-2.5 group">
-        <Image
-          src="/logo.png"
-          alt="ShadowMerchant"
-          width={36}
-          height={36}
-          className="rounded-lg transition-transform group-hover:scale-105"
-          style={{ objectFit: 'contain' }}
-        />
+      <Link href="/" className="flex-shrink-0 flex items-center gap-2.5 group logo-breathe">
+        <div className="relative w-9 h-9 flex-shrink-0">
+          <Image
+            src="/logo.png"
+            alt="ShadowMerchant"
+            fill
+            className="object-contain transition-all duration-300 group-hover:scale-105"
+            priority
+          />
+        </div>
         <span
           className="font-extrabold text-xl tracking-tight hidden sm:block"
-          style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}
+          style={{ fontFamily: 'var(--font-display)' }}
         >
-          Shadow<span style={{ color: 'var(--sm-accent)' }}>Merchant</span>
+          <span style={{ color: 'var(--text-primary)' }}>Shadow</span>
+          <span style={{ color: 'var(--gold)' }}>Merchant</span>
         </span>
       </Link>
 
@@ -81,12 +86,12 @@ export function Navbar() {
               'after:absolute after:-bottom-0.5 after:left-0 after:h-px after:rounded-full',
               'after:transition-all after:duration-200',
               pathname === href || pathname.startsWith(href + '/')
-                ? 'after:w-full after:bg-[var(--sm-accent)]'
+                ? 'after:w-full after:bg-[var(--gold)]'
                 : 'after:w-0 hover:after:w-full hover:after:bg-[var(--sm-border-hover)]'
             )}
             style={{
               color: (pathname === href || pathname.startsWith(href + '/'))
-                ? 'var(--sm-accent)'
+                ? 'var(--gold)'
                 : 'var(--text-secondary)',
             }}
           >
@@ -98,7 +103,7 @@ export function Navbar() {
         <Link
           href="/pro"
           className="flex items-center gap-1.5 text-sm font-semibold transition-all duration-200 hover:opacity-90"
-          style={{ color: 'var(--sm-accent)' }}
+          style={{ color: 'var(--gold)' }}
         >
           <Zap className="h-3.5 w-3.5" />
           ✦ Pro Exclusives
@@ -109,12 +114,12 @@ export function Navbar() {
       <div className="flex items-center gap-3">
         {/* Search bar — desktop */}
         <div
-          className="hidden lg:flex items-center gap-2 rounded-full px-3 py-1.5 transition-all duration-200 focus-within:ring-1"
+          className="hidden lg:flex items-center gap-2 rounded-full px-3 py-1.5 transition-all duration-200"
           style={{
             background: 'var(--bg-raised)',
             border: '1px solid var(--sm-border)',
           }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--sm-accent)')}
+          onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--gold)')}
           onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--sm-border)')}
         >
           <Search className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
@@ -123,7 +128,7 @@ export function Navbar() {
             placeholder="Search deals, brands..."
             onKeyDown={handleSearch}
             className="bg-transparent border-none text-sm focus:outline-none w-44"
-            style={{ color: 'var(--text-primary)', caretColor: 'var(--sm-accent)' }}
+            style={{ color: 'var(--text-primary)', caretColor: 'var(--gold)' }}
           />
         </div>
 
@@ -141,7 +146,7 @@ export function Navbar() {
             <UserButton
               appearance={{
                 elements: {
-                  avatarBox: 'w-8 h-8 ring-2 ring-transparent hover:ring-[var(--sm-accent)] transition-all duration-200',
+                  avatarBox: 'w-8 h-8 ring-2 ring-transparent hover:ring-[var(--gold)] transition-all duration-200',
                 },
               }}
             />
@@ -158,8 +163,14 @@ export function Navbar() {
             </SignInButton>
             <SignInButton mode="modal">
               <button
-                className="hidden sm:flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                style={{ background: 'var(--sm-accent)' }}
+                className="hidden sm:flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-bold transition-all"
+                style={{ background: 'var(--gold)', color: '#0A0A0A' }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(201,168,76,0.35)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                }}
               >
                 Get Pro →
               </button>

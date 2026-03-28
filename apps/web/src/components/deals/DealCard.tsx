@@ -77,13 +77,20 @@ export function DealCard({ deal, isUserPro = false, size = 'md', className }: De
       }}
       onMouseEnter={() => router.prefetch(`/deals/${deal._id}`)}
       onMouseLeave={() => undefined}
-      // Upgrade border glow on hover via inline style trick
+      onMouseMove={(e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        e.currentTarget.style.setProperty('--cursor-x', `${e.clientX - rect.left}px`);
+        e.currentTarget.style.setProperty('--cursor-y', `${e.clientY - rect.top}px`);
+      }}
     >
-      {/* Hover glow border effect */}
+      {/* Gold hover glow border effect */}
       <style jsx>{`
         article:hover {
-          border-color: var(--sm-border-hover);
-          box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,107,44,0.08);
+          border-color: rgba(201, 168, 76, 0.3);
+          box-shadow:
+            0 16px 40px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(201, 168, 76, 0.1),
+            0 0 24px rgba(201, 168, 76, 0.04);
         }
       `}</style>
 
@@ -121,13 +128,17 @@ export function DealCard({ deal, isUserPro = false, size = 'md', className }: De
           {platform.name}
         </span>
 
-        {/* Discount badge — top right */}
+        {/* Discount badge — top right — gold */}
         <span
           className={cn(
-            'absolute top-2.5 right-2.5 z-10 rounded px-2 py-1 text-[11px] font-extrabold tracking-wide text-white shadow-md',
+            'absolute top-2.5 right-2.5 z-10 rounded px-2 py-1 text-[11px] font-extrabold tracking-wide shadow-md',
             isHot && 'badge-hot'
           )}
-          style={{ background: 'var(--sm-accent)' }}
+          style={{
+            background: 'var(--gold)',
+            color: '#0A0A0A',
+            boxShadow: isHot ? '0 0 12px rgba(201,168,76,0.5)' : 'none',
+          }}
         >
           {deal.discount_percent}% OFF
         </span>
@@ -148,8 +159,8 @@ export function DealCard({ deal, isUserPro = false, size = 'md', className }: De
       {/* ── CONTENT SECTION ── */}
       <div className={cn('flex flex-col flex-1 p-3.5', isLocked && 'opacity-25 blur-[2px] pointer-events-none', sizeClasses[size])}>
 
-        {/* Score row */}
-        <div className="mb-2.5 flex items-center gap-2" ref={scoreBarRef}>
+        {/* Score row with tooltip */}
+        <div className="mb-2.5 flex items-center gap-2 group/score relative" ref={scoreBarRef}>
           <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-overlay)' }}>
             <div
               className="score-bar-fill h-full rounded-full"
@@ -158,6 +169,7 @@ export function DealCard({ deal, isUserPro = false, size = 'md', className }: De
                 backgroundColor: scoreColor,
                 width: scoreVisible ? `${score}%` : '0%',
                 transition: 'width 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                boxShadow: score >= 80 ? `0 0 6px ${scoreColor}80` : 'none',
               } as React.CSSProperties}
             />
           </div>
@@ -167,6 +179,20 @@ export function DealCard({ deal, isUserPro = false, size = 'md', className }: De
           >
             {score}
           </span>
+
+          {/* Score tooltip */}
+          <div
+            className="absolute bottom-full left-0 mb-2 w-48 p-2.5 rounded-lg text-xs opacity-0 group-hover/score:opacity-100 pointer-events-none transition-opacity z-30"
+            style={{
+              background: 'var(--bg-overlay)',
+              border: '1px solid var(--gold-border)',
+              color: 'var(--text-secondary)',
+            }}
+          >
+            <span style={{ color: 'var(--gold)', fontWeight: 700 }}>Deal Score {score}/100</span>
+            <br />
+            Based on discount %, rating &amp; brand trust.
+          </div>
         </div>
 
         {/* Title */}
@@ -199,20 +225,30 @@ export function DealCard({ deal, isUserPro = false, size = 'md', className }: De
             </span>
           )}
           <span
-            className="font-bold"
-            style={{ fontFamily: 'var(--font-display)', fontSize: size === 'lg' ? '22px' : '18px', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}
+            className="font-bold price-display"
+            style={{ fontSize: size === 'lg' ? '22px' : '18px', color: 'var(--text-primary)' }}
           >
             {formatPrice(deal.discounted_price)}
           </span>
         </div>
 
-        {/* CTA */}
+        {/* CTA — gold */}
         <a
           href={deal.affiliate_url || '#'}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative z-10 flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
-          style={{ background: 'var(--sm-accent)', letterSpacing: '0.01em' }}
+          className="deal-card-cta relative z-10 flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-[13px] font-bold transition-all active:scale-[0.98]"
+          style={{
+            background: 'var(--gold)',
+            color: '#0A0A0A',
+            letterSpacing: '0.02em',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.boxShadow = '0 0 16px rgba(201,168,76,0.3)';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           Get Deal
@@ -220,11 +256,17 @@ export function DealCard({ deal, isUserPro = false, size = 'md', className }: De
         </a>
       </div>
 
-      {/* Pro lock overlay */}
+      {/* Pro lock overlay — gold (no more purple) */}
       {isLocked && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center pointer-events-auto backdrop-blur-md" style={{ background: 'rgba(10,10,11,0.6)' }}>
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full shadow-lg" style={{ background: '#7C3AED', boxShadow: '0 0 20px rgba(124,58,237,0.4)' }}>
-            <Lock className="h-6 w-6 text-white" />
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center pointer-events-auto backdrop-blur-md" style={{ background: 'rgba(10,10,10,0.6)' }}>
+          <div
+            className="mb-4 flex h-12 w-12 items-center justify-center rounded-full shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, var(--gold), var(--gold-bright))',
+              boxShadow: '0 0 24px rgba(201, 168, 76, 0.4)',
+            }}
+          >
+            <Lock className="h-6 w-6" style={{ color: '#0A0A0A' }} />
           </div>
           <h3 className="text-lg font-bold text-white mb-1">Pro Exclusive</h3>
           <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
@@ -232,8 +274,8 @@ export function DealCard({ deal, isUserPro = false, size = 'md', className }: De
           </p>
           <Link
             href="/pro"
-            className="rounded-lg px-4 py-2 text-sm font-bold text-white w-full text-center"
-            style={{ background: '#7C3AED' }}
+            className="rounded-lg px-4 py-2 text-sm font-bold w-full text-center"
+            style={{ background: 'var(--gold)', color: '#0A0A0A' }}
           >
             Unlock with Pro →
           </Link>

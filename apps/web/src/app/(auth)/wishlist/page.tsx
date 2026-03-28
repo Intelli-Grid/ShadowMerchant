@@ -22,7 +22,7 @@ export default async function WishlistPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-black text-white flex items-center gap-3">
-            <Heart className="w-7 h-7 text-[#FF6B00] fill-[#FF6B00]" />
+            <Heart className="w-7 h-7" style={{ color: 'var(--gold)', fill: 'var(--gold)' }} />
             My Wishlist
           </h1>
           <p className="text-gray-500 mt-1">
@@ -38,17 +38,18 @@ export default async function WishlistPage() {
           ))}
         </div>
       ) : (
-        <div className="w-full py-24 flex flex-col items-center justify-center bg-[#13131A] rounded-2xl border border-[#2A2A35] text-center px-6">
-          <div className="w-20 h-20 bg-[#FF6B00]/10 rounded-full flex items-center justify-center mb-6">
-            <Heart className="w-10 h-10 text-[#FF6B00]" />
+        <div className="w-full py-24 flex flex-col items-center justify-center rounded-2xl border text-center px-6" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>
+          <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: 'var(--gold-dim)' }}>
+            <Heart className="w-10 h-10" style={{ color: 'var(--gold)' }} />
           </div>
           <h2 className="text-2xl font-bold text-white mb-3">Your wishlist is empty</h2>
-          <p className="text-gray-500 max-w-sm mb-8">
+          <p className="max-w-sm mb-8" style={{ color: 'var(--text-secondary)' }}>
             Browse deals and hit the ♥ Save button on any deal card to keep track of it here.
           </p>
           <Link
             href="/deals"
-            className="bg-[#FF6B00] hover:bg-[#E66000] text-white font-bold px-8 py-3 rounded-lg transition-colors inline-block"
+            className="font-bold px-8 py-3 rounded-lg transition-all inline-block hover:scale-105 active:scale-95"
+            style={{ background: 'var(--gold)', color: '#0A0A0A' }}
           >
             Browse Deals →
           </Link>

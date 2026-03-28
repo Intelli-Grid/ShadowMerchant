@@ -102,7 +102,7 @@ export default async function DealsFeedPage({
       <div className="flex flex-col md:flex-row gap-8 relative items-start">
         
         {/* Interactive Filter Sidebar */}
-        <Suspense fallback={<div className="w-64 h-96 bg-[#13131A] rounded-xl animate-pulse" />}>
+        <Suspense fallback={<div className="w-64 h-96 rounded-xl animate-pulse" style={{ background: 'var(--bg-surface)' }} />}>
           <FilterSidebar />
         </Suspense>
 
@@ -111,7 +111,10 @@ export default async function DealsFeedPage({
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <h1 className="text-2xl font-bold text-white tracking-tight flex items-baseline gap-3">
               Live Feed
-              <span className="text-[#FF6B00] font-semibold text-sm px-2.5 py-1 bg-[#1A1A24] rounded-full">
+              <span
+                className="font-semibold text-sm px-2.5 py-1 rounded-full"
+                style={{ color: 'var(--gold)', background: 'var(--gold-dim)', border: '1px solid var(--gold-border)' }}
+              >
                 {data.total} matches
               </span>
             </h1>
@@ -145,7 +148,7 @@ export default async function DealsFeedPage({
               })}
             </div>
           ) : (
-             <div className="w-full py-32 flex flex-col items-center justify-center bg-[#13131A] rounded-xl border border-[#2A2A35]">
+             <div className="w-full py-32 flex flex-col items-center justify-center rounded-xl border" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>
               <span className="text-4xl mb-4">🛸</span>
               <p className="text-white font-bold text-lg">No deals match your filters.</p>
               <p className="text-gray-500 mt-2 text-sm max-w-sm text-center">Try opening up your category selection, or expand the active days to search further back in time.</p>

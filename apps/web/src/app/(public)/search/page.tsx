@@ -45,10 +45,17 @@ export default function SearchPage() {
             placeholder="Search deals, brands, categories..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full h-14 pl-12 pr-4 bg-[#13131A] border border-[#2A2A35] focus:border-[#FF6B00] focus:ring-1 focus:ring-[#FF6B00] rounded-xl text-white placeholder-gray-600 text-lg outline-none transition-all"
+            className="w-full h-14 pl-12 pr-4 rounded-xl text-lg outline-none transition-all"
+            style={{
+              background: 'var(--bg-raised)',
+              border: '1px solid var(--sm-border)',
+              color: 'var(--text-primary)',
+            }}
+            onFocus={e => (e.target.style.borderColor = 'var(--gold)')}
+            onBlur={e => (e.target.style.borderColor = 'var(--sm-border)')}
           />
           {loading && (
-            <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#FF6B00] animate-spin" />
+            <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 animate-spin" style={{ color: 'var(--gold)' }} />
           )}
         </div>
         {query.length >= 2 && (

@@ -135,24 +135,48 @@ export default async function DealFeedPage({ searchParams }: { searchParams: Pro
           {/* Upgrade CTA between row 2 and 3 */}
           {idx === 1 && (
             <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 my-4">
-              <div className="flex flex-col md:flex-row items-center justify-between p-8 md:p-12 rounded-[24px] overflow-hidden relative shadow-2xl shadow-purple-900/20" style={{ background: 'linear-gradient(135deg, var(--bg-surface), #1A1025)', border: '1px solid #3B1B6B' }}>
-                <div className="absolute -top-32 -right-32 w-96 h-96 bg-purple-600 rounded-full blur-[120px] opacity-20 pointer-events-none" />
-                
-                <div className="flex flex-col gap-3 relative z-10 text-center md:text-left mb-6 md:mb-0">
-                  <span className="text-purple-400 font-bold uppercase tracking-wider text-sm flex items-center justify-center md:justify-start gap-2">
-                    <span className="text-xl">⚡</span> Level Up Your Savings
+              <div
+                className="flex flex-col md:flex-row items-center justify-between p-8 md:p-12 rounded-[24px] overflow-hidden relative"
+                style={{
+                  background: 'linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-overlay) 100%)',
+                  border: '1px solid var(--gold-border)',
+                  boxShadow: '0 32px 64px -16px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,168,76,0.05)',
+                }}
+              >
+                {/* Gold glow blob */}
+                <div
+                  className="absolute -top-32 -right-32 w-96 h-96 rounded-full blur-[120px] opacity-15 pointer-events-none"
+                  style={{ background: 'var(--gold)' }}
+                />
+                {/* Gold left bar accent */}
+                <div
+                  className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-[24px]"
+                  style={{ background: 'linear-gradient(to bottom, var(--gold-bright), var(--gold))' }}
+                />
+
+                <div className="flex flex-col gap-3 relative z-10 text-center md:text-left mb-6 md:mb-0 md:pl-6">
+                  <span
+                    className="font-bold uppercase tracking-wider text-sm flex items-center justify-center md:justify-start gap-2"
+                    style={{ color: 'var(--gold)' }}
+                  >
+                    <span className="text-xl">✦</span> Level Up Your Savings
                   </span>
-                  <h3 className="text-2xl md:text-4xl font-black text-white" style={{ fontFamily: 'var(--font-display)' }}>
-                    Unlock <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-400">Pro Exclusives</span>
+                  <h3
+                    className="text-2xl md:text-4xl font-black text-white"
+                    style={{ fontFamily: 'var(--font-display)' }}
+                  >
+                    Unlock{' '}
+                    <span className="heading-gold">Pro Exclusives</span>
                   </h3>
-                  <p className="text-gray-400 max-w-lg mt-2 font-medium">
+                  <p className="max-w-lg mt-2 font-medium" style={{ color: 'var(--text-secondary)' }}>
                     Get instant WhatsApp alerts for price drops, access flash sales 30 minutes early, and unlock the highest-scored hidden deals.
                   </p>
                 </div>
-                
-                <Link 
-                  href="/pro" 
-                  className="relative z-10 w-full md:w-auto text-center bg-white text-black font-bold px-8 py-4 rounded-xl hover:scale-105 active:scale-95 transition-transform"
+
+                <Link
+                  href="/pro"
+                  className="relative z-10 w-full md:w-auto text-center font-bold px-8 py-4 rounded-xl transition-all hover:scale-105 active:scale-95"
+                  style={{ background: 'var(--gold)', color: '#0A0A0A' }}
                 >
                   Start Pro Free Trial →
                 </Link>

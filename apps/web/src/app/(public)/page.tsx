@@ -2,6 +2,7 @@ import { DealCard } from '@/components/deals/DealCard';
 import { CategoryBrowser } from '@/components/CategoryBrowser';
 import { Deal } from '@/types';
 import Link from 'next/link';
+import Image from 'next/image';
 import { connectDB } from '@/lib/db';
 
 // Fetch the top 8 trending deals (is_trending=true, mix of free + pro)
@@ -24,30 +25,111 @@ export default async function Home() {
   // Trending deals are shown to everyone — no pro gating on homepage
   const trendingDeals: Deal[] = await getTrendingDeals();
 
+  // Total savings across all trending deals
+  const totalSavings = trendingDeals.reduce(
+    (acc, d) => acc + (d.original_price - d.discounted_price), 0
+  );
+  const formattedSavings = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(totalSavings);
+
   return (
     <main className="flex-1 w-full flex flex-col items-center">
       {/* Hero Section */}
       <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-20 text-center">
-        <Badge className="mb-4 bg-[#FF6B00]/10 text-[#FF6B00] hover:bg-[#FF6B00]/20 font-semibold px-4 py-1.5" variant="secondary">
-          ⚡ {trendingDeals.length > 0 ? `${trendingDeals.length} Top Deals Found` : 'India\'s Best Deals, All in One Place'}
+
+        {/* Logo mark above hero */}
+        <div className="flex justify-center mb-8">
+          <div className="relative w-24 h-24 logo-breathe">
+            <Image
+              src="/logo.png"
+              alt="ShadowMerchant"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+        </div>
+
+        {/* Live deal counter */}
+        {trendingDeals.length > 0 && (
+          <div
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold mb-6"
+            style={{
+              background: 'var(--gold-dim)',
+              border: '1px solid var(--gold-border)',
+              color: 'var(--gold)',
+            }}
+          >
+            <span
+              className="w-2 h-2 rounded-full animate-pulse"
+              style={{ background: 'var(--gold)' }}
+            />
+            {trendingDeals.length} deals live right now
+          </div>
+        )}
+
+        {/* Hero badge */}
+        <Badge
+          className="mb-4 font-semibold px-4 py-1.5"
+          style={{
+            background: 'var(--gold-dim)',
+            color: 'var(--gold)',
+            border: '1px solid var(--gold-border)',
+          }}
+          variant="secondary"
+        >
+          ⚡ {trendingDeals.length > 0
+            ? `${trendingDeals.length} Top Deals Found`
+            : "India's Best Deals, All in One Place"}
         </Badge>
+
+        {/* Main headline */}
         <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tight text-white leading-tight">
-          Stop hunting across 10 apps. <br className="hidden md:block"/>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] to-[#FF9900]">
+          Stop hunting across 10 apps. <br className="hidden md:block" />
+          <span className="text-gold-shimmer">
             The best deals find you.
           </span>
         </h1>
-        <p className="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-          ShadowMerchant automatically discovers & scores the best-discounted products from Amazon, Flipkart, Myntra, and more. All in one place.
+
+        <p className="text-lg md:text-xl mb-4 max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+          ShadowMerchant automatically discovers &amp; scores the best-discounted products from Amazon, Flipkart, Myntra, and more. All in one place.
         </p>
-        
-        <div className="flex items-center justify-center gap-4 flex-wrap">
-          <Link href="/deals/feed" className="bg-[#FF6B00] hover:bg-[#E66000] text-white font-bold py-4 px-8 rounded-lg shadow-lg shadow-[#FF6B00]/20 transition-all hover:scale-105 active:scale-95">
+
+        {/* Savings counter */}
+        {totalSavings > 0 && (
+          <p className="text-sm mb-8" style={{ color: 'var(--text-secondary)' }}>
+            Combined savings available today:{' '}
+            <span style={{ color: 'var(--gold)', fontWeight: 700 }}>{formattedSavings}</span>
+          </p>
+        )}
+
+        {/* CTAs */}
+        <div className="flex items-center justify-center gap-4 flex-wrap mb-10">
+          <Link
+            href="/deals/feed"
+            className="btn-gold inline-flex items-center gap-2 py-4 px-8 rounded-xl text-base"
+          >
             View Deal Feed
           </Link>
-          <Link href="/pro" className="bg-[#1A1A24] border border-[#2A2A35] hover:border-[#7C3AED] hover:text-[#7C3AED] text-white font-bold py-4 px-8 rounded-lg transition-all">
-            Upgrade to Pro
+          <Link
+            href="/pro"
+            className="btn-gold-outline inline-flex items-center gap-2 py-4 px-8 rounded-xl text-base"
+          >
+            <span style={{ color: 'var(--gold)' }}>✦</span> Upgrade to Pro
           </Link>
+        </div>
+
+        {/* Platform trust badges */}
+        <div className="flex items-center justify-center gap-4 flex-wrap opacity-70">
+          <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+            Deals from
+          </span>
+          {['🛒 Amazon', '🔵 Flipkart', '👗 Myntra', '🛍️ Meesho', '💄 Nykaa'].map(p => (
+            <span key={p} className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{p}</span>
+          ))}
         </div>
       </section>
 
@@ -57,16 +139,22 @@ export default async function Home() {
       {/* Trending Deals Grid */}
       <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-white flex gap-2 items-center">
-            <span className="w-2 h-8 rounded bg-[#FF6B00]"></span> Trending Now
+          <h2
+            className="text-2xl font-bold section-heading"
+            style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}
+          >
+            Trending Now
           </h2>
-          <Link href="/deals/feed" className="text-sm font-semibold text-gray-400 hover:text-white transition-colors">
+          <Link href="/deals/feed" className="text-sm font-semibold transition-colors" style={{ color: 'var(--text-muted)' }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--gold)')}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-muted)')}
+          >
             View All →
           </Link>
         </div>
 
         {trendingDeals.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="deal-card-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {trendingDeals.map((deal) => (
               // isUserPro=true: trending deals are always fully visible on homepage
               // The pro lock only appears on the Deal Feed page
@@ -74,8 +162,13 @@ export default async function Home() {
             ))}
           </div>
         ) : (
-          <div className="w-full h-40 flex items-center justify-center bg-[#13131A] rounded-xl border border-[#2A2A35]">
-            <p className="text-gray-500 font-medium">No trending deals found. (Run the Python scraper to populate MongoDB)</p>
+          <div
+            className="w-full h-40 flex items-center justify-center rounded-xl border"
+            style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}
+          >
+            <p className="font-medium" style={{ color: 'var(--text-muted)' }}>
+              No trending deals found. (Run the Python scraper to populate MongoDB)
+            </p>
           </div>
         )}
       </section>
@@ -83,7 +176,15 @@ export default async function Home() {
   );
 }
 
-// Temporary inline Badge component until we generate Shadcn fully in this file
-function Badge({ children, className, ...props }: any) {
-  return <span className={`inline-flex items-center rounded-full text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${className}`} {...props}>{children}</span>;
+// Inline Badge component
+function Badge({ children, className, style, ...props }: React.HTMLAttributes<HTMLSpanElement> & { variant?: string; style?: React.CSSProperties }) {
+  return (
+    <span
+      className={`inline-flex items-center rounded-full text-xs transition-colors focus:outline-none ${className ?? ''}`}
+      style={style}
+      {...props}
+    >
+      {children}
+    </span>
+  );
 }

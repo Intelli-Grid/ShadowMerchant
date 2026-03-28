@@ -59,7 +59,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           <span>Home</span> <span>/</span> <span className="text-white">{label}</span>
         </div>
         <h1 className="text-3xl font-black text-white">
-          Best <span className="text-[#FF6B00]">{label}</span> Deals
+          Best <span style={{ color: 'var(--gold)' }}>{label}</span> Deals
         </h1>
         <p className="text-gray-500 mt-2">{deals.length} deals found, ranked by AI deal score</p>
       </div>
@@ -71,7 +71,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
           ))}
         </div>
       ) : (
-        <div className="w-full py-20 flex flex-col items-center justify-center bg-[#13131A] rounded-xl border border-[#2A2A35] text-center">
+        <div className="w-full py-20 flex flex-col items-center justify-center rounded-xl border text-center" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>
           <span className="text-4xl mb-4">🔍</span>
           <h2 className="text-xl font-bold text-white mb-2">No deals in {label} yet</h2>
           <p className="text-gray-500">Check back soon — our scrapers run every 6 hours.</p>

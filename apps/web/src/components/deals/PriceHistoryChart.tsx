@@ -9,7 +9,7 @@ interface PriceHistoryChartProps {
   platformColor?: string;
 }
 
-export function PriceHistoryChart({ data, platformColor = '#7C3AED' }: PriceHistoryChartProps) {
+export function PriceHistoryChart({ data, platformColor = '#C9A84C' }: PriceHistoryChartProps) {
   const chartData = useMemo(() => {
     if (!data || data.length === 0) return [];
     

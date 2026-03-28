@@ -160,7 +160,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
             </div>
 
             {/* Score Breakdown (New feature) */}
-            <div className="flex items-center gap-6 p-6 rounded-[24px] border border-[#2A2A35]" style={{ background: 'var(--bg-surface)' }}>
+            <div className="flex items-center gap-6 p-6 rounded-[24px] border" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>
               <div className="flex flex-col items-center justify-center relative w-[80px] h-[80px]">
                 <svg className="w-full h-full transform -rotate-90 absolute" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" r="45" fill="none" strokeWidth="8" stroke="var(--bg-raised)" />
@@ -180,7 +180,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 </span>
               </div>
               
-              <div className="flex flex-col flex-1 pl-2 border-l border-[#2A2A35]">
+              <div className="flex flex-col flex-1 pl-2" style={{ borderLeft: '1px solid var(--sm-border)' }}>
                 <span className="text-xs tracking-wider uppercase font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>
                   Shadow Algorithm
                 </span>
@@ -263,8 +263,8 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
             </div>
 
             {/* Disclaimer */}
-            <div className="flex items-start gap-4 p-5 rounded-xl border border-[#FF6B00]/20" style={{ background: 'rgba(255,107,0,0.05)' }}>
-              <Clock className="w-6 h-6 text-[#FF6B00] shrink-0 mt-0.5" />
+            <div className="flex items-start gap-4 p-5 rounded-xl" style={{ border: '1px solid var(--gold-border)', background: 'var(--gold-glow)' }}>
+              <Clock className="w-6 h-6 shrink-0 mt-0.5" style={{ color: 'var(--gold)' }} />
               <p className="text-sm">
                 <strong className="text-white block mb-0.5" style={{ fontFamily: 'var(--font-display)' }}>Flash Deals Expire Quickly!</strong>
                 <span className="text-gray-400">Inventory and discounts are completely controlled by {platform.name}. Prices are guaranteed only at the exact time of algorithmic detection. Do not wait if the score is above 80.</span>
@@ -307,7 +307,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                   <DealCard key={similarDeal._id} deal={similarDeal} size="sm" />
                 ))
               ) : (
-                <div className="w-full h-40 flex items-center justify-center rounded-[24px] border border-dashed border-gray-700 bg-[#13131A] text-gray-500 font-medium">
+                <div className="w-full h-40 flex items-center justify-center rounded-[24px] border border-dashed font-medium" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)', color: 'var(--text-muted)' }}>
                   No competing deals found.
                 </div>
               )}

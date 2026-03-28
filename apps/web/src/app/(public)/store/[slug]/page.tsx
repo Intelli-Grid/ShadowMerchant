@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function StorePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const meta = STORE_META[slug] || { label: slug, color: '#FF6B00', tagline: '' };
+  const meta = STORE_META[slug] || { label: slug, color: 'var(--gold)', tagline: '' };
   const deals = await getDealsByPlatform(slug);
 
   return (
@@ -63,7 +63,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
           ))}
         </div>
       ) : (
-        <div className="w-full py-20 flex flex-col items-center justify-center bg-[#13131A] rounded-xl border border-[#2A2A35] text-center">
+        <div className="w-full py-20 flex flex-col items-center justify-center rounded-xl border text-center" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>
           <span className="text-4xl mb-4">🛍️</span>
           <h2 className="text-xl font-bold text-white mb-2">No {meta.label} deals yet</h2>
           <p className="text-gray-500">Our scrapers run every 6 hours — check back soon.</p>
