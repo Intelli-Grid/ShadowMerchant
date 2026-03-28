@@ -359,6 +359,22 @@ body {
    UTILITY CLASSES
 ══════════════════════════════════════════════════ */
 
+/* Gold link — muted color that turns gold on hover (CSS-only, safe in server components) */
+.gold-link {
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+.gold-link:hover { color: var(--gold); }
+
+/* Card hover — gold border glow on hover (CSS-only, safe in server components) */
+.card-hover {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  border-color: var(--gold-border) !important;
+  box-shadow: 0 4px 16px rgba(201, 168, 76, 0.08);
+}
+
 /* Gold CTA button */
 .btn-gold {
   background: var(--gold);

@@ -145,10 +145,7 @@ export default async function Home() {
           >
             Trending Now
           </h2>
-          <Link href="/deals/feed" className="text-sm font-semibold transition-colors" style={{ color: 'var(--text-muted)' }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--gold)')}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-muted)')}
-          >
+          <Link href="/deals/feed" className="gold-link text-sm font-semibold">
             View All →
           </Link>
         </div>

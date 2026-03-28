@@ -93,10 +93,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <Link
             key={href}
             href={href}
-            className="rounded-xl p-4 flex items-center justify-between group transition-all"
+            className="card-hover rounded-xl p-4 flex items-center justify-between group transition-all"
             style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)' }}
-            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--gold-border)')}
-            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--sm-border)')}
           >
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'var(--gold-dim)' }}>
@@ -128,10 +126,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
               <Link
                 key={deal._id.toString()}
                 href={`/deals/${deal._id}`}
-                className="flex items-center gap-4 rounded-xl p-4 transition-all"
+                className="card-hover flex items-center gap-4 rounded-xl p-4 transition-all"
                 style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)' }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--gold-border)')}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--sm-border)')}
               >
                 <div
                   className="w-12 h-12 rounded-lg flex items-center justify-center text-xs font-black flex-shrink-0"
