@@ -6,9 +6,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { connectDB } from '@/lib/db';
 import { auth } from '@clerk/nextjs/server';
+import { redis, CACHE_KEYS, CACHE_TTL } from '@/lib/redis';
 
 // Fetch the top 8 trending deals (is_trending=true, mix of free + pro)
 async function getTrendingDeals(): Promise<Deal[]> {
+  const cached = await redis.get<Deal[]>(CACHE_KEYS.TRENDING_DEALS);
+  if (cached) return cached;
   try {
     await connectDB();
     const DealModel = (await import('@/models/Deal')).default;
@@ -16,7 +19,9 @@ async function getTrendingDeals(): Promise<Deal[]> {
       .sort({ deal_score: -1 })
       .limit(8)
       .lean();
-    return JSON.parse(JSON.stringify(deals));
+    const result = JSON.parse(JSON.stringify(deals));
+    await redis.set(CACHE_KEYS.TRENDING_DEALS, result, { ex: CACHE_TTL.TRENDING });
+    return result;
   } catch (e) {
     console.error('getTrendingDeals error:', e);
     return [];
@@ -40,20 +45,12 @@ async function getNewDealsToday(): Promise<Deal[]> {
 }
 
 export default async function Home() {
-  // Trending deals and New Today deals
-  const trendingDeals: Deal[] = await getTrendingDeals();
-  const newDeals: Deal[] = await getNewDealsToday();
 
-  const { userId } = await auth();
-  let wishlistedIds: string[] = [];
-  let isUserPro = false;
-  if (userId) {
-    await connectDB();
-    const U = (await import('@/models/User')).default;
-    const u = await U.findOne({ clerk_id: userId }, { wishlist: 1, subscription_tier: 1 }).lean();
-    wishlistedIds = (u?.wishlist || []).map(String);
-    isUserPro = u?.subscription_tier === 'pro';
-  }
+  // Parallelise all data fetching
+  const [trendingDeals, newDeals] = await Promise.all([
+    getTrendingDeals(),
+    getNewDealsToday()
+  ]);
 
   // Total savings across all trending deals
   const totalSavings = trendingDeals.reduce(
@@ -183,7 +180,7 @@ export default async function Home() {
         {trendingDeals.length > 0 ? (
           <div className="deal-card-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {trendingDeals.map((deal) => (
-              <DealCard key={deal._id} deal={deal} isUserPro={isUserPro} wishlistedIds={wishlistedIds} />
+              <DealCard key={deal._id} deal={deal} />
             ))}
           </div>
         ) : (
@@ -215,7 +212,7 @@ export default async function Home() {
         {newDeals.length > 0 ? (
           <div className="deal-card-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {newDeals.map((deal) => (
-              <DealCard key={deal._id} deal={deal} isUserPro={isUserPro} wishlistedIds={wishlistedIds} />
+              <DealCard key={deal._id} deal={deal} />
             ))}
           </div>
         ) : (

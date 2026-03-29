@@ -5,6 +5,7 @@ import User from '@/models/User';
 import Deal from '@/models/Deal';
 import Link from 'next/link';
 import { Heart, Bell, Zap, TrendingUp, Package, ChevronRight, CheckCircle } from 'lucide-react';
+import { CancelSubscriptionButton } from '@/components/pro/CancelSubscriptionButton';
 
 async function getDashboardData(clerkId: string) {
   await connectDB();
@@ -109,6 +110,22 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </Link>
         ))}
       </div>
+
+      {/* Subscription Management — Pro users */}
+      {isPro && (
+        <div
+          className="mb-8 rounded-xl p-5 flex items-center justify-between"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)' }}
+        >
+          <div>
+            <p className="font-bold text-white text-sm">✦ Pro Membership Active</p>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+              You have access to all Pro exclusive deals and alerts.
+            </p>
+          </div>
+          <CancelSubscriptionButton />
+        </div>
+      )}
 
       {/* Recent deals */}
       {recentDeals.length > 0 && (

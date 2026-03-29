@@ -23,15 +23,26 @@ export async function POST(req: NextRequest) {
 
   await connectDB();
 
+  let user = await User.findOne({ clerk_id: userId });
+  if (!user) {
+    user = await User.create({ clerk_id: userId, subscription_tier: 'free', wishlist: [] });
+  }
+
+  if (action === 'add') {
+    if (user.subscription_tier !== 'pro' && user.wishlist.length >= 5) {
+      return NextResponse.json({ error: 'WISHLIST_LIMIT' }, { status: 403 });
+    }
+  }
+
   const update = action === 'remove'
     ? { $pull: { wishlist: deal_id } }
     : { $addToSet: { wishlist: deal_id } };
 
-  const user = await User.findOneAndUpdate(
+  const updatedUser = await User.findOneAndUpdate(
     { clerk_id: userId },
     update,
-    { upsert: true, new: true }
+    { new: true }
   );
 
-  return NextResponse.json({ wishlist: user.wishlist, action });
+  return NextResponse.json({ wishlist: updatedUser.wishlist, action });
 }

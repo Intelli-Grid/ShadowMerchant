@@ -7,6 +7,7 @@
   "env": {
     "MONGODB_URI": "@mongodb_uri",
     "CLERK_SECRET_KEY": "@clerk_secret_key",
+    "CLERK_WEBHOOK_SECRET": "@clerk_webhook_secret",
     "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "@next_public_clerk_publishable_key",
     "NEXT_PUBLIC_ALGOLIA_APP_ID": "@next_public_algolia_app_id",
     "NEXT_PUBLIC_ALGOLIA_SEARCH_KEY": "@next_public_algolia_search_key",
@@ -16,10 +17,14 @@
     "RAZORPAY_KEY_SECRET": "@razorpay_key_secret",
     "NEXT_PUBLIC_RAZORPAY_KEY_ID": "@next_public_razorpay_key_id",
     "RAZORPAY_WEBHOOK_SECRET": "@razorpay_webhook_secret",
+    "RAZORPAY_MONTHLY_PLAN_ID": "@razorpay_monthly_plan_id",
+    "RAZORPAY_ANNUAL_PLAN_ID": "@razorpay_annual_plan_id",
     "NEXT_PUBLIC_APP_URL": "@next_public_app_url",
     "CRON_SECRET": "@cron_secret",
     "UPSTASH_REDIS_REST_URL": "@upstash_redis_rest_url",
-    "UPSTASH_REDIS_REST_TOKEN": "@upstash_redis_rest_token"
+    "UPSTASH_REDIS_REST_TOKEN": "@upstash_redis_rest_token",
+    "NEXT_PUBLIC_POSTHOG_KEY": "@next_public_posthog_key",
+    "POSTHOG_PROJECT_API_KEY": "@posthog_project_api_key"
   },
   "crons": [
     { "path": "/api/cron/refresh-deals", "schedule": "0 1 * * *" },

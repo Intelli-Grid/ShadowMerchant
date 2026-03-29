@@ -4,12 +4,15 @@ import { useMemo } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { Sparkles } from 'lucide-react';
 
+import Link from 'next/link';
+
 interface PriceHistoryChartProps {
   data: { date: string | Date; price: number }[];
   platformColor?: string;
+  isUserPro?: boolean;
 }
 
-export function PriceHistoryChart({ data, platformColor = '#C9A84C' }: PriceHistoryChartProps) {
+export function PriceHistoryChart({ data, platformColor = '#C9A84C', isUserPro = false }: PriceHistoryChartProps) {
   const chartData = useMemo(() => {
     if (!data || data.length === 0) return [];
     
@@ -29,11 +32,30 @@ export function PriceHistoryChart({ data, platformColor = '#C9A84C' }: PriceHist
     return '₹' + (tickItem >= 1000 ? (tickItem / 1000).toFixed(1) + 'k' : tickItem);
   };
 
+  if (!isUserPro) {
+    return (
+      <div className="w-full h-[320px] rounded-2xl border p-4 sm:p-6 relative overflow-hidden flex flex-col items-center justify-center text-center" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>
+        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, #222 1px, transparent 1px), linear-gradient(to bottom, #222 1px, transparent 1px)', backgroundSize: '30px 30px', filter: 'blur(2px)' }} />
+        
+        <div className="relative z-10 p-6 flex flex-col items-center justify-center max-w-sm rounded-[24px] shadow-2xl backdrop-blur-md" style={{ background: 'rgba(20, 20, 24, 0.7)', border: '1px solid var(--gold-border)' }}>
+          <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--gold-dim)' }}>
+            <Sparkles className="w-6 h-6" style={{ color: 'var(--gold)' }} />
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-display)' }}>Pro Feature</h3>
+          <p className="text-sm text-gray-400 mb-6">Upgrade to see 30-day historical price volatility and never buy at the wrong time.</p>
+          <Link href="/pro" className="px-8 py-3 rounded-xl font-bold w-full text-center hover:scale-105 active:scale-95 transition-all" style={{ background: 'var(--gold)', color: '#0A0A0A' }}>
+            Unlock Analytics
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (chartData.length < 2) {
     return (
       <div className="w-full h-48 flex items-center justify-center rounded-2xl border" style={{ background: 'var(--bg-raised)', borderColor: 'var(--sm-border)' }}>
         <p className="text-sm font-medium flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
-          <Sparkles className="w-4 h-4 opacity-70" /> ShadowMerchant hasn't tracked enough price drops yet.
+          <Sparkles className="w-4 h-4 opacity-70" /> ShadowMerchant hasn&apos;t tracked enough price drops yet.
         </p>
       </div>
     );

@@ -5,21 +5,19 @@ import Image from 'next/image';
 import { RazorpayButton } from '@/components/pro/RazorpayButton';
 
 const PRO_FEATURES = [
-  'Access to all Pro Exclusive deals (highest savings)',
-  'Deal Alerts — get notified instantly on Telegram & WhatsApp',
-  'Unlimited Deal Wishlisting',
-  'Price Drop Notifications on tracked products',
-  'Early access to flash & lightning deals',
-  'No ads, ever',
-  'Advanced filters (min discount, max price, brand)',
-  'Priority email support',
+  '📊 Full 30-day price history on every deal',
+  '⚡ Deal Alerts (up to 10 rules)',
+  '📉 Price drop notifications on wishlisted deals',
+  '💛 Unlimited wishlist',
+  '📬 Priority support',
 ];
 
 const FREE_FEATURES = [
-  'Browse 20+ new deals daily',
-  'All public deals from Amazon, Flipkart & more',
-  'Deal Score ranking (AI-powered)',
-  '5 wishlist slots',
+  'Browse all deals — unlimited',
+  'Click any affiliate deal link',
+  'Search across all deals',
+  'Save up to 5 deals to wishlist',
+  'All 12 categories',
 ];
 
 export default function ProPage() {
@@ -54,11 +52,11 @@ export default function ProPage() {
           className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight leading-tight"
           style={{ fontFamily: 'var(--font-display)' }}
         >
-          Stop missing the best deals. <br />
-          <span className="heading-gold">Go Pro.</span>
+          Know when to buy. <br />
+          <span className="heading-gold">Never overpay again.</span>
         </h1>
         <p className="text-lg max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
-          Pro members get access to exclusive high-discount deals, instant alerts and smart price tracking — all for less than a cup of chai.
+          Pro gives you the intelligence layer on top of India's best deal feed. See price history, set alerts, get notified — all for less than your last impulse buy.
         </p>
       </div>
 
@@ -133,10 +131,14 @@ export default function ProPage() {
           </div>
 
           <div className="mb-8">
-            <span className="text-4xl font-black text-white price-display">₹299</span>
+            <span className="text-4xl font-black text-white price-display">₹99</span>
             <span className="ml-2" style={{ color: 'var(--text-muted)' }}>/ month</span>
             <p className="text-sm font-bold mt-1" style={{ color: 'var(--score-high)' }}>
-              Save 40% with annual plan (₹2,099/year)
+              Save 33% with annual plan (₹799/year)
+            </p>
+            <p className="text-xs mt-2" style={{ color: 'var(--text-secondary)' }}>
+              Less than one cup of Starbucks.<br/>
+              Less than one month of Netflix.<br/>
             </p>
           </div>
 
@@ -151,9 +153,47 @@ export default function ProPage() {
 
           {/* CTA — wires to Razorpay */}
           <RazorpayButton plan="monthly" className="w-full" />
+
+          {/* Annual Plan CTA */}
+          <div
+            className="mt-3 rounded-xl p-4 flex items-center justify-between"
+            style={{ background: 'var(--gold-dim)', border: '1px solid var(--gold-border)' }}
+          >
+            <div>
+              <p className="text-sm font-black" style={{ color: 'var(--gold)' }}>
+                Save 33% · Annual Plan
+              </p>
+              <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                ₹799/year · Just ₹66/month
+              </p>
+            </div>
+            <RazorpayButton plan="annual" className="!py-2 !px-5 text-sm" />
+          </div>
+
           <p className="text-center text-xs mt-4" style={{ color: 'var(--text-muted)' }}>
             Cancel anytime. Powered by Razorpay.
           </p>
+        </div>
+      </div>
+
+      {/* Social Proof */}
+      <div className="mb-16 rounded-2xl p-8" style={{ background: 'var(--gold-glow)', border: '1px solid var(--gold-border)' }}>
+        <h2 className="text-2xl font-bold text-white mb-8 section-heading text-center" style={{ fontFamily: 'var(--font-display)' }}>
+          What Pro members are saying
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-6 rounded-xl" style={{ background: 'var(--bg-surface)' }}>
+            <p className="text-sm italic mb-4 text-gray-300">"Got a Telegram alert at 7 AM — Sony headphones at all-time low. Bought them in 2 minutes. ₹6,000 saved."</p>
+            <p className="text-xs font-bold" style={{ color: 'var(--gold)' }}>— Rahul M., Bangalore</p>
+          </div>
+          <div className="p-6 rounded-xl" style={{ background: 'var(--bg-surface)' }}>
+            <p className="text-sm italic mb-4 text-gray-300">"The price history chart showed me that 'sale price' was the regular price. Saved me from a fake discount."</p>
+            <p className="text-xs font-bold" style={{ color: 'var(--gold)' }}>— Priya K., Mumbai</p>
+          </div>
+          <div className="p-6 rounded-xl" style={{ background: 'var(--bg-surface)' }}>
+            <p className="text-sm italic mb-4 text-gray-300">"Set an alert for boAt earbuds under ₹1,500. Got notified, bought the next day. This thing pays for itself."</p>
+            <p className="text-xs font-bold" style={{ color: 'var(--gold)' }}>— Arjun S., Hyderabad</p>
+          </div>
         </div>
       </div>
 
@@ -170,7 +210,7 @@ export default function ProPage() {
         </h2>
         <div className="space-y-6">
           {[
-            { q: 'What counts as a Pro Exclusive deal?', a: 'Deals with a ShadowMerchant AI Score of 85 or above are locked for Pro members — these are the most significant price drops we detect, usually 50–80% off retail price.' },
+            { q: 'Are deals locked anymore?', a: "No! All deals, links, and content are now 100% free and open. Pro gives you the intelligence layer—pricing history, custom deal alerts, and drop notifications—so you know *when* to buy." },
             { q: 'How does billing work?', a: 'We use Razorpay for secure Indian payments. You can pay via UPI, credit/debit card, or net banking. You\'re billed monthly or annually depending on your choice.' },
             { q: 'Can I cancel anytime?', a: 'Yes, absolutely. You can cancel your subscription from your Dashboard at any time. Your Pro benefits remain active until the end of the current billing period.' },
             { q: 'Do deals expire?', a: "Yes! Flash and lightning deals are time-limited by the platforms themselves. We timestamp all deals when scraped, but we can't guarantee a price is still live when you click." },

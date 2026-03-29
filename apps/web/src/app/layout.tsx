@@ -6,6 +6,9 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { SplashScreen } from '@/components/SplashScreen';
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
+import { PostHogProvider } from '@/components/PostHogProvider';
+import { WishlistProvider } from '@/context/WishlistContext';
+import { Suspense } from 'react';
 
 const syne = Syne({
   subsets: ['latin'],
@@ -62,21 +65,26 @@ export default function RootLayout({
             background: 'var(--bg-base)',
             color: 'var(--text-primary)',
             fontFamily: 'var(--font-body)',
-            /* Extra bottom padding so content isn't covered by mobile bottom nav */
             paddingBottom: 'env(safe-area-inset-bottom)',
           }}
         >
-          {/* First-visit splash screen */}
-          <SplashScreen />
-          {/* Atmospheric gold glow behind everything */}
-          <div className="hero-atmosphere" aria-hidden="true" />
-          <Navbar />
-          <main className="flex-1 relative z-10 pb-20 md:pb-0">
-            {children}
-          </main>
-          <Footer />
-          {/* Mobile bottom navigation — shown only on small screens */}
-          <MobileBottomNav />
+          <Suspense fallback={null}>
+            <PostHogProvider>
+              <WishlistProvider>
+                {/* First-visit splash screen */}
+                <SplashScreen />
+                {/* Atmospheric gold glow behind everything */}
+                <div className="hero-atmosphere" aria-hidden="true" />
+                <Navbar />
+                <main className="flex-1 relative z-10 pb-20 md:pb-0">
+                  {children}
+                </main>
+                <Footer />
+                {/* Mobile bottom navigation — shown only on small screens */}
+                <MobileBottomNav />
+              </WishlistProvider>
+            </PostHogProvider>
+          </Suspense>
         </body>
       </html>
     </ClerkProvider>

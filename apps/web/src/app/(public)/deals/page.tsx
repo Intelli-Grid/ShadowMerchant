@@ -1,9 +1,11 @@
 import { Suspense } from 'react';
 import { DealCard } from '@/components/deals/DealCard';
+import { LoadMoreDeals } from '@/components/deals/LoadMoreDeals';
 import { UpgradeCTA } from '@/components/pro/UpgradeCTA';
 import { FilterSidebar } from '@/components/deals/FilterSidebar';
 import { Deal } from '@/types';
 import { auth } from '@clerk/nextjs/server';
+import { redis, CACHE_TTL } from '@/lib/redis';
 
 export async function generateMetadata({ searchParams }: any) {
   const p = await searchParams;
@@ -15,6 +17,11 @@ export async function generateMetadata({ searchParams }: any) {
 }
 
 async function getDeals(searchParams: { [key: string]: string | undefined }) {
+  // Build cache key from params
+  const cacheKey = `deals:feed:${JSON.stringify(searchParams)}`;
+  const cached = await redis.get<{ deals: Deal[]; total: number; hasMore: boolean }>(cacheKey);
+  if (cached) return cached;
+
   try {
     const { connectDB } = await import('@/lib/db');
     await connectDB();
@@ -27,7 +34,7 @@ async function getDeals(searchParams: { [key: string]: string | undefined }) {
       query.source_platform = searchParams.platform.toLowerCase();
     }
     
-    // Exact Category Match (Universal Taxonmy)
+    // Exact Category Match (Universal Taxonomy)
     if (searchParams.category && searchParams.category !== 'all') {
       query.category = searchParams.category.toLowerCase();
     }
@@ -45,15 +52,19 @@ async function getDeals(searchParams: { [key: string]: string | undefined }) {
     if (searchParams.sort === 'discount') sortObj = { discount_percent: -1 };
     if (searchParams.sort === 'newest') sortObj = { scraped_at: -1 };
 
+    const PAGE_SIZE = 24;
     const [deals, total] = await Promise.all([
-      DealModel.find(query).sort(sortObj).limit(72).lean(),
+      DealModel.find(query).sort(sortObj).limit(PAGE_SIZE).lean(),
       DealModel.countDocuments(query)
     ]);
 
-    return { deals: JSON.parse(JSON.stringify(deals)), total };
+    const result = { deals: JSON.parse(JSON.stringify(deals)), total, hasMore: total > PAGE_SIZE };
+    // Cache for 5 min — safe since scraper runs every 6 hours
+    await redis.set(cacheKey, result, { ex: CACHE_TTL.DEAL_LIST });
+    return result;
   } catch (e) {
     console.error(e);
-    return { deals: [], total: 0 };
+    return { deals: [], total: 0, hasMore: false };
   }
 }
 
@@ -99,18 +110,8 @@ export default async function DealsFeedPage({
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
   const resolvedParams = await searchParams;
-  const { userId } = await auth();
 
-  const [data, uinfo] = await Promise.all([
-    getDeals(resolvedParams),
-    (async () => {
-      if (!userId) return null;
-      const { connectDB: _db } = await import('@/lib/db');
-      await _db();
-      const U = (await import('@/models/User')).default;
-      return await U.findOne({ clerk_id: userId }, { wishlist: 1, subscription_tier: 1 }).lean();
-    })()
-  ]);
+  const data = await getDeals(resolvedParams);
 
   const deals: Deal[] = data.deals || [];
   
@@ -118,13 +119,6 @@ export default async function DealsFeedPage({
   const showGrouped = currentSort === 'newest';
   
   const groupedDeals = showGrouped ? groupDealsByDay(deals) : { 'All Deals': deals };
-
-  let wishlistedIds: string[] = [];
-  let isUserPro = false;
-  if (uinfo) {
-    wishlistedIds = (uinfo.wishlist || []).map(String);
-    isUserPro = uinfo.subscription_tier === 'pro';
-  }
 
   return (
     <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -169,12 +163,18 @@ export default async function DealsFeedPage({
                     )}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                       {groupDeals.map((deal) => (
-                        <DealCard key={deal._id} deal={deal} isUserPro={isUserPro} wishlistedIds={wishlistedIds} />
+                        <DealCard key={deal._id} deal={deal} />
                       ))}
                     </div>
                   </div>
                 );
               })}
+
+              {/* Load More — client-side pagination */}
+              <LoadMoreDeals
+                initialHasMore={data.hasMore ?? false}
+                searchParams={resolvedParams}
+              />
             </div>
           ) : (
              <div className="w-full py-32 flex flex-col items-center justify-center rounded-xl border" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>

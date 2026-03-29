@@ -99,29 +99,6 @@ def refresh_trending_flags(db) -> int:
     return updated
 
 
-def refresh_pro_exclusive_flags(db) -> int:
-    """
-    Ensures any deal with deal_score >= 85 is marked as is_pro_exclusive=True.
-    Also clears the flag for deals that dropped below the threshold.
-    """
-    # Promote deals that should be pro exclusive
-    result_promote = db.deals.update_many(
-        {"is_active": True, "deal_score": {"$gte": 85}, "is_pro_exclusive": False},
-        {"$set": {"is_pro_exclusive": True, "updated_at": datetime.now(timezone.utc)}},
-    )
-
-    # Demote deals that no longer qualify
-    result_demote = db.deals.update_many(
-        {"is_active": True, "deal_score": {"$lt": 85}, "is_pro_exclusive": True},
-        {"$set": {"is_pro_exclusive": False, "updated_at": datetime.now(timezone.utc)}},
-    )
-
-    total = result_promote.modified_count + result_demote.modified_count
-    logger.info(
-        f"Pro-exclusive refresh: +{result_promote.modified_count} promoted, "
-        f"-{result_demote.modified_count} demoted."
-    )
-    return total
 
 
 def run():
@@ -135,12 +112,11 @@ def run():
 
     archived = archive_stale_deals(db)
     trending = refresh_trending_flags(db)
-    pro_updated = refresh_pro_exclusive_flags(db)
 
     elapsed = (datetime.now(timezone.utc) - start).total_seconds()
     logger.info(
         f"═══ Job Complete in {elapsed:.1f}s — "
-        f"archived={archived}, trending={trending}, pro_flags={pro_updated} ═══"
+        f"archived={archived}, trending={trending} ═══"
     )
 
 

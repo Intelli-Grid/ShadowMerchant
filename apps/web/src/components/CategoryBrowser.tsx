@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Laptop, Shirt, Sparkles, Home, Dumbbell, BookOpen, Smartphone, Gamepad2, Car, ShoppingBasket, Plane, Baby } from 'lucide-react';
+import { Laptop, Shirt, Sparkles, Home, Dumbbell, BookOpen, Gamepad2, Car, ShoppingBasket, Plane, Baby } from 'lucide-react';
 
 const CATEGORY_META: Record<string, { icon: any; color: string; bg: string }> = {
   electronics:  { icon: Laptop,          color: '#60A5FA', bg: 'rgba(96,165,250,0.12)'  },

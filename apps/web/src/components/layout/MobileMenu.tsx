@@ -17,7 +17,7 @@ export function MobileMenu() {
   const pathname = usePathname();
 
   // Close on route change
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => { setTimeout(() => setOpen(false), 0); }, [pathname]);
 
   // Lock body scroll when open
   useEffect(() => {

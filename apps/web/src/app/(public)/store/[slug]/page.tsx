@@ -42,25 +42,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
   const { slug } = await params;
   const meta = STORE_META[slug] || { label: slug, color: 'var(--gold)', tagline: '' };
 
-  const { userId } = await auth();
-
-  const [deals, uinfo] = await Promise.all([
-    getDealsByPlatform(slug),
-    (async () => {
-      if (!userId) return null;
-      const { connectDB: _db } = await import('@/lib/db');
-      await _db();
-      const U = (await import('@/models/User')).default;
-      return await U.findOne({ clerk_id: userId }, { wishlist: 1, subscription_tier: 1 }).lean();
-    })()
-  ]);
-
-  let wishlistedIds: string[] = [];
-  let isUserPro = false;
-  if (uinfo) {
-    wishlistedIds = (uinfo.wishlist || []).map(String);
-    isUserPro = uinfo.subscription_tier === 'pro';
-  }
+  const deals = await getDealsByPlatform(slug);
 
   return (
     <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -86,7 +68,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
       {deals.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {deals.map((deal) => (
-            <DealCard key={deal._id} deal={deal} isUserPro={isUserPro} wishlistedIds={wishlistedIds} />
+            <DealCard key={deal._id} deal={deal} />
           ))}
         </div>
       ) : (

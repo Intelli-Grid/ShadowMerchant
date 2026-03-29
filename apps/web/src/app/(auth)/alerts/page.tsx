@@ -91,32 +91,54 @@ export default function AlertsPage() {
     </div>
   );
 
+  function AlertMockCard({ type, value, status }: { type: string, value: string, status: string }) {
+    return (
+      <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'var(--bg-raised)', border: '1px solid var(--sm-border)' }}>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded shrink-0 flex items-center justify-center" style={{ background: 'var(--gold-dim)' }}>
+            <Bell className="w-4 h-4" style={{ color: 'var(--gold)' }} />
+          </div>
+          <div className="text-left leading-tight">
+            <p className="text-sm font-semibold text-white">{type}</p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{value}</p>
+          </div>
+        </div>
+        <span className="text-[10px] font-bold tracking-wide uppercase px-2 py-1 rounded-full" style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80' }}>
+          {status}
+        </span>
+      </div>
+    );
+  }
+
   // Pro gate
   if (!isPro) return (
     <main className="flex-1 flex items-center justify-center px-4 py-20">
       <div
-        className="max-w-md w-full text-center rounded-2xl p-10"
+        className="max-w-md w-full text-center rounded-2xl p-8"
         style={{ background: 'var(--bg-surface)', border: '1px solid var(--gold-border)' }}
       >
-        <div
-          className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
-          style={{
-            background: 'linear-gradient(135deg, var(--gold), var(--gold-bright))',
-            boxShadow: '0 0 24px rgba(201,168,76,0.35)',
-          }}
-        >
-          <Bell className="w-8 h-8" style={{ color: '#0A0A0A' }} />
+        <div className="mb-6 space-y-2 opacity-40 pointer-events-none" style={{ filter: 'grayscale(0.5)' }}>
+          <AlertMockCard type="Keyword" value="boAt headphones" status="3 deals today" />
+          <AlertMockCard type="Category" value="Electronics" status="12 in last 24h" />
+          <AlertMockCard type="Price Drop" value="Under ₹1,500" status="5 this week" />
         </div>
-        <h1 className="text-2xl font-black text-white mb-2">Deal Alerts</h1>
+
+        <div
+          className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+          style={{ background: 'var(--gold-dim)', border: '1px solid var(--gold-border)' }}
+        >
+          <Bell className="w-7 h-7" style={{ color: 'var(--gold)' }} />
+        </div>
+        <h2 className="text-2xl font-black text-white mb-2" style={{ fontFamily: 'var(--font-display)' }}>Never Miss a Deal Again</h2>
         <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
-          Get notified instantly when deals match your criteria. Pro members only.
+          Set alerts for keywords, brands, or price thresholds. Get notified on Telegram the moment a matching deal is found.
         </p>
         <Button
           asChild
-          className="w-full font-bold h-12"
+          className="w-full font-bold h-12 hover:scale-105 active:scale-95 transition-all"
           style={{ background: 'var(--gold)', color: '#0A0A0A' }}
         >
-          <Link href="/pro">Unlock with Pro →</Link>
+          <Link href="/pro">Unlock with Pro — ₹99/month →</Link>
         </Button>
       </div>
     </main>

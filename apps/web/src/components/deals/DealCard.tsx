@@ -1,7 +1,6 @@
 'use client';
 
 import { useAuth } from '@clerk/nextjs';
-
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -10,24 +9,24 @@ import { Lock, ExternalLink, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useRef, useEffect } from 'react';
 import { getPlatform } from '@/lib/platforms';
+import { useWishlist } from '@/context/WishlistContext';
 
 interface DealCardProps {
   deal: Deal;
-  isUserPro?: boolean;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
-  wishlistedIds?: string[];
 }
 
-export function DealCard({ deal, isUserPro = false, size = 'md', className, wishlistedIds = [] }: DealCardProps) {
+export function DealCard({ deal, size = 'md', className }: DealCardProps) {
   const router = useRouter();
   const { isSignedIn } = useAuth();
+  const { isWishlisted, toggle } = useWishlist();
   const [imgError, setImgError] = useState(false);
-  const [wishlisted, setWishlisted] = useState(() => wishlistedIds.includes(String(deal._id)));
   const [scoreVisible, setScoreVisible] = useState(false);
   const scoreBarRef = useRef<HTMLDivElement>(null);
 
-  const isLocked = deal.is_pro_exclusive && !isUserPro;
+  const wishlisted = isWishlisted(String(deal._id));
+
   const platform = getPlatform(deal.source_platform);
   const score = deal.deal_score ?? 0;
   const isHot = score >= 90;
@@ -157,15 +156,7 @@ export function DealCard({ deal, isUserPro = false, size = 'md', className, wish
             e.preventDefault();
             e.stopPropagation();
             if (!isSignedIn) { window.location.href = '/sign-in'; return; }
-            const next = !wishlisted;
-            setWishlisted(next);
-            try {
-              await fetch('/api/wishlist', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ deal_id: String(deal._id), action: next ? 'add' : 'remove' }),
-              });
-            } catch { setWishlisted(!next); }
+            await toggle(String(deal._id));
           }}
           aria-label="Save to wishlist"
         >
@@ -174,7 +165,7 @@ export function DealCard({ deal, isUserPro = false, size = 'md', className, wish
       </div>
 
       {/* ── CONTENT SECTION ── */}
-      <div className={cn('flex flex-col flex-1 p-3.5', isLocked && 'opacity-25 blur-[2px] pointer-events-none', sizeClasses[size])}>
+      <div className={cn('flex flex-col flex-1 p-3.5', sizeClasses[size])}>
 
         {/* Score row with tooltip */}
         <div className="mb-2.5 flex items-center gap-2 group/score relative" ref={scoreBarRef}>
@@ -273,31 +264,7 @@ export function DealCard({ deal, isUserPro = false, size = 'md', className, wish
         </a>
       </div>
 
-      {/* Pro lock overlay — gold (no more purple) */}
-      {isLocked && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center pointer-events-auto backdrop-blur-md" style={{ background: 'rgba(10,10,10,0.6)' }}>
-          <div
-            className="mb-4 flex h-12 w-12 items-center justify-center rounded-full shadow-lg"
-            style={{
-              background: 'linear-gradient(135deg, var(--gold), var(--gold-bright))',
-              boxShadow: '0 0 24px rgba(201, 168, 76, 0.4)',
-            }}
-          >
-            <Lock className="h-6 w-6" style={{ color: '#0A0A0A' }} />
-          </div>
-          <h3 className="text-lg font-bold text-white mb-1">Pro Exclusive</h3>
-          <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
-            Flash deal for Pro members only.
-          </p>
-          <Link
-            href="/pro"
-            className="rounded-lg px-4 py-2 text-sm font-bold w-full text-center"
-            style={{ background: 'var(--gold)', color: '#0A0A0A' }}
-          >
-            Unlock with Pro →
-          </Link>
-        </div>
-      )}
+
     </article>
   );
 }

@@ -17,7 +17,9 @@ interface RazorpayButtonProps {
   className?: string;
 }
 
-export function RazorpayButton({ plan = 'monthly', label = 'Upgrade to Pro — ₹299/mo', className }: RazorpayButtonProps) {
+export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayButtonProps) {
+  const defaultLabel = plan === 'annual' ? 'Get Annual Plan — ₹2,099/yr' : 'Upgrade to Pro — ₹299/mo';
+  const displayLabel = label ?? defaultLabel;
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -79,7 +81,7 @@ export function RazorpayButton({ plan = 'monthly', label = 'Upgrade to Pro — �
         {loading ? (
           <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</>
         ) : (
-          <><Zap className="w-5 h-5" /> {label}</>
+          <><Zap className="w-5 h-5" /> {displayLabel}</>
         )}
       </Button>
     </>

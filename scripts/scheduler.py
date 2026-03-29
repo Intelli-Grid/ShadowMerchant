@@ -150,9 +150,8 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
                     "rating_count":     int(_f("rating_count", 0) or 0),
                     "is_active":        True,
                     "is_stale":         False,
-                    # Pro gating: discount-based (reliable even without ratings)
-                    # 40%+ discount = Pro exclusive
-                    "is_pro_exclusive": disc_pct >= 40,
+                    # Pro gating discontinued: all deals are free to view
+                    "is_pro_exclusive": False,
                     "scraped_at":       datetime.utcnow(),
                     "updated_at":       datetime.utcnow(),
                 }

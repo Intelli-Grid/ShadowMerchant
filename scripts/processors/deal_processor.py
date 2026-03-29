@@ -67,7 +67,7 @@ def process_deals(raw_deals: list[RawDeal], db) -> dict:
             # New deal — score it, then insert
             deal_doc = build_deal_document(raw)
             deal_doc["deal_score"] = score_deal(raw)
-            deal_doc["is_pro_exclusive"] = deal_doc["deal_score"] >= 85
+            deal_doc["is_pro_exclusive"] = False
             db.deals.insert_one(deal_doc)
             stats["new"] += 1
 

@@ -27,6 +27,67 @@ logging.basicConfig(
 )
 logger = logging.getLogger("pipeline")
 
+# ── Canonical category taxonomy (must match CategoryBrowser.tsx) ──────────
+# Maps raw scraped strings → canonical slugs. Case-insensitive prefix matching.
+CATEGORY_MAP: dict[str, str] = {
+    # Electronics
+    "electronic": "electronics", "mobile": "electronics", "laptop": "electronics",
+    "computer": "electronics", "tablet": "electronics", "camera": "electronics",
+    "headphone": "electronics", "earphone": "electronics", "television": "electronics",
+    "tv": "electronics", "gadget": "electronics", "wearable": "electronics",
+    "smartwatch": "electronics", "speaker": "electronics", "gaming": "gaming",
+    "console": "gaming", "game": "gaming",
+    # Fashion
+    "fashion": "fashion", "clothing": "fashion", "apparel": "fashion",
+    "shirt": "fashion", "trouser": "fashion", "dress": "fashion",
+    "jeans": "fashion", "kurta": "fashion", "saree": "fashion",
+    "women": "fashion", "men": "fashion", "ethnic": "fashion",
+    "footwear": "fashion", "shoe": "fashion", "sandal": "fashion", "slipper": "fashion",
+    "bag": "fashion", "handbag": "fashion", "wallet": "fashion", "accessory": "fashion",
+    # Beauty & Health
+    "beauty": "beauty", "skincare": "beauty", "makeup": "beauty",
+    "cosmetic": "beauty", "hair": "beauty", "fragrance": "beauty",
+    "grooming": "beauty", "health": "health", "nutrition": "health",
+    "supplement": "health", "fitness": "sports", "sport": "sports",
+    "gym": "sports", "yoga": "sports", "exercise": "sports",
+    # Home
+    "home": "home", "kitchen": "home", "furniture": "home",
+    "decor": "home", "bedding": "home", "appliance": "home",
+    "cleaning": "home", "tool": "home", "garden": "home",
+    # Books
+    "book": "books", "stationery": "books", "office": "books",
+    # Toys
+    "toy": "toys", "baby": "toys", "kids": "toys", "children": "toys",
+    # Automotive
+    "auto": "automotive", "car": "automotive", "bike": "automotive",
+    "vehicle": "automotive",
+    # Grocery
+    "grocery": "grocery", "food": "grocery", "snack": "grocery",
+    "beverage": "grocery", "organic": "grocery",
+    # Travel
+    "travel": "travel", "luggage": "travel", "suitcase": "travel",
+}
+
+CANONICAL_SLUGS = {
+    "electronics", "fashion", "beauty", "home", "sports",
+    "books", "toys", "health", "automotive", "grocery", "travel", "gaming"
+}
+
+def normalize_category(raw: str) -> str:
+    """Map a free-form scraped category string to a canonical slug."""
+    if not raw:
+        return "other"
+    lower = raw.lower().strip()
+    # Already canonical
+    if lower in CANONICAL_SLUGS:
+        return lower
+    # Keyword prefix match
+    for keyword, slug in CATEGORY_MAP.items():
+        if keyword in lower:
+            return slug
+    return "other"
+
+
 SCRAPER_MAP = {
     "amazon":   ("scrapers.amazon_scraper",   "AmazonScraper"),
     "flipkart": ("scrapers.flipkart_scraper", "FlipkartScraper"),
@@ -111,7 +172,7 @@ def process_and_save(all_deals: list) -> int:
                     discount_pct = int(round((1 - disc_price / orig_price) * 100)) if orig_price > disc_price > 0 else 0
                 product_url  = str(_f("product_url", "") or _f("affiliate_url", "")).strip()
                 image_url    = str(_f("image_url", "") or "").strip()
-                category     = str(_f("category", "other") or "other")
+                category     = normalize_category(str(_f("category", "") or ""))
                 alternate_links = _f("alternate_links", []) or []
 
                 if not title or disc_price <= 0 or not product_url:
@@ -119,7 +180,7 @@ def process_and_save(all_deals: list) -> int:
                     continue
 
                 # ── is_pro_exclusive: True if discount >= 40 ──────────────────
-                is_pro_exclusive = discount_pct >= 40
+                is_pro_exclusive = False # ShadowMerchant Pro Strategy Redesign: All deals are open
 
                 doc = {
                     "title":            title,

@@ -1,9 +1,7 @@
-import { DealCard } from '@/components/deals/DealCard';
 import { HeroDeal } from '@/components/HeroDeal';
 import { BentoGrid } from '@/components/BentoGrid';
 import { PlatformFilter } from '@/components/PlatformFilter';
 import { CategorySwimlane } from '@/components/CategorySwimlane';
-import { Deal } from '@/types';
 import Link from 'next/link';
 import { auth } from '@clerk/nextjs/server';
 import { connectDB } from '@/lib/db';
@@ -91,16 +89,7 @@ export default async function DealFeedPage({ searchParams }: { searchParams: Pro
   const resolvedParams = await searchParams;
   const platform = resolvedParams?.platform;
 
-  const { userId } = await auth();
-  let isUserPro = false;
-  if (userId) {
-    try {
-      await connectDB();
-      const User = (await import('@/models/User')).default;
-      const user = await User.findOne({ clerk_id: userId }).select('subscription').lean() as any;
-      isUserPro = user?.subscription?.plan === 'pro' && user?.subscription?.status === 'active';
-    } catch { /* non-fatal */ }
-  }
+
 
   const { hero, topDeals, swimlanes } = await getDealsData(platform);
 
