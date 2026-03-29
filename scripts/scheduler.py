@@ -90,6 +90,12 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
         except Exception as e:
             logger.error(f"  [FAIL] {name}: {e}")
             scraper_stats[name] = 0
+            try:
+                import asyncio
+                from social.telegram_poster import send_admin_alert
+                asyncio.run(send_admin_alert(f"⚠️ {name} returned 0 deals: {str(e)[:150]}"))
+            except Exception:
+                pass
 
     logger.info(f"[DATA] Total collected: {len(all_deals)}")
 
@@ -155,6 +161,12 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
                     {"affiliate_url": product_url},
                     {
                         "$set": doc,
+                        "$push": {
+                            "price_history": {
+                                "$each": [{"date": datetime.utcnow(), "price": disc_price}],
+                                "$slice": -30,
+                            }
+                        },
                         "$setOnInsert": {
                             "created_at": datetime.utcnow(),
                             "deal_id": str(__import__("uuid").uuid4()),
@@ -193,6 +205,39 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
         except Exception as e:
             logger.error(f"Trending tag error: {e}")
 
+        try:
+            elapsed_current = (datetime.utcnow() - start).seconds
+            db.scrapelogs.insert_one({
+                "run_at": start, "completed_at": datetime.utcnow(),
+                "elapsed_seconds": elapsed_current, "scrapers": scraper_stats,
+                "total_collected": len(all_deals), "saved": saved, "status": "success",
+            })
+        except Exception as e:
+            logger.error(f"[LOG] ScrapeLog write failed: {e}")
+
+        try:
+            import subprocess
+            subprocess.run([sys.executable, "index_algolia.py"],
+                cwd=str(Path(__file__).parent), capture_output=True, timeout=120)
+            logger.info("[ALGOLIA] Sync complete")
+        except Exception as e:
+            logger.error(f"[ALGOLIA] {e}")
+        
+        try:
+            import asyncio
+            from social.telegram_poster import post_to_telegram
+            asyncio.run(post_to_telegram())
+            logger.info("[TELEGRAM] Posted")
+        except Exception as e:
+            logger.error(f"[TELEGRAM] {e}")
+
+        try:
+            import asyncio
+            from trigger_alerts import dispatch_alerts
+            asyncio.run(dispatch_alerts(start))
+        except Exception as e:
+            logger.error(f"[ALERTS] {e}")
+
         client.close()
 
     except Exception as e:
@@ -229,8 +274,16 @@ def start_scheduler():
         except Exception as e:
             logger.error(f"Scheduled pipeline failed: {e}")
 
+    def email_job():
+        try:
+            from notifiers.email_notifier import send_digest
+            send_digest()
+        except Exception as e:
+            logger.error(f"Email digest: {e}")
+
     schedule.every().day.at("01:00").do(job)   # 06:30 IST
     schedule.every().day.at("15:00").do(job)   # 20:30 IST
+    schedule.every().day.at("04:00").do(email_job)  # 09:30 IST
 
     logger.info("Scheduler running — 2x daily at 06:30 and 20:30 IST. Press Ctrl+C to stop.")
     while True:

@@ -8,14 +8,14 @@ export function SplashScreen() {
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    const seen = sessionStorage.getItem('sm_splash_seen');
+    const seen = localStorage.getItem('sm_splash_seen');
     if (!seen) {
       setVisible(true);
       // Start fade-out at 1.8s, fully hide at 2.2s
       const fadeTimer = setTimeout(() => setFading(true), 1800);
       const hideTimer = setTimeout(() => {
         setVisible(false);
-        sessionStorage.setItem('sm_splash_seen', '1');
+        localStorage.setItem('sm_splash_seen', '1');
       }, 2200);
       return () => {
         clearTimeout(fadeTimer);

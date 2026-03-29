@@ -5,17 +5,28 @@ import { Heart } from 'lucide-react';
 import { DealCard } from '@/components/deals/DealCard';
 import { Deal } from '@/types';
 
-async function getWishlistDeals(userId: string): Promise<Deal[]> {
-  // In a full implementation, fetch user from DB, get wishlist deal_ids, then fetch deals
-  // For now we return empty — the UI handles the empty state gracefully
-  return [];
+async function getWishlistData(clerkId: string) {
+  const { connectDB } = await import('@/lib/db');
+  await connectDB();
+  const User = (await import('@/models/User')).default;
+  const Deal = (await import('@/models/Deal')).default;
+  
+  const user = await User.findOne({ clerk_id: clerkId }).lean();
+  const isUserPro = user?.subscription_tier === 'pro';
+  const wishlistedIds = (user?.wishlist || []).map(String);
+
+  if (!wishlistedIds.length) return { deals: [], isUserPro, wishlistedIds };
+  
+  const rawDeals = await Deal.find({ _id: { $in: user.wishlist }, is_active: true }).lean();
+  const deals: Deal[] = JSON.parse(JSON.stringify(rawDeals));
+  return { deals, isUserPro, wishlistedIds };
 }
 
 export default async function WishlistPage() {
   const user = await currentUser();
   if (!user) redirect('/sign-in');
 
-  const deals = await getWishlistDeals(user.id);
+  const { deals, isUserPro, wishlistedIds } = await getWishlistData(user.id);
 
   return (
     <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -34,7 +45,7 @@ export default async function WishlistPage() {
       {deals.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {deals.map((deal) => (
-            <DealCard key={deal._id} deal={deal} />
+            <DealCard key={deal._id} deal={deal} isUserPro={isUserPro} wishlistedIds={wishlistedIds} />
           ))}
         </div>
       ) : (

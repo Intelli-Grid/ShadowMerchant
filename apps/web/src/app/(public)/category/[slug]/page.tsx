@@ -1,5 +1,6 @@
 import { DealCard } from '@/components/deals/DealCard';
 import { Deal } from '@/types';
+import { auth } from '@clerk/nextjs/server';
 
 const CATEGORY_LABELS: Record<string, string> = {
   electronics: 'Electronics',
@@ -50,10 +51,36 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const label = CATEGORY_LABELS[slug] || slug;
-  const deals = await getDealsByCategory(slug);
+
+  const { userId } = await auth();
+
+  const [deals, uinfo] = await Promise.all([
+    getDealsByCategory(slug),
+    (async () => {
+      if (!userId) return null;
+      const { connectDB: _db } = await import('@/lib/db');
+      await _db();
+      const U = (await import('@/models/User')).default;
+      return await U.findOne({ clerk_id: userId }, { wishlist: 1, subscription_tier: 1 }).lean();
+    })()
+  ]);
+
+  let wishlistedIds: string[] = [];
+  let isUserPro = false;
+  if (uinfo) {
+    wishlistedIds = (uinfo.wishlist || []).map(String);
+    isUserPro = uinfo.subscription_tier === 'pro';
+  }
 
   return (
     <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+        '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://shadowmerchant.in' },
+          { '@type': 'ListItem', position: 2, name: label, item: `https://shadowmerchant.in/category/${slug}` },
+        ]
+      })}} />
       <div className="mb-8">
         <div className="flex items-center gap-2 text-gray-500 text-sm mb-3">
           <span>Home</span> <span>/</span> <span className="text-white">{label}</span>
@@ -67,7 +94,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       {deals.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {deals.map((deal) => (
-            <DealCard key={deal._id} deal={deal} />
+            <DealCard key={deal._id} deal={deal} isUserPro={isUserPro} wishlistedIds={wishlistedIds} />
           ))}
         </div>
       ) : (

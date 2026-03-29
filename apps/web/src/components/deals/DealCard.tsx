@@ -1,5 +1,7 @@
 'use client';
 
+import { useAuth } from '@clerk/nextjs';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -14,12 +16,14 @@ interface DealCardProps {
   isUserPro?: boolean;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  wishlistedIds?: string[];
 }
 
-export function DealCard({ deal, isUserPro = false, size = 'md', className }: DealCardProps) {
+export function DealCard({ deal, isUserPro = false, size = 'md', className, wishlistedIds = [] }: DealCardProps) {
   const router = useRouter();
+  const { isSignedIn } = useAuth();
   const [imgError, setImgError] = useState(false);
-  const [wishlisted, setWishlisted] = useState(false);
+  const [wishlisted, setWishlisted] = useState(() => wishlistedIds.includes(String(deal._id)));
   const [scoreVisible, setScoreVisible] = useState(false);
   const scoreBarRef = useRef<HTMLDivElement>(null);
 
@@ -149,7 +153,20 @@ export function DealCard({ deal, isUserPro = false, size = 'md', className }: De
             'absolute bottom-2.5 right-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm transition-colors hover:bg-black/70',
             wishlisted && 'heart-active'
           )}
-          onClick={(e) => { e.preventDefault(); setWishlisted(w => !w); }}
+          onClick={async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!isSignedIn) { window.location.href = '/sign-in'; return; }
+            const next = !wishlisted;
+            setWishlisted(next);
+            try {
+              await fetch('/api/wishlist', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ deal_id: String(deal._id), action: next ? 'add' : 'remove' }),
+              });
+            } catch { setWishlisted(!next); }
+          }}
           aria-label="Save to wishlist"
         >
           <Heart className={cn('h-3.5 w-3.5', wishlisted ? 'fill-red-500 text-red-500' : 'text-white')} />
@@ -234,7 +251,7 @@ export function DealCard({ deal, isUserPro = false, size = 'md', className }: De
 
         {/* CTA — gold */}
         <a
-          href={deal.affiliate_url || '#'}
+          href={`/api/go/${deal._id}`}
           target="_blank"
           rel="noopener noreferrer"
           className="deal-card-cta relative z-10 flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-[13px] font-bold transition-all active:scale-[0.98]"

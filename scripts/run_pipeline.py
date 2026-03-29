@@ -118,8 +118,8 @@ def process_and_save(all_deals: list) -> int:
                     logger.debug(f"Skipping deal — missing required field: title={bool(title)} price={disc_price} url={bool(product_url)}")
                     continue
 
-                # ── is_pro_exclusive: True if score >= 85 ──────────────────
-                is_pro_exclusive = deal_score >= 85
+                # ── is_pro_exclusive: True if discount >= 40 ──────────────────
+                is_pro_exclusive = discount_pct >= 40
 
                 doc = {
                     "title":            title,
@@ -144,7 +144,16 @@ def process_and_save(all_deals: list) -> int:
 
                 result = db.deals.update_one(
                     {"affiliate_url": product_url},
-                    {"$set": doc, "$setOnInsert": {"created_at": datetime.utcnow(), "deal_id": str(__import__('uuid').uuid4())}},
+                    {
+                        "$set": doc,
+                        "$push": {
+                            "price_history": {
+                                "$each": [{"date": datetime.utcnow(), "price": disc_price}],
+                                "$slice": -30,
+                            }
+                        },
+                        "$setOnInsert": {"created_at": datetime.utcnow(), "deal_id": str(__import__('uuid').uuid4())}
+                    },
                     upsert=True,
                 )
                 if result.upserted_id or result.modified_count:

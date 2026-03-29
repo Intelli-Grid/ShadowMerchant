@@ -6,6 +6,6 @@ export const razorpay = new Razorpay({
 });
 
 export const PLAN_IDS = {
-  PRO_MONTHLY: 'plan_MONTHLY_ID',  // Replace with real Razorpay plan IDs
-  PRO_ANNUAL: 'plan_ANNUAL_ID',
+  PRO_MONTHLY: process.env.RAZORPAY_PLAN_MONTHLY!,
+  PRO_ANNUAL: process.env.RAZORPAY_PLAN_ANNUAL!,
 };

@@ -6,6 +6,7 @@ import { PriceHistoryChart } from '@/components/deals/PriceHistoryChart';
 import { PLATFORM_CONFIG } from '@/lib/platforms';
 import { ShieldCheck, Clock, ExternalLink, Activity, Sparkles, TrendingDown } from 'lucide-react';
 import { Deal } from '@/types';
+import { formatDistanceToNow } from 'date-fns';
 
 async function getDealDetails(id: string) {
   try {
@@ -247,12 +248,12 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                   </p>
                 </div>
                 <p className="text-xs font-medium mt-2 flex items-center gap-1 justify-center md:justify-start" style={{ color: 'var(--text-secondary)' }}>
-                  <Activity className="w-3.5 h-3.5" /> Checked 5 mins ago
+                  <Activity className="w-3.5 h-3.5" /> Checked {formatDistanceToNow(new Date(deal.scraped_at), { addSuffix: true })}
                 </p>
               </div>
               
               <a 
-                href={deal.affiliate_url}
+                href={`/api/go/${deal._id}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full md:w-auto flex items-center justify-center gap-2 h-16 px-10 rounded-xl font-bold text-lg transition-transform hover:scale-[1.02] active:scale-[0.98] z-10"

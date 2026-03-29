@@ -1,9 +1,11 @@
 import { DealCard } from '@/components/deals/DealCard';
 import { CategoryBrowser } from '@/components/CategoryBrowser';
+import { Badge } from '@/components/ui/badge';
 import { Deal } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
 import { connectDB } from '@/lib/db';
+import { auth } from '@clerk/nextjs/server';
 
 // Fetch the top 8 trending deals (is_trending=true, mix of free + pro)
 async function getTrendingDeals(): Promise<Deal[]> {
@@ -21,9 +23,37 @@ async function getTrendingDeals(): Promise<Deal[]> {
   }
 }
 
+async function getNewDealsToday(): Promise<Deal[]> {
+  try {
+    await connectDB();
+    const DealModel = (await import('@/models/Deal')).default;
+    const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const deals = await DealModel.find({ is_active: true, created_at: { $gte: last24h } })
+      .sort({ deal_score: -1 })
+      .limit(8)
+      .lean();
+    return JSON.parse(JSON.stringify(deals));
+  } catch (e) {
+    console.error('getNewDealsToday error:', e);
+    return [];
+  }
+}
+
 export default async function Home() {
-  // Trending deals are shown to everyone — no pro gating on homepage
+  // Trending deals and New Today deals
   const trendingDeals: Deal[] = await getTrendingDeals();
+  const newDeals: Deal[] = await getNewDealsToday();
+
+  const { userId } = await auth();
+  let wishlistedIds: string[] = [];
+  let isUserPro = false;
+  if (userId) {
+    await connectDB();
+    const U = (await import('@/models/User')).default;
+    const u = await U.findOne({ clerk_id: userId }, { wishlist: 1, subscription_tier: 1 }).lean();
+    wishlistedIds = (u?.wishlist || []).map(String);
+    isUserPro = u?.subscription_tier === 'pro';
+  }
 
   // Total savings across all trending deals
   const totalSavings = trendingDeals.reduce(
@@ -153,9 +183,7 @@ export default async function Home() {
         {trendingDeals.length > 0 ? (
           <div className="deal-card-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {trendingDeals.map((deal) => (
-              // isUserPro=true: trending deals are always fully visible on homepage
-              // The pro lock only appears on the Deal Feed page
-              <DealCard key={deal._id} deal={deal} isUserPro={true} />
+              <DealCard key={deal._id} deal={deal} isUserPro={isUserPro} wishlistedIds={wishlistedIds} />
             ))}
           </div>
         ) : (
@@ -169,19 +197,39 @@ export default async function Home() {
           </div>
         )}
       </section>
+
+      {/* New Today Grid */}
+      <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+        <div className="flex items-center justify-between mb-8">
+          <h2
+            className="text-2xl font-bold section-heading"
+            style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}
+          >
+            New Today
+          </h2>
+          <Link href="/deals/feed?sort=newest" className="gold-link text-sm font-semibold">
+            View All →
+          </Link>
+        </div>
+
+        {newDeals.length > 0 ? (
+          <div className="deal-card-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {newDeals.map((deal) => (
+              <DealCard key={deal._id} deal={deal} isUserPro={isUserPro} wishlistedIds={wishlistedIds} />
+            ))}
+          </div>
+        ) : (
+          <div
+            className="w-full h-40 flex items-center justify-center rounded-xl border"
+            style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}
+          >
+            <p className="font-medium" style={{ color: 'var(--text-muted)' }}>
+              No new deals found today.
+            </p>
+          </div>
+        )}
+      </section>
     </main>
   );
 }
 
-// Inline Badge component
-function Badge({ children, className, style, ...props }: React.HTMLAttributes<HTMLSpanElement> & { variant?: string; style?: React.CSSProperties }) {
-  return (
-    <span
-      className={`inline-flex items-center rounded-full text-xs transition-colors focus:outline-none ${className ?? ''}`}
-      style={style}
-      {...props}
-    >
-      {children}
-    </span>
-  );
-}

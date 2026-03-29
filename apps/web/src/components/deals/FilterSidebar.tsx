@@ -106,7 +106,7 @@ export function FilterSidebar() {
                   Any Store
                 </span>
               </label>
-              {['amazon', 'flipkart', 'myntra', 'nykaa'].map((plat) => (
+              {['amazon', 'flipkart', 'meesho', 'myntra', 'nykaa', 'croma'].map((plat) => (
                 <label key={plat} className="flex items-center gap-2 cursor-pointer group">
                   <input
                     type="radio"
