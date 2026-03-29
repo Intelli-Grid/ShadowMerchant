@@ -155,10 +155,10 @@ export default async function DealFeedPage({ searchParams }: { searchParams: Pro
                     style={{ fontFamily: 'var(--font-display)' }}
                   >
                     Unlock{' '}
-                    <span className="heading-gold">Pro Exclusives</span>
+                    <span className="heading-gold">Deal Intelligence</span>
                   </h3>
                   <p className="max-w-lg mt-2 font-medium" style={{ color: 'var(--text-secondary)' }}>
-                    Get instant WhatsApp alerts for price drops, access flash sales 30 minutes early, and unlock the highest-scored hidden deals.
+                    Know when to buy. Get instant WhatsApp alerts for price drops, view full 30-day price histories, and set custom deal rules.
                   </p>
                 </div>
 
@@ -167,7 +167,7 @@ export default async function DealFeedPage({ searchParams }: { searchParams: Pro
                   className="relative z-10 w-full md:w-auto text-center font-bold px-8 py-4 rounded-xl transition-all hover:scale-105 active:scale-95"
                   style={{ background: 'var(--gold)', color: '#0A0A0A' }}
                 >
-                  Start Pro Free Trial →
+                  Upgrade to Pro →
                 </Link>
               </div>
             </div>
