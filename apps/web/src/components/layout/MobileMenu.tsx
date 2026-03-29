@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Menu, Zap, Tag, MonitorSmartphone, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -14,7 +15,10 @@ const NAV_LINKS = [
 
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => { setMounted(true); }, []);
 
   // Close on route change
   useEffect(() => { setTimeout(() => setOpen(false), 0); }, [pathname]);
@@ -38,7 +42,9 @@ export function MobileMenu() {
         <Menu className="h-4 w-4" style={{ color: 'var(--text-primary)' }} />
       </button>
 
-      {/* Backdrop */}
+      {/* Portal to avoid backdrop-filter traps */}
+      {mounted && createPortal(
+        <>
       {open && (
         <div
           className="fixed inset-0 z-[199] backdrop-blur-sm"
@@ -146,6 +152,9 @@ export function MobileMenu() {
           </Link>
         </div>
       </div>
+      </>,
+      document.body
+      )}
     </>
   );
 }

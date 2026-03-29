@@ -69,7 +69,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
   return (
     <article
       className={cn(
-        'deal-card-enter group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-200 cursor-pointer',
+        'deal-card-enter group relative flex flex-row sm:flex-col overflow-hidden rounded-xl border transition-all duration-200 cursor-pointer',
         'hover:-translate-y-0.5',
         className
       )}
@@ -105,14 +105,17 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
       />
 
       {/* ── IMAGE SECTION ── */}
-      <div className="relative overflow-hidden" style={{ aspectRatio: '4/3', background: 'var(--bg-raised)' }}>
+      <div 
+        className="relative overflow-hidden shrink-0 w-[135px] min-h-[135px] flex items-center justify-center sm:w-full sm:min-h-0 sm:aspect-[4/3] border-r sm:border-r-0 sm:border-b" 
+        style={{ background: 'var(--bg-raised)', borderColor: 'var(--sm-border)' }}
+      >
         {deal.image_url && !imgError ? (
           <Image
             src={deal.image_url}
             alt={deal.title}
             fill
-            className="object-contain p-3 transition-transform duration-500 group-hover:scale-[1.06]"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 260px"
+            className="object-contain p-2 sm:p-3 transition-transform duration-500 group-hover:scale-[1.06]"
+            sizes="(max-width: 640px) 135px, (max-width: 1024px) 33vw, 260px"
             onError={() => setImgError(true)}
           />
         ) : (
@@ -122,19 +125,19 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           </div>
         )}
 
-        {/* Platform badge — top left */}
+        {/* Platform badge */}
         <span
-          className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1 rounded px-2 py-1 text-[10px] font-bold uppercase tracking-wider shadow-md"
+          className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-10 flex items-center gap-1 rounded px-1.5 py-0.5 sm:px-2 sm:py-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider shadow-md"
           style={{ background: platform.bg, color: platform.text }}
         >
           <span>{platform.emoji}</span>
-          {platform.name}
+          <span className="hidden sm:inline">{platform.name}</span>
         </span>
 
-        {/* Discount badge — top right — gold */}
+        {/* Discount badge — bottom left mobile, top right desktop */}
         <span
           className={cn(
-            'absolute top-2.5 right-2.5 z-10 rounded px-2 py-1 text-[11px] font-extrabold tracking-wide shadow-md',
+            'absolute bottom-2 left-2 sm:bottom-auto sm:top-2.5 sm:left-auto sm:right-2.5 z-10 rounded px-1.5 py-0.5 sm:px-2 sm:py-1 text-[10px] sm:text-[11px] font-extrabold tracking-wide shadow-md',
             isHot && 'badge-hot'
           )}
           style={{
@@ -149,7 +152,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
         {/* Wishlist button */}
         <button
           className={cn(
-            'absolute bottom-2.5 right-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm transition-colors hover:bg-black/70',
+            'absolute bottom-2 right-2 sm:bottom-2.5 sm:right-2.5 z-10 flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm transition-colors hover:bg-black/70',
             wishlisted && 'heart-active'
           )}
           onClick={async (e) => {
@@ -160,12 +163,12 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           }}
           aria-label="Save to wishlist"
         >
-          <Heart className={cn('h-3.5 w-3.5', wishlisted ? 'fill-red-500 text-red-500' : 'text-white')} />
+          <Heart className={cn('h-3 w-3 sm:h-3.5 sm:w-3.5', wishlisted ? 'fill-red-500 text-red-500' : 'text-white')} />
         </button>
       </div>
 
       {/* ── CONTENT SECTION ── */}
-      <div className={cn('flex flex-col flex-1 p-3.5', sizeClasses[size])}>
+      <div className={cn('flex flex-col flex-1 p-3 sm:p-3.5 min-w-0', sizeClasses[size])}>
 
         {/* Score row with tooltip */}
         <div className="mb-2.5 flex items-center gap-2 group/score relative" ref={scoreBarRef}>
@@ -245,7 +248,8 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           href={`/api/go/${deal._id}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="deal-card-cta relative z-10 flex items-center justify-center gap-1.5 rounded-lg px-4 py-2.5 text-[13px] font-bold transition-all active:scale-[0.98]"
+          className="deal-card-cta relative z-10 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-[13px] font-bold transition-all active:scale-[0.98] mt-2 sm:mt-0"
+
           style={{
             background: 'var(--gold)',
             color: '#0A0A0A',
