@@ -109,7 +109,7 @@ export function MobileMenu() {
             style={{ background: 'var(--sm-accent-dim)', color: 'var(--sm-accent)' }}
           >
             <Zap className="h-4 w-4" />
-            ✦ Pro Exclusives
+            ✦ Pro Features
           </Link>
 
           {/* Category quick links */}

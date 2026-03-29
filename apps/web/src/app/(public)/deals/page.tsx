@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import { DealCard } from '@/components/deals/DealCard';
 import { LoadMoreDeals } from '@/components/deals/LoadMoreDeals';
-import { UpgradeCTA } from '@/components/pro/UpgradeCTA';
 import { FilterSidebar } from '@/components/deals/FilterSidebar';
 import { Deal } from '@/types';
 import { auth } from '@clerk/nextjs/server';
@@ -141,11 +140,6 @@ export default async function DealsFeedPage({
                 {data.total} matches
               </span>
             </h1>
-          </div>
-
-          {/* Pro upsell banner */}
-          <div className="mb-8">
-            <UpgradeCTA />
           </div>
 
           {deals.length > 0 ? (

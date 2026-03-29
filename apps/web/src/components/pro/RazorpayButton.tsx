@@ -18,7 +18,7 @@ interface RazorpayButtonProps {
 }
 
 export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayButtonProps) {
-  const defaultLabel = plan === 'annual' ? 'Get Annual Plan — ₹2,099/yr' : 'Upgrade to Pro — ₹299/mo';
+  const defaultLabel = plan === 'annual' ? 'Get Annual Plan — ₹799/yr' : 'Upgrade to Pro — ₹99/mo';
   const displayLabel = label ?? defaultLabel;
   const [loading, setLoading] = useState(false);
   const router = useRouter();

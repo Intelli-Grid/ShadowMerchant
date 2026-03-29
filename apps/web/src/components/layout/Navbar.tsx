@@ -106,7 +106,7 @@ export function Navbar() {
           style={{ color: 'var(--gold)' }}
         >
           <Zap className="h-3.5 w-3.5" />
-          ✦ Pro Exclusives
+          ✦ Pro Features
         </Link>
       </div>
 
