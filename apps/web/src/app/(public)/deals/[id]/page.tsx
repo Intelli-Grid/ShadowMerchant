@@ -174,56 +174,13 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
               )}
             </div>
 
-            {/* Score Breakdown (Fix #20) */}
-            <div className="flex items-center gap-6 p-6 rounded-[24px] border" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>
-              <div className="flex flex-col items-center justify-center relative w-[80px] h-[80px]">
-                <svg className="w-full h-full transform -rotate-90 absolute" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="45" fill="none" strokeWidth="8" stroke="var(--bg-raised)" />
-                  <circle 
-                    cx="50" cy="50" r="45" 
-                    fill="none" 
-                    strokeWidth="8" 
-                    stroke={scoreConfig.color} 
-                    strokeDasharray="282.7" 
-                    strokeDashoffset={282.7 - (282.7 * (deal.deal_score ?? 0)) / 100}
-                    strokeLinecap="round"
-                    className="transition-all duration-1000 ease-out"
-                  />
-                </svg>
-                <span className="text-2xl font-black z-10" style={{ fontFamily: 'var(--font-display)', color: 'white' }}>
-                  {deal.deal_score}
-                </span>
-              </div>
-              
-              <div className="flex flex-col flex-1 gap-2 pl-2" style={{ borderLeft: '1px solid var(--sm-border)' }}>
-                <span className="text-xs tracking-wider uppercase font-bold" style={{ color: 'var(--text-secondary)' }}>
-                  Shadow Score Breakdown
-                </span>
-                {[
-                  { label: 'Discount Depth', value: Math.min(100, deal.discount_percent ?? 0) },
-                  { label: 'Customer Trust', value: Math.round((deal.rating ?? 0) / 5 * 100) },
-                  { label: 'Deal Velocity', value: deal.is_trending ? 90 : 55 },
-                ].map(({ label, value }) => (
-                  <div key={label} className="flex items-center gap-2">
-                    <span className="text-[10px] w-24 shrink-0" style={{ color: 'var(--text-muted)' }}>{label}</span>
-                    <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-raised)' }}>
-                      <div
-                        className="h-full rounded-full transition-all duration-700"
-                        style={{ width: `${value}%`, background: scoreConfig.color }}
-                      />
-                    </div>
-                    <span className="text-[10px] w-6 text-right font-bold" style={{ color: scoreConfig.color }}>{value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* Right Side: Product Meta & Purchase */}
-          <div className="lg:col-span-7 flex flex-col justify-center">
+          <div className="lg:col-span-7 flex flex-col justify-start">
             
             {/* Tag List */}
-            <div className="flex flex-wrap gap-2 items-center mb-6">
+            <div className="flex flex-wrap gap-2 items-center mb-3">
               <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider px-2.5 py-1.5 rounded" style={{ background: platform.bg, color: platform.text }}>
                 {platform.emoji} {platform.name}
               </span>
@@ -237,12 +194,13 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
               </span>
             </div>
 
-            <h1 className="text-3xl md:text-5xl font-black text-white mb-6 leading-tight tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>
+            {/* Readability Fixed Title */}
+            <h1 className="text-xl md:text-3xl font-medium text-white mb-3 leading-snug">
               {deal.title}
             </h1>
 
-            {/* Ratings & Trust & Sharing */}
-            <div className="flex flex-wrap items-center gap-4 mb-8">
+            {/* Ratings & Trust */}
+            <div className="flex flex-wrap items-center gap-4 mb-4 pb-4" style={{ borderBottom: '1px solid var(--sm-border)' }}>
               <div className="flex items-center gap-1.5 text-sm">
                 <div className="flex p-1.5 rounded" style={{ background: 'rgba(255,180,0,0.1)' }}>
                   <span className="font-black text-[#FFB400] text-sm leading-none pl-1">★ {deal.rating?.toFixed(1) || 'N/A'}</span>
@@ -253,7 +211,39 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
               <div className="flex items-center gap-1.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
                 <ShieldCheck className="w-4 h-4 text-blue-400" /> Inspected by ShadowMerchant
               </div>
-              <div className="h-4 w-px bg-gray-800 hidden sm:block"></div>
+            </div>
+
+            {/* Price & Primary Action (Amazon Look) */}
+            <div className="flex flex-col mb-6">
+              <div className="flex items-end gap-3 mb-1">
+                <span className="text-4xl md:text-5xl font-light text-red-500">
+                  -{Math.round(deal.discount_percent ?? 0)}%
+                </span>
+                <span className="text-4xl md:text-5xl font-bold text-white tracking-tighter flex items-start">
+                  <span className="text-2xl mt-1.5 mr-0.5">₹</span>{deal.discounted_price.toLocaleString('en-IN')}
+                </span>
+              </div>
+              <p className="text-sm font-semibold line-through text-gray-500 mb-6">
+                M.R.P.: ₹{deal.original_price.toLocaleString('en-IN')}
+              </p>
+              
+              <a 
+                href={`/api/go/${deal._id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full md:w-80 flex items-center justify-center gap-2 h-12 md:h-14 rounded-full font-bold text-base md:text-lg transition-all hover:brightness-105 active:scale-95"
+                style={{ background: '#FFD814', color: '#0F1111', border: '1px solid #FCD200' }}
+              >
+                Buy on {platform.name} <ExternalLink className="w-4 h-4" />
+              </a>
+
+              <p className="text-xs font-medium mt-3 flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
+                <Activity className="w-3.5 h-3.5 text-blue-400" /> Checked {formatDistanceToNow(new Date(deal.scraped_at), { addSuffix: true })}
+              </p>
+            </div>
+
+            {/* Share Tool */}
+            <div className="flex items-center gap-4 mb-8">
               <a 
                 href={`https://wa.me/?text=${encodeURIComponent(
                   `🔥 Found this deal on ShadowMerchant!\n\n${deal.title}\n` +
@@ -262,45 +252,13 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-sm font-bold px-3 py-1.5 rounded-full hover:scale-105 active:scale-95 transition-transform"
-                style={{ background: '#25D366', color: '#FFF' }}
+                className="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-full hover:scale-105 active:scale-95 transition-transform"
+                style={{ background: 'rgba(37, 211, 102, 0.1)', color: '#25D366', border: '1px solid rgba(37, 211, 102, 0.2)' }}
               >
                 <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
                 </svg>
-                Share
-              </a>
-            </div>
-
-            {/* The Buy Strip Box */}
-            <div 
-              className="p-6 md:p-8 rounded-[24px] border flex flex-col md:flex-row items-center justify-between mb-8 shadow-2xl relative overflow-hidden" 
-              style={{ background: 'linear-gradient(145deg, var(--bg-surface), #0f0f13)', borderColor: 'var(--sm-border)' }}
-            >
-              <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-[80px] opacity-10 pointer-events-none" style={{ background: scoreConfig.color }} />
-              
-              <div className="flex flex-col items-center md:items-start mb-6 md:mb-0 relative z-10 w-full md:w-auto text-center md:text-left">
-                <p className="text-sm font-semibold line-through mb-1 uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
-                  MSRP: ₹{deal.original_price.toLocaleString('en-IN')}
-                </p>
-                <div className="flex items-baseline gap-3 justify-center md:justify-start">
-                  <p className="text-5xl md:text-[56px] font-black text-white tracking-tighter" style={{ fontFamily: 'var(--font-display)' }}>
-                    ₹{deal.discounted_price.toLocaleString('en-IN')}
-                  </p>
-                </div>
-                <p className="text-xs font-medium mt-2 flex items-center gap-1 justify-center md:justify-start" style={{ color: 'var(--text-secondary)' }}>
-                  <Activity className="w-3.5 h-3.5" /> Checked {formatDistanceToNow(new Date(deal.scraped_at), { addSuffix: true })}
-                </p>
-              </div>
-              
-              <a 
-                href={`/api/go/${deal._id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full md:w-auto flex items-center justify-center gap-2 h-16 px-10 rounded-xl font-bold text-lg transition-transform hover:scale-[1.02] active:scale-[0.98] z-10"
-                style={{ background: platform.bg, color: platform.text }}
-              >
-                Buy on {platform.name} <ExternalLink className="w-5 h-5 opacity-90" />
+                Share on WhatsApp
               </a>
             </div>
 
@@ -312,6 +270,47 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 <span className="text-gray-400">Inventory and discounts are completely controlled by {platform.name}. Prices are guaranteed only at the exact time of algorithmic detection. Do not wait if the score is above 80.</span>
               </p>
             </div>
+
+            {/* Shadow Score Breakdown (Moved below disclaimer) */}
+            <div className="flex items-center gap-6 p-6 rounded-[24px] border mt-8 cursor-default hover:bg-white/5 transition-colors" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>
+              <div className="flex flex-col items-center justify-center relative w-[60px] h-[60px] shrink-0">
+                <svg className="w-full h-full transform -rotate-90 absolute" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="45" fill="none" strokeWidth="8" stroke="var(--bg-raised)" />
+                  <circle 
+                    cx="50" cy="50" r="45" 
+                    fill="none" 
+                    strokeWidth="8" 
+                    stroke={scoreConfig.color} 
+                    strokeDasharray="282.7" 
+                    strokeDashoffset={282.7 - (282.7 * (deal.deal_score ?? 0)) / 100}
+                    strokeLinecap="round"
+                    className="transition-all duration-1000 ease-out"
+                  />
+                </svg>
+                <span className="text-xl font-black z-10" style={{ fontFamily: 'var(--font-display)', color: 'white' }}>
+                  {deal.deal_score}
+                </span>
+              </div>
+              
+              <div className="flex flex-col flex-1 gap-1.5 pl-2" style={{ borderLeft: '1px solid var(--sm-border)' }}>
+                <span className="text-[10px] tracking-wider uppercase font-bold" style={{ color: 'var(--text-secondary)' }}>
+                  Shadow Score Breakdown
+                </span>
+                {[
+                  { label: 'Discount', value: Math.min(100, deal.discount_percent ?? 0) },
+                  { label: 'Trust', value: Math.round((deal.rating ?? 0) / 5 * 100) },
+                  { label: 'Velocity', value: deal.is_trending ? 90 : 55 },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-center gap-2">
+                    <span className="text-[10px] w-12 shrink-0" style={{ color: 'var(--text-muted)' }}>{label}</span>
+                    <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-raised)' }}>
+                      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${value}%`, background: scoreConfig.color }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
 

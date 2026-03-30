@@ -135,10 +135,10 @@ export function Navbar() {
         {/* Auth */}
         {/* Auth */}
         {isLoaded && isSignedIn ? (
-          <div className="hidden sm:flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/dashboard"
-              className="h-8 w-8 flex items-center justify-center rounded-lg transition-colors hover:opacity-80"
+              className="h-8 w-8 hidden sm:flex items-center justify-center rounded-lg transition-colors hover:opacity-80"
               style={{ background: 'var(--bg-raised)', border: '1px solid var(--sm-border)' }}
               aria-label="Dashboard"
             >
@@ -153,10 +153,10 @@ export function Navbar() {
             />
           </div>
         ) : isLoaded ? (
-          <div className="hidden sm:flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <SignInButton mode="modal">
               <button
-                className="text-sm font-semibold transition-opacity hover:opacity-80"
+                className="hidden sm:block text-sm font-semibold transition-opacity hover:opacity-80"
                 style={{ color: 'var(--text-secondary)' }}
               >
                 Log in
@@ -164,7 +164,7 @@ export function Navbar() {
             </SignInButton>
             <SignInButton mode="modal">
               <button
-                className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-bold transition-all"
+                className="flex items-center gap-1.5 rounded-lg px-2 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-sm font-bold transition-all whitespace-nowrap"
                 style={{ background: 'var(--gold)', color: '#0A0A0A' }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(201,168,76,0.35)';
