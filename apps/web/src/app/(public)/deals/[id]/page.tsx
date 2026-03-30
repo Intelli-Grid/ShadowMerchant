@@ -153,28 +153,29 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
           
           {/* Left Side: Product Shot Container */}
           <div className="lg:col-span-5 w-full flex flex-col gap-6">
-            <div 
-              className="bg-white rounded-[32px] aspect-square relative p-12 shadow-2xl overflow-hidden group"
-              style={{ boxShadow: `0 32px 64px -16px rgba(0,0,0,0.4), 0 0 0 1px ${platform.borderColor}50` }}
-            >
-              {/* Internal brand glow */}
+            <div className="sticky top-24">
               <div 
-                className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity" 
-                style={{ background: `radial-gradient(circle at center, ${platform.bg} 0%, transparent 70%)` }} 
-              />
-              {deal.image_url ? (
-                <Image
-                  src={deal.image_url}
-                  alt={deal.title}
-                  fill
-                  className="object-contain mix-blend-multiply p-12 transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                  priority
+                className="bg-white rounded-[32px] aspect-square relative p-12 shadow-2xl overflow-hidden group"
+                style={{ boxShadow: `0 32px 64px -16px rgba(0,0,0,0.4), 0 0 0 1px ${platform.borderColor}50` }}
+              >
+                {/* Internal brand glow */}
+                <div 
+                  className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity" 
+                  style={{ background: `radial-gradient(circle at center, ${platform.bg} 0%, transparent 70%)` }} 
                 />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-8xl opacity-80">{platform.emoji}</div>
-              )}
+                {deal.image_url ? (
+                  <Image
+                    src={deal.image_url}
+                    alt={deal.title}
+                    fill
+                    className="object-contain mix-blend-multiply p-12 transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                    priority
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-8xl opacity-80">{platform.emoji}</div>
+                )}
+              </div>
             </div>
-
           </div>
 
           {/* Right Side: Product Meta & Purchase */}
@@ -186,13 +187,10 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 {platform.emoji} {platform.name}
               </span>
               {deal.is_pro_exclusive && (
-                <span className="flex items-center gap-1text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full" style={{ background: 'var(--sm-accent-dim)', color: 'var(--sm-accent)' }}>
+                <span className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-full" style={{ background: 'var(--sm-accent-dim)', color: 'var(--sm-accent)' }}>
                   <Sparkles className="w-3.5 h-3.5" /> PRO EXCLUSIVE
                 </span>
               )}
-              <span className="flex items-center gap-1.5 text-xs font-black px-3 py-1.5 rounded uppercase" style={{ background: 'var(--score-high)', color: '#000' }}>
-                <TrendingDown className="w-4 h-4" /> {deal.discount_percent}% OFF
-              </span>
             </div>
 
             {/* Readability Fixed Title */}
@@ -232,7 +230,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 href={`/api/go/${deal._id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full md:w-80 flex items-center justify-center gap-2 h-12 md:h-14 rounded-full font-bold text-base md:text-lg transition-all hover:brightness-105 active:scale-95"
+                className="fixed bottom-4 left-4 right-4 z-50 md:relative md:w-80 flex items-center justify-center gap-2 h-14 md:h-14 rounded-full font-bold text-base md:text-lg transition-transform active:scale-95 shadow-2xl md:shadow-none"
                 style={{ background: '#FFD814', color: '#0F1111', border: '1px solid #FCD200' }}
               >
                 Buy on {platform.name} <ExternalLink className="w-4 h-4" />

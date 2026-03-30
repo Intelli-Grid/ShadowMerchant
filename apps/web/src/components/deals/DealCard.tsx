@@ -96,47 +96,34 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
 
       {/* ── IMAGE SECTION ── */}
       <div 
-        className="relative overflow-hidden shrink-0 w-full flex items-center justify-center aspect-square md:aspect-[4/3] border-b" 
-        style={{ background: 'var(--bg-raised)', borderColor: 'var(--sm-border)' }}
+        className="relative overflow-hidden shrink-0 w-full flex items-center justify-center aspect-square md:aspect-[4/3] border-b p-2 sm:p-3" 
+        style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}
       >
-        {deal.image_url && !imgError ? (
-          <Image
-            src={deal.image_url}
-            alt={deal.title}
-            fill
-            className="object-contain p-2 sm:p-3 transition-transform duration-500 group-hover:scale-[1.06]"
-            sizes="(max-width: 640px) 135px, (max-width: 1024px) 33vw, 260px"
-            onError={() => setImgError(true)}
-          />
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center gap-2" style={{ background: 'var(--bg-raised)' }}>
-            <span className="text-4xl">{platform.emoji}</span>
-            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{platform.name}</span>
-          </div>
-        )}
+        <div className="relative w-full h-full bg-white rounded-lg shadow-inner overflow-hidden flex items-center justify-center">
+          {deal.image_url && !imgError ? (
+            <Image
+              src={deal.image_url}
+              alt={deal.title}
+              fill
+              className="object-contain mix-blend-multiply p-2 transition-transform duration-300 group-hover:scale-[1.05]"
+              sizes="(max-width: 640px) 135px, (max-width: 1024px) 33vw, 260px"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-black/50">
+              <span className="text-4xl opacity-80">{platform.emoji}</span>
+              <span className="text-xs font-semibold">{platform.name}</span>
+            </div>
+          )}
+        </div>
 
         {/* Platform badge */}
         <span
-          className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 z-10 flex items-center gap-1 rounded px-1.5 py-0.5 sm:px-2 sm:py-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider shadow-md"
+          className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 flex items-center gap-1 rounded px-1.5 py-0.5 sm:px-2 sm:py-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider shadow-md"
           style={{ background: platform.bg, color: platform.text }}
         >
           <span>{platform.emoji}</span>
           <span className="hidden sm:inline">{platform.name}</span>
-        </span>
-
-        {/* Discount badge */}
-        <span
-          className={cn(
-            'absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-10 rounded px-1.5 py-0.5 sm:px-2 sm:py-1 text-[10px] sm:text-[11px] font-extrabold tracking-wide shadow-md',
-            isHot && 'badge-hot'
-          )}
-          style={{
-            background: 'var(--gold)',
-            color: '#0A0A0A',
-            boxShadow: isHot ? '0 0 12px rgba(201,168,76,0.5)' : 'none',
-          }}
-        >
-          {deal.discount_percent}% OFF
         </span>
 
         {/* Wishlist button */}
@@ -219,18 +206,28 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
         )}
 
         {/* Pricing */}
-        <div className="flex items-baseline gap-2 mt-auto mb-2.5">
+        <div className="flex flex-col mt-auto mb-3 gap-0.5">
+          <div className="flex items-center gap-2">
+            <span
+              className="font-black price-display tracking-tight"
+              style={{ fontSize: size === 'lg' ? '22px' : '19px', color: 'var(--text-primary)' }}
+            >
+              {formatPrice(deal.discounted_price)}
+            </span>
+            {Math.round(deal.discount_percent ?? 0) > 0 && (
+              <span 
+                className={cn("text-[10px] sm:text-[11px] font-bold px-1.5 py-0.5 rounded", isHot && "animate-pulse")}
+                style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444' }}
+              >
+                {Math.round(deal.discount_percent)}% OFF
+              </span>
+            )}
+          </div>
           {deal.original_price > 0 && (
-            <span className="text-xs line-through" style={{ color: 'var(--text-muted)' }}>
-              {formatPrice(deal.original_price)}
+            <span className="text-[11px] sm:text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
+              M.R.P: <span className="line-through">{formatPrice(deal.original_price)}</span>
             </span>
           )}
-          <span
-            className="font-bold price-display"
-            style={{ fontSize: size === 'lg' ? '22px' : '18px', color: 'var(--text-primary)' }}
-          >
-            {formatPrice(deal.discounted_price)}
-          </span>
         </div>
 
         {/* CTA — gold */}
