@@ -36,12 +36,24 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
       if (!res.ok) {
         const err = await res.json();
         alert(err.error || 'Failed to start subscription.');
+        setLoading(false);
         return;
       }
 
       const { subscription_id } = await res.json();
 
-      // 2 — Load Razorpay checkout
+      // 2 — Wait for Razorpay checkout.js to load (it's loaded async)
+      await new Promise<void>((resolve, reject) => {
+        if (window.Razorpay) return resolve();
+        const script = document.querySelector('script[src*="checkout.razorpay.com"]');
+        if (!script) return reject(new Error('Razorpay script not found'));
+        script.addEventListener('load', () => resolve());
+        script.addEventListener('error', () => reject(new Error('Razorpay failed to load')));
+        // Timeout after 8 seconds
+        setTimeout(() => reject(new Error('Razorpay load timeout')), 8000);
+      });
+
+      // 3 — Open Razorpay checkout modal
       const rzp = new window.Razorpay({
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         subscription_id,
@@ -58,10 +70,9 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
       });
 
       rzp.open();
-    } catch (err) {
-      console.error(err);
-      alert('Something went wrong. Please try again.');
-    } finally {
+    } catch (err: any) {
+      console.error('[RazorpayButton]', err);
+      alert(err.message || 'Something went wrong. Please try again.');
       setLoading(false);
     }
   };
