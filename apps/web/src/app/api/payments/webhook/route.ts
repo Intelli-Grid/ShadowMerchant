@@ -25,34 +25,39 @@ export async function POST(req: NextRequest) {
   await connectDB();
 
   switch (eventType) {
-    case 'subscription.activated': {
-      const sub = payload.subscription.entity;
-      await User.findOneAndUpdate(
-        { subscription_id: sub.id },
-        {
-          subscription_tier: 'pro',
-          subscription_status: 'active',
-          subscription_expires_at: new Date(sub.current_end * 1000),
-        }
-      );
-      console.log(`[Webhook] Pro activated for subscription ${sub.id}`);
-      break;
-    }
-
+    case 'subscription.updated':
+    case 'subscription.activated':
     case 'subscription.charged': {
       const sub = payload.subscription.entity;
-      await User.findOneAndUpdate(
-        { subscription_id: sub.id },
-        {
-          subscription_tier: 'pro',
-          subscription_status: 'active',
-          subscription_expires_at: new Date(sub.current_end * 1000),
-        }
-      );
-      console.log(`[Webhook] Subscription renewed: ${sub.id}`);
+      
+      // If the update pushed it into an inactive state, downgrade the user
+      if (['cancelled', 'completed', 'expired', 'halted'].includes(sub.status)) {
+        await User.findOneAndUpdate(
+          { subscription_id: sub.id },
+          {
+            subscription_tier: 'free',
+            subscription_status: sub.status,
+          }
+        );
+        console.log(`[Webhook] Subscription ended via update (${sub.status}): ${sub.id}`);
+      } 
+      // If it is active, unlock Pro features
+      else if (sub.status === 'active') {
+        await User.findOneAndUpdate(
+          { subscription_id: sub.id },
+          {
+            subscription_tier: 'pro',
+            subscription_status: 'active',
+            subscription_expires_at: new Date(sub.current_end * 1000),
+          }
+        );
+        console.log(`[Webhook] Pro active/renewed for subscription ${sub.id}`);
+      }
       break;
     }
 
+    case 'subscription.completed':
+    case 'subscription.halted':
     case 'subscription.cancelled':
     case 'subscription.expired': {
       const sub = payload.subscription.entity;
@@ -60,10 +65,10 @@ export async function POST(req: NextRequest) {
         { subscription_id: sub.id },
         {
           subscription_tier: 'free',
-          subscription_status: eventType === 'subscription.cancelled' ? 'cancelled' : 'expired',
+          subscription_status: sub.status || 'cancelled',
         }
       );
-      console.log(`[Webhook] Subscription ended: ${sub.id}`);
+      console.log(`[Webhook] Subscription terminated (${sub.status}): ${sub.id}`);
       break;
     }
 
