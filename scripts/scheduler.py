@@ -284,11 +284,33 @@ def start_scheduler():
     schedule.every().day.at("15:00").do(job)   # 20:30 IST
     schedule.every().day.at("04:00").do(email_job)  # 09:30 IST
 
-    logger.info("Scheduler running — 2x daily at 06:30 and 20:30 IST. Press Ctrl+C to stop.")
+    logger.info("Scheduler loop initialized.")
     while True:
         schedule.run_pending()
         time.sleep(30)
 
+
+def start_web_server():
+    """Start a lightweight web server to satisfy Cloud Platform health checks (Render, Railway)."""
+    try:
+        from flask import Flask, jsonify
+    except ImportError:
+        logger.warning("Flask not installed. Health-check endpoint will not start. (pip install Flask)")
+        return
+
+    app = Flask(__name__)
+
+    @app.route('/')
+    def health_check():
+        return jsonify({
+            "status": "online",
+            "service": "ShadowMerchant Intelligence Scraper",
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
+    port = int(os.environ.get("PORT", 8765))
+    logger.info(f"🌐 Starting Health-Check server on port {port}...")
+    app.run(host="0.0.0.0", port=port, use_reloader=False)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="ShadowMerchant Deal Scheduler")
@@ -310,4 +332,10 @@ if __name__ == "__main__":
         stats = run_pipeline(args.scrapers)
         print(f"\nRun complete: {stats['saved']} deals saved in {stats['elapsed_seconds']}s")
     else:
-        start_scheduler()
+        # Run the scheduler in a background thread
+        import threading
+        scheduler_thread = threading.Thread(target=start_scheduler, daemon=True)
+        scheduler_thread.start()
+
+        # Run the Flask web server on the main thread
+        start_web_server()
