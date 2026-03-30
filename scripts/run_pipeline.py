@@ -278,6 +278,16 @@ def main():
     elapsed = (datetime.utcnow() - start).seconds
     logger.info(f"✅ Pipeline complete — {saved} deals saved in {elapsed}s")
 
+    # Run Algolia sync so manual pipeline execution stays consistent with the chron scheduler
+    if saved > 0 and not args.no_save:
+        try:
+            import subprocess
+            logger.info("🔄 Triggering Algolia synchronization...")
+            subprocess.run([sys.executable, "index_algolia.py"],
+                cwd=str(Path(__file__).parent), capture_output=True, timeout=120)
+            logger.info("✅ Algolia sync complete")
+        except Exception as e:
+            logger.error(f"❌ Algolia sync failed: {e}")
 
 if __name__ == "__main__":
     main()
