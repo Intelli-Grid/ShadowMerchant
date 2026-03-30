@@ -67,19 +67,6 @@ export default async function Home() {
       {/* Hero Section */}
       <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-20 text-center">
 
-        {/* Logo mark above hero */}
-        <div className="flex justify-center mb-8">
-          <div className="relative w-24 h-24 logo-breathe">
-            <Image
-              src="/logo.png"
-              alt="ShadowMerchant"
-              fill
-              className="object-contain"
-              priority
-            />
-          </div>
-        </div>
-
         {/* Live deal counter */}
         {trendingDeals.length > 0 && (
           <div
@@ -178,7 +165,7 @@ export default async function Home() {
         </div>
 
         {trendingDeals.length > 0 ? (
-          <div className="deal-card-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="deal-card-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             {trendingDeals.map((deal) => (
               <DealCard key={deal._id} deal={deal} />
             ))}
@@ -210,7 +197,7 @@ export default async function Home() {
         </div>
 
         {newDeals.length > 0 ? (
-          <div className="deal-card-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="deal-card-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
             {newDeals.map((deal) => (
               <DealCard key={deal._id} deal={deal} />
             ))}

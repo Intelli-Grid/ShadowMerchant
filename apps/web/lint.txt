@@ -1,0 +1,124 @@
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\app\(auth)\alerts\page.tsx
+  66:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\app\(auth)\dashboard\page.tsx
+   30:62  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  125:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\app\(public)\deals\[id]\page.tsx
+   36:89   warning  'parent' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  105:107  error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\app\(public)\deals\[id]\page.tsx:105:107
+  103 |       priceCurrency: 'INR',
+  104 |       price: deal.discounted_price,
+> 105 |       priceValidUntil: deal.expires_at ? new Date(deal.expires_at).toISOString().split('T')[0] : new Date(Date.now() + 86400000).toISOString().split('T')[0],
+      |                                                                                                           ^^^^^^^^^^ Cannot call impure function
+  106 |       itemCondition: 'https://schema.org/NewCondition',
+  107 |       availability: deal.is_active ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+  108 |       seller: {  react-hooks/purity
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\app\(public)\deals\feed\page.tsx
+    1:10  warning  'DealCard' is defined but never used            @typescript-eslint/no-unused-vars
+    6:10  warning  'Deal' is defined but never used                @typescript-eslint/no-unused-vars
+   19:22  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+   52:38  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+   59:28  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  100:94  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  101:7   warning  'isUserPro' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  126:29  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\app\(public)\deals\page.tsx
+   8:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  44:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\app\api\cron\refresh-deals\route.ts
+  49:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\app\api\deals\category-feed\route.ts
+  38:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  58:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  78:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\app\api\deals\route.ts
+  23:16  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  32:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\app\api\payments\create-subscription\route.ts
+  20:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  31:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\app\api\webhooks\clerk\route.ts
+  33:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  58:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\app\sitemap.ts
+  43:12  warning  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\components\CategoryBrowser.tsx
+  5:61  warning  'Smartphone' is defined but never used    @typescript-eslint/no-unused-vars
+  7:45  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\components\SplashScreen.tsx
+  13:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\components\SplashScreen.tsx:13:7
+  11 |     const seen = localStorage.getItem('sm_splash_seen');
+  12 |     if (!seen) {
+> 13 |       setVisible(true);
+     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |       // Start fade-out at 1.8s, fully hide at 2.2s
+  15 |       const fadeTimer = setTimeout(() => setFading(true), 1800);
+  16 |       const hideTimer = setTimeout(() => {  react-hooks/set-state-in-effect
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\components\deals\PriceHistoryChart.tsx
+   36:74  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  103:32  error  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\components\layout\MobileMenu.tsx
+  20:21  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\components\layout\MobileMenu.tsx:20:21
+  18 |
+  19 |   // Close on route change
+> 20 |   useEffect(() => { setOpen(false); }, [pathname]);
+     |                     ^^^^^^^ Avoid calling setState() directly within an effect
+  21 |
+  22 |   // Lock body scroll when open
+  23 |   useEffect(() => {  react-hooks/set-state-in-effect
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\components\pro\RazorpayButton.tsx
+  10:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\lib\db.ts
+   3:5   error  'cached' is never reassigned. Use 'const' instead  prefer-const
+   3:25  error  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  14:14  error  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+
+E:\Awesome Projects\ShadowMerchant\apps\web\src\lib\redis.ts
+  6:16  warning  '_key' is defined but never used      @typescript-eslint/no-unused-vars
+  7:16  warning  '_key' is defined but never used      @typescript-eslint/no-unused-vars
+  7:30  warning  '_val' is defined but never used      @typescript-eslint/no-unused-vars
+  7:45  warning  '_opts' is defined but never used     @typescript-eslint/no-unused-vars
+  8:16  warning  '_pattern' is defined but never used  @typescript-eslint/no-unused-vars
+  9:19  warning  '_keys' is defined but never used     @typescript-eslint/no-unused-vars
+
+✖ 43 problems (31 errors, 12 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

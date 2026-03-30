@@ -133,11 +133,12 @@ export function Navbar() {
         </div>
 
         {/* Auth */}
+        {/* Auth */}
         {isLoaded && isSignedIn ? (
-          <>
+          <div className="hidden sm:flex items-center gap-3">
             <Link
               href="/dashboard"
-              className="hidden md:flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:opacity-80"
+              className="h-8 w-8 flex items-center justify-center rounded-lg transition-colors hover:opacity-80"
               style={{ background: 'var(--bg-raised)', border: '1px solid var(--sm-border)' }}
               aria-label="Dashboard"
             >
@@ -150,12 +151,12 @@ export function Navbar() {
                 },
               }}
             />
-          </>
+          </div>
         ) : isLoaded ? (
-          <>
+          <div className="hidden sm:flex items-center gap-3">
             <SignInButton mode="modal">
               <button
-                className="hidden md:block text-sm font-semibold transition-opacity hover:opacity-80"
+                className="text-sm font-semibold transition-opacity hover:opacity-80"
                 style={{ color: 'var(--text-secondary)' }}
               >
                 Log in
@@ -163,7 +164,7 @@ export function Navbar() {
             </SignInButton>
             <SignInButton mode="modal">
               <button
-                className="hidden sm:flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-bold transition-all"
+                className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-bold transition-all"
                 style={{ background: 'var(--gold)', color: '#0A0A0A' }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(201,168,76,0.35)';
@@ -175,7 +176,7 @@ export function Navbar() {
                 Get Pro →
               </button>
             </SignInButton>
-          </>
+          </div>
         ) : null}
 
         {/* Mobile menu */}

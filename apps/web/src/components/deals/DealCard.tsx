@@ -69,7 +69,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
   return (
     <article
       className={cn(
-        'deal-card-enter group relative flex flex-row sm:flex-col overflow-hidden rounded-xl border transition-all duration-200 cursor-pointer',
+        'deal-card-enter group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-200 cursor-pointer',
         'hover:-translate-y-0.5',
         className
       )}
@@ -106,7 +106,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
 
       {/* ── IMAGE SECTION ── */}
       <div 
-        className="relative overflow-hidden shrink-0 w-[135px] min-h-[135px] flex items-center justify-center sm:w-full sm:min-h-0 sm:aspect-[4/3] border-r sm:border-r-0 sm:border-b" 
+        className="relative overflow-hidden shrink-0 w-full flex items-center justify-center aspect-square md:aspect-[4/3] border-b" 
         style={{ background: 'var(--bg-raised)', borderColor: 'var(--sm-border)' }}
       >
         {deal.image_url && !imgError ? (
@@ -134,10 +134,10 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           <span className="hidden sm:inline">{platform.name}</span>
         </span>
 
-        {/* Discount badge — bottom left mobile, top right desktop */}
+        {/* Discount badge */}
         <span
           className={cn(
-            'absolute bottom-2 left-2 sm:bottom-auto sm:top-2.5 sm:left-auto sm:right-2.5 z-10 rounded px-1.5 py-0.5 sm:px-2 sm:py-1 text-[10px] sm:text-[11px] font-extrabold tracking-wide shadow-md',
+            'absolute top-2 right-2 sm:top-2.5 sm:right-2.5 z-10 rounded px-1.5 py-0.5 sm:px-2 sm:py-1 text-[10px] sm:text-[11px] font-extrabold tracking-wide shadow-md',
             isHot && 'badge-hot'
           )}
           style={{

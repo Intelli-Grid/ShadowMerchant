@@ -9,8 +9,6 @@ import { cn } from '@/lib/utils';
 
 const NAV_LINKS = [
   { href: '/deals', label: 'Top Deals', icon: Tag },
-  { href: '/category/electronics', label: 'Electronics', icon: MonitorSmartphone },
-  { href: '/category/fashion', label: 'Fashion', icon: Sparkles },
 ];
 
 export function MobileMenu() {

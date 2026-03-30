@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { ChevronDown, Filter } from 'lucide-react';
 
 const UNIVERSAL_CATEGORIES = [
   'electronics', 'fashion', 'beauty', 'home', 'sports', 'books',
@@ -14,6 +15,7 @@ const inputCls = 'w-4 h-4'; // accent-gold via CSS
 export function FilterSidebar() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isOpen, setIsOpen] = useState(false);
 
   const currentCat = searchParams.get('category') || 'all';
   const currentPlat = searchParams.get('platform') || 'all';
@@ -38,8 +40,22 @@ export function FilterSidebar() {
 
   return (
     <aside className="w-full md:w-64 flex-shrink-0">
+      
+      {/* Mobile Toggle Button */}
+      <button 
+        className="md:hidden w-full p-4 rounded-xl flex items-center justify-between font-bold mb-4"
+        style={{ background: 'var(--bg-raised)', border: '1px solid var(--sm-border)' }}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="flex items-center gap-2"><Filter className="w-4 h-4 text-[var(--gold)]" /> Filters & Sort</span>
+        <ChevronDown className={cn("transition-transform w-5 h-5", isOpen ? "rotate-180" : "")} />
+      </button>
+
       <div
-        className="p-6 rounded-xl sticky top-24"
+        className={cn(
+          "p-6 rounded-xl md:sticky md:top-24 transition-all",
+          !isOpen && "hidden md:block"
+        )}
         style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)' }}
       >
         <div className="flex items-center justify-between mb-5">
