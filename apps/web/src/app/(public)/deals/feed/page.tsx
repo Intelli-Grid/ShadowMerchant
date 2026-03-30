@@ -3,7 +3,6 @@ import { BentoGrid } from '@/components/BentoGrid';
 import { PlatformFilter } from '@/components/PlatformFilter';
 import { CategorySwimlane } from '@/components/CategorySwimlane';
 import Link from 'next/link';
-import { auth } from '@clerk/nextjs/server';
 import { connectDB } from '@/lib/db';
 
 export const revalidate = 21600; // ISR cache logic: 6 hours matches scrape frequency

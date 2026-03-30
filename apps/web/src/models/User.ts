@@ -6,6 +6,7 @@ const UserSchema = new Schema({
   name: String,
   subscription_tier: { type: String, enum: ['free', 'pro'], default: 'free' },
   subscription_id: String,
+  subscription_status: { type: String, enum: ['created', 'authenticated', 'active', 'pending', 'halted', 'cancelled', 'completed', 'expired', 'paused'] },
   subscription_expires_at: Date,
   wishlist: [{ type: String }], // deal_ids
   alert_preferences: {

@@ -86,16 +86,6 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
         e.currentTarget.style.setProperty('--cursor-y', `${e.clientY - rect.top}px`);
       }}
     >
-      {/* Gold hover glow border effect */}
-      <style jsx>{`
-        article:hover {
-          border-color: rgba(201, 168, 76, 0.3);
-          box-shadow:
-            0 16px 40px rgba(0, 0, 0, 0.5),
-            0 0 0 1px rgba(201, 168, 76, 0.1),
-            0 0 24px rgba(201, 168, 76, 0.04);
-        }
-      `}</style>
 
       {/* Invisible full-card link */}
       <Link

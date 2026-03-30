@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
   if (pro_only) query.is_pro_exclusive = true;
 
   const sortMap: Record<string, any> = {
-    newest: { published_at: -1 },
+    newest: { scraped_at: -1 },
     discount: { discount_percent: -1 },
     score: { deal_score: -1 },
   };

@@ -30,11 +30,11 @@ export interface Deal {
   score_breakdown?: {
     discount_score: number;
     price_drop_score: number;
-    staleness_penalty: number;
     popularity_score: number;
-    base_rating_score: number;
+    rating_score: number;
+    freshness_score: number;
   };
-  alternate_links?: { platform: string; url: string; price: number }[];
+  alternate_links?: { source: string; url: string; price: number }[];
   title_normalized?: string;
   click_count?: number;
   view_count?: number;

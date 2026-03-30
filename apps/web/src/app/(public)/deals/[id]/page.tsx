@@ -8,6 +8,7 @@ import { PLATFORM_CONFIG } from '@/lib/platforms';
 import { ShieldCheck, Clock, ExternalLink, Activity, Sparkles, TrendingDown } from 'lucide-react';
 import { Deal } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 async function getDealDetails(id: string) {
   try {
@@ -333,7 +334,8 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                   className="p-6 md:p-8 rounded-[24px] border" 
                   style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}
                 >
-                  <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-a:text-[var(--sm-accent)] text-gray-300" dangerouslySetInnerHTML={{ __html: deal.description }} />
+                  {/* sanitizeHtml strips script tags, on* handlers, and javascript: links before render */}
+                  <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-a:text-[var(--sm-accent)] text-gray-300" dangerouslySetInnerHTML={{ __html: sanitizeHtml(deal.description) }} />
                 </div>
               </div>
             )}

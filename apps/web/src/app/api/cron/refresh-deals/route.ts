@@ -5,13 +5,22 @@ import { NextRequest, NextResponse } from 'next/server';
  *
  * Called by Vercel Cron 2x/day after the GitHub Actions pipeline completes.
  * Deactivates stale deals and clears Redis cache so fresh data is served.
+ *
+ * Security: Always requires a valid Bearer CRON_SECRET header.
+ * CRON_SECRET must be set in environment variables — returns 500 if missing.
  */
 
-const CRON_SECRET = process.env.CRON_SECRET;
-
 export async function POST(req: NextRequest) {
+  const CRON_SECRET = process.env.CRON_SECRET;
+
+  // Always require CRON_SECRET to be configured
+  if (!CRON_SECRET) {
+    console.error('[cron/refresh-deals] CRON_SECRET env var is not set!');
+    return NextResponse.json({ error: 'Server misconfiguration: CRON_SECRET missing' }, { status: 500 });
+  }
+
   const authHeader = req.headers.get('authorization');
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  if (authHeader !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -33,7 +42,7 @@ export async function POST(req: NextRequest) {
     const keysToDelete = [
       CACHE_KEYS.TRENDING_DEALS,
       CACHE_KEYS.CATEGORIES,
-      CACHE_KEYS.DEAL_LIST(''),   // base list key
+      CACHE_KEYS.DEAL_LIST(''),
     ];
     await Promise.allSettled(keysToDelete.map((k) => redis.del(k)));
 
@@ -52,7 +61,3 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Allow GET for manual browser testing
-export async function GET(req: NextRequest) {
-  return POST(req);
-}

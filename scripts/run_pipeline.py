@@ -144,7 +144,7 @@ def process_and_save(all_deals: list) -> int:
         from processors.deal_scorer import score_deal_with_breakdown
         from processors.deduplicator import deduplicate_deals
 
-        client = pymongo.MongoClient(os.getenv("MONGO_URI"), serverSelectionTimeoutMS=10000)
+        client = pymongo.MongoClient(os.getenv("MONGODB_URI"), serverSelectionTimeoutMS=10000)
         db = client.shadowmerchant
 
         # ── Deduplicate cross-platform duplicates before inserting ──────────
@@ -199,6 +199,7 @@ def process_and_save(all_deals: list) -> int:
                     "alternate_links":  alternate_links,
                     "is_active":        True,
                     "is_pro_exclusive": is_pro_exclusive,
+                    "is_trending":      int(deal_score) >= 80,
                     "scraped_at":       datetime.utcnow(),
                     "updated_at":       datetime.utcnow(),
                 }
@@ -222,6 +223,14 @@ def process_and_save(all_deals: list) -> int:
 
             except Exception as e:
                 logger.debug(f"Deal save error: {e}")
+
+        # ── Enforce Top 8 Trending Deals ─────────────────────────────
+        logger.info("Updating is_trending flags across all active deals...")
+        db.deals.update_many({"is_trending": True}, {"$set": {"is_trending": False}})
+        top_deals = list(db.deals.find({"is_active": True}, {"_id": 1}).sort("deal_score", -1).limit(8))
+        if top_deals:
+            top_ids = [d["_id"] for d in top_deals]
+            db.deals.update_many({"_id": {"$in": top_ids}}, {"$set": {"is_trending": True}})
 
         client.close()
         logger.info(f"💾 Saved/updated {saved}/{len(deduped_deals)} deals to MongoDB")
