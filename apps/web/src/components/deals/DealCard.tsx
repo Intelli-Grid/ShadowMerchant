@@ -69,7 +69,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
   return (
     <article
       className={cn(
-        'deal-card-enter group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-200 cursor-pointer',
+        'deal-card-enter group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-200',
         'hover:-translate-y-0.5',
         className
       )}
@@ -79,7 +79,6 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
         height: '100%',
       }}
       onMouseEnter={() => router.prefetch(`/deals/${deal._id}`)}
-      onMouseLeave={() => undefined}
       onMouseMove={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
         e.currentTarget.style.setProperty('--cursor-x', `${e.clientX - rect.left}px`);
@@ -87,17 +86,12 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
       }}
     >
 
-      {/* Invisible full-card link */}
+      {/* ── IMAGE SECTION — clicking the image navigates to deal detail ── */}
       <Link
         href={`/deals/${deal._id}`}
-        className="absolute inset-0 z-0"
-        aria-label={`View ${deal.title}`}
-      />
-
-      {/* ── IMAGE SECTION ── */}
-      <div 
-        className="relative overflow-hidden shrink-0 w-full flex items-center justify-center aspect-square md:aspect-[4/3] border-b p-2 sm:p-3" 
+        className="relative overflow-hidden shrink-0 w-full flex items-center justify-center aspect-square md:aspect-[4/3] border-b p-2 sm:p-3 block"
         style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}
+        aria-label={`View ${deal.title}`}
       >
         <div className="relative w-full h-full bg-white rounded-lg shadow-inner overflow-hidden flex items-center justify-center">
           {deal.image_url && !imgError ? (
@@ -142,7 +136,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
         >
           <Heart className={cn('h-3 w-3 sm:h-3.5 sm:w-3.5', wishlisted ? 'fill-red-500 text-red-500' : 'text-white')} />
         </button>
-      </div>
+      </Link>
 
       {/* ── CONTENT SECTION ── */}
       <div className={cn('flex flex-col flex-1 p-3 sm:p-3.5 min-w-0', sizeClasses[size])}>
@@ -183,14 +177,15 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           </div>
         </div>
 
-        {/* Title */}
-        <h3
-          className="line-clamp-2 font-medium leading-snug mb-2"
-          style={{ color: 'var(--text-primary)', letterSpacing: '-0.01em', minHeight: size === 'sm' ? '2.4em' : '2.8em' }}
+        {/* Title — clicking navigates to deal detail page */}
+        <Link
+          href={`/deals/${deal._id}`}
+          className="line-clamp-2 font-medium leading-snug mb-2 hover:text-[var(--gold)] transition-colors"
+          style={{ color: 'var(--text-primary)', letterSpacing: '-0.01em', minHeight: size === 'sm' ? '2.4em' : '2.8em', display: '-webkit-box' }}
           title={deal.title}
         >
           {deal.title}
-        </h3>
+        </Link>
 
         {/* Rating */}
         {(deal.rating || deal.rating_count) ? (
@@ -230,13 +225,12 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           )}
         </div>
 
-        {/* CTA — gold */}
+        {/* CTA — gold; Meesho uses 'Browse Deal' since it links to a catalog page */}
         <a
           href={`/api/go/${deal._id}`}
           target="_blank"
           rel="noopener noreferrer"
           className="deal-card-cta relative z-10 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-[13px] font-bold transition-all active:scale-[0.98] mt-2 sm:mt-0"
-
           style={{
             background: 'var(--gold)',
             color: '#0A0A0A',
@@ -250,7 +244,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          Get Deal
+          {deal.source_platform === 'meesho' ? 'Browse Deal' : 'Get Deal'}
           <ExternalLink className="h-3.5 w-3.5 opacity-80" />
         </a>
       </div>

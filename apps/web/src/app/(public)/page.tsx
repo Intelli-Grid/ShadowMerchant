@@ -9,68 +9,99 @@ import { auth } from '@clerk/nextjs/server';
 import { redis, CACHE_KEYS, CACHE_TTL } from '@/lib/redis';
 
 // Fetch the top 8 trending deals (is_trending=true, mix of free + pro)
-async function getTrendingDeals(): Promise<Deal[]> {
-  const cached = await redis.get<Deal[]>(CACHE_KEYS.TRENDING_DEALS);
+async function getTrendingDeals(): Promise<{ deals: Deal[]; isStale: boolean }> {
+  const cached = await redis.get<{ deals: Deal[]; isStale: boolean }>(CACHE_KEYS.TRENDING_DEALS);
   if (cached) return cached;
   try {
     await connectDB();
     const DealModel = (await import('@/models/Deal')).default;
-    let deals = await DealModel.find({ is_active: true, is_trending: true })
+    const cutoff48h = new Date(Date.now() - 48 * 60 * 60 * 1000);
+
+    // Primary: trending deals scraped within last 48 hours (live)
+    let deals = await DealModel.find({ is_active: true, is_trending: true, scraped_at: { $gte: cutoff48h } })
       .sort({ deal_score: -1 })
       .limit(8)
       .lean();
-      
-    // Fallback: If no deals are explicitly marked as trending, just get the highest scored active ones
+    let isStale = false;
+
+    // Fallback A: any trending deals regardless of age
+    if (!deals || deals.length === 0) {
+      deals = await DealModel.find({ is_active: true, is_trending: true })
+        .sort({ deal_score: -1 })
+        .limit(8)
+        .lean();
+      isStale = true;
+    }
+
+    // Fallback B: highest-scored active deals (scraper hasn't run at all)
     if (!deals || deals.length === 0) {
       deals = await DealModel.find({ is_active: true })
         .sort({ deal_score: -1, rating: -1 })
         .limit(8)
         .lean();
+      isStale = true;
     }
-    
-    const result = JSON.parse(JSON.stringify(deals));
+
+    const result = { deals: JSON.parse(JSON.stringify(deals)), isStale };
     await redis.set(CACHE_KEYS.TRENDING_DEALS, result, { ex: CACHE_TTL.TRENDING });
     return result;
   } catch (e) {
     console.error('getTrendingDeals error:', e);
-    return [];
+    return { deals: [], isStale: false };
   }
 }
 
-async function getNewDealsToday(): Promise<Deal[]> {
+async function getNewDealsToday(): Promise<{ deals: Deal[]; isStale: boolean }> {
   try {
     await connectDB();
     const DealModel = (await import('@/models/Deal')).default;
-    const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    
-    // First try: deals specifically from the last 24 hours
-    let deals = await DealModel.find({ is_active: true, created_at: { $gte: last24h } })
+    const cutoff24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const cutoff48h = new Date(Date.now() - 48 * 60 * 60 * 1000);
+
+    // Primary: deals scraped in last 24 hours (truly new today)
+    let deals = await DealModel.find({ is_active: true, scraped_at: { $gte: cutoff24h } })
       .sort({ deal_score: -1 })
       .limit(8)
       .lean();
-      
-    // Fallback: If no new deals in last 24h (e.g. scraper didn't run), just get newest 8 active deals
+    let isStale = false;
+
+    // Fallback A: deals scraped within 48 hours
+    if (!deals || deals.length === 0) {
+      deals = await DealModel.find({ is_active: true, scraped_at: { $gte: cutoff48h } })
+        .sort({ deal_score: -1 })
+        .limit(8)
+        .lean();
+      isStale = deals.length > 0;
+    }
+
+    // Fallback B: newest active deals regardless of age (scraper stale)
     if (!deals || deals.length === 0) {
       deals = await DealModel.find({ is_active: true })
         .sort({ created_at: -1, deal_score: -1 })
         .limit(8)
         .lean();
+      isStale = true;
     }
-    
-    return JSON.parse(JSON.stringify(deals));
+
+    return { deals: JSON.parse(JSON.stringify(deals)), isStale };
   } catch (e) {
     console.error('getNewDealsToday error:', e);
-    return [];
+    return { deals: [], isStale: false };
   }
 }
 
 export default async function Home() {
 
   // Parallelise all data fetching
-  const [trendingDeals, newDeals] = await Promise.all([
+  const [trendingResult, newResult] = await Promise.all([
     getTrendingDeals(),
     getNewDealsToday()
   ]);
+
+  const trendingDeals = trendingResult.deals;
+  const newDeals = newResult.deals;
+  const trendingIsStale = trendingResult.isStale;
+  const newIsStale = newResult.isStale;
 
   // Total savings across all trending deals
   const totalSavings = trendingDeals.reduce(
@@ -131,15 +162,22 @@ export default async function Home() {
       {/* Trending Deals Grid */}
       <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-center justify-between mb-8">
-          <h2
+        <h2
             className="text-2xl font-bold section-heading"
             style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}
           >
             Trending Now
           </h2>
-          <Link href="/deals/feed" className="gold-link text-sm font-semibold">
-            View All →
-          </Link>
+          <div className="flex items-center gap-3">
+            {trendingIsStale && (
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(245,158,11,0.1)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.2)' }}>
+                ⚠ Prices may vary
+              </span>
+            )}
+            <Link href="/deals/feed" className="gold-link text-sm font-semibold">
+              View All →
+            </Link>
+          </div>
         </div>
 
         {trendingDeals.length > 0 ? (
@@ -163,15 +201,22 @@ export default async function Home() {
       {/* New Today Grid */}
       <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex items-center justify-between mb-8">
-          <h2
+        <h2
             className="text-2xl font-bold section-heading"
             style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}
           >
             New Today
           </h2>
-          <Link href="/deals/feed?sort=newest" className="gold-link text-sm font-semibold">
-            View All →
-          </Link>
+          <div className="flex items-center gap-3">
+            {newIsStale && (
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full" style={{ background: 'rgba(245,158,11,0.1)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.2)' }}>
+                ⚠ Prices may vary
+              </span>
+            )}
+            <Link href="/deals/feed?sort=newest" className="gold-link text-sm font-semibold">
+              View All →
+            </Link>
+          </div>
         </div>
 
         {newDeals.length > 0 ? (

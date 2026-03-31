@@ -43,6 +43,41 @@ class FlipkartScraper(BaseScraper):
         self._cookies: dict = {}
         self._headers: dict = {}
 
+    def _build_stable_url(self, slug: str, pid: str, affid: str) -> str:
+        """
+        Build a permanent Flipkart product URL.
+        Flipkart stable format: https://www.flipkart.com/product/p/iteme?pid=XXXX
+        Session-scoped slugs without a pid are discarded (return empty string).
+        """
+        if not slug and not pid:
+            return ""
+
+        from urllib.parse import urlparse, parse_qs, urlencode
+
+        # If slug looks like a full URL or relative path, parse out the pid
+        if slug:
+            full = f"https://www.flipkart.com{slug}" if slug.startswith("/") else slug
+            try:
+                parsed = urlparse(full)
+                qs = parse_qs(parsed.query)
+                extracted_pid = qs.get("pid", [pid])[0] if not pid else pid
+            except Exception:
+                extracted_pid = pid
+        else:
+            full = ""
+            extracted_pid = pid
+
+        if not extracted_pid:
+            # No pid means the URL is session-scoped and will break — discard it
+            return ""
+
+        # Reconstruct a clean, permanent product URL
+        clean_path = urlparse(full).path if full else "/product/p/iteme"
+        stable_url = f"https://www.flipkart.com{clean_path}?pid={extracted_pid}"
+        if affid:
+            stable_url += f"&affid={affid}"
+        return stable_url
+
     def _bootstrap(self):
         """Harvest session cookies from Flipkart homepage via stealth browser."""
         logger.info("Flipkart: bootstrapping session...")
@@ -160,14 +195,9 @@ class FlipkartScraper(BaseScraper):
 
             pid = p.get("productId") or p.get("id") or ""
             slug = p.get("slug") or p.get("productUrl") or ""
-            if slug:
-                raw_url = f"https://www.flipkart.com{slug}" if slug.startswith("/") else slug
-            elif pid:
-                raw_url = f"https://www.flipkart.com/p/{pid}"
-            else:
-                raw_url = ""
 
-            product_url = f"{raw_url}&affid={self.affiliate_tag}" if self.affiliate_tag and raw_url else raw_url
+            # Build a stable, permanent product URL (session-scoped slugs without pid are dropped)
+            product_url = self._build_stable_url(slug, pid, self.affiliate_tag)
 
             images = p.get("imageInfo", {}) or {}
             image_url = images.get("primaryImage") or p.get("image") or ""

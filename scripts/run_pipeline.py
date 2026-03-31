@@ -100,6 +100,57 @@ SCRAPER_MAP = {
 # Default scrapers to run when no targets file is available
 DEFAULT_SCRAPERS = ["amazon", "flipkart", "myntra"]
 
+# Allowed platform domains — only URLs on these domains are saved
+ALLOWED_DOMAINS = (
+    "amazon.in", "amazon.com",
+    "flipkart.com",
+    "myntra.com",
+    "meesho.com",
+    "nykaa.com",
+    "croma.com",
+    "tatacliq.com",
+)
+
+
+def validate_affiliate_url(url: str, platform: str) -> str | None:
+    """
+    Validates and normalises an affiliate URL before saving to MongoDB.
+    Returns the cleaned URL, or None if the URL is unusable.
+    """
+    if not url or not isinstance(url, str):
+        return None
+
+    url = url.strip()
+
+    # Must be an absolute HTTPS URL
+    if not url.startswith("https://") and not url.startswith("http://"):
+        logger.debug(f"Rejecting relative/schemeless URL [{platform}]: {url[:80]}")
+        return None
+
+    # Must belong to a known platform domain
+    if not any(domain in url for domain in ALLOWED_DOMAINS):
+        logger.debug(f"Rejecting unknown-domain URL [{platform}]: {url[:80]}")
+        return None
+
+    # Flipkart-specific: rebuild a stable product URL from pid if slug URL is present
+    # Flipkart stable format: https://www.flipkart.com/product/p/iteme?pid=XXXX
+    if platform == "flipkart" and "/p/" in url:
+        try:
+            from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+            parsed = urlparse(url)
+            qs = parse_qs(parsed.query)
+            pid = qs.get("pid", [None])[0]
+            if pid:
+                # Keep existing clean URL — pid is present, URL is stable
+                return url
+            # No pid → this is a session-scoped slug, mark as unusable
+            logger.debug(f"Rejecting Flipkart session-slug URL (no pid): {url[:80]}")
+            return None
+        except Exception:
+            return url  # If parsing fails, give it the benefit of the doubt
+
+    return url
+
 
 def load_targets() -> list[str]:
     """Load scraper priority from trend_analyzer output if available."""
@@ -175,8 +226,11 @@ def process_and_save(all_deals: list) -> int:
                 category     = normalize_category(str(_f("category", "") or ""))
                 alternate_links = _f("alternate_links", []) or []
 
+                # ── Validate and normalise the affiliate URL ───────────────────
+                product_url = validate_affiliate_url(product_url, platform)
+
                 if not title or disc_price <= 0 or not product_url:
-                    logger.debug(f"Skipping deal — missing required field: title={bool(title)} price={disc_price} url={bool(product_url)}")
+                    logger.debug(f"Skipping deal — invalid data: title={bool(title)} price={disc_price} url={product_url!r:.60}")
                     continue
 
                 # ── is_pro_exclusive: True if discount >= 40 ──────────────────
