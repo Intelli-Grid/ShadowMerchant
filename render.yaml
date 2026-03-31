@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: shadowmerchant-scraper
+    env: docker
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    plan: starter # Starter plan is generally required due to Chrome/Playwright memory needs. Free tiers will run out of RAM.
+    envVars:
+      - key: MONGODB_URI
+        sync: false # Set this in the Render dashboard manually for security!
+      - key: PYTHONUNBUFFERED
+        value: "1"

@@ -50,7 +50,7 @@ class MeeshoScraper(BaseScraper):
         2. Call Meesho's internal search API directly for all categories.
         """
         from playwright.async_api import async_playwright
-        from playwright_stealth import Stealth
+        from playwright_stealth import stealth_async
         import httpx
 
         # Determine categories that have Meesho configured
@@ -65,7 +65,7 @@ class MeeshoScraper(BaseScraper):
         session_cookies: dict = {}
         session_headers: dict = {}
 
-        async with Stealth().use_async(async_playwright()) as p:
+        async with async_playwright() as p:
             browser = await p.chromium.launch(
                 headless=True,
                 args=["--no-sandbox", "--disable-blink-features=AutomationControlled"]
@@ -76,6 +76,7 @@ class MeeshoScraper(BaseScraper):
                 timezone_id="Asia/Kolkata",
             )
             page = await context.new_page()
+            await stealth_async(page)
 
             # Capture the first live API call to get working headers/cookies
             first_req_headers: dict = {}

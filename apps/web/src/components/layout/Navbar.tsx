@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Search, Bell, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SignInButton, UserButton, useAuth } from '@clerk/nextjs';
+import { SignInButton, UserButton, useAuth, ClerkLoading, ClerkLoaded } from '@clerk/nextjs';
 import { MobileMenu } from './MobileMenu';
 
 const NAV_LINKS = [
@@ -132,60 +132,59 @@ export function Navbar() {
           />
         </div>
 
-        {/* Auth — always renders, swaps skeleton → real once Clerk hydrates */}
+        {/* Auth — Swaps skeleton with signed-in/signed-out states using Clerk components for perfect hydration */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {!isLoaded ? (
-            /* Loading skeleton — keeps layout stable during Clerk hydration */
-            <>
-              <div className="hidden sm:block h-8 w-14 rounded animate-pulse" style={{ background: 'var(--bg-raised)' }} />
-              <div className="h-8 w-20 rounded-lg animate-pulse" style={{ background: 'var(--bg-raised)' }} />
-            </>
-          ) : isSignedIn ? (
-            /* Signed-in state */
-            <>
-              <Link
-                href="/dashboard"
-                className="h-8 w-8 hidden sm:flex items-center justify-center rounded-lg transition-colors hover:opacity-80"
-                style={{ background: 'var(--bg-raised)', border: '1px solid var(--sm-border)' }}
-                aria-label="Dashboard"
-              >
-                <Bell className="h-4 w-4" style={{ color: 'var(--text-secondary)' }} />
-              </Link>
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: 'w-8 h-8 ring-2 ring-transparent hover:ring-[var(--gold)] transition-all duration-200',
-                  },
-                }}
-              />
-            </>
-          ) : (
-            /* Signed-out state */
-            <>
-              <SignInButton mode="modal">
-                <button
-                  className="text-sm font-semibold transition-opacity hover:opacity-80"
-                  style={{ color: 'var(--text-secondary)' }}
+          <ClerkLoading>
+            <div className="hidden sm:block h-8 w-14 rounded animate-pulse" style={{ background: 'var(--bg-raised)' }} />
+            <div className="h-8 w-20 rounded-lg animate-pulse" style={{ background: 'var(--bg-raised)' }} />
+          </ClerkLoading>
+
+          <ClerkLoaded>
+            {isSignedIn ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="h-8 w-8 hidden sm:flex items-center justify-center rounded-lg transition-colors hover:opacity-80"
+                  style={{ background: 'var(--bg-raised)', border: '1px solid var(--sm-border)' }}
+                  aria-label="Dashboard"
                 >
-                  Log in
-                </button>
-              </SignInButton>
-              <SignInButton mode="modal">
-                <button
-                  className="flex items-center gap-1.5 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-bold transition-all whitespace-nowrap"
-                  style={{ background: 'var(--gold)', color: '#0A0A0A' }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(201,168,76,0.35)';
+                  <Bell className="h-4 w-4" style={{ color: 'var(--text-secondary)' }} />
+                </Link>
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: 'w-8 h-8 ring-2 ring-transparent hover:ring-[var(--gold)] transition-all duration-200',
+                    },
                   }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-                  }}
-                >
-                  Get Pro →
-                </button>
-              </SignInButton>
-            </>
-          )}
+                />
+              </>
+            ) : (
+              <>
+                <SignInButton mode="modal">
+                  <button
+                    className="text-sm font-semibold transition-opacity hover:opacity-80"
+                    style={{ color: 'var(--text-secondary)' }}
+                  >
+                    Log in
+                  </button>
+                </SignInButton>
+                <SignInButton mode="modal">
+                  <button
+                    className="flex items-center gap-1.5 rounded-lg px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-bold transition-all whitespace-nowrap"
+                    style={{ background: 'var(--gold)', color: '#0A0A0A' }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(201,168,76,0.35)';
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                    }}
+                  >
+                    Get Pro →
+                  </button>
+                </SignInButton>
+              </>
+            )}
+          </ClerkLoaded>
         </div>
 
         {/* Mobile menu */}

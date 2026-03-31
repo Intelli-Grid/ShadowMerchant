@@ -14,7 +14,7 @@ async def _bootstrap_async(seed_url: str, wait_ms: int = 3000) -> tuple[dict, di
     """Internal async bootstrap."""
     from playwright.async_api import async_playwright
     try:
-        from playwright_stealth import Stealth
+        from playwright_stealth import stealth_async
         use_stealth = True
     except ImportError:
         use_stealth = False
@@ -39,7 +39,7 @@ async def _bootstrap_async(seed_url: str, wait_ms: int = 3000) -> tuple[dict, di
         )
         page = await context.new_page()
         if use_stealth:
-            await Stealth().apply_stealth_async(page)
+            await stealth_async(page)
 
         await page.goto(seed_url, wait_until="domcontentloaded", timeout=30000)
         await page.wait_for_timeout(wait_ms)

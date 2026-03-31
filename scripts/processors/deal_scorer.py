@@ -31,13 +31,15 @@ def compute_price_drop_score(original_price: float, discounted_price: float) -> 
     """
     Absolute Price Drop component — weight 20%.
     Rewards large absolute ₹ drops, not just percentage.
-    Formula: (original - sale) / original → normalized 0–1.
+    Formula: min((original - sale) / 3000.0, 1.0). (3000 INR savings = 1.0)
     """
     if original_price <= 0 or discounted_price <= 0:
         return 0.0
     if discounted_price >= original_price:
         return 0.0
-    return min((original_price - discounted_price) / original_price, 1.0)
+    
+    absolute_drop = original_price - discounted_price
+    return min(absolute_drop / 3000.0, 1.0)
 
 
 def compute_popularity_score(rating_count: int) -> float:
@@ -121,6 +123,14 @@ def score_deal_with_breakdown(deal: Union[object, dict]) -> tuple[int, dict]:
     )
 
     final_score = int(round(weighted * 100))
+    
+    # High-Value Premium Bonus: +15 points for expensive products that have decent savings.
+    if disc_price > 1500 and (original_price - disc_price) > 500:
+        final_score += 15
+    # Junk Penalty: Demote super cheap items (like cables/diaries) so they don't trend.
+    elif disc_price < 300:
+        final_score -= 30
+
     final_score = max(0, min(100, final_score))
 
     breakdown = {

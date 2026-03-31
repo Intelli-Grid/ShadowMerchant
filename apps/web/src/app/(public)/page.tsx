@@ -15,10 +15,19 @@ async function getTrendingDeals(): Promise<Deal[]> {
   try {
     await connectDB();
     const DealModel = (await import('@/models/Deal')).default;
-    const deals = await DealModel.find({ is_active: true, is_trending: true })
+    let deals = await DealModel.find({ is_active: true, is_trending: true })
       .sort({ deal_score: -1 })
       .limit(8)
       .lean();
+      
+    // Fallback: If no deals are explicitly marked as trending, just get the highest scored active ones
+    if (!deals || deals.length === 0) {
+      deals = await DealModel.find({ is_active: true })
+        .sort({ deal_score: -1, rating: -1 })
+        .limit(8)
+        .lean();
+    }
+    
     const result = JSON.parse(JSON.stringify(deals));
     await redis.set(CACHE_KEYS.TRENDING_DEALS, result, { ex: CACHE_TTL.TRENDING });
     return result;
@@ -33,10 +42,21 @@ async function getNewDealsToday(): Promise<Deal[]> {
     await connectDB();
     const DealModel = (await import('@/models/Deal')).default;
     const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const deals = await DealModel.find({ is_active: true, created_at: { $gte: last24h } })
+    
+    // First try: deals specifically from the last 24 hours
+    let deals = await DealModel.find({ is_active: true, created_at: { $gte: last24h } })
       .sort({ deal_score: -1 })
       .limit(8)
       .lean();
+      
+    // Fallback: If no new deals in last 24h (e.g. scraper didn't run), just get newest 8 active deals
+    if (!deals || deals.length === 0) {
+      deals = await DealModel.find({ is_active: true })
+        .sort({ created_at: -1, deal_score: -1 })
+        .limit(8)
+        .lean();
+    }
+    
     return JSON.parse(JSON.stringify(deals));
   } catch (e) {
     console.error('getNewDealsToday error:', e);
