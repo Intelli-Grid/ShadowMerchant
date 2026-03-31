@@ -16,7 +16,6 @@ export async function POST(req: NextRequest) {
       plan_id: planId,
       total_count: plan === 'annual' ? 1 : 12,
       quantity: 1,
-      customer_notify: 1,
     } as any);
 
     // Store the subscription ID on the user record
