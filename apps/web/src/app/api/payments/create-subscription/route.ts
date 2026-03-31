@@ -30,6 +30,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ subscription_id: subscription.id });
   } catch (err: any) {
     console.error('[Razorpay] Create subscription error:', err);
-    return NextResponse.json({ error: err.message || 'Failed to create subscription' }, { status: 500 });
+    // Razorpay puts the exact reason in err.error.description sometimes
+    const errorMsg = err?.error?.description || err?.description || err?.message || JSON.stringify(err);
+    return NextResponse.json({ error: errorMsg || 'Failed to create subscription' }, { status: 500 });
   }
 }

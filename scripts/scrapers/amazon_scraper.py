@@ -31,7 +31,7 @@ class AmazonScraper(BaseScraper):
 
     async def _scrape_playwright(self) -> list[RawDeal]:
         from playwright.async_api import async_playwright, TimeoutError as PWTimeout
-        from playwright_stealth import stealth_async
+        from playwright_stealth import Stealth
 
         # Gather Amazon URLs from category map
         category_urls = []
@@ -54,7 +54,7 @@ class AmazonScraper(BaseScraper):
                 timezone_id="Asia/Kolkata",
             )
             page = await context.new_page()
-            await stealth_async(page)
+            await Stealth().apply_stealth_async(page)
 
             for cat_slug, url in category_urls:
                 try:
