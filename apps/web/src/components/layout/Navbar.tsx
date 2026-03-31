@@ -164,7 +164,7 @@ export function Navbar() {
             <>
               <SignInButton mode="modal">
                 <button
-                  className="hidden sm:block text-sm font-semibold transition-opacity hover:opacity-80"
+                  className="text-sm font-semibold transition-opacity hover:opacity-80"
                   style={{ color: 'var(--text-secondary)' }}
                 >
                   Log in
