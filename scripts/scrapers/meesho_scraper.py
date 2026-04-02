@@ -1,3 +1,9 @@
+"""
+Meesho Scraper — Pure API approach (no browser required).
+
+Calls Meesho's internal search GraphQL/REST API directly using
+browser-like headers. No Playwright dependency.
+"""
 import sys
 import os
 import json
@@ -16,7 +22,7 @@ logger = logging.getLogger(__name__)
 # Meesho search queries per category slug
 CATEGORY_QUERIES = {
     "electronics":  "electronics",
-    "fashion":      "fashion women clothing",
+    "fashion":      "women fashion clothing",
     "beauty":       "beauty skincare",
     "home":         "home decor kitchen",
     "sports":       "sports fitness",
@@ -29,12 +35,33 @@ CATEGORY_QUERIES = {
     "travel":       "travel bags luggage",
 }
 
+# Realistic browser headers — no session cookies needed for basic search
+BASE_HEADERS = {
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "en-IN,en;q=0.9,hi;q=0.8",
+    "content-type": "application/json",
+    "origin": "https://www.meesho.com",
+    "referer": "https://www.meesho.com/",
+    "sec-ch-ua": '"Google Chrome";v="123", "Not:A-Brand";v="8", "Chromium";v="123"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": '"Windows"',
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "user-agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/123.0.0.0 Safari/537.36"
+    ),
+}
+
+SEARCH_API = "https://www.meesho.com/api/v1/products/search"
+
 
 class MeeshoScraper(BaseScraper):
     def __init__(self):
         super().__init__(platform_name="meesho")
         self.affiliate_tag = os.getenv("MEESHO_AFFILIATE_TAG", "")
-        self.api_url = "https://www.meesho.com/api/v1/products/search"
 
     def scrape_deals(self) -> list[RawDeal]:
         try:
@@ -44,112 +71,36 @@ class MeeshoScraper(BaseScraper):
             return []
 
     async def _scrape_via_api(self) -> list[RawDeal]:
-        """
-        Two-phase approach:
-        1. Launch one stealth browser page to harvest a valid session & cookies.
-        2. Call Meesho's internal search API directly for all categories.
-        """
-        from playwright.async_api import async_playwright
-        from playwright_stealth import stealth_async
         import httpx
 
-        # Determine categories that have Meesho configured
-        categories = []
-        for cat_slug in CATEGORY_MAP:
-            if cat_slug in CATEGORY_QUERIES:
-                categories.append(cat_slug)
+        categories = list(CATEGORY_QUERIES.keys())
+        logger.info(f"Meesho: Scraping {len(categories)} categories via direct API")
 
-        logger.info(f"Meesho: Preparing to scrape {len(categories)} categories via search API.")
-
-        # --- Phase 1: Harvest cookies from a single browser session ---
-        session_cookies: dict = {}
-        session_headers: dict = {}
-
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(
-                headless=True,
-                args=["--no-sandbox", "--disable-blink-features=AutomationControlled"]
-            )
-            context = await browser.new_context(
-                viewport={"width": 1280, "height": 900},
-                locale="en-IN",
-                timezone_id="Asia/Kolkata",
-            )
-            page = await context.new_page()
-            await stealth_async(page)
-
-            # Capture the first live API call to get working headers/cookies
-            first_req_headers: dict = {}
-            async def on_request(request):
-                nonlocal first_req_headers
-                if "api/v1/products/search" in request.url and not first_req_headers:
-                    first_req_headers = dict(request.headers)
-
-            page.on("request", on_request)
-
-            logger.info("Meesho: Bootstrapping session via stealth browser...")
-            await page.goto(
-                "https://www.meesho.com/search?q=electronics",
-                wait_until="networkidle",
-                timeout=30000
-            )
-            await page.wait_for_timeout(2000)
-
-            # Collect cookies
-            cookies_list = await context.cookies()
-            session_cookies = {c["name"]: c["value"] for c in cookies_list}
-
-            ua = await page.evaluate("() => navigator.userAgent")
-            session_headers = {
-                "accept": "application/json, text/plain, */*",
-                "accept-encoding": "gzip, deflate, br",
-                "accept-language": "en-IN,en;q=0.9",
-                "content-type": "application/json",
-                "origin": "https://www.meesho.com",
-                "referer": "https://www.meesho.com/search?q=electronics",
-                "user-agent": ua,
-            }
-            # Merge any captured request headers (especially auth/csrf tokens)
-            for k, v in first_req_headers.items():
-                if k.lower() not in ("content-length", "host"):
-                    session_headers[k] = v
-
-            logger.info(f"Meesho: Session ready — {len(session_cookies)} cookies, {len(session_headers)} headers.")
-            await browser.close()
-
-        # --- Phase 2: Call the API for each category ---
         deals: list[RawDeal] = []
 
         async with httpx.AsyncClient(
-            cookies=session_cookies,
-            headers=session_headers,
-            timeout=20,
+            headers=BASE_HEADERS,
+            timeout=25,
             follow_redirects=True,
         ) as client:
             for cat_slug in categories:
                 query = CATEGORY_QUERIES[cat_slug]
                 try:
                     catalogs = await self._fetch_catalogs(client, query, pages=3)
-                    logger.info(f"Meesho [{cat_slug}]: {len(catalogs)} catalogs fetched.")
+                    logger.info(f"Meesho [{cat_slug}]: {len(catalogs)} products")
                     for catalog in catalogs:
                         deal = self._catalog_to_deal(catalog, cat_slug)
                         if deal:
                             deals.append(deal)
                 except Exception as e:
-                    logger.error(f"Meesho [{cat_slug}] API error: {e}")
+                    logger.warning(f"Meesho [{cat_slug}] error: {e}")
 
-        if not deals:
-            logger.warning("Meesho: 0 deals scraped across all categories.")
-        else:
-            logger.info(f"Meesho: {len(deals)} deals scraped successfully.")
-
+        logger.info(f"Meesho: {len(deals)} total deals scraped")
         return deals
 
-    async def _fetch_catalogs(self, client, query: str, pages: int = 2) -> list:
-        """Fetches products from Meesho's search API across multiple pages."""
+    async def _fetch_catalogs(self, client, query: str, pages: int = 3) -> list:
         all_catalogs = []
         cursor = None
-        search_session_id = None
 
         for page_num in range(1, pages + 1):
             payload = {
@@ -161,32 +112,29 @@ class MeeshoScraper(BaseScraper):
                 "cursor": cursor,
                 "isDevicePhone": False,
             }
-            if search_session_id:
-                payload["search_session_id"] = search_session_id
 
-            resp = await client.post(self.api_url, json=payload)
-            if resp.status_code != 200:
-                logger.warning(f"Meesho API page {page_num} error {resp.status_code}: {resp.text[:100]}")
-                break
-
-            data = resp.json()
-            catalogs = data.get("catalogs", [])
-            if not catalogs:
-                break
-
-            all_catalogs.extend(catalogs)
-            cursor = data.get("cursor")
-            search_session_id = data.get("search_session_id")
-
-            if not cursor:
+            try:
+                resp = await client.post(SEARCH_API, json=payload)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    catalogs = data.get("catalogs", [])
+                    if not catalogs:
+                        break
+                    all_catalogs.extend(catalogs)
+                    cursor = data.get("cursor")
+                    if not cursor:
+                        break
+                else:
+                    logger.debug(f"Meesho API page {page_num} returned {resp.status_code}")
+                    break
+            except Exception as e:
+                logger.debug(f"Meesho API page {page_num} failed: {e}")
                 break
 
         return all_catalogs
 
     def _catalog_to_deal(self, catalog: dict, cat_slug: str) -> RawDeal | None:
-        """Map a Meesho catalog object to a RawDeal."""
         try:
-            # Name: prefer hero_product_name, then name
             title = (
                 catalog.get("hero_product_name")
                 or catalog.get("name")
@@ -195,47 +143,36 @@ class MeeshoScraper(BaseScraper):
             if not title:
                 return None
 
-            # Prices are in Rupees directly
             disc_price = float(catalog.get("min_product_price") or catalog.get("min_catalog_price") or 0)
-            orig_price = float(catalog.get("max_catalog_price") or disc_price)
+            orig_price = float(catalog.get("max_catalog_price") or disc_price * 1.2)
 
             if disc_price <= 0:
                 return None
 
-            # Product URL — use the short product_id for clean URLs
-            product_id = catalog.get("product_id", "")
-            slug = catalog.get("slug") or catalog.get("original_slug") or ""
-            catalog_id = catalog.get("id") or catalog.get("catalogId") or ""
+            # Only keep deals with at least 10% discount
+            if orig_price <= disc_price:
+                return None
+
+            product_id  = catalog.get("product_id", "")
+            slug        = catalog.get("slug") or catalog.get("original_slug") or ""
+            catalog_id  = catalog.get("id") or catalog.get("catalogId") or ""
 
             if slug and catalog_id:
                 raw_url = f"https://www.meesho.com/{slug}/p/{catalog_id}"
             elif product_id:
                 raw_url = f"https://www.meesho.com/s/p/{product_id}"
             else:
-                raw_url = ""
+                return None
 
-            # Affiliate tag
-            if self.affiliate_tag and raw_url:
-                product_url = f"{raw_url}?aid={self.affiliate_tag}"
-            else:
-                product_url = raw_url
+            product_url = f"{raw_url}?aid={self.affiliate_tag}" if self.affiliate_tag else raw_url
 
-            # Image: `image` field is the catalog cover (direct string URL)
-            # fallback: product_images[0].url
+            # Image
             image_url = catalog.get("image", "")
             if not image_url:
-                product_images = catalog.get("product_images") or []
-                if product_images:
-                    first = product_images[0]
-                    if isinstance(first, dict):
-                        image_url = first.get("url", "")
-                    elif isinstance(first, str):
-                        image_url = first
-
-            # Discount percent
-            discount_pct = None
-            if orig_price > 0 and disc_price < orig_price:
-                discount_pct = round((1 - disc_price / orig_price) * 100)
+                imgs = catalog.get("product_images") or []
+                if imgs:
+                    first = imgs[0]
+                    image_url = first.get("url", "") if isinstance(first, dict) else str(first)
 
             return RawDeal(
                 title=title[:200],
@@ -247,22 +184,14 @@ class MeeshoScraper(BaseScraper):
                 category=cat_slug,
             )
         except Exception as e:
-            logger.debug(f"Meesho deal parse error: {e}")
+            logger.debug(f"Meesho catalog parse error: {e}")
             return None
-
-    def _parse_price(self, text: str) -> float:
-        try:
-            cleaned = "".join(c for c in text if c.isdigit() or c == ".")
-            return float(cleaned) if cleaned else 0.0
-        except:
-            return 0.0
 
 
 if __name__ == "__main__":
-    import logging
     logging.basicConfig(level=logging.INFO)
     s = MeeshoScraper()
     results = s.scrape_deals()
     print(f"\nTotal deals: {len(results)}")
     for r in results[:6]:
-        print(f"[{r.category}] {r.title[:50]} | ₹{r.discounted_price} | {r.product_url[:70]}")
+        print(f"[{r.category}] {r.title[:60]} | ₹{r.discounted_price} (was ₹{r.original_price}) | {r.product_url[:70]}")
