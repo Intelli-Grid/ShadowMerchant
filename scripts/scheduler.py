@@ -112,8 +112,12 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
         )
         db = client.shadowmerchant
 
-        # Mark all existing deals as stale before refresh
-        db.deals.update_many({}, {"$set": {"is_stale": True}})
+        # SAFETY: Only mark deals stale if we actually have new deals to replace them.
+        # If scrape produced 0 results (blocked/network), keep all existing deals active.
+        if len(deduped) > 0:
+            db.deals.update_many({}, {"$set": {"is_stale": True}})
+        else:
+            logger.warning("Skipping stale-mark: 0 deals collected, keeping existing deals active.")
 
         for deal in deduped:
             try:
@@ -179,12 +183,17 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             except Exception as e:
                 logger.debug(f"Deal save error: {e}")
 
-        # Deactivate stale deals
-        stale_result = db.deals.update_many(
-            {"is_stale": True},
-            {"$set": {"is_active": False}}
-        )
-        logger.info(f"Deactivated {stale_result.modified_count} stale deals")
+        # Deactivate stale deals — ONLY if we successfully saved new deals
+        if saved > 0:
+            stale_result = db.deals.update_many(
+                {"is_stale": True},
+                {"$set": {"is_active": False}}
+            )
+            logger.info(f"Deactivated {stale_result.modified_count} stale deals")
+        else:
+            # 0 saved → undo the stale flag to protect existing deals
+            db.deals.update_many({"is_stale": True}, {"$set": {"is_stale": False}})
+            logger.warning("0 deals saved — rolled back stale flag, no deals deactivated")
 
         # Tag top 10 deals as is_trending
         try:
