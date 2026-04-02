@@ -11,6 +11,7 @@ Usage:
 import os
 import sys
 import json
+import uuid
 import logging
 import argparse
 from datetime import datetime
@@ -98,7 +99,8 @@ SCRAPER_MAP = {
 }
 
 # Default scrapers to run when no targets file is available
-DEFAULT_SCRAPERS = ["amazon", "flipkart", "myntra"]
+# NOTE: Only list scrapers confirmed working. flipkart=410 Gone, myntra=TLS blocked.
+DEFAULT_SCRAPERS = ["amazon", "meesho"]
 
 # Allowed platform domains — only URLs on these domains are saved
 ALLOWED_DOMAINS = (
@@ -268,7 +270,11 @@ def process_and_save(all_deals: list) -> int:
                                 "$slice": -30,
                             }
                         },
-                        "$setOnInsert": {"created_at": datetime.utcnow(), "deal_id": str(__import__('uuid').uuid4())}
+                        "$setOnInsert": {
+                            "created_at": datetime.utcnow(),
+                            "published_at": datetime.utcnow(),
+                            "deal_id": str(uuid.uuid4()),
+                        }
                     },
                     upsert=True,
                 )

@@ -42,15 +42,21 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
 
       const { subscription_id } = await res.json();
 
-      // 2 — Wait for Razorpay checkout.js to load (it's loaded async)
+      // 2 — Wait for Razorpay (loaded globally in layout.tsx via next/script)
+      // Poll instead of relying on load event — handles already-loaded case correctly.
       await new Promise<void>((resolve, reject) => {
         if (window.Razorpay) return resolve();
-        const script = document.querySelector('script[src*="checkout.razorpay.com"]');
-        if (!script) return reject(new Error('Razorpay script not found'));
-        script.addEventListener('load', () => resolve());
-        script.addEventListener('error', () => reject(new Error('Razorpay failed to load')));
-        // Timeout after 8 seconds
-        setTimeout(() => reject(new Error('Razorpay load timeout')), 8000);
+        let attempts = 0;
+        const poll = setInterval(() => {
+          if (window.Razorpay) {
+            clearInterval(poll);
+            resolve();
+          } else if (++attempts > 50) {
+            // 50 × 200ms = 10 second timeout
+            clearInterval(poll);
+            reject(new Error('Razorpay failed to load after 10 seconds'));
+          }
+        }, 200);
       });
 
       // 3 — Open Razorpay checkout modal
@@ -78,23 +84,18 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
   };
 
   return (
-    <>
-      {/* Razorpay checkout.js */}
-      <script src="https://checkout.razorpay.com/v1/checkout.js" async />
-
-      <Button
-        onClick={handleUpgrade}
-        disabled={loading}
-        className={`font-extrabold h-14 text-lg transition-all hover:scale-[1.02] active:scale-95 gap-2 ${className}`}
-        style={{ background: 'var(--gold)', color: '#0A0A0A', boxShadow: '0 8px 24px rgba(201,168,76,0.25)' }}
-        id="razorpay-upgrade-btn"
-      >
-        {loading ? (
-          <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</>
-        ) : (
-          <><Zap className="w-5 h-5" /> {displayLabel}</>
-        )}
-      </Button>
-    </>
+    <Button
+      onClick={handleUpgrade}
+      disabled={loading}
+      className={`font-extrabold h-14 text-lg transition-all hover:scale-[1.02] active:scale-95 gap-2 ${className}`}
+      style={{ background: 'var(--gold)', color: '#0A0A0A', boxShadow: '0 8px 24px rgba(201,168,76,0.25)' }}
+      id="razorpay-upgrade-btn"
+    >
+      {loading ? (
+        <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</>
+      ) : (
+        <><Zap className="w-5 h-5" /> {displayLabel}</>
+      )}
+    </Button>
   );
 }

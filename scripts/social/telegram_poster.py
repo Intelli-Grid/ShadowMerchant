@@ -74,5 +74,23 @@ async def post_to_telegram():
             logging.error(f"Failed to post deal: {e}")
 
 
+async def post_admin_alert(message: str):
+    """Send an admin/system alert to the Telegram channel."""
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    channel = os.getenv("TELEGRAM_CHANNEL_ID", "@ShadowMerchantDeals")
+    if not token:
+        logging.warning("TELEGRAM_BOT_TOKEN not set — skipping admin alert.")
+        return
+    bot = Bot(token=token)
+    try:
+        await bot.send_message(
+            chat_id=channel,
+            text=f"🚨 ShadowMerchant Alert\n\n{message}",
+            parse_mode=ParseMode.MARKDOWN,
+        )
+    except Exception as e:
+        logging.error(f"Admin alert failed: {e}")
+
+
 if __name__ == "__main__":
     asyncio.run(post_to_telegram())

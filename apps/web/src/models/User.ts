@@ -8,7 +8,8 @@ const UserSchema = new Schema({
   subscription_id: String,
   subscription_status: { type: String, enum: ['created', 'authenticated', 'active', 'pending', 'halted', 'cancelled', 'completed', 'expired', 'paused'] },
   subscription_expires_at: Date,
-  wishlist: [{ type: String }], // deal_ids
+  subscription_cancel_scheduled: { type: Boolean, default: false },
+  wishlist: [{ type: String }], // MongoDB ObjectId hex strings (deal._id)
   alert_preferences: {
     categories: [String],
     min_discount: { type: Number, default: 30 },

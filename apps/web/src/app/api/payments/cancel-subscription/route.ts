@@ -12,12 +12,12 @@ export async function POST() {
     await connectDB();
     const user = await User.findOne({ clerk_id: userId }).lean() as any;
 
-    if (!user?.razorpay_subscription_id) {
+    if (!user?.subscription_id) {
       return NextResponse.json({ error: 'No active subscription found.' }, { status: 400 });
     }
 
     // Cancel the subscription at period end (not immediately)
-    await razorpay.subscriptions.cancel(user.razorpay_subscription_id, false);
+    await razorpay.subscriptions.cancel(user.subscription_id, false);
 
     // Mark user as scheduled for cancellation
     await User.updateOne(

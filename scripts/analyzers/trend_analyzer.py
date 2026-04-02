@@ -96,7 +96,7 @@ def get_db_deal_performance() -> dict:
     """
     try:
         import pymongo
-        client = pymongo.MongoClient(os.getenv("MONGO_URI"), serverSelectionTimeoutMS=5000)
+        client = pymongo.MongoClient(os.getenv("MONGODB_URI"), serverSelectionTimeoutMS=5000)
         db = client.shadowmerchant
         pipeline = [
             {"$match": {"is_active": True}},
@@ -208,7 +208,7 @@ def save_to_db(report: dict) -> bool:
     """Upsert today's trend report into MongoDB trends collection."""
     try:
         import pymongo
-        client = pymongo.MongoClient(os.getenv("MONGO_URI"), serverSelectionTimeoutMS=5000)
+        client = pymongo.MongoClient(os.getenv("MONGODB_URI"), serverSelectionTimeoutMS=5000)
         db = client.shadowmerchant
         db.trends.update_one(
             {"date": report["date"]},

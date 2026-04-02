@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Syne, DM_Sans } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Navbar } from '@/components/layout/Navbar';
@@ -25,7 +26,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online'),
   title: 'ShadowMerchant | #1 AI Deal Aggregator for Indian Shoppers',
   description: 'Discover the best deals from Amazon, Flipkart, Myntra & more — automatically scored and ranked by ShadowMerchant AI. Save big, shop smart.',
   icons: {
@@ -85,6 +86,12 @@ export default function RootLayout({
               </WishlistProvider>
             </PostHogProvider>
           </Suspense>
+          {/* Razorpay checkout.js — loaded once globally to prevent race conditions */}
+          <Script
+            src="https://checkout.razorpay.com/v1/checkout.js"
+            strategy="lazyOnload"
+            id="razorpay-checkout-js"
+          />
         </body>
       </html>
     </ClerkProvider>

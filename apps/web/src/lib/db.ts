@@ -8,7 +8,12 @@ export async function connectDB() {
 
   if (cached.conn) return cached.conn;
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, { dbName: 'shadowmerchant', bufferCommands: false });
+    cached.promise = mongoose.connect(MONGODB_URI, {
+      dbName: 'shadowmerchant',
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 10000,
+    });
   }
   cached.conn = await cached.promise;
   (global as any).mongoose = cached;

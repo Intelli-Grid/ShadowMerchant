@@ -3,7 +3,6 @@ import { DealCard } from '@/components/deals/DealCard';
 import { LoadMoreDeals } from '@/components/deals/LoadMoreDeals';
 import { FilterSidebar } from '@/components/deals/FilterSidebar';
 import { Deal } from '@/types';
-import { auth } from '@clerk/nextjs/server';
 import { redis, CACHE_TTL } from '@/lib/redis';
 
 export async function generateMetadata({ searchParams }: any) {

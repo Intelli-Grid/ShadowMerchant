@@ -1,84 +1,135 @@
+"""
+Alert Dispatcher — ShadowMerchant
+=================================
+Checks new deals from the current pipeline run against all active
+user Alert documents and dispatches notifications for matches.
+
+Called automatically at end of each scheduler.py pipeline run.
+
+Usage:
+    python trigger_alerts.py  # standalone test
+"""
+import os
 import sys
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
-# Ensure script execution path can find siblings
 sys.path.insert(0, str(Path(__file__).parent))
-
-from notifiers.whatsapp_notifier import send_deal_alert
 from utils.db import get_db
 
-logger = logging.getLogger("alerts")
+logger = logging.getLogger("trigger_alerts")
 
-async def dispatch_alerts(run_start_time: datetime):
+
+async def dispatch_alerts(run_start: datetime):
     """
-    Checks for deals scraped in the latest run and matches them against user 'alert_preferences'.
-    Triggers direct WhatsApp or Email alerts if a match exceeds the user's minimum discount threshold.
+    Find deals scraped after `run_start` and match against active alerts.
+    Sends notifications via WhatsApp/Email for matching Pro users.
     """
-    logger.info("⚡ Starting Pro Alert Dispatcher...")
-    try:
-        db = get_db()
-        if db is None:
-            logger.error("No database connection. Cannot dispatch alerts.")
-            return
+    db = get_db()
+    if db is None:
+        logger.error("No DB connection for alert dispatch.")
+        return
 
-        # Find deals created/updated since this scrape execution started (or in the last 2 hours)
-        time_threshold = run_start_time - timedelta(hours=2)
-        recent_deals = list(db.deals.find({
-            "is_active": True,
-            "updated_at": {"$gte": time_threshold}
-        }))
-        
-        if not recent_deals:
-            logger.info("  No new deals found to trigger alerts for.")
-            return
+    # Find deals from this pipeline run
+    new_deals = list(db.deals.find(
+        {"scraped_at": {"$gte": run_start}, "is_active": True},
+        {
+            "_id": 1, "title": 1, "category": 1, "brand": 1,
+            "discount_percent": 1, "discounted_price": 1,
+            "affiliate_url": 1, "source_platform": 1, "deal_score": 1,
+        }
+    ))
 
-        # Fetch Pro users with active alert preferences configured
-        pro_users = list(db.users.find({
-            "subscription_tier": "pro",
-            "alert_preferences": {"$exists": True}
-        }))
+    if not new_deals:
+        logger.info("No new deals to match against alerts.")
+        return
 
-        if not pro_users:
-            logger.info("  No active Pro users with alerts enabled.")
-            return
+    # Get all active alerts
+    alerts = list(db.alerts.find({"is_active": True}))
+    logger.info(f"Matching {len(new_deals)} new deals against {len(alerts)} active alerts")
 
-        alerts_sent = 0
+    if not alerts:
+        logger.info("No active alerts configured.")
+        return
 
-        for user in pro_users:
-            prefs = user.get("alert_preferences", {})
-            min_discount = prefs.get("min_discount", 30)
-            target_categories = prefs.get("categories", [])
-            target_platforms = prefs.get("platforms", [])
-            
-            # Filter matches for the specific user
-            matches = []
-            for deal in recent_deals:
-                if deal.get("discount_percent", 0) < min_discount:
-                    continue
-                if target_categories and deal.get("category") not in target_categories:
-                    continue
-                if target_platforms and deal.get("source_platform") not in target_platforms:
-                    continue
-                matches.append(deal)
+    # Match each alert against new deals
+    matches: dict = {}  # user_id → list of (alert, deal) pairs
 
-            if matches:
-                # Multiple deals may match, just select the single highest discount to avoid spam
-                matches = sorted(matches, key=lambda x: x.get("discount_percent", 0), reverse=True)
-                top_match = matches[0]
+    for alert in alerts:
+        uid = alert.get("user_id", "")
+        alert_type = alert.get("type", "keyword")
+        criteria = alert.get("criteria", {})
+        min_disc = criteria.get("min_discount", 30)
 
-                channels = prefs.get("channels", [])
-                user_contact = user.get("notification_channels", {})
-                whatsapp_num = user_contact.get("whatsapp")
+        for deal in new_deals:
+            if deal.get("discount_percent", 0) < min_disc:
+                continue
 
-                # Dispatch via WhatsApp Notifier
-                if whatsapp_num and ("whatsapp" in channels or not channels):
-                    success = send_deal_alert(whatsapp_num, top_match)
-                    if success:
-                        alerts_sent += 1
-        
-        logger.info(f"✅ Alert Dispatch completed. Sent {alerts_sent} alerts.")
+            matched = False
+            if alert_type == "keyword":
+                kw = criteria.get("keyword", "").lower()
+                matched = bool(kw and kw in deal.get("title", "").lower())
+            elif alert_type == "brand":
+                br = criteria.get("brand", "").lower()
+                matched = bool(br and br in deal.get("title", "").lower())
+            elif alert_type == "category":
+                matched = criteria.get("category", "") == deal.get("category", "")
+            elif alert_type == "price_drop":
+                matched = deal.get("discounted_price", 0) <= criteria.get("max_price", 0)
 
-    except Exception as e:
-        logger.error(f"Alert Dispatch Error: {e}")
+            if matched:
+                if uid not in matches:
+                    matches[uid] = []
+                matches[uid].append((alert, deal))
+
+    if not matches:
+        logger.info("No alert matches found.")
+        return
+
+    logger.info(f"Found matches for {len(matches)} users")
+
+    for user_id, user_matches in matches.items():
+        try:
+            user = db.users.find_one(
+                {"clerk_id": user_id},
+                {"notification_channels": 1, "subscription_tier": 1}
+            )
+            if not user:
+                continue
+
+            # Only notify Pro users
+            if user.get("subscription_tier") != "pro":
+                continue
+
+            # Take the highest-scored matching deal
+            best_deal = max((d for _, d in user_matches), key=lambda x: x.get("deal_score", 0))
+
+            # WhatsApp notification
+            channels = user.get("notification_channels") or {}
+            whatsapp_num = channels.get("whatsapp", "")
+            if whatsapp_num:
+                try:
+                    from notifiers.whatsapp_notifier import send_deal_alert
+                    send_deal_alert(whatsapp_num, best_deal)
+                    logger.info(f"WhatsApp alert sent to user {user_id}")
+                except Exception as e:
+                    logger.error(f"WhatsApp alert failed for {user_id}: {e}")
+
+            # Update last_triggered_at on the matched alerts
+            for alert, _ in user_matches:
+                db.alerts.update_one(
+                    {"_id": alert["_id"]},
+                    {"$set": {"last_triggered_at": datetime.utcnow()}}
+                )
+
+        except Exception as e:
+            logger.error(f"Failed to notify user {user_id}: {e}")
+
+    logger.info("Alert dispatch complete.")
+
+
+if __name__ == "__main__":
+    import asyncio
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+    asyncio.run(dispatch_alerts(datetime.utcnow()))

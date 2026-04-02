@@ -1,6 +1,5 @@
 import { DealCard } from '@/components/deals/DealCard';
 import { Deal } from '@/types';
-import { auth } from '@clerk/nextjs/server';
 
 const STORE_META: Record<string, { label: string; color: string; tagline: string }> = {
   amazon:   { label: 'Amazon India',  color: '#FF9900', tagline: 'Best deals across Amazon India' },

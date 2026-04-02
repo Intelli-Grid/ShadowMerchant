@@ -1,6 +1,5 @@
 import { DealCard } from '@/components/deals/DealCard';
 import { Deal } from '@/types';
-import { auth } from '@clerk/nextjs/server';
 
 const CATEGORY_LABELS: Record<string, string> = {
   electronics: 'Electronics',

@@ -1,8 +1,15 @@
 import { MetadataRoute } from 'next';
+import { connectDB } from '@/lib/db';
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://shadowmerchant.in';
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online';
 
-const CATEGORIES = ['electronics', 'fashion', 'beauty', 'home', 'sports', 'books'];
+// All 12 canonical category slugs used by the pipeline
+const CATEGORIES = [
+  'electronics', 'fashion', 'beauty', 'home', 'sports',
+  'books', 'toys', 'health', 'automotive', 'grocery', 'travel', 'gaming',
+];
+
+// All active store/platform slugs
 const PLATFORMS = ['amazon', 'flipkart', 'myntra', 'meesho', 'nykaa', 'croma'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -11,6 +18,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/deals/feed`, lastModified: new Date(), changeFrequency: 'hourly', priority: 0.9 },
     { url: `${BASE_URL}/deals`, lastModified: new Date(), changeFrequency: 'hourly', priority: 0.8 },
     { url: `${BASE_URL}/pro`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${BASE_URL}/privacy`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${BASE_URL}/terms`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
   ];
 
   const categoryRoutes: MetadataRoute.Sitemap = CATEGORIES.map((cat) => ({
@@ -27,20 +36,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // Dynamically fetch active deal IDs for individual deal pages
+  // Directly query MongoDB for active deal IDs — avoids self-referential HTTP fetch
+  // that can fail during Vercel build if the app isn't live yet.
   let dealRoutes: MetadataRoute.Sitemap = [];
   try {
-    const res = await fetch(`${BASE_URL}/api/deals?limit=100&sort=newest`, { cache: 'no-store' });
-    if (res.ok) {
-      const data = await res.json();
-      dealRoutes = (data.deals || []).map((deal: { _id: string }) => ({
-        url: `${BASE_URL}/deals/${deal._id}`,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
-        priority: 0.6,
-      }));
-    }
-  } catch (_) {}
+    await connectDB();
+    const Deal = (await import('@/models/Deal')).default;
+    const deals = await Deal.find({ is_active: true }, { _id: 1 }).lean();
+    dealRoutes = deals.map((deal: { _id: any }) => ({
+      url: `${BASE_URL}/deals/${String(deal._id)}`,
+      lastModified: new Date(),
+      changeFrequency: 'daily' as const,
+      priority: 0.6,
+    }));
+  } catch (_) {
+    // Silently fall back to empty deal routes if DB is unavailable at build time
+  }
 
   return [...staticRoutes, ...categoryRoutes, ...storeRoutes, ...dealRoutes];
 }

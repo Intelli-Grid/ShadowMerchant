@@ -92,8 +92,8 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             scraper_stats[name] = 0
             try:
                 import asyncio
-                from social.telegram_poster import send_admin_alert
-                asyncio.run(send_admin_alert(f"⚠️ {name} returned 0 deals: {str(e)[:150]}"))
+                from social.telegram_poster import post_admin_alert
+                asyncio.run(post_admin_alert(f"⚠️ {name} scraper failed: {str(e)[:150]}"))
             except Exception:
                 pass
 

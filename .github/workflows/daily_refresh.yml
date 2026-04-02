@@ -1,11 +1,9 @@
 name: Daily Deal Refresh
 
+# DISABLED — superseded by scrape.yml which is the canonical pipeline workflow.
+# Re-enable by restoring the schedule triggers below.
 on:
-  schedule:
-    # 2 runs per day (UTC) = 06:30 IST + 20:30 IST
-    - cron: '0 1 * * *'    # 06:30 IST
-    - cron: '0 15 * * *'   # 20:30 IST
-  workflow_dispatch:        # Allow manual trigger from GitHub UI
+  workflow_dispatch:        # Manual trigger only — cron disabled
     inputs:
       scrapers:
         description: 'Scrapers to run (space-separated, leave blank for all)'
@@ -37,7 +35,7 @@ jobs:
 
       - name: Run scraper pipeline
         env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
+          MONGODB_URI: ${{ secrets.MONGO_URI }}
           AMAZON_AFFILIATE_TAG: ${{ secrets.AMAZON_AFFILIATE_TAG }}
           FLIPKART_AFFILIATE_TAG: ${{ secrets.FLIPKART_AFFILIATE_TAG }}
           MEESHO_AFFILIATE_TAG: ${{ secrets.MEESHO_AFFILIATE_TAG }}
