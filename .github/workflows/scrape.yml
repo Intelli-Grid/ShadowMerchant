@@ -52,9 +52,10 @@ jobs:
           Set-Location scripts
           $scrapers = "${{ github.event.inputs.scrapers }}"
           if ([string]::IsNullOrEmpty($scrapers.Trim())) {
-            $scrapers = "meesho amazon flipkart myntra nykaa"
+            $scrapers = "meesho amazon flipkart myntra"
           }
-          python scheduler.py --run-now --scrapers $scrapers
+          $scraperArgs = $scrapers -split '\s+'
+          python scheduler.py --run-now --scrapers $scraperArgs
 
       - name: Show pipeline log
         if: always()
