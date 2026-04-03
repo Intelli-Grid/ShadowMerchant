@@ -72,14 +72,27 @@ class MeeshoScraper(BaseScraper):
 
     async def _scrape_via_api(self) -> list[RawDeal]:
         import httpx
+        from scrapers.session_bootstrap import get_session
 
         categories = list(CATEGORY_QUERIES.keys())
+        logger.info("Meesho: bootstrapping session...")
+        try:
+            cookies, headers = get_session("https://www.meesho.com/", wait_ms=4000)
+            logger.info("Meesho: session ready")
+        except Exception as e:
+            logger.warning(f"Meesho bootstrap error: {e}")
+            cookies, headers = {}, BASE_HEADERS
+
+        # Merge headers
+        client_headers = {**BASE_HEADERS, **headers}
+
         logger.info(f"Meesho: Scraping {len(categories)} categories via direct API")
 
         deals: list[RawDeal] = []
 
         async with httpx.AsyncClient(
-            headers=BASE_HEADERS,
+            headers=client_headers,
+            cookies=cookies,
             timeout=25,
             follow_redirects=True,
         ) as client:
