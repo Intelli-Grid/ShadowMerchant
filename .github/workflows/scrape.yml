@@ -30,7 +30,7 @@ jobs:
 
       - name: Ensure Playwright Chromium is installed
         shell: powershell
-        run: playwright install chromium
+        run: python -m playwright install chromium
 
       - name: Run pipeline
         shell: powershell
