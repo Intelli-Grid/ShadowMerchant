@@ -28,9 +28,9 @@ jobs:
         shell: powershell
         run: pip install -r scripts/requirements.txt --quiet --no-warn-script-location
 
-      - name: Ensure Playwright Chromium is installed
+      - name: Ensure Playwright Firefox is installed
         shell: powershell
-        run: python -m playwright install chromium
+        run: python -m playwright install firefox
 
       - name: Run pipeline
         shell: powershell
