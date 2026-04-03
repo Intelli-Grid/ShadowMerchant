@@ -45,11 +45,15 @@ logging.basicConfig(
 sys.stdout.reconfigure(encoding='utf-8', errors='replace') if hasattr(sys.stdout, 'reconfigure') else None
 logger = logging.getLogger("scheduler")
 
-# ── Active Scrapers (confirmed working) ─────────────────────────
+# ── Active Scrapers ─────────────────────────────────────────────
 SCRAPER_PRIORITY = [
-    "meesho",   # API-based, 719 deals/run confirmed
-    "amazon",   # Stealth Playwright, 235 deals/run confirmed
+    "meesho",    # Pure httpx API — 720 deals/run confirmed
+    "amazon",    # Playwright stealth — works on GitHub Actions (Linux)
+    "flipkart",  # Pure httpx — session-bootstrap removed
+    "myntra",    # Pure httpx — gateway API direct
+    "nykaa",     # Pure httpx — search API direct
 ]
+
 
 
 def run_pipeline(scrapers: list[str] | None = None) -> dict:

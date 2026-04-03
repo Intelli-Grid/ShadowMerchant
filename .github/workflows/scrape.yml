@@ -10,9 +10,9 @@ on:
   workflow_dispatch:
     inputs:
       scrapers:
-        description: 'Scrapers to run (space-separated, e.g. "amazon meesho")'
+        description: 'Scrapers to run (space-separated, e.g. "amazon meesho flipkart")'
         required: false
-        default: 'amazon meesho'
+        default: 'meesho amazon flipkart myntra nykaa'
 
 jobs:
   scrape:
@@ -55,7 +55,7 @@ jobs:
           cd scripts
           SCRAPERS="${{ github.event.inputs.scrapers }}"
           if [ -z "$SCRAPERS" ]; then
-            python scheduler.py --run-now --scrapers amazon meesho
+            python scheduler.py --run-now --scrapers meesho amazon flipkart myntra nykaa
           else
             python scheduler.py --run-now --scrapers $SCRAPERS
           fi

@@ -13,11 +13,21 @@ logger = logging.getLogger(__name__)
 async def _bootstrap_async(seed_url: str, wait_ms: int = 3000) -> tuple[dict, dict]:
     """Internal async bootstrap."""
     from playwright.async_api import async_playwright
+
+    # Graceful stealth import — works without playwright_stealth installed
     try:
         from playwright_stealth import stealth_async
         use_stealth = True
-    except ImportError:
+    except (ImportError, Exception):
         use_stealth = False
+        async def stealth_async(page):
+            await page.add_init_script("""
+                Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+                window.chrome = { runtime: {} };
+                Object.defineProperty(navigator, 'languages', {get: () => ['en-IN', 'en']});
+                Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3]});
+            """)
+
 
     cookies_dict: dict = {}
     headers_dict: dict = {}

@@ -1,6 +1,6 @@
 """
-Myntra Scraper — httpx + stealth session bootstrap.
-Uses Myntra's internal gateway search API with a valid session.
+Myntra Scraper — Pure httpx, no browser session required.
+Calls Myntra's gateway search API directly with static headers.
 """
 import sys
 import os
@@ -19,10 +19,27 @@ logger = logging.getLogger(__name__)
 AFFILIATE_TAG = os.getenv("MYNTRA_AFFILIATE_TAG", "")
 
 CATEGORY_QUERIES = {
-    "fashion":   ["sale", "men-tshirts", "women-dresses", "shoes"],
-    "beauty":    ["beauty"],
-    "sports":    ["sportswear", "sports-shoes"],
-    "travel":    ["luggage-bags", "backpacks"],
+    "fashion":  ["women-dresses", "men-tshirts", "women-tops-tshirts", "men-shirts"],
+    "beauty":   ["beauty", "skincare", "makeup"],
+    "sports":   ["sports-shoes", "activewear"],
+    "travel":   ["backpacks", "trolley-bags"],
+    "home":     ["home-furnishing", "bedsheets"],
+    "health":   ["fitness-equipment"],
+}
+
+BASE_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/123.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "en-IN,en;q=0.9",
+    "Referer": "https://www.myntra.com/",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "X-Myntra-Abtest": "pdp_glance:true",
 }
 
 
@@ -30,39 +47,50 @@ class MyntraScraper(BaseScraper):
     def __init__(self):
         super().__init__(platform_name="myntra")
         self._cookies: dict = {}
-        self._headers: dict = {}
+        self._headers: dict = BASE_HEADERS.copy()
 
     def _bootstrap(self):
         logger.info("Myntra: bootstrapping session...")
-        self._cookies, self._headers = get_session("https://www.myntra.com/sale", wait_ms=3000)
-        self._headers.update({
-            "Accept": "application/json, text/plain, */*",
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-origin",
-            "X-Myntra-Abtest": "pdp_glance:true",
-        })
-        logger.info(f"Myntra: session ready — {len(self._cookies)} cookies")
+        try:
+            cookies, headers = get_session("https://www.myntra.com/sale", wait_ms=4000)
+            if cookies:
+                self._cookies = cookies
+                self._headers.update(headers)
+                self._headers.update({
+                    "Accept": "application/json, text/plain, */*",
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "same-origin",
+                    "X-Myntra-Abtest": "pdp_glance:true",
+                    "Referer": "https://www.myntra.com/",
+                })
+                logger.info(f"Myntra: session ready — {len(self._cookies)} cookies")
+            else:
+                logger.warning("Myntra: 0 cookies from bootstrap, API may return 401")
+        except Exception as e:
+            logger.warning(f"Myntra bootstrap error: {e}")
+
+
 
     def _search(self, query: str) -> list[dict]:
-        """Call Myntra's gateway search API."""
         url = f"https://www.myntra.com/gateway/v2/search/{query}"
         params = {"p": 1, "rows": 40, "o": 0, "plaEnabled": "false", "sort": "popularity_desc"}
         try:
             resp = httpx.get(
-                url,
-                params=params,
+                url, params=params,
                 headers=self._headers,
                 cookies=self._cookies,
-                timeout=15,
-                follow_redirects=True,
+                timeout=15, follow_redirects=True,
             )
             if resp.status_code == 200:
                 data = resp.json()
-                return data.get("searchData", {}).get("results", []) or data.get("products", []) or []
-            logger.debug(f"Myntra search {query}: status {resp.status_code}")
+                return (
+                    data.get("searchData", {}).get("results", [])
+                    or data.get("products", []) or []
+                )
+            logger.debug(f"Myntra [{query}]: HTTP {resp.status_code}")
         except Exception as e:
-            logger.debug(f"Myntra search error for {query}: {e}")
+            logger.debug(f"Myntra [{query}] error: {e}")
         return []
 
     def scrape_deals(self) -> list[RawDeal]:
@@ -87,26 +115,34 @@ class MyntraScraper(BaseScraper):
     def _product_to_deal(self, p: dict, cat_slug: str) -> RawDeal | None:
         try:
             title = (
-                (p.get("product") or "")
-                + " " +
-                (p.get("brand") or "")
-            ).strip() or p.get("productName", "")
+                ((p.get("product") or "") + " " + (p.get("brand") or "")).strip()
+                or p.get("productName", "")
+            )
             if not title:
                 return None
 
-            disc_price = float(p.get("price", {}).get("discounted", 0) or p.get("discountedPrice", 0) or 0)
-            orig_price = float(p.get("price", {}).get("mrp", 0) or p.get("mrp", disc_price) or disc_price)
-
+            price_info = p.get("price", {}) or {}
+            disc_price = float(
+                price_info.get("discounted", 0)
+                or p.get("discountedPrice", 0) or 0
+            )
+            orig_price = float(
+                price_info.get("mrp", 0)
+                or p.get("mrp", disc_price) or disc_price
+            )
             if disc_price <= 0:
                 return None
 
             pid = p.get("productId") or p.get("id") or ""
             product_url = f"https://www.myntra.com/{pid}" if pid else ""
+            if not product_url:
+                return None
 
-            images = p.get("images", [{}])
+            images = p.get("images", [{}]) or [{}]
+            first_img = images[0] if images else {}
             image_url = (
-                images[0].get("src", "") if isinstance(images[0], dict) else images[0]
-            ) if images else p.get("image", "")
+                first_img.get("src", "") if isinstance(first_img, dict) else str(first_img)
+            ) or p.get("image", "")
 
             return RawDeal(
                 title=title[:200],
@@ -114,11 +150,11 @@ class MyntraScraper(BaseScraper):
                 original_price=orig_price,
                 discounted_price=disc_price,
                 product_url=product_url,
-                image_url=image_url or "",
+                image_url=image_url,
                 category=cat_slug,
             )
         except Exception as e:
-            logger.debug(f"Myntra product parse error: {e}")
+            logger.debug(f"Myntra parse error: {e}")
             return None
 
 
@@ -128,4 +164,4 @@ if __name__ == "__main__":
     results = s.scrape_deals()
     print(f"\nTotal: {len(results)} deals")
     for r in results[:5]:
-        print(f"[{r.category}] {r.title[:55]} | Rs.{r.discounted_price} | {r.discount_percent}% off")
+        print(f"[{r.category}] {r.title[:55]} | ₹{r.discounted_price} (was ₹{r.original_price})")
