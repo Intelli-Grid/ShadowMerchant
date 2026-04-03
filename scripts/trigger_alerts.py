@@ -31,13 +31,13 @@ async def dispatch_alerts(run_start: datetime):
         logger.error("No DB connection for alert dispatch.")
         return
 
-    # Find deals from this pipeline run
+    # Find deals from this pipeline run — include image_url for Telegram photo cards
     new_deals = list(db.deals.find(
         {"scraped_at": {"$gte": run_start}, "is_active": True},
         {
             "_id": 1, "title": 1, "category": 1, "brand": 1,
-            "discount_percent": 1, "discounted_price": 1,
-            "affiliate_url": 1, "source_platform": 1, "deal_score": 1,
+            "discount_percent": 1, "discounted_price": 1, "original_price": 1,
+            "affiliate_url": 1, "source_platform": 1, "deal_score": 1, "image_url": 1,
         }
     ))
 
@@ -45,7 +45,7 @@ async def dispatch_alerts(run_start: datetime):
         logger.info("No new deals to match against alerts.")
         return
 
-    # Get all active alerts
+    # Get all active web alerts (from alerts collection, set via website)
     alerts = list(db.alerts.find({"is_active": True}))
     logger.info(f"Matching {len(new_deals)} new deals against {len(alerts)} active alerts")
 
@@ -103,10 +103,29 @@ async def dispatch_alerts(run_start: datetime):
                 continue
 
             # Take the highest-scored matching deal
-            best_deal = max((d for _, d in user_matches), key=lambda x: x.get("deal_score", 0))
+            best_deal  = max((d for _, d in user_matches), key=lambda x: x.get("deal_score", 0))
+            best_alert = next(a for a, d in user_matches if d == best_deal)
+            alert_type = best_alert.get("type", "keyword")
+            criteria   = best_alert.get("criteria", {})
+            matched_val = (
+                criteria.get("keyword") or criteria.get("brand") or
+                criteria.get("category") or str(criteria.get("max_price", ""))
+            )
 
-            # WhatsApp notification
             channels = user.get("notification_channels") or {}
+
+            # ── Telegram notification ───────────────────────────
+            tg_chat_id = channels.get("telegram", "")
+            if tg_chat_id:
+                try:
+                    import asyncio as _aio
+                    from social.telegram_poster import notify_user_alert
+                    _aio.run(notify_user_alert(tg_chat_id, best_deal, alert_type, matched_val))
+                    logger.info(f"Telegram alert sent to user {user_id}")
+                except Exception as e:
+                    logger.error(f"Telegram alert failed for {user_id}: {e}")
+
+            # ── WhatsApp notification ───────────────────────────
             whatsapp_num = channels.get("whatsapp", "")
             if whatsapp_num:
                 try:
@@ -116,7 +135,7 @@ async def dispatch_alerts(run_start: datetime):
                 except Exception as e:
                     logger.error(f"WhatsApp alert failed for {user_id}: {e}")
 
-            # Update last_triggered_at on the matched alerts
+            # Update last_triggered_at on matched alerts
             for alert, _ in user_matches:
                 db.alerts.update_one(
                     {"_id": alert["_id"]},

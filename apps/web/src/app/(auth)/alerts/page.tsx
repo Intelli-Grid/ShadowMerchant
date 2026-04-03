@@ -46,6 +46,8 @@ export default function AlertsPage() {
   const [isPro, setIsPro] = useState(false);
   const [form, setForm] = useState({ type: 'keyword', keyword: '', brand: '', category: '', max_price: '', min_discount: '30' });
 
+  const [telegramLinked, setTelegramLinked] = useState(false);
+
   useEffect(() => {
     fetch('/api/alerts')
       .then(r => r.json())
@@ -55,6 +57,7 @@ export default function AlertsPage() {
         } else {
           setAlerts(data.alerts || []);
           setIsPro(true);
+          setTelegramLinked(!!data.telegramLinked);
         }
         setLoading(false);
       })
@@ -157,7 +160,48 @@ export default function AlertsPage() {
         </div>
       </div>
 
-      {/* Create Alert */}
+      {/* ── Connect Telegram Banner ── */}
+      <div
+        className="rounded-xl p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+        style={{ background: telegramLinked ? 'rgba(34,158,217,0.08)' : 'var(--bg-surface)', border: `1px solid ${telegramLinked ? 'rgba(34,158,217,0.3)' : 'var(--sm-border)'}` }}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-xl"
+            style={{ background: 'rgba(34,158,217,0.15)' }}
+          >
+            ✈️
+          </div>
+          <div>
+            <p className="font-bold text-white text-sm flex items-center gap-2">
+              Get Alerts on Telegram
+              {telegramLinked && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,197,94,0.15)', color: '#4ade80' }}>
+                  ✓ Connected
+                </span>
+              )}
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+              {telegramLinked
+                ? 'Deal alerts will be delivered to your Telegram DM instantly.'
+                : 'Instant deal alerts delivered to your Telegram DM — faster than email.'}
+            </p>
+          </div>
+        </div>
+        {!telegramLinked && (
+          <a
+            href="https://t.me/Shadow_Merchant_Bot?start=link"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm whitespace-nowrap shrink-0 transition-opacity hover:opacity-80"
+            style={{ background: '#229ED9', color: '#fff' }}
+          >
+            🔗 Connect Telegram
+          </a>
+        )}
+      </div>
+
+
       <div
         className="rounded-xl p-6 mb-8"
         style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)' }}

@@ -17,9 +17,10 @@ const UserSchema = new Schema({
     channels: [String]
   },
   notification_channels: {
-    email: { type: Boolean, default: true },
-    whatsapp: String,
-    push_token: String
+    email:      { type: Boolean, default: true },
+    whatsapp:   String,
+    push_token: String,
+    telegram:   String,   // Telegram chat_id — linked via bot /start deep link
   }
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
 
