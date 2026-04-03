@@ -2,7 +2,7 @@ name: ShadowMerchant — Deal Scraper
 
 on:
   schedule:
-    # 4x/day (UTC) — translates to 6am, 12pm, 6pm, 12am IST
+    # 4x/day (UTC) — 6am, 12pm, 6pm, 12am IST
     - cron: '30 0 * * *'    # 06:00 AM IST
     - cron: '30 6 * * *'    # 12:00 PM IST
     - cron: '30 12 * * *'   # 06:00 PM IST
@@ -10,38 +10,30 @@ on:
   workflow_dispatch:
     inputs:
       scrapers:
-        description: 'Scrapers to run (space-separated, e.g. "amazon meesho flipkart")'
+        description: 'Scrapers to run (space-separated, e.g. "meesho amazon flipkart")'
         required: false
         default: 'meesho amazon flipkart myntra nykaa'
 
 jobs:
   scrape:
     name: Run Scrapers
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
+    runs-on: self-hosted       # Uses your Windows machine (residential IP)
+    timeout-minutes: 60
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-          cache-dependency-path: scripts/requirements.txt
+      - name: Install/update Python dependencies
+        shell: powershell
+        run: pip install -r scripts/requirements.txt --quiet --no-warn-script-location
 
-      - name: Install Python dependencies
-        run: pip install -r scripts/requirements.txt
+      - name: Ensure Playwright Chromium is installed
+        shell: powershell
+        run: playwright install chromium
 
-      - name: Install Playwright system deps (Ubuntu 24.04 fix)
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y libasound2t64 libgbm1 libxshmfence1 || true
-
-      - name: Install Playwright + Chromium
-        run: playwright install chromium --with-deps || playwright install chromium
-
-      - name: Run pipeline (working scrapers only)
+      - name: Run pipeline
+        shell: powershell
         env:
           MONGODB_URI:           ${{ secrets.MONGO_URI }}
           AMAZON_AFFILIATE_TAG:  ${{ secrets.AMAZON_AFFILIATE_TAG }}
@@ -57,20 +49,20 @@ jobs:
           TELEGRAM_CHANNEL_ID:   "@ShadowMerchantDeals"
           PYTHONIOENCODING:      utf-8
         run: |
-          cd scripts
-          SCRAPERS="${{ github.event.inputs.scrapers }}"
-          if [ -z "$SCRAPERS" ]; then
-            python scheduler.py --run-now --scrapers meesho amazon flipkart myntra nykaa
-          else
-            python scheduler.py --run-now --scrapers $SCRAPERS
-          fi
+          Set-Location scripts
+          $scrapers = "${{ github.event.inputs.scrapers }}"
+          if ([string]::IsNullOrEmpty($scrapers.Trim())) {
+            $scrapers = "meesho amazon flipkart myntra nykaa"
+          }
+          python scheduler.py --run-now --scrapers $scrapers
 
       - name: Show pipeline log
         if: always()
+        shell: powershell
         run: |
-          if [ -f scripts/scheduler.log ]; then
-            echo "=== Last 60 lines of scheduler.log ==="
-            tail -60 scripts/scheduler.log
-          else
-            echo "No scheduler.log found"
-          fi
+          if (Test-Path "scripts/scheduler.log") {
+            Write-Host "=== Last 80 lines of scheduler.log ==="
+            Get-Content "scripts/scheduler.log" -Tail 80
+          } else {
+            Write-Host "No scheduler.log found"
+          }
