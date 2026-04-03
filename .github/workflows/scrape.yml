@@ -35,7 +35,7 @@ jobs:
       - name: Run pipeline
         shell: powershell
         env:
-          MONGODB_URI:           ${{ secrets.MONGO_URI }}
+          MONGODB_URI:           ${{ secrets.MONGODB_URI || secrets.MONGO_URI }}
           AMAZON_AFFILIATE_TAG:  ${{ secrets.AMAZON_AFFILIATE_TAG }}
           MEESHO_AFFILIATE_TAG:  ${{ secrets.MEESHO_AFFILIATE_TAG }}
           ALGOLIA_APP_ID:        ${{ secrets.ALGOLIA_APP_ID }}
