@@ -677,6 +677,144 @@ def run_interactive_bot():
             "👋 You've been unsubscribed. No more deal alerts.\n\nChanged your mind? Send /start anytime."
         )
 
+    # ══════════════════════════════════════════════════════════
+    #  ADMIN COMMANDS (only ADMIN_CHAT_ID can use these)
+    # ══════════════════════════════════════════════════════════
+
+    def is_admin(upd: "Update") -> bool:
+        return ADMIN_CHAT_ID and str(upd.effective_chat.id) == str(ADMIN_CHAT_ID)
+
+    _pipeline_running = {"flag": False}   # mutable dict acts as a closure-safe lock
+
+    # ── /run [scraper...] ─────────────────────────────────────────
+    async def admin_run(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if not is_admin(update):
+            await update.message.reply_text("⛔ Admin access only.")
+            return
+
+        if _pipeline_running["flag"]:
+            await update.message.reply_text(
+                "⚠️ Pipeline already running. Wait for the report before triggering again."
+            )
+            return
+
+        args = context.args  # e.g. ["amazon", "meesho"]
+        valid = ["amazon", "flipkart", "myntra", "meesho", "nykaa", "croma"]
+        scrapers = [s.lower() for s in args if s.lower() in valid] if args else None
+        label = ", ".join(scrapers) if scrapers else "amazon · flipkart · myntra · meesho"
+
+        await update.message.reply_text(
+            f"⏳ *Pipeline starting…*\n"
+            f"Scrapers: `{label}`\n\n"
+            f"_This takes 2–5 min. You'll get a report when done._",
+            parse_mode=ParseMode.MARKDOWN
+        )
+
+        loop = asyncio.get_event_loop()
+
+        async def _run_and_report():
+            _pipeline_running["flag"] = True
+            try:
+                import sys as _sys
+                from pathlib import Path as _Path
+                _sys.path.insert(0, str(_Path(__file__).parent.parent))
+                from scheduler import run_pipeline
+                stats = await loop.run_in_executor(None, run_pipeline, scrapers)
+                await post_pipeline_report(stats)
+            except Exception as e:
+                await update.message.reply_text(f"❌ Pipeline error: {str(e)[:300]}")
+            finally:
+                _pipeline_running["flag"] = False
+
+        asyncio.create_task(_run_and_report())
+
+    # ── /status ───────────────────────────────────────────────────
+    async def admin_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if not is_admin(update):
+            await update.message.reply_text("⛔ Admin access only.")
+            return
+
+        try:
+            from datetime import timezone
+            active_deals     = db.deals.count_documents({"is_active": True})
+            trending_deals   = db.deals.count_documents({"is_trending": True})
+            active_alerts    = db.alerts.count_documents({"is_active": True})
+            tg_subscribers   = db.telegram_subscribers.count_documents({"subscribed": True})
+            tg_alerts        = db.telegram_alerts.count_documents({"is_active": True})
+
+            last_log = db.scrapelogs.find_one({}, sort=[("run_at", -1)])
+            if last_log:
+                run_at   = last_log.get("run_at", datetime.utcnow())
+                ist_hour = run_at.hour + 5
+                ist_min  = run_at.minute + 30
+                if ist_min >= 60: ist_hour += 1; ist_min -= 60
+                if ist_hour >= 24: ist_hour -= 24
+                ts = f"{run_at.strftime('%Y-%m-%d')} {ist_hour:02d}:{ist_min:02d} IST"
+                elapsed  = last_log.get("elapsed_seconds", 0)
+                last_saved = last_log.get("saved", "?")
+                scrapers_last = last_log.get("scrapers", {})
+                scraper_line = "  ".join(
+                    f"{'✅' if v > 0 else '❌'} {k}" for k, v in scrapers_last.items()
+                )
+            else:
+                ts = "No runs yet"
+                elapsed = scraper_line = last_saved = "—"
+
+            pipeline_status = "🔄 Running now" if _pipeline_running["flag"] else "💤 Idle"
+
+            await update.message.reply_text(
+                f"📡 *ShadowMerchant Status*\n\n"
+                f"🗄️ *Database*\n"
+                f"  ✅ Active deals: `{active_deals}`\n"
+                f"  🔥 Trending deals: `{trending_deals}`\n"
+                f"  🔔 Web alerts: `{active_alerts}`\n"
+                f"  📬 TG subscribers: `{tg_subscribers}`\n"
+                f"  🔔 TG alerts: `{tg_alerts}`\n\n"
+                f"⏱️ *Last Pipeline Run*\n"
+                f"  🕐 {ts}\n"
+                f"  💾 Saved {last_saved} deals in {elapsed}s\n"
+                f"  {scraper_line}\n\n"
+                f"⚙️ *Pipeline:* {pipeline_status}",
+                parse_mode=ParseMode.MARKDOWN
+            )
+        except Exception as e:
+            await update.message.reply_text(f"❌ Status error: {e}")
+
+    # ── /push [n] — manual channel broadcast ─────────────────────
+    async def admin_push(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if not is_admin(update):
+            await update.message.reply_text("⛔ Admin access only.")
+            return
+        try:
+            n = int(context.args[0]) if context.args else 3
+            n = max(1, min(n, 10))
+            await update.message.reply_text(f"📤 Broadcasting top {n} deals to channel…")
+            await broadcast_top_deals(limit=n)
+            await update.message.reply_text(f"✅ Done — {n} deals posted to {CHANNEL_ID}")
+        except Exception as e:
+            await update.message.reply_text(f"❌ Broadcast error: {e}")
+
+    # ── /report — last scrape log formatted ──────────────────────
+    async def admin_report(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if not is_admin(update):
+            await update.message.reply_text("⛔ Admin access only.")
+            return
+        try:
+            last_log = db.scrapelogs.find_one({}, sort=[("run_at", -1)])
+            if not last_log:
+                await update.message.reply_text("No pipeline runs logged yet. Use /run to trigger one.")
+                return
+            stats = {
+                "scrapers":        last_log.get("scrapers", {}),
+                "total_collected": last_log.get("total_collected", 0),
+                "saved":           last_log.get("saved", 0),
+                "elapsed_seconds": last_log.get("elapsed_seconds", 0),
+                "run_at":          last_log.get("run_at", datetime.utcnow()).isoformat(),
+            }
+            await post_pipeline_report(stats)
+        except Exception as e:
+            await update.message.reply_text(f"❌ Report error: {e}")
+
     # ── Callback router ───────────────────────────────────────────
     async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         data = update.callback_query.data
@@ -712,6 +850,7 @@ def run_interactive_bot():
         fallbacks=[CommandHandler("cancel", lambda u, c: ConversationHandler.END)],
     )
 
+    # Public commands
     app.add_handler(CommandHandler("start",      start))
     app.add_handler(CommandHandler("deals",      show_deals))
     app.add_handler(CommandHandler("categories", show_categories))
@@ -721,6 +860,13 @@ def run_interactive_bot():
     app.add_handler(CommandHandler("help",       help_cmd))
     app.add_handler(CommandHandler("stop",       unsubscribe))
     app.add_handler(alert_conv)
+
+    # Admin-only commands (invisible to public users)
+    app.add_handler(CommandHandler("run",    admin_run))
+    app.add_handler(CommandHandler("status", admin_status))
+    app.add_handler(CommandHandler("push",   admin_push))
+    app.add_handler(CommandHandler("report", admin_report))
+
     app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, unknown))
 

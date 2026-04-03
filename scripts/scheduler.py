@@ -199,21 +199,101 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             db.deals.update_many({"is_stale": True}, {"$set": {"is_stale": False}})
             logger.warning("0 deals saved — rolled back stale flag, no deals deactivated")
 
-        # Tag top 10 deals as is_trending
+        # ── Professional Trending Selection ─────────────────────────
+        # Composite score: absolute savings (30%) + discount% (20%) +
+        # price tier (20%) + deal_score (20%) + social proof (5%) + freshness (5%)
+        # Hard rules: original_price >= ₹500, discount >= 20%, max 3 per platform
         try:
-            db.deals.update_many({}, {"$set": {"is_trending": False}})
-            top_ids = [
-                d["_id"] for d in db.deals.find(
-                    {"is_active": True},
-                    {"_id": 1}
-                ).sort("deal_score", -1).limit(10)
-            ]
-            if top_ids:
-                db.deals.update_many(
-                    {"_id": {"$in": top_ids}},
-                    {"$set": {"is_trending": True}}
+            import math
+            now_utc = datetime.utcnow()
+
+            # Fetch all qualifying candidates — price floor + discount floor
+            candidates = list(db.deals.find(
+                {
+                    "is_active": True,
+                    "original_price":   {"$gte": 500},
+                    "discount_percent": {"$gte": 20},
+                },
+                {
+                    "_id": 1, "original_price": 1, "discounted_price": 1,
+                    "discount_percent": 1, "deal_score": 1,
+                    "rating": 1, "rating_count": 1,
+                    "scraped_at": 1, "source_platform": 1,
+                }
+            ))
+
+            def _trending_score(d: dict) -> float:
+                orig   = float(d.get("original_price", 0) or 0)
+                disc   = float(d.get("discounted_price", 0) or 0)
+                pct    = float(d.get("discount_percent", 0) or 0)
+                ai     = float(d.get("deal_score", 0) or 0)
+                rating = float(d.get("rating", 0) or 0)
+                rcount = int(d.get("rating_count", 0) or 0)
+                s_at   = d.get("scraped_at", now_utc)
+
+                # 1. Absolute savings (₹) — normalized, cap at ₹10,000
+                savings_score = min((orig - disc) / 100.0, 100.0)
+
+                # 2. Discount % — direct, cap at 100
+                discount_score = min(pct, 100.0)
+
+                # 3. Price tier — higher-ticket items deserve showcase placement
+                if orig >= 15000:   price_tier = 100.0
+                elif orig >= 5000:  price_tier = 75.0
+                elif orig >= 2000:  price_tier = 50.0
+                elif orig >= 1000:  price_tier = 35.0
+                else:               price_tier = 15.0
+
+                # 4. AI deal score — existing quality signal (already 0-100)
+                ai_score = ai
+
+                # 5. Social proof: rating x log10(reviews+1) x 20, cap at 100
+                social = min((rating / 5.0) * math.log10(rcount + 1) * 20, 100.0)
+
+                # 6. Freshness decay — full score now, zero after 12 hours
+                if isinstance(s_at, datetime):
+                    hours_old = (now_utc - s_at).total_seconds() / 3600
+                else:
+                    hours_old = 0
+                freshness = max(0.0, 100.0 - (hours_old / 12.0 * 100.0))
+
+                return (
+                    savings_score  * 0.30 +
+                    discount_score * 0.20 +
+                    price_tier     * 0.20 +
+                    ai_score       * 0.20 +
+                    social         * 0.05 +
+                    freshness      * 0.05
                 )
-                logger.info(f"Tagged {len(top_ids)} trending deals")
+
+            # Sort all candidates by composite score
+            scored = sorted(
+                [{"deal": d, "score": _trending_score(d)} for d in candidates],
+                key=lambda x: x["score"],
+                reverse=True
+            )
+
+            # Greedy selection — platform diversity cap: max 3 per platform
+            selected = []
+            platform_count: dict = {}
+            for item in scored:
+                platform = item["deal"].get("source_platform", "unknown")
+                if platform_count.get(platform, 0) < 3:
+                    selected.append(item)
+                    platform_count[platform] = platform_count.get(platform, 0) + 1
+                if len(selected) == 10:
+                    break
+
+            # Reset all flags, then tag selected with score
+            db.deals.update_many({}, {"$set": {"is_trending": False, "trending_score": 0}})
+            for item in selected:
+                db.deals.update_one(
+                    {"_id": item["deal"]["_id"]},
+                    {"$set": {"is_trending": True, "trending_score": round(item["score"], 2)}}
+                )
+
+            top_score = f"{selected[0]['score']:.1f}" if selected else "n/a"
+            logger.info(f"[TRENDING] Tagged {len(selected)} deals (platforms: {dict(platform_count)}, top score: {top_score})")
         except Exception as e:
             logger.error(f"Trending tag error: {e}")
 
