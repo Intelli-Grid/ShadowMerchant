@@ -5,10 +5,10 @@ Runs the full scraper pipeline automatically on a schedule.
 
 Usage:
     # Run once immediately (for testing):
-    .venv\Scripts\python.exe scripts\scheduler.py --run-now
+    python scripts/scheduler.py --run-now
 
     # Start the 24/7 scheduler daemon:
-    .venv\Scripts\python.exe scripts\scheduler.py
+    python scripts/scheduler.py
 
 Schedule (IST):
     - 06:00  Morning run  (daily deals, fresh inventory)
@@ -436,12 +436,19 @@ if __name__ == "__main__":
         bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "")
         if bot_token:
             def _start_bot():
+                import asyncio as _asyncio
+                # python-telegram-bot v21 needs an event loop in its thread
+                # Python 3.10+ no longer auto-creates loops in non-main threads
+                loop = _asyncio.new_event_loop()
+                _asyncio.set_event_loop(loop)
                 try:
                     from social.telegram_poster import run_interactive_bot
                     logger.info("🤖 Starting Telegram bot daemon...")
                     run_interactive_bot()
                 except Exception as e:
                     logger.error(f"Bot daemon crashed: {e}")
+                finally:
+                    loop.close()
 
             bot_thread = threading.Thread(target=_start_bot, daemon=True, name="telegram-bot")
             bot_thread.start()
