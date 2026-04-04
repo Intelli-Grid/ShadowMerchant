@@ -53,12 +53,14 @@ class MeeshoScraper(BaseScraper):
 
     # ─────────────────────────────────────────────────────────────
     def scrape_deals(self) -> list[RawDeal]:
+        logger.info("Meesho scraper v3 (ScraperAPI render+HTML) starting...")
         if not self.scraperapi_key:
             logger.error(
                 "Meesho: SCRAPERAPI_KEY not set. "
                 "Sign up free at scraperapi.com and add it to Render env vars."
             )
             return []
+
         try:
             return asyncio.run(self._scrape_all())
         except Exception as e:
