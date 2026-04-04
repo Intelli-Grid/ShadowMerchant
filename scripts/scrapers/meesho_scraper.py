@@ -1,9 +1,12 @@
 """
-Meesho Scraper — In-Browser API approach.
+Meesho Scraper — httpx via ScraperAPI residential proxy.
 
-Loads meesho.com in a real Playwright browser, then calls the search API
-using page.evaluate() (window.fetch) so all cookies/CSRF tokens are handled
-automatically by the browser. No external httpx calls needed.
+Meesho blocks cloud server IPs (Render, AWS, etc.) so we route through
+ScraperAPI which provides residential IP rotation automatically.
+
+Free tier: 5,000 requests/month — fits well within our 2x/day schedule.
+Sign up: https://scraperapi.com (free, no credit card)
+Set env var: SCRAPERAPI_KEY=your_key
 """
 import sys
 import os
@@ -14,7 +17,6 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base_scraper import BaseScraper, RawDeal
-from category_map import CATEGORY_MAP
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -36,131 +38,97 @@ CATEGORY_QUERIES = {
 
 SEARCH_API = "https://www.meesho.com/api/v1/products/search"
 
+BASE_HEADERS = {
+    "accept": "application/json, text/plain, */*",
+    "accept-language": "en-IN,en;q=0.9,hi;q=0.8",
+    "content-type": "application/json",
+    "origin": "https://www.meesho.com",
+    "referer": "https://www.meesho.com/",
+    "user-agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/123.0.0.0 Safari/537.36"
+    ),
+}
+
 
 class MeeshoScraper(BaseScraper):
     def __init__(self):
         super().__init__(platform_name="meesho")
-        self.affiliate_tag = os.getenv("MEESHO_AFFILIATE_TAG", "")
+        self.affiliate_tag   = os.getenv("MEESHO_AFFILIATE_TAG", "")
+        self.scraperapi_key  = os.getenv("SCRAPERAPI_KEY", "")
+
+    def _get_proxy_url(self) -> str | None:
+        """Return ScraperAPI proxy URL if key is configured, else None."""
+        if self.scraperapi_key:
+            # ScraperAPI acts as a rotating residential proxy
+            return f"http://scraperapi:{self.scraperapi_key}@proxy-server.scraperapi.com:8001"
+        return None
 
     def scrape_deals(self) -> list[RawDeal]:
+        if not self.scraperapi_key:
+            logger.warning(
+                "Meesho: SCRAPERAPI_KEY not set — requests will likely 403. "
+                "Sign up free at scraperapi.com and add SCRAPERAPI_KEY to env vars."
+            )
         try:
-            return asyncio.run(self._scrape_in_browser())
+            return asyncio.run(self._scrape_async())
         except Exception as e:
             logger.error(f"Meesho scraper error: {e}")
             return []
 
-    async def _scrape_in_browser(self) -> list[RawDeal]:
-        from playwright.async_api import async_playwright
+    async def _scrape_async(self) -> list[RawDeal]:
+        import httpx
 
-        # Graceful stealth import
-        try:
-            from playwright_stealth import stealth_async
-            use_stealth = True
-        except (ImportError, Exception):
-            use_stealth = False
-            async def stealth_async(page):
-                await page.add_init_script("""
-                    Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-                    window.chrome = { runtime: {} };
-                    Object.defineProperty(navigator, 'languages', {get: () => ['en-IN', 'en']});
-                    Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3]});
-                """)
+        proxy_url = self._get_proxy_url()
+        proxy_cfg = {"http://": proxy_url, "https://": proxy_url} if proxy_url else None
+
+        if proxy_url:
+            logger.info("Meesho: using ScraperAPI residential proxy")
+        else:
+            logger.info("Meesho: no proxy configured (direct request)")
 
         deals: list[RawDeal] = []
 
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(
-                headless=True,
-                args=[
-                    "--no-sandbox",
-                    "--disable-setuid-sandbox",
-                    "--disable-dev-shm-usage",
-                    "--disable-blink-features=AutomationControlled",
-                ],
-            )
-            context = await browser.new_context(
-                viewport={"width": 1366, "height": 768},
-                locale="en-IN",
-                timezone_id="Asia/Kolkata",
-                user_agent=(
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                    "AppleWebKit/537.36 (KHTML, like Gecko) "
-                    "Chrome/123.0.0.0 Safari/537.36"
-                ),
-            )
-            page = await context.new_page()
-            if use_stealth:
-                await stealth_async(page)
-
-            # Load homepage to seed session cookies
-            logger.info("Meesho: loading homepage for session...")
-            try:
-                await page.goto(
-                    "https://www.meesho.com/",
-                    wait_until="domcontentloaded",
-                    timeout=30000,
-                )
-                await page.wait_for_timeout(3000)
-                cookies = await context.cookies()
-                logger.info(f"Meesho: session ready ({len(cookies)} cookies)")
-            except Exception as e:
-                logger.warning(f"Meesho: homepage load issue: {e} — proceeding anyway")
-
-            # Call Meesho API from inside the browser for each category
+        # Use a single client for all categories (connection reuse)
+        async with httpx.AsyncClient(
+            headers=BASE_HEADERS,
+            timeout=30,
+            follow_redirects=True,
+            proxies=proxy_cfg,
+            verify=False,        # ScraperAPI uses its own SSL cert
+        ) as client:
             for cat_slug, query in CATEGORY_QUERIES.items():
-                cat_deals = await self._fetch_category_in_browser(page, query, cat_slug)
+                cat_deals = await self._fetch_category(client, query, cat_slug)
                 deals.extend(cat_deals)
                 logger.info(f"Meesho [{cat_slug}]: {len(cat_deals)} deals")
-
-            await browser.close()
+                await asyncio.sleep(0.3)  # polite delay between categories
 
         logger.info(f"Meesho: {len(deals)} total deals scraped")
         return deals
 
-    async def _fetch_category_in_browser(self, page, query: str, cat_slug: str) -> list[RawDeal]:
-        """
-        Use page.evaluate() to call the Meesho API from inside the browser.
-        The browser automatically sends session cookies, CSRF tokens, etc.
-        """
+    async def _fetch_category(self, client, query: str, cat_slug: str) -> list[RawDeal]:
         all_deals = []
+        cursor = None
 
-        for page_num in range(1, 4):  # 3 pages per category = ~60 products
+        for page_num in range(1, 4):  # 3 pages per category
             payload = {
                 "query": query,
                 "type": "text_search",
                 "page": page_num,
                 "offset": (page_num - 1) * 20,
                 "limit": 20,
+                "cursor": cursor,
                 "isDevicePhone": False,
             }
-
             try:
-                result = await page.evaluate(
-                    """async (url, payload) => {
-                        try {
-                            const r = await fetch(url, {
-                                method: 'POST',
-                                headers: {
-                                    'content-type': 'application/json',
-                                    'accept': 'application/json, text/plain, */*',
-                                },
-                                body: JSON.stringify(payload),
-                            });
-                            if (!r.ok) return { error: r.status, catalogs: [] };
-                            return await r.json();
-                        } catch(e) {
-                            return { error: String(e), catalogs: [] };
-                        }
-                    }""",
-                    SEARCH_API,
-                    payload,
-                )
-
-                if result.get("error"):
-                    logger.debug(f"Meesho [{cat_slug}] p{page_num}: {result['error']}")
+                resp = await client.post(SEARCH_API, json=payload)
+                if resp.status_code != 200:
+                    logger.debug(f"Meesho [{cat_slug}] p{page_num}: HTTP {resp.status_code}")
                     break
 
-                catalogs = result.get("catalogs", [])
+                data = resp.json()
+                catalogs = data.get("catalogs", [])
                 if not catalogs:
                     break
 
@@ -169,13 +137,12 @@ class MeeshoScraper(BaseScraper):
                     if deal:
                         all_deals.append(deal)
 
-                if not result.get("cursor"):
+                cursor = data.get("cursor")
+                if not cursor:
                     break
 
-                await page.wait_for_timeout(400)  # polite delay
-
             except Exception as e:
-                logger.debug(f"Meesho [{cat_slug}] p{page_num} exception: {e}")
+                logger.debug(f"Meesho [{cat_slug}] p{page_num}: {e}")
                 break
 
         return all_deals

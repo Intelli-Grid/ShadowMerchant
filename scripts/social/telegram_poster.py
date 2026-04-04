@@ -701,7 +701,7 @@ def run_interactive_bot():
         args = context.args  # e.g. ["amazon", "meesho"]
         valid = ["amazon", "flipkart", "myntra", "meesho", "nykaa", "croma"]
         scrapers = [s.lower() for s in args if s.lower() in valid] if args else None
-        label = ", ".join(scrapers) if scrapers else "amazon · flipkart · myntra · meesho"
+        label = ", ".join(scrapers) if scrapers else "amazon · meesho"
 
         await update.message.reply_text(
             f"⏳ *Pipeline starting…*\n"

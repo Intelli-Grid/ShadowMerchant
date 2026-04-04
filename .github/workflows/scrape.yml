@@ -2,22 +2,20 @@ name: ShadowMerchant — Deal Scraper
 
 on:
   schedule:
-    # 4x/day (UTC) — 6am, 12pm, 6pm, 12am IST
+    # 2x/day (UTC) — morning and evening IST
     - cron: '30 0 * * *'    # 06:00 AM IST
-    - cron: '30 6 * * *'    # 12:00 PM IST
-    - cron: '30 12 * * *'   # 06:00 PM IST
-    - cron: '30 18 * * *'   # 12:00 AM IST
+    - cron: '30 15 * * *'   # 09:00 PM IST
   workflow_dispatch:
     inputs:
       scrapers:
-        description: 'Scrapers to run (space-separated, e.g. "meesho amazon flipkart")'
+        description: 'Scrapers to run (space-separated, e.g. "meesho amazon")'
         required: false
         default: 'meesho amazon'
 
 jobs:
   scrape:
     name: Run Scrapers
-    runs-on: self-hosted       # Uses your Windows machine (residential IP)
+    runs-on: self-hosted       # Uses your Windows machine (residential IP — bypasses Meesho block)
     timeout-minutes: 60
 
     steps:
@@ -28,26 +26,26 @@ jobs:
         shell: powershell
         run: pip install -r scripts/requirements.txt --quiet --no-warn-script-location
 
-      - name: Ensure Playwright Firefox is installed
+      - name: Ensure Playwright Chromium is installed
         shell: powershell
-        run: python -m playwright install firefox
+        run: python -m playwright install chromium
 
       - name: Run pipeline
         shell: powershell
         env:
-          MONGODB_URI:           ${{ secrets.MONGODB_URI || secrets.MONGO_URI }}
-          AMAZON_AFFILIATE_TAG:  ${{ secrets.AMAZON_AFFILIATE_TAG }}
-          MEESHO_AFFILIATE_TAG:  ${{ secrets.MEESHO_AFFILIATE_TAG }}
-          ALGOLIA_APP_ID:        ${{ secrets.ALGOLIA_APP_ID }}
-          ALGOLIA_ADMIN_KEY:     ${{ secrets.ALGOLIA_ADMIN_KEY }}
-          ALGOLIA_INDEX_NAME:    ${{ secrets.ALGOLIA_INDEX_NAME }}
-          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
-          CLOUDINARY_API_KEY:    ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
-          GROQ_API_KEY:          ${{ secrets.GROQ_API_KEY }}
-          TELEGRAM_BOT_TOKEN:    ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHANNEL_ID:   "@ShadowMerchantDeals"
-          PYTHONIOENCODING:      utf-8
+          MONGODB_URI:              ${{ secrets.MONGODB_URI || secrets.MONGO_URI }}
+          AMAZON_AFFILIATE_TAG:     ${{ secrets.AMAZON_AFFILIATE_TAG }}
+          MEESHO_AFFILIATE_TAG:     ${{ secrets.MEESHO_AFFILIATE_TAG }}
+          ALGOLIA_APP_ID:           ${{ secrets.ALGOLIA_APP_ID }}
+          ALGOLIA_ADMIN_KEY:        ${{ secrets.ALGOLIA_ADMIN_KEY }}
+          ALGOLIA_INDEX_NAME:       ${{ secrets.ALGOLIA_INDEX_NAME }}
+          CLOUDINARY_CLOUD_NAME:    ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY:       ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET:    ${{ secrets.CLOUDINARY_API_SECRET }}
+          GROQ_API_KEY:             ${{ secrets.GROQ_API_KEY }}
+          TELEGRAM_BOT_TOKEN:       ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID:      "@ShadowMerchantDeals"
+          PYTHONIOENCODING:         utf-8
         run: |
           Set-Location scripts
           $scrapers = "${{ github.event.inputs.scrapers }}"
@@ -56,6 +54,27 @@ jobs:
           }
           $scraperArgs = $scrapers -split '\s+'
           python scheduler.py --run-now --scrapers $scraperArgs
+
+      - name: Send Telegram report
+        if: always()
+        shell: powershell
+        env:
+          TELEGRAM_BOT_TOKEN:       ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_ADMIN_CHAT_ID:   ${{ secrets.TELEGRAM_ADMIN_CHAT_ID }}
+        run: |
+          $token   = $env:TELEGRAM_BOT_TOKEN
+          $chat_id = $env:TELEGRAM_ADMIN_CHAT_ID
+          if (-not $token -or -not $chat_id) {
+            Write-Host "No Telegram credentials -- skipping notification"
+            exit 0
+          }
+          $status  = if ("${{ job.status }}" -eq "success") { "Success" } else { "Failed" }
+          $scrapers_run = "${{ github.event.inputs.scrapers }}"
+          if ([string]::IsNullOrEmpty($scrapers_run)) { $scrapers_run = "meesho amazon" }
+          $msg = "GitHub Actions Run - $status - Scrapers: $scrapers_run | Check /status for updated deal counts"
+          $body = @{ chat_id = $chat_id; text = $msg } | ConvertTo-Json
+          Invoke-RestMethod -Uri "https://api.telegram.org/bot$token/sendMessage" `
+            -Method POST -Body $body -ContentType "application/json" -ErrorAction SilentlyContinue
 
       - name: Show pipeline log
         if: always()
