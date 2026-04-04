@@ -1,18 +1,23 @@
 """
-Meesho Scraper — httpx via ScraperAPI residential proxy.
+Meesho Scraper — ScraperAPI render mode + BeautifulSoup HTML parsing.
 
-Meesho blocks cloud server IPs (Render, AWS, etc.) so we route through
-ScraperAPI which provides residential IP rotation automatically.
+Uses ScraperAPI's headless Chrome (residential IP) to load Meesho search
+pages with JavaScript, then parses the rendered HTML for product data.
 
-Free tier: 5,000 requests/month — fits well within our 2x/day schedule.
-Sign up: https://scraperapi.com (free, no credit card)
-Set env var: SCRAPERAPI_KEY=your_key
+Free tier: 5,000 credits/month. Each rendered page = ~5 credits.
+Usage: 12 categories x 3 pages = 36 renders per run = ~180 credits/run.
+That allows ~27 full runs per month on the free tier.
+
+Env vars needed:
+  SCRAPERAPI_KEY  — from scraperapi.com (free signup, no credit card)
+  MEESHO_AFFILIATE_TAG — your Meesho affiliate tag
 """
-import sys
-import os
 import asyncio
 import logging
+import os
+import sys
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -20,6 +25,9 @@ from scrapers.base_scraper import BaseScraper, RawDeal
 
 load_dotenv()
 logger = logging.getLogger(__name__)
+
+SCRAPERAPI_URL = "https://api.scraperapi.com"
+MEESHO_BASE    = "https://www.meesho.com"
 
 CATEGORY_QUERIES = {
     "electronics":  "electronics",
@@ -30,158 +38,173 @@ CATEGORY_QUERIES = {
     "books":        "books stationery",
     "toys":         "kids toys baby",
     "health":       "health wellness",
-    "automotive":   "car bike accessories",
-    "grocery":      "food grocery",
+    "automotive":   "car accessories",
+    "grocery":      "food snacks",
     "gaming":       "gaming accessories",
     "travel":       "travel bags luggage",
 }
 
-SEARCH_API = "https://www.meesho.com/api/v1/products/search"
-
-BASE_HEADERS = {
-    "accept": "application/json, text/plain, */*",
-    "accept-language": "en-IN,en;q=0.9,hi;q=0.8",
-    "content-type": "application/json",
-    "origin": "https://www.meesho.com",
-    "referer": "https://www.meesho.com/",
-    "user-agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/123.0.0.0 Safari/537.36"
-    ),
-}
+# Default assumed discount if only one price is shown (Meesho often omits MRP)
+DEFAULT_DISCOUNT_FACTOR = 1.35   # assume original = discounted x 1.35
 
 
 class MeeshoScraper(BaseScraper):
+
     def __init__(self):
         super().__init__(platform_name="meesho")
-        self.affiliate_tag   = os.getenv("MEESHO_AFFILIATE_TAG", "")
-        self.scraperapi_key  = os.getenv("SCRAPERAPI_KEY", "")
+        self.affiliate_tag    = os.getenv("MEESHO_AFFILIATE_TAG", "")
+        self.scraperapi_key   = os.getenv("SCRAPERAPI_KEY", "")
 
-    def _get_proxy_url(self) -> str | None:
-        """Return ScraperAPI proxy URL if key is configured, else None."""
-        if self.scraperapi_key:
-            # ScraperAPI acts as a rotating residential proxy
-            return f"http://scraperapi:{self.scraperapi_key}@proxy-server.scraperapi.com:8001"
-        return None
-
+    # ─────────────────────────────────────────────────────────────
     def scrape_deals(self) -> list[RawDeal]:
         if not self.scraperapi_key:
-            logger.warning(
-                "Meesho: SCRAPERAPI_KEY not set — requests will likely 403. "
-                "Sign up free at scraperapi.com and add SCRAPERAPI_KEY to env vars."
+            logger.error(
+                "Meesho: SCRAPERAPI_KEY not set. "
+                "Sign up free at scraperapi.com and add it to Render env vars."
             )
+            return []
         try:
-            return asyncio.run(self._scrape_async())
+            return asyncio.run(self._scrape_all())
         except Exception as e:
-            logger.error(f"Meesho scraper error: {e}")
+            logger.error(f"Meesho scraper crashed: {e}")
             return []
 
-    async def _scrape_async(self) -> list[RawDeal]:
+    # ─────────────────────────────────────────────────────────────
+    async def _scrape_all(self) -> list[RawDeal]:
         import httpx
-
-        proxy_url = self._get_proxy_url()
-        proxy_cfg = {"http://": proxy_url, "https://": proxy_url} if proxy_url else None
-
-        if proxy_url:
-            logger.info("Meesho: using ScraperAPI residential proxy")
-        else:
-            logger.info("Meesho: no proxy configured (direct request)")
-
         deals: list[RawDeal] = []
 
-        # Use a single client for all categories (connection reuse)
-        async with httpx.AsyncClient(
-            headers=BASE_HEADERS,
-            timeout=30,
-            follow_redirects=True,
-            proxies=proxy_cfg,
-            verify=False,        # ScraperAPI uses its own SSL cert
-        ) as client:
+        async with httpx.AsyncClient(verify=False, timeout=90) as client:
             for cat_slug, query in CATEGORY_QUERIES.items():
-                cat_deals = await self._fetch_category(client, query, cat_slug)
+                cat_deals = await self._scrape_category(client, query, cat_slug)
                 deals.extend(cat_deals)
                 logger.info(f"Meesho [{cat_slug}]: {len(cat_deals)} deals")
-                await asyncio.sleep(0.3)  # polite delay between categories
+                await asyncio.sleep(1.0)   # be polite + let ScraperAPI breathe
 
-        logger.info(f"Meesho: {len(deals)} total deals scraped")
+        logger.info(f"Meesho total: {len(deals)} deals")
         return deals
 
-    async def _fetch_category(self, client, query: str, cat_slug: str) -> list[RawDeal]:
-        all_deals = []
-        cursor = None
+    # ─────────────────────────────────────────────────────────────
+    async def _scrape_category(
+        self, client, query: str, cat_slug: str
+    ) -> list[RawDeal]:
+        from bs4 import BeautifulSoup
+        all_deals: list[RawDeal] = []
 
-        for page_num in range(1, 4):  # 3 pages per category
-            payload = {
-                "query": query,
-                "type": "text_search",
-                "page": page_num,
-                "offset": (page_num - 1) * 20,
-                "limit": 20,
-                "cursor": cursor,
-                "isDevicePhone": False,
-            }
-            try:
-                resp = await client.post(SEARCH_API, json=payload)
-                if resp.status_code != 200:
-                    logger.debug(f"Meesho [{cat_slug}] p{page_num}: HTTP {resp.status_code}")
-                    break
-
-                data = resp.json()
-                catalogs = data.get("catalogs", [])
-                if not catalogs:
-                    break
-
-                for catalog in catalogs:
-                    deal = self._catalog_to_deal(catalog, cat_slug)
-                    if deal:
-                        all_deals.append(deal)
-
-                cursor = data.get("cursor")
-                if not cursor:
-                    break
-
-            except Exception as e:
-                logger.debug(f"Meesho [{cat_slug}] p{page_num}: {e}")
+        for page in range(1, 4):   # 3 pages per category
+            url = f"{MEESHO_BASE}/search?q={query}&page={page}"
+            html = await self._fetch_with_retry(client, url)
+            if not html:
                 break
+
+            soup  = BeautifulSoup(html, "html.parser")
+            cards = soup.find_all("a", href=lambda h: h and "/p/" in h)
+
+            if not cards:
+                logger.debug(f"Meesho [{cat_slug}] p{page}: no product cards")
+                break
+
+            for card in cards:
+                deal = self._parse_card(card, cat_slug)
+                if deal:
+                    all_deals.append(deal)
+
+            logger.debug(
+                f"Meesho [{cat_slug}] p{page}: {len(cards)} cards → "
+                f"{len(all_deals)} valid deals so far"
+            )
 
         return all_deals
 
-    def _catalog_to_deal(self, catalog: dict, cat_slug: str) -> RawDeal | None:
+    # ─────────────────────────────────────────────────────────────
+    async def _fetch_with_retry(self, client, url: str, retries: int = 3) -> str | None:
+        """Fetch via ScraperAPI render mode, retrying on 5xx errors."""
+        for attempt in range(1, retries + 1):
+            try:
+                r = await client.get(
+                    SCRAPERAPI_URL,
+                    params={
+                        "api_key":      self.scraperapi_key,
+                        "url":          url,
+                        "render":       "true",
+                        "country_code": "in",
+                    },
+                )
+                if r.status_code == 200 and len(r.text) > 5000:
+                    return r.text
+                logger.debug(
+                    f"ScraperAPI attempt {attempt}: HTTP {r.status_code} "
+                    f"({len(r.text)} chars) for {url}"
+                )
+            except Exception as e:
+                logger.debug(f"ScraperAPI attempt {attempt} error: {e}")
+
+            if attempt < retries:
+                await asyncio.sleep(2 * attempt)
+
+        logger.warning(f"Meesho: all {retries} attempts failed for {url}")
+        return None
+
+    # ─────────────────────────────────────────────────────────────
+    def _parse_card(self, card, cat_slug: str) -> RawDeal | None:
+        """
+        Parse one product card <a> element.
+
+        HTML structure (stable attributes, not fragile class names):
+          <a href="/slug/p/id">
+            <p color="greyT2" font-size="16px">Product Title</p>
+            <h5 font-weight="bold">₹88</h5>      ← discounted price
+            <h6 ...><s>₹120</s></h6>             ← original price (if shown)
+            <img src="https://images.meesho.com/...webp" />
+        """
         try:
-            title = (
-                catalog.get("hero_product_name")
-                or catalog.get("name")
-                or ""
-            ).strip()
+            href = card.get("href", "")
+            if not href or "/p/" not in href:
+                return None
+
+            # ─── Product URL ──────────────────────────────────────
+            slug_part  = href.lstrip("/")
+            product_url = f"{MEESHO_BASE}/{slug_part}"
+            if self.affiliate_tag:
+                product_url += f"?aid={self.affiliate_tag}"
+
+            # ─── Title ───────────────────────────────────────────
+            title_tag = card.find(["p", "span", "div"], attrs={"color": "greyT2"})
+            if not title_tag:
+                # Fallback: first <p> in card
+                title_tag = card.find("p")
+            title = title_tag.get_text(strip=True) if title_tag else ""
+            # Also try alt text of main image
+            if not title:
+                img = card.find("img")
+                title = img.get("alt", "") if img else ""
             if not title:
                 return None
 
-            disc_price = float(catalog.get("min_product_price") or catalog.get("min_catalog_price") or 0)
-            orig_price = float(catalog.get("max_catalog_price") or disc_price * 1.2)
+            # ─── Prices ──────────────────────────────────────────
+            # Discounted price: <h5 font-weight="bold">₹88</h5>
+            disc_tag = card.find("h5", attrs={"font-weight": "bold"})
+            if not disc_tag:
+                disc_tag = card.find("h5")
+            disc_price = self._parse_price(disc_tag.get_text(strip=True) if disc_tag else "")
 
-            if disc_price <= 0 or orig_price <= disc_price:
+            if disc_price <= 0:
                 return None
 
-            product_id = catalog.get("product_id", "")
-            slug       = catalog.get("slug") or catalog.get("original_slug") or ""
-            catalog_id = catalog.get("id") or catalog.get("catalogId") or ""
-
-            if slug and catalog_id:
-                raw_url = f"https://www.meesho.com/{slug}/p/{catalog_id}"
-            elif product_id:
-                raw_url = f"https://www.meesho.com/s/p/{product_id}"
+            # Original price: <s> strikethrough tag inside <h6>
+            orig_tag = card.find("s")
+            if orig_tag:
+                orig_price = self._parse_price(orig_tag.get_text(strip=True))
             else:
-                return None
+                orig_price = 0.0
 
-            product_url = f"{raw_url}?aid={self.affiliate_tag}" if self.affiliate_tag else raw_url
+            # If no original price shown, assume 35% discount
+            if orig_price <= disc_price:
+                orig_price = round(disc_price * DEFAULT_DISCOUNT_FACTOR)
 
-            image_url = catalog.get("image", "")
-            if not image_url:
-                imgs = catalog.get("product_images") or []
-                if imgs:
-                    first = imgs[0]
-                    image_url = first.get("url", "") if isinstance(first, dict) else str(first)
+            # ─── Image ───────────────────────────────────────────
+            img_tag = card.find("img", src=lambda s: s and "meesho.com" in s)
+            image_url = img_tag.get("src", "") if img_tag else ""
 
             return RawDeal(
                 title=title[:200],
@@ -192,15 +215,32 @@ class MeeshoScraper(BaseScraper):
                 image_url=image_url,
                 category=cat_slug,
             )
+
         except Exception as e:
-            logger.debug(f"Meesho catalog parse error: {e}")
+            logger.debug(f"Meesho card parse error: {e}")
             return None
 
+    # ─────────────────────────────────────────────────────────────
+    @staticmethod
+    def _parse_price(text: str) -> float:
+        """Extract numeric price from strings like '₹88', 'Rs.120', '1,499'."""
+        import re
+        cleaned = re.sub(r"[^\d.]", "", text)
+        try:
+            return float(cleaned)
+        except (ValueError, TypeError):
+            return 0.0
 
+
+# ─────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     s = MeeshoScraper()
     results = s.scrape_deals()
     print(f"\nTotal deals: {len(results)}")
-    for r in results[:6]:
-        print(f"[{r.category}] {r.title[:60]} | Rs.{r.discounted_price} (was Rs.{r.original_price})")
+    for r in results[:8]:
+        pct = int((1 - r.discounted_price / r.original_price) * 100)
+        print(
+            f"[{r.category}] {r.title[:55]:<55} "
+            f"Rs.{r.discounted_price:>6.0f}  (was Rs.{r.original_price:.0f}, -{pct}%)"
+        )
