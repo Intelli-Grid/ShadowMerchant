@@ -401,6 +401,40 @@ def start_web_server():
             "timestamp": datetime.utcnow().isoformat()
         })
 
+    @app.route('/diagnose')
+    def diagnose():
+        """Live diagnostic endpoint — shows exact failure reason for Meesho scraper."""
+        import requests as req
+        key = os.getenv("SCRAPERAPI_KEY", "")
+        result = {
+            "scraperapi_key_set": bool(key),
+            "scraperapi_key_preview": f"{key[:8]}..." if key else "MISSING",
+            "test_request": None,
+            "test_status": None,
+            "test_body_length": None,
+            "test_error": None,
+        }
+        if key:
+            try:
+                r = req.get(
+                    "https://api.scraperapi.com",
+                    params={
+                        "api_key": key,
+                        "url": "https://www.meesho.com/search?q=electronics",
+                        "render": "true",
+                        "country_code": "in",
+                    },
+                    timeout=90,
+                )
+                result["test_status"] = r.status_code
+                result["test_body_length"] = len(r.text)
+                result["test_has_products"] = "/p/" in r.text
+                result["test_request"] = "OK"
+            except Exception as e:
+                result["test_error"] = str(e)
+                result["test_request"] = "FAILED"
+        return jsonify(result)
+
     port = int(os.environ.get("PORT", 8765))
     logger.info(f"🌐 Starting Health-Check server on port {port}...")
     app.run(host="0.0.0.0", port=port, use_reloader=False)
