@@ -403,37 +403,65 @@ def start_web_server():
 
     @app.route('/diagnose')
     def diagnose():
-        """Live diagnostic endpoint — shows exact failure reason for Meesho scraper."""
+        """Live diagnostic — tests both ScraperAPI render mode and proxy+API mode."""
         import requests as req
         key = os.getenv("SCRAPERAPI_KEY", "")
         result = {
-            "scraperapi_key_set": bool(key),
+            "scraperapi_key_set":     bool(key),
             "scraperapi_key_preview": f"{key[:8]}..." if key else "MISSING",
-            "test_request": None,
-            "test_status": None,
-            "test_body_length": None,
-            "test_error": None,
+            "render_mode":            {},
+            "proxy_api_mode":         {},
         }
-        if key:
+
+        if not key:
+            return jsonify(result)
+
+        # ── Test 1: Render mode (we expect this to fail with 500) ──────────
+        try:
+            r = req.get(
+                "https://api.scraperapi.com",
+                params={"api_key": key, "url": "https://www.meesho.com/search?q=electronics", "render": "true", "country_code": "in"},
+                timeout=60,
+            )
+            result["render_mode"] = {"status": r.status_code, "body_length": len(r.text), "has_products": "/p/" in r.text}
+        except Exception as e:
+            result["render_mode"] = {"error": str(e)}
+
+        # ── Test 2: Proxy + JSON API mode (our new approach) ───────────────
+        try:
+            proxies = {"http": "http://proxy-server.scraperapi.com:8001", "https": "http://proxy-server.scraperapi.com:8001"}
+            payload = {"query": "electronics", "type": "text_search", "page": 1, "offset": 0, "limit": 5, "cursor": None, "isDevicePhone": False}
+            headers = {
+                "accept": "application/json, text/plain, */*",
+                "content-type": "application/json",
+                "origin": "https://www.meesho.com",
+                "referer": "https://www.meesho.com/",
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+            }
+            r2 = req.post(
+                "https://www.meesho.com/api/v1/products/search",
+                json=payload, headers=headers,
+                proxies=proxies,
+                auth=("scraperapi", key),
+                timeout=30, verify=False,
+            )
+            data = {}
             try:
-                r = req.get(
-                    "https://api.scraperapi.com",
-                    params={
-                        "api_key": key,
-                        "url": "https://www.meesho.com/search?q=electronics",
-                        "render": "true",
-                        "country_code": "in",
-                    },
-                    timeout=90,
-                )
-                result["test_status"] = r.status_code
-                result["test_body_length"] = len(r.text)
-                result["test_has_products"] = "/p/" in r.text
-                result["test_request"] = "OK"
-            except Exception as e:
-                result["test_error"] = str(e)
-                result["test_request"] = "FAILED"
+                data = r2.json()
+            except Exception:
+                pass
+            catalogs = data.get("catalogs", [])
+            result["proxy_api_mode"] = {
+                "status":         r2.status_code,
+                "body_length":    len(r2.text),
+                "catalogs_found": len(catalogs),
+                "first_item":     catalogs[0].get("hero_product_name", "?") if catalogs else None,
+            }
+        except Exception as e:
+            result["proxy_api_mode"] = {"error": str(e)}
+
         return jsonify(result)
+
 
     port = int(os.environ.get("PORT", 8765))
     logger.info(f"🌐 Starting Health-Check server on port {port}...")
