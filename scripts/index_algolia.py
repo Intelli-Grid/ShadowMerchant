@@ -4,6 +4,7 @@ Run after pipeline: python scripts/index_algolia.py
 """
 import sys
 import os
+import asyncio
 import logging
 from pathlib import Path
 from dotenv import load_dotenv
@@ -14,14 +15,6 @@ sys.path.insert(0, str(Path(__file__).parent))
 from utils.db import get_db
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-
-def get_algolia_client():
-    from algoliasearch.search.client import SearchClientSync
-    app_id = os.getenv("ALGOLIA_APP_ID")
-    admin_key = os.getenv("ALGOLIA_ADMIN_KEY")
-    if not app_id or not admin_key:
-        raise ValueError("ALGOLIA_APP_ID and ALGOLIA_ADMIN_KEY must be set in scripts/.env")
-    return SearchClientSync(app_id, admin_key)
 
 
 def deal_to_record(deal: dict) -> dict:
@@ -47,23 +40,21 @@ def deal_to_record(deal: dict) -> dict:
     }
 
 
-def index_deals():
+async def index_deals_async():
+    from algoliasearch.search.client import SearchClient
+
+    app_id = os.getenv("ALGOLIA_APP_ID")
+    admin_key = os.getenv("ALGOLIA_ADMIN_KEY")
+    if not app_id or not admin_key:
+        logging.error("ALGOLIA_APP_ID and ALGOLIA_ADMIN_KEY must be set in scripts/.env")
+        return
+
     db = get_db()
     if db is None:
         logging.error("No DB connection.")
         return
 
     index_name = os.getenv("ALGOLIA_INDEX_NAME", "Shadow_Merchant")
-
-    try:
-        client = get_algolia_client()
-    except ImportError:
-        logging.error("algoliasearch package not installed. Run: pip install algoliasearch")
-        return
-    except ValueError as e:
-        logging.error(str(e))
-        return
-
     deals = list(db.deals.find({"is_active": True}))
     logging.info(f"Indexing {len(deals)} deals to Algolia index '{index_name}'")
 
@@ -73,14 +64,18 @@ def index_deals():
 
     records = [deal_to_record(d) for d in deals]
 
-    # Batch in chunks of 1000
-    batch_size = 1000
-    for i in range(0, len(records), batch_size):
-        batch = records[i:i + batch_size]
-        client.save_objects(index_name=index_name, objects=batch)
-        logging.info(f"  Indexed batch {i // batch_size + 1} ({len(batch)} records)")
+    async with SearchClient(app_id, admin_key) as client:
+        batch_size = 1000
+        for i in range(0, len(records), batch_size):
+            batch = records[i:i + batch_size]
+            await client.save_objects(index_name=index_name, objects=batch)
+            logging.info(f"  Indexed batch {i // batch_size + 1} ({len(batch)} records)")
 
-    logging.info(f"✅ Algolia indexing complete. {len(records)} deals indexed.")
+    logging.info(f"Algolia indexing complete. {len(records)} deals indexed.")
+
+
+def index_deals():
+    asyncio.run(index_deals_async())
 
 
 if __name__ == "__main__":

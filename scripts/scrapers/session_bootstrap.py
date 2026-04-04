@@ -33,9 +33,9 @@ async def _bootstrap_async(seed_url: str, wait_ms: int = 3000) -> tuple[dict, di
     headers_dict: dict = {}
 
     async with async_playwright() as p:
-        browser = await p.firefox.launch(
-            headless=False,
-            args=[],
+        browser = await p.chromium.launch(
+            headless=True,
+            args=["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
         )
         context = await browser.new_context(
             viewport={"width": 1366, "height": 768},
