@@ -1,16 +1,32 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Search as SearchIcon, Loader2 } from 'lucide-react';
 import { DealCard } from '@/components/deals/DealCard';
 import { Deal } from '@/types';
 
-export default function SearchPage() {
-  const [query, setQuery] = useState('');
+function SearchPageInner() {
+  const searchParams = useSearchParams();
+  const initialQ = searchParams.get('q') || '';
+  const [query, setQuery] = useState(initialQ);
   const [results, setResults] = useState<Deal[]>([]);
   const [nbHits, setNbHits] = useState(0);
   const [loading, setLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Trigger search immediately if URL has a ?q= param on mount
+  useEffect(() => {
+    if (initialQ.trim().length >= 2) {
+      setLoading(true);
+      fetch(`/api/search?q=${encodeURIComponent(initialQ)}`)
+        .then(r => r.json())
+        .then(data => { setResults(data.hits || []); setNbHits(data.nbHits || 0); })
+        .catch(() => setResults([]))
+        .finally(() => setLoading(false));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -92,3 +108,18 @@ export default function SearchPage() {
     </main>
   );
 }
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-2xl mx-auto mb-10">
+          <div className="w-full h-14 rounded-xl animate-pulse" style={{ background: 'var(--bg-raised)' }} />
+        </div>
+      </main>
+    }>
+      <SearchPageInner />
+    </Suspense>
+  );
+}
+

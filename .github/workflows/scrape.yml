@@ -12,7 +12,7 @@ on:
       scrapers:
         description: 'Scrapers to run (space-separated, e.g. "meesho amazon flipkart")'
         required: false
-        default: 'meesho amazon flipkart myntra nykaa'
+        default: 'meesho amazon'
 
 jobs:
   scrape:
@@ -52,7 +52,7 @@ jobs:
           Set-Location scripts
           $scrapers = "${{ github.event.inputs.scrapers }}"
           if ([string]::IsNullOrEmpty($scrapers.Trim())) {
-            $scrapers = "meesho amazon flipkart myntra"
+            $scrapers = "meesho amazon"
           }
           $scraperArgs = $scrapers -split '\s+'
           python scheduler.py --run-now --scrapers $scraperArgs

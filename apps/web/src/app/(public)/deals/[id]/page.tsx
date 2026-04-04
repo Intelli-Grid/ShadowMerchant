@@ -247,7 +247,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 href={`https://wa.me/?text=${encodeURIComponent(
                   `🔥 Found this deal on ShadowMerchant!\n\n${deal.title}\n` +
                   `₹${deal.discounted_price.toLocaleString('en-IN')} (${Math.round(deal.discount_percent ?? 0)}% OFF)\n\n` +
-                  `👉 Get it here: https://shadowmerchant.in/deals/${deal._id}\n`
+                  `👉 Get it here: ${process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online'}/deals/${deal._id}\n`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

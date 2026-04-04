@@ -58,8 +58,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
         '@context': 'https://schema.org', '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://shadowmerchant.in' },
-          { '@type': 'ListItem', position: 2, name: label, item: `https://shadowmerchant.in/category/${slug}` },
+          { '@type': 'ListItem', position: 1, name: 'Home', item: process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online' },
+          { '@type': 'ListItem', position: 2, name: label, item: `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online'}/category/${slug}` },
         ]
       })}} />
       <div className="mb-8">

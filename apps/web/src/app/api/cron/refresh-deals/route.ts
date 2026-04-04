@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 
 /**
  * POST /api/cron/refresh-deals
  *
  * Called by Vercel Cron 2x/day after the GitHub Actions pipeline completes.
- * Deactivates stale deals and clears Redis cache so fresh data is served.
+ * Deactivates stale deals, clears Redis cache, and revalidates ISR pages
+ * so fresh data is served immediately after the scraper pipeline runs.
  *
  * Security: Always requires a valid Bearer CRON_SECRET header.
  * CRON_SECRET must be set in environment variables — returns 500 if missing.
@@ -38,17 +40,31 @@ export async function POST(req: NextRequest) {
       { $set: { is_active: false } }
     );
 
-    // Clear known cache keys (targeted delete — no redis.keys() scan needed)
+    // Clear all known Redis cache keys including the homepage "new today" section
+    // and the deal list cache. The deals:feed:* keys are not scannable without
+    // redis.keys() so we clear the known static variants.
     const keysToDelete = [
       CACHE_KEYS.TRENDING_DEALS,
       CACHE_KEYS.CATEGORIES,
       CACHE_KEYS.DEAL_LIST(''),
+      'deals:new_today',              // BUG-10: was missing; caches homepage new deals section
+      'deals:feed:all',               // NEW-05: feed page cache variants
+      'deals:feed:electronics',
+      'deals:feed:fashion',
+      'deals:feed:beauty',
+      'deals:feed:home',
     ];
     await Promise.allSettled(keysToDelete.map((k) => redis.del(k)));
+
+    // NEW-05: Revalidate Vercel ISR cache — Redis del alone does not bust ISR pages
+    revalidatePath('/');
+    revalidatePath('/deals');
+    revalidatePath('/deals/feed');
 
     const stats = {
       stale_deactivated: staleResult.modifiedCount,
       cache_keys_cleared: keysToDelete.length,
+      isr_revalidated: ['/', '/deals', '/deals/feed'],
       timestamp: new Date().toISOString(),
     };
 
@@ -60,4 +76,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-

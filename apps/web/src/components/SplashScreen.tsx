@@ -4,25 +4,28 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 export function SplashScreen() {
-  const [visible, setVisible] = useState(false);
+  // BUG-17: Lazy initializer reads localStorage synchronously on first render —
+  // avoids the 1-frame flash caused by useState(false) + async useEffect pattern.
+  const [visible, setVisible] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false; // SSR guard
+    return !localStorage.getItem('sm_splash_seen');
+  });
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
-    const seen = localStorage.getItem('sm_splash_seen');
-    if (!seen) {
-      setTimeout(() => setVisible(true), 0);
-      // Start fade-out at 1.8s, fully hide at 2.2s
-      const fadeTimer = setTimeout(() => setFading(true), 1800);
-      const hideTimer = setTimeout(() => {
-        setVisible(false);
-        localStorage.setItem('sm_splash_seen', '1');
-      }, 2200);
-      return () => {
-        clearTimeout(fadeTimer);
-        clearTimeout(hideTimer);
-      };
-    }
-  }, []);
+    if (!visible) return;
+    // Start fade-out at 1.8s, fully hide at 2.2s
+    const fadeTimer = setTimeout(() => setFading(true), 1800);
+    const hideTimer = setTimeout(() => {
+      setVisible(false);
+      localStorage.setItem('sm_splash_seen', '1');
+    }, 2200);
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(hideTimer);
+    };
+  }, [visible]);
+
 
   if (!visible) return null;
 

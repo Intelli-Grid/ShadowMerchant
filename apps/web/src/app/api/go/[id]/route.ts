@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+
+  // Validate ObjectId before hitting the database — prevents Mongoose CastError → 500
+  if (!mongoose.isValidObjectId(id)) {
+    return NextResponse.json({ error: 'Invalid deal ID' }, { status: 400 });
+  }
 
   try {
     const { connectDB } = await import('@/lib/db');

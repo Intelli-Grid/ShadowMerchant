@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams;
   const platform = params.get('platform');
   const category = params.get('category');
-  const min_discount = Number(params.get('min_discount') || 30);
+  const min_discount = Number(params.get('min_discount') || 0);
   const max_price = Number(params.get('max_price') || 999999);
   const sort = params.get('sort') || 'newest';
   const page = Number(params.get('page') || 1);

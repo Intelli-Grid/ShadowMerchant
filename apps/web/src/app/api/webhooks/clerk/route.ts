@@ -1,5 +1,6 @@
 import { Webhook } from 'svix';
 import { headers } from 'next/headers';
+import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 
@@ -18,9 +19,7 @@ export async function POST(req: Request) {
 
   // If there are no headers, error out
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response('Error occured -- no svix headers', {
-      status: 400
-    });
+    return NextResponse.json({ error: 'Error occurred -- no svix headers' }, { status: 400 });
   }
 
   // Get the body
@@ -41,9 +40,7 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error('Error verifying webhook:', err);
-    return new Response('Error occured', {
-      status: 400
-    });
+    return NextResponse.json({ error: 'Error occurred -- invalid signature' }, { status: 400 });
   }
 
   // Handle the webhook
@@ -83,7 +80,7 @@ export async function POST(req: Request) {
       console.log(`User ${id} synchronized to MongoDB`);
     } catch (e) {
       console.error('Error synchronizing user to MongoDB:', e);
-      return new Response('Database error', { status: 500 });
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
     }
   }
 
@@ -96,5 +93,6 @@ export async function POST(req: Request) {
     }
   }
 
-  return new Response('', { status: 200 });
+  return NextResponse.json({ success: true }, { status: 200 });
 }
+

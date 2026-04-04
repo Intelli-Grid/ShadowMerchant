@@ -31,15 +31,16 @@ async function getDealsData(platform?: string) {
     // Fetch swimlanes using generic DB aggregation or multiple finds
     // For performance, we'll do 4 parallel finds for the 4 primary categories
     const categories = [
-      { slug: 'electronics', title: 'Top Electronics', emoji: '💻', keyword: /electronic|mobile|laptop|gadget/i },
-      { slug: 'fashion', title: 'Trending Fashion', emoji: '👗', keyword: /fashion|clothing|apparel/i },
-      { slug: 'beauty', title: 'Beauty & Health', emoji: '💄', keyword: /beauty|makeup|skincare/i },
-      { slug: 'home', title: 'Home & Kitchen', emoji: '🏠', keyword: /home|kitchen|furniture/i }
+      { slug: 'electronics', title: 'Top Electronics', emoji: '💻' },
+      { slug: 'fashion', title: 'Trending Fashion', emoji: '👗' },
+      { slug: 'beauty', title: 'Beauty & Health', emoji: '💄' },
+      { slug: 'home', title: 'Home & Kitchen', emoji: '🏠' }
     ];
 
     const swimlanes = await Promise.all(
       categories.map(async (cat) => {
-        const catQuery = { ...baseQuery, category: { $regex: cat.keyword } };
+        // BUG-06: Use exact slug match (hits compound index) instead of regex (full scan)
+        const catQuery = { ...baseQuery, category: cat.slug };
         const raw = await DealModel.find(catQuery)
           .sort({ deal_score: -1 })
           .limit(10)

@@ -66,6 +66,10 @@ const DealSchema = new Schema({
   is_pro_exclusive: { type: Boolean, default: false },
   is_active:        { type: Boolean, default: true },
   is_trending:      { type: Boolean, default: false },  // Top 8 across all categories
+  is_stale:         { type: Boolean, default: false },  // BUG-13: written by scheduler.py staleness check
+
+  // Algorithmic scoring
+  trending_score:  { type: Number, default: 0 },        // BUG-13: written by scheduler.py trending algo
   
   // Price history (for chart)
   price_history: [PriceHistorySchema],
@@ -91,5 +95,10 @@ DealSchema.index({ scraped_at: -1, is_active: 1 });          // NEW — day-wise
 DealSchema.index({ published_at: -1 });
 DealSchema.index({ title: 'text', description: 'text' });
 DealSchema.index({ deal_score: -1, is_active: 1 });          // NEW — homepage score sort
+// NEW-04: unique index on affiliate_url prevents duplicate deals from concurrent pipeline runs
+DealSchema.index({ affiliate_url: 1 }, { unique: true, sparse: true });
+// BUG-13: index on scraper-written fields for staleness and trending queries
+DealSchema.index({ is_stale: 1, is_active: 1 });
+DealSchema.index({ trending_score: -1, is_active: 1 });
 
 export default mongoose.models.Deal || mongoose.model('Deal', DealSchema);

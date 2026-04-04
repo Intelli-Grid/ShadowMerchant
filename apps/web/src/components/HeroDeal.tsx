@@ -157,7 +157,7 @@ export function HeroDeal({ deal }: HeroDealProps) {
                 (e.currentTarget as HTMLElement).style.boxShadow = 'none';
                 (e.currentTarget as HTMLElement).style.transform = 'none';
               }}
-              onClick={(e) => { e.preventDefault(); window.open(deal.affiliate_url || '#', '_blank'); }}
+              onClick={(e) => { e.preventDefault(); window.open(`/api/go/${deal._id}`, '_blank'); }}
             >
               Get this Deal <ExternalLink className="w-4 h-4 opacity-80" />
             </button>

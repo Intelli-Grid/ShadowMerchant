@@ -5,7 +5,6 @@ import { Deal } from '@/types';
 import Link from 'next/link';
 import Image from 'next/image';
 import { connectDB } from '@/lib/db';
-import { auth } from '@clerk/nextjs/server';
 import { redis, CACHE_KEYS, CACHE_TTL } from '@/lib/redis';
 
 // Fetch the top 8 trending deals (is_trending=true, mix of free + pro)
@@ -52,6 +51,10 @@ async function getTrendingDeals(): Promise<{ deals: Deal[]; isStale: boolean }> 
 }
 
 async function getNewDealsToday(): Promise<{ deals: Deal[]; isStale: boolean }> {
+  // BUG-08: Cache this to avoid MongoDB query on every homepage request
+  const cached = await redis.get<{ deals: Deal[]; isStale: boolean }>('deals:new_today');
+  if (cached) return cached;
+
   try {
     await connectDB();
     const DealModel = (await import('@/models/Deal')).default;
@@ -83,12 +86,16 @@ async function getNewDealsToday(): Promise<{ deals: Deal[]; isStale: boolean }> 
       isStale = true;
     }
 
-    return { deals: JSON.parse(JSON.stringify(deals)), isStale };
+    const result = { deals: JSON.parse(JSON.stringify(deals)), isStale };
+    // Cache for 15 min — cron job clears this key after each pipeline run
+    await redis.set('deals:new_today', result, { ex: 900 });
+    return result;
   } catch (e) {
     console.error('getNewDealsToday error:', e);
     return { deals: [], isStale: false };
   }
 }
+
 
 export default async function Home() {
 
