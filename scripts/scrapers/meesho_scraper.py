@@ -29,19 +29,15 @@ logger = logging.getLogger(__name__)
 SCRAPERAPI_URL = "https://api.scraperapi.com"
 MEESHO_BASE    = "https://www.meesho.com"
 
+# Top 6 categories — balance breadth vs. ScraperAPI free-tier rate limits
+# (5,000 credits/month, ~10 credits per render = ~500 pages/month)
 CATEGORY_QUERIES = {
-    "electronics":  "electronics",
+    "electronics":  "electronics gadgets",
     "fashion":      "women fashion clothing",
-    "beauty":       "beauty skincare",
+    "beauty":       "beauty skincare makeup",
     "home":         "home decor kitchen",
-    "sports":       "sports fitness",
-    "books":        "books stationery",
-    "toys":         "kids toys baby",
-    "health":       "health wellness",
-    "automotive":   "car accessories",
-    "grocery":      "food snacks",
-    "gaming":       "gaming accessories",
-    "travel":       "travel bags luggage",
+    "sports":       "sports fitness gym",
+    "health":       "health wellness supplements",
 }
 
 # Default assumed discount if only one price is shown (Meesho often omits MRP)
@@ -79,7 +75,7 @@ class MeeshoScraper(BaseScraper):
                 cat_deals = await self._scrape_category(client, query, cat_slug)
                 deals.extend(cat_deals)
                 logger.info(f"Meesho [{cat_slug}]: {len(cat_deals)} deals")
-                await asyncio.sleep(1.0)   # be polite + let ScraperAPI breathe
+                await asyncio.sleep(3.0)   # polite delay — avoids ScraperAPI rate limiting
 
         logger.info(f"Meesho total: {len(deals)} deals")
         return deals
@@ -91,7 +87,7 @@ class MeeshoScraper(BaseScraper):
         from bs4 import BeautifulSoup
         all_deals: list[RawDeal] = []
 
-        for page in range(1, 4):   # 3 pages per category
+        for page in range(1, 4):   # up to 3 pages per category (20 products each)
             url = f"{MEESHO_BASE}/search?q={query}&page={page}"
             html = await self._fetch_with_retry(client, url)
             if not html:
