@@ -425,10 +425,30 @@ if __name__ == "__main__":
         stats = run_pipeline(args.scrapers)
         print(f"\nRun complete: {stats['saved']} deals saved in {stats['elapsed_seconds']}s")
     else:
-        # Run the scheduler in a background thread
         import threading
-        scheduler_thread = threading.Thread(target=start_scheduler, daemon=True)
-        scheduler_thread.start()
 
-        # Run the Flask web server on the main thread
+        # Thread 1 — Scheduler (runs pipeline on schedule)
+        scheduler_thread = threading.Thread(target=start_scheduler, daemon=True, name="scheduler")
+        scheduler_thread.start()
+        logger.info("✅ Scheduler thread started")
+
+        # Thread 2 — Telegram Bot daemon (responds to /run, /status etc.)
+        bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+        if bot_token:
+            def _start_bot():
+                try:
+                    from social.telegram_poster import run_interactive_bot
+                    logger.info("🤖 Starting Telegram bot daemon...")
+                    run_interactive_bot()
+                except Exception as e:
+                    logger.error(f"Bot daemon crashed: {e}")
+
+            bot_thread = threading.Thread(target=_start_bot, daemon=True, name="telegram-bot")
+            bot_thread.start()
+            logger.info("✅ Telegram bot thread started")
+        else:
+            logger.warning("⚠️  TELEGRAM_BOT_TOKEN not set — bot daemon skipped")
+
+        # Main thread — Flask health-check server (keeps Render container alive)
         start_web_server()
+

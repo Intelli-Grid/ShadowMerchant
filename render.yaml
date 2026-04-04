@@ -4,9 +4,17 @@ services:
     env: docker
     dockerContext: .
     dockerfilePath: ./Dockerfile
-    plan: starter # Starter plan is generally required due to Chrome/Playwright memory needs. Free tiers will run out of RAM.
+    plan: starter # Starter plan required for Chrome/Playwright memory
     envVars:
       - key: MONGODB_URI
-        sync: false # Set this in the Render dashboard manually for security!
+        sync: false          # Set in Render dashboard → Environment
       - key: PYTHONUNBUFFERED
         value: "1"
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false          # Set in Render dashboard → Environment
+      - key: TELEGRAM_CHANNEL_ID
+        value: "@ShadowMerchantDeals"
+      - key: TELEGRAM_ADMIN_CHAT_ID
+        sync: false          # Set in Render dashboard → Environment
+      - key: NEXT_PUBLIC_APP_URL
+        value: "https://www.shadowmerchant.online"
