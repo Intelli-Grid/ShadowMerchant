@@ -76,8 +76,9 @@ export function HeroDeal({ deal }: HeroDealProps) {
 
             {/* Title */}
             <h1
-              className="text-3xl md:text-5xl font-black mb-6 leading-[1.1] tracking-tight group-hover:underline decoration-white/20 underline-offset-4"
+              className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6 leading-tight tracking-tight group-hover:underline decoration-white/20 underline-offset-4 line-clamp-3 sm:line-clamp-4"
               style={{ fontFamily: 'var(--font-display)', color: 'white' }}
+              title={deal.title}
             >
               {deal.title}
             </h1>
