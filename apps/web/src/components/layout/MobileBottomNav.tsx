@@ -26,9 +26,8 @@ export function MobileBottomNav() {
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
-      {NAV_ITEMS.map(({ icon: Icon, label, href, gold, showDot }) => {
+      {NAV_ITEMS.map(({ icon: Icon, label, href, showDot }) => {
         const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
-        const isGold = gold || isActive;
         return (
           <Link
             key={href}
@@ -38,7 +37,7 @@ export function MobileBottomNav() {
             <div className="relative">
               <Icon
                 className="w-5 h-5"
-                style={{ color: isGold ? 'var(--gold)' : 'var(--text-muted)' }}
+                style={{ color: isActive ? 'var(--gold)' : 'var(--text-muted)' }}
               />
               {showDot && !isActive && (
                 <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full"
@@ -47,7 +46,7 @@ export function MobileBottomNav() {
             </div>
             <span
               className="text-[10px] font-semibold"
-              style={{ color: isGold ? 'var(--gold)' : 'var(--text-muted)' }}
+              style={{ color: isActive ? 'var(--gold)' : 'var(--text-muted)' }}
             >
               {label}
             </span>
