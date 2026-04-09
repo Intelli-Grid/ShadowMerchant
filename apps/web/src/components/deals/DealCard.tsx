@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useState, useRef, useEffect } from 'react';
 import { getPlatform } from '@/lib/platforms';
 import { useWishlist } from '@/context/WishlistContext';
+import { formatDistanceToNow } from 'date-fns';
 
 interface DealCardProps {
   deal: Deal;
@@ -21,11 +22,19 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
   const router = useRouter();
   const { isSignedIn } = useAuth();
   const { isWishlisted, toggle } = useWishlist();
+  const [localWishlisted, setLocalWishlisted] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [scoreVisible, setScoreVisible] = useState(false);
   const scoreBarRef = useRef<HTMLDivElement>(null);
 
-  const wishlisted = isWishlisted(String(deal._id));
+  useEffect(() => {
+    if (!isSignedIn) {
+      const stored = JSON.parse(localStorage.getItem('sm_guest_wishlist') || '[]') as string[];
+      setLocalWishlisted(stored.includes(String(deal._id)));
+    }
+  }, [isSignedIn, deal._id]);
+
+  const wishlisted = isSignedIn ? isWishlisted(String(deal._id)) : localWishlisted;
 
   const platform = getPlatform(deal.source_platform);
   const score = deal.deal_score ?? 0;
@@ -75,14 +84,20 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
       )}
       style={{
         background: 'var(--bg-surface)',
-        borderColor: 'var(--sm-border)',
+        borderColor: isHot ? 'var(--gold-border)' : 'var(--sm-border)',
+        boxShadow: isHot ? '0 0 16px rgba(201,168,76,0.12)' : 'none',
         height: '100%',
       }}
       onMouseEnter={() => router.prefetch(`/deals/${deal._id}`)}
       onMouseMove={(e) => {
         const rect = e.currentTarget.getBoundingClientRect();
-        e.currentTarget.style.setProperty('--cursor-x', `${e.clientX - rect.left}px`);
-        e.currentTarget.style.setProperty('--cursor-y', `${e.clientY - rect.top}px`);
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        e.currentTarget.style.background =
+          `radial-gradient(120px circle at ${x}px ${y}px, rgba(201,168,76,0.06), transparent 60%), var(--bg-surface)`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = 'var(--bg-surface)';
       }}
     >
 
@@ -120,6 +135,22 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           <span className="hidden sm:inline">{platform.name}</span>
         </span>
 
+        {/* Deal type + HOT Badges */}
+        <div className="absolute top-3 right-3 z-20 flex flex-col items-end gap-1 pointer-events-none">
+          {((deal as any).deal_type === 'lightning' || (deal as any).deal_type === 'flash') && (
+            <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full animate-pulse"
+              style={{ background: 'rgba(239,68,68,0.9)', color: 'white' }}>
+              ⚡ {(deal as any).deal_type === 'lightning' ? 'Lightning' : 'Flash'}
+            </span>
+          )}
+          {isHot && (
+            <div className="badge-hot rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wider"
+              style={{ background: 'var(--gold)', color: '#0A0A0A' }}>
+              🔥 HOT
+            </div>
+          )}
+        </div>
+
         {/* Wishlist button */}
         <button
           className={cn(
@@ -129,7 +160,16 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           onClick={async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            if (!isSignedIn) { window.location.href = '/sign-in'; return; }
+            if (!isSignedIn) {
+              const guestKey = 'sm_guest_wishlist';
+              const stored = JSON.parse(localStorage.getItem(guestKey) || '[]') as string[];
+              const idx = stored.indexOf(String(deal._id));
+              if (idx > -1) stored.splice(idx, 1);
+              else stored.push(String(deal._id));
+              localStorage.setItem(guestKey, JSON.stringify(stored));
+              setLocalWishlisted(stored.includes(String(deal._id)));
+              return;
+            }
             await toggle(String(deal._id));
           }}
           aria-label="Save to wishlist"
@@ -142,24 +182,34 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
       <div className={cn('flex flex-col flex-1 p-3 sm:p-3.5 min-w-0', sizeClasses[size])}>
 
         {/* Score row with tooltip */}
-        <div className="mb-2.5 flex items-center gap-2 group/score relative" ref={scoreBarRef}>
-          <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-overlay)' }}>
-            <div
-              className="score-bar-fill h-full rounded-full"
-              style={{
-                '--score-target': `${score}%`,
-                backgroundColor: scoreColor,
-                width: scoreVisible ? `${score}%` : '0%',
-                transition: 'width 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                boxShadow: score >= 80 ? `0 0 6px ${scoreColor}80` : 'none',
-              } as React.CSSProperties}
-            />
+        <div className="mb-2.5 flex flex-col group/score relative">
+          <div className="flex items-center gap-2" ref={scoreBarRef}>
+            <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-overlay)' }}>
+              <div
+                className="score-bar-fill h-full rounded-full"
+                style={{
+                  '--score-target': `${score}%`,
+                  backgroundColor: scoreColor,
+                  width: scoreVisible ? `${score}%` : '0%',
+                  transition: 'width 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                  boxShadow: score >= 80 ? `0 0 6px ${scoreColor}80` : 'none',
+                } as React.CSSProperties}
+              />
+            </div>
+            <span
+              className="text-[10px] font-bold min-w-[28px] text-right"
+              style={{ fontFamily: 'var(--font-display)', color: scoreColor }}
+            >
+              {score}
+            </span>
           </div>
-          <span
-            className="text-[10px] font-bold min-w-[28px] text-right"
-            style={{ fontFamily: 'var(--font-display)', color: scoreColor }}
-          >
-            {score}
+          
+          <span className="text-[9px] hidden sm:hidden group-hover/score:hidden"
+            style={{ color: 'var(--text-muted)', marginTop: '4px' }}>
+            Shadow Score — deal quality
+          </span>
+          <span className="text-[9px] block sm:hidden mt-1" style={{ color: 'var(--text-muted)' }}>
+            Shadow Score
           </span>
 
           {/* Score tooltip */}
@@ -247,6 +297,13 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           {deal.source_platform === 'meesho' ? 'Browse Deal' : 'Get Deal'}
           <ExternalLink className="h-3.5 w-3.5 opacity-80" />
         </a>
+
+        {deal.scraped_at && (
+          <p className="text-[9px] text-center mt-1.5 font-medium"
+            style={{ color: 'var(--text-muted)' }}>
+            Found {formatDistanceToNow(new Date(deal.scraped_at), { addSuffix: true })}
+          </p>
+        )}
       </div>
 
 

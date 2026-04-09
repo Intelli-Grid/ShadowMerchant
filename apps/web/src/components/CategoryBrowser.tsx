@@ -33,11 +33,14 @@ interface Category {
 export function CategoryBrowser() {
   const [dbCategories, setDbCategories] = useState<Category[]>([]);
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetch('/api/categories')
       .then(r => r.json())
       .then(data => Array.isArray(data) && setDbCategories(data))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -54,6 +57,10 @@ export function CategoryBrowser() {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
         {UNIVERSAL_CATEGORIES.map((category) => {
+          if (loading) {
+            return <div key={category} className="skeleton-shimmer h-[120px] rounded-xl" />;
+          }
+
           const meta = CATEGORY_META[category] || {
             icon: Laptop,
             color: 'var(--gold)',

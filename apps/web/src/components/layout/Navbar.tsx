@@ -21,9 +21,21 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handler, { passive: true });
-    return () => window.removeEventListener('scroll', handler);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        document.querySelector<HTMLInputElement>('input[type="text"]')?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -125,11 +137,14 @@ export function Navbar() {
           <Search className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--text-muted)' }} />
           <input
             type="text"
-            placeholder="Search deals, brands..."
+            placeholder="Search deals... (Enter ↵)"
             onKeyDown={handleSearch}
             className="bg-transparent border-none text-sm focus:outline-none w-44"
             style={{ color: 'var(--text-primary)', caretColor: 'var(--gold)' }}
           />
+          <span className="text-[10px] bg-white/5 border border-white/10 rounded px-1.5 py-0.5 text-gray-500 hidden xl:block pointer-events-none">
+            ⌘K
+          </span>
         </div>
 
         {/* Auth — Swaps skeleton with signed-in/signed-out states using Clerk components for perfect hydration */}
@@ -179,7 +194,7 @@ export function Navbar() {
                       (e.currentTarget as HTMLElement).style.boxShadow = 'none';
                     }}
                   >
-                    Get Pro →
+                    ⚡ Go Pro · ₹99/mo
                   </button>
                 </SignInButton>
               </>

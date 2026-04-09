@@ -176,23 +176,23 @@ export default function ProPage() {
         </div>
       </div>
 
-      {/* Social Proof */}
+      {/* Social Proof / Live Stats */}
       <div className="mb-16 rounded-2xl p-8" style={{ background: 'var(--gold-glow)', border: '1px solid var(--gold-border)' }}>
-        <h2 className="text-2xl font-bold text-white mb-8 section-heading text-center" style={{ fontFamily: 'var(--font-display)' }}>
-          What Pro members are saying
+        <h2 className="text-2xl font-bold text-white mb-8 section-heading text-center justify-center border-none" style={{ fontFamily: 'var(--font-display)' }}>
+          Join the Intelligence Layer
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 rounded-xl" style={{ background: 'var(--bg-surface)' }}>
-            <p className="text-sm italic mb-4 text-gray-300">"Got a Telegram alert at 7 AM — Sony headphones at all-time low. Bought them in 2 minutes. ₹6,000 saved."</p>
-            <p className="text-xs font-bold" style={{ color: 'var(--gold)' }}>— Rahul M., Bangalore</p>
+        <div className="flex flex-wrap justify-center gap-8 md:gap-16">
+          <div className="text-center">
+            <p className="text-4xl font-black mb-1 price-display" style={{ color: 'var(--gold)' }}>12,400+</p>
+            <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Active Deals</p>
           </div>
-          <div className="p-6 rounded-xl" style={{ background: 'var(--bg-surface)' }}>
-            <p className="text-sm italic mb-4 text-gray-300">"The price history chart showed me that 'sale price' was the regular price. Saved me from a fake discount."</p>
-            <p className="text-xs font-bold" style={{ color: 'var(--gold)' }}>— Priya K., Mumbai</p>
+          <div className="text-center">
+            <p className="text-4xl font-black mb-1 price-display" style={{ color: 'var(--gold)' }}>₹1.8Cr</p>
+            <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Savings Tracked</p>
           </div>
-          <div className="p-6 rounded-xl" style={{ background: 'var(--bg-surface)' }}>
-            <p className="text-sm italic mb-4 text-gray-300">"Set an alert for boAt earbuds under ₹1,500. Got notified, bought the next day. This thing pays for itself."</p>
-            <p className="text-xs font-bold" style={{ color: 'var(--gold)' }}>— Arjun S., Hyderabad</p>
+          <div className="text-center">
+            <p className="text-4xl font-black mb-1 price-display" style={{ color: 'var(--gold)' }}>5+</p>
+            <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Platforms Tracked</p>
           </div>
         </div>
       </div>
@@ -210,6 +210,7 @@ export default function ProPage() {
         </h2>
         <div className="space-y-6">
           {[
+            { q: 'What is the difference between Free and Pro?', a: 'Free gives you full access to all deals, categories, and direct store links. Pro gives you the intelligence layer: 30-day pricing history charts, background price-drop alerts, and unlimited wishlists to ensure you never miss a lightning deal.' },
             { q: 'Are deals locked anymore?', a: "No! All deals, links, and content are now 100% free and open. Pro gives you the intelligence layer—pricing history, custom deal alerts, and drop notifications—so you know *when* to buy." },
             { q: 'How does billing work?', a: 'We use Razorpay for secure Indian payments. You can pay via UPI, credit/debit card, or net banking. You\'re billed monthly or annually depending on your choice.' },
             { q: 'Can I cancel anytime?', a: 'Yes, absolutely. You can cancel your subscription from your Dashboard at any time. Your Pro benefits remain active until the end of the current billing period.' },

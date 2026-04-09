@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   { icon: Tag,    label: 'Deals',  href: '/deals' },
   { icon: Search, label: 'Search', href: '/search' },
   { icon: Heart,  label: 'Saved',  href: '/wishlist' },
-  { icon: Zap,    label: 'Pro',    href: '/pro', gold: true },
+  { icon: Zap,    label: 'Pro',    href: '/pro', showDot: true },
 ];
 
 export function MobileBottomNav() {
@@ -26,7 +26,7 @@ export function MobileBottomNav() {
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
-      {NAV_ITEMS.map(({ icon: Icon, label, href, gold }) => {
+      {NAV_ITEMS.map(({ icon: Icon, label, href, gold, showDot }) => {
         const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
         const isGold = gold || isActive;
         return (
@@ -35,10 +35,16 @@ export function MobileBottomNav() {
             href={href}
             className="flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-opacity active:opacity-70"
           >
-            <Icon
-              className="w-5 h-5"
-              style={{ color: isGold ? 'var(--gold)' : 'var(--text-muted)' }}
-            />
+            <div className="relative">
+              <Icon
+                className="w-5 h-5"
+                style={{ color: isGold ? 'var(--gold)' : 'var(--text-muted)' }}
+              />
+              {showDot && !isActive && (
+                <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full"
+                  style={{ background: 'var(--gold)' }} />
+              )}
+            </div>
             <span
               className="text-[10px] font-semibold"
               style={{ color: isGold ? 'var(--gold)' : 'var(--text-muted)' }}

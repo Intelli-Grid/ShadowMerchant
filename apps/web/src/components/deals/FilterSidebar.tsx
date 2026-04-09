@@ -47,8 +47,22 @@ export function FilterSidebar() {
         style={{ background: 'var(--bg-raised)', border: '1px solid var(--sm-border)' }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="flex items-center gap-2"><Filter className="w-4 h-4 text-[var(--gold)]" /> Filters & Sort</span>
-        <ChevronDown className={cn("transition-transform w-5 h-5", isOpen ? "rotate-180" : "")} />
+        <span className="flex items-center gap-2 flex-1">
+          <Filter className="w-4 h-4 text-[var(--gold)]" /> Filters & Sort
+          {(() => {
+            const activeFilterCount = [currentCat !== 'all', currentPlat !== 'all'].filter(Boolean).length;
+            if (activeFilterCount > 0) {
+              return (
+                <span className="ml-auto mr-4 text-xs font-black px-1.5 py-0.5 rounded-full"
+                  style={{ background: 'var(--gold)', color: '#0A0A0A' }}>
+                  {activeFilterCount}
+                </span>
+              );
+            }
+            return null;
+          })()}
+        </span>
+        <ChevronDown className={cn("transition-transform w-5 h-5 flex-shrink-0", isOpen ? "rotate-180" : "")} />
       </button>
 
       <div
@@ -183,6 +197,8 @@ export function FilterSidebar() {
               <option value="score">Highest Score (AI)</option>
               <option value="discount">Biggest Discount</option>
               <option value="newest">Newest Scraped</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
             </select>
           </div>
         </div>

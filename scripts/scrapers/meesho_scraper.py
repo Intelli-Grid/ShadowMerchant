@@ -85,9 +85,10 @@ class MeeshoScraper(BaseScraper):
 
         proxies = None
         if self.scraperapi_key:
+            proxy_url = f"http://scraperapi:{self.scraperapi_key}@proxy-server.scraperapi.com:8001"
             proxies = {
-                "http":  SCRAPERAPI_PROXY,
-                "https": SCRAPERAPI_PROXY,
+                "http":  proxy_url,
+                "https": proxy_url,
             }
 
         all_deals: list[RawDeal] = []
@@ -135,7 +136,6 @@ class MeeshoScraper(BaseScraper):
                         json=payload,
                         headers=BASE_HEADERS,
                         proxies=proxies,
-                        auth=HTTPProxyAuth("scraperapi", self.scraperapi_key) if proxies else None,
                         timeout=30,
                         verify=False,
                     )

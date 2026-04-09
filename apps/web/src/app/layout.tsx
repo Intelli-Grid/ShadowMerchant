@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'ShadowMerchant — Best Deals in India',
     description: 'AI-powered deal aggregation from Amazon, Flipkart, Myntra & more.',
-    images: ['/logo.png'],
+    images: [{ url: '/og-default.png', width: 1200, height: 630, alt: 'ShadowMerchant — Best Deals in India' }],
     type: 'website',
     locale: 'en_IN',
     siteName: 'ShadowMerchant',

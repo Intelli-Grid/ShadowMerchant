@@ -83,9 +83,9 @@ function SearchPageInner() {
 
       {/* Results */}
       {results.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="deal-card-grid grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
           {results.map((deal) => (
-            <DealCard key={deal._id} deal={deal} />
+            <DealCard key={deal._id} deal={deal} size="md" />
           ))}
         </div>
       )}
@@ -99,12 +99,33 @@ function SearchPageInner() {
         </div>
       )}
 
-      {query.length < 2 && (
-        <div className="py-20 text-center">
-          <span className="text-5xl mb-4 block">🛒</span>
-          <p className="text-gray-500">Start typing to search across thousands of deals</p>
-        </div>
-      )}
+      {query.length < 2 && (() => {
+        const TRENDING_SEARCHES = [
+          'boAt earphones', 'iPhone 15', 'Nike shoes', 'saree',
+          'OnePlus', 'Lakme lipstick', 'gaming chair', 'mixer grinder'
+        ];
+        return (
+          <div className="py-10">
+            <p className="text-sm font-semibold mb-4 text-center"
+              style={{ color: 'var(--text-muted)' }}>
+              🔥 Trending Searches
+            </p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {TRENDING_SEARCHES.map(term => (
+                <button key={term}
+                  onClick={() => setQuery(term)}
+                  className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors cursor-pointer"
+                  style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)',
+                    border: '1px solid var(--sm-border)' }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--gold)')}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--sm-border)')}>
+                  {term}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
     </main>
   );
 }

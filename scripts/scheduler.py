@@ -376,6 +376,10 @@ def start_scheduler():
     schedule.every().day.at("01:00").do(job)   # 06:30 IST
     schedule.every().day.at("15:00").do(job)   # 20:30 IST
     schedule.every().day.at("04:00").do(email_job)  # 09:30 IST
+    schedule.every().day.at("01:30").do(lambda: asyncio.run(
+        __import__('social.telegram_poster', fromlist=['broadcast_deal_of_day']).broadcast_deal_of_day()
+    ))
+
 
     logger.info("Scheduler loop initialized.")
     while True:

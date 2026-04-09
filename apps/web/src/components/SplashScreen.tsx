@@ -8,7 +8,7 @@ export function SplashScreen() {
   // avoids the 1-frame flash caused by useState(false) + async useEffect pattern.
   const [visible, setVisible] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false; // SSR guard
-    return !localStorage.getItem('sm_splash_seen');
+    return !localStorage.getItem('sm_splash_seen_v2');
   });
   const [fading, setFading] = useState(false);
 
@@ -18,7 +18,7 @@ export function SplashScreen() {
     const fadeTimer = setTimeout(() => setFading(true), 1800);
     const hideTimer = setTimeout(() => {
       setVisible(false);
-      localStorage.setItem('sm_splash_seen', '1');
+      localStorage.setItem('sm_splash_seen_v2', '1');
     }, 2200);
     return () => {
       clearTimeout(fadeTimer);

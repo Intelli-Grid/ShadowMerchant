@@ -2,6 +2,7 @@ import type { Metadata, ResolvingMetadata } from 'next';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { auth } from '@clerk/nextjs/server';
+import Link from 'next/link';
 import { DealCard } from '@/components/deals/DealCard';
 import { PriceHistoryChart } from '@/components/deals/PriceHistoryChart';
 import { PLATFORM_CONFIG } from '@/lib/platforms';
@@ -100,6 +101,12 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
     scoreConfig.text = 'Skip It';
   }
 
+  const verdictText =
+    deal.deal_score >= 85 ? "One of the best discounts we've seen on this product. Act quickly." :
+    deal.deal_score >= 70 ? "Solid deal — meaningfully below average selling price." :
+    deal.deal_score >= 55 ? "Moderate discount. Good if you need it now." :
+    "Limited discount. Consider waiting for a better drop.";
+
   // Generate Product JSON-LD
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -148,6 +155,23 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
 
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-16">
         
+        {/* Breadcrumb Navigation */}
+        <nav className="flex items-center gap-2 text-xs mb-6" style={{ color: 'var(--text-muted)' }}>
+          <Link href="/" style={{ color: 'var(--text-muted)' }}>Home</Link>
+          <span>/</span>
+          <Link href="/deals" style={{ color: 'var(--text-muted)' }}>Deals</Link>
+          {deal.category && <>
+            <span>/</span>
+            <Link href={`/category/${deal.category}`} className="capitalize" style={{ color: 'var(--text-muted)' }}>
+              {deal.category}
+            </Link>
+          </>}
+          <span>/</span>
+          <span className="truncate max-w-[200px]" style={{ color: 'var(--text-secondary)' }}>
+            {deal.title}
+          </span>
+        </nav>
+
         {/* Top Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           
@@ -230,7 +254,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 href={`/api/go/${deal._id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="fixed bottom-4 left-4 right-4 z-50 md:relative md:w-80 flex items-center justify-center gap-2 h-14 md:h-14 rounded-full font-bold text-base md:text-lg transition-transform active:scale-95 shadow-2xl md:shadow-none"
+                className="fixed bottom-20 left-4 right-4 z-50 md:relative md:w-80 flex items-center justify-center gap-2 h-14 md:h-14 rounded-full font-bold text-base md:text-lg transition-transform active:scale-95 shadow-2xl md:shadow-none"
                 style={{ background: '#FFD814', color: '#0F1111', border: '1px solid #FCD200' }}
               >
                 Buy on {platform.name} <ExternalLink className="w-4 h-4" />
@@ -270,6 +294,26 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
               </p>
             </div>
 
+            {/* Compare Prices */}
+            {deal.alternate_links && deal.alternate_links.length > 0 && (
+              <div className="p-4 rounded-xl border mt-4" style={{ background: 'var(--bg-raised)', borderColor: 'var(--sm-border)' }}>
+                <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
+                  Compare Prices
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {deal.alternate_links.map((alt: any) => (
+                    <a key={alt.source} href={`/api/go/${deal._id}?alt=${alt.source}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold hover:opacity-80 transition-opacity"
+                      style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)', color: 'var(--text-primary)' }}>
+                      {PLATFORM_CONFIG[alt.source]?.emoji || '🛒'} {PLATFORM_CONFIG[alt.source]?.name || alt.source}
+                      <span style={{ color: 'var(--gold)' }}>₹{alt.price.toLocaleString('en-IN')}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Shadow Score Breakdown (Moved below disclaimer) */}
             <div className="flex items-center gap-6 p-6 rounded-[24px] border mt-8 cursor-default hover:bg-white/5 transition-colors" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>
               <div className="flex flex-col items-center justify-center relative w-[60px] h-[60px] shrink-0">
@@ -295,18 +339,32 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 <span className="text-[10px] tracking-wider uppercase font-bold" style={{ color: 'var(--text-secondary)' }}>
                   Shadow Score Breakdown
                 </span>
-                {[
-                  { label: 'Discount', value: Math.min(100, deal.discount_percent ?? 0) },
-                  { label: 'Trust', value: Math.round((deal.rating ?? 0) / 5 * 100) },
-                  { label: 'Velocity', value: deal.is_trending ? 90 : 55 },
-                ].map(({ label, value }) => (
-                  <div key={label} className="flex items-center gap-2">
-                    <span className="text-[10px] w-12 shrink-0" style={{ color: 'var(--text-muted)' }}>{label}</span>
-                    <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-raised)' }}>
-                      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${value}%`, background: scoreConfig.color }} />
+                <span className="text-sm font-semibold" style={{ color: scoreConfig.color }}>
+                  {scoreConfig.text}
+                </span>
+                <span className="text-xs leading-snug mt-0.5 mb-2" style={{ color: 'var(--text-secondary)' }}>
+                  {verdictText}
+                </span>
+                {(() => {
+                  const breakdown = deal.score_breakdown;
+                  const bars = breakdown ? [
+                    { label: 'Discount',  value: breakdown.discount_score },
+                    { label: 'Rating',    value: breakdown.rating_score },
+                    { label: 'Freshness', value: breakdown.freshness_score },
+                  ] : [
+                    { label: 'Discount', value: Math.min(100, deal.discount_percent ?? 0) },
+                    { label: 'Trust',   value: Math.round((deal.rating ?? 0) / 5 * 100) },
+                    { label: 'Velocity', value: deal.is_trending ? 90 : 40 },
+                  ];
+                  return bars.map(({ label, value }) => (
+                    <div key={label} className="flex items-center gap-2">
+                      <span className="text-[10px] w-12 shrink-0" style={{ color: 'var(--text-muted)' }}>{label}</span>
+                      <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-raised)' }}>
+                        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${value}%`, background: scoreConfig.color }} />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ));
+                })()}
               </div>
             </div>
 
@@ -341,7 +399,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
 
           {/* Right Side: Similar Deals */}
           <div className="lg:col-span-4 w-full">
-            <h2 className="text-2xl font-black mb-6" style={{ fontFamily: 'var(--font-display)', color: 'white' }}>Competitor Deals</h2>
+            <h2 className="text-2xl font-black mb-6" style={{ fontFamily: 'var(--font-display)', color: 'white' }}>More in {deal.category || 'This Category'}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-5">
               {similar_deals?.length > 0 ? (
                 similar_deals.map((similarDeal: Deal) => (

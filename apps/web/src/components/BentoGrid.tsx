@@ -41,7 +41,7 @@ export function BentoGrid({ deals }: BentoGridProps) {
           Top Picks Today
         </h2>
         <p className="text-sm md:text-base flex items-center justify-center gap-2 max-w-2xl text-balance" style={{ color: 'var(--text-secondary)' }}>
-          <Sparkles className="w-4 h-4 text-orange-400" />
+          <Sparkles className="w-4 h-4" style={{ color: 'var(--gold)' }} />
           The highest-scored deals across all categories, updated constantly.
         </p>
       </div>
@@ -51,7 +51,7 @@ export function BentoGrid({ deals }: BentoGridProps) {
         {deals.slice(0, 9).map((deal, idx) => (
           <div key={deal._id} className={cn(getBentoClass(idx), 'relative group h-full block')}>
             {idx === 0 && (
-              <div className="absolute -top-3 -right-3 z-30 h-10 w-10 bg-orange-500 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40 transform rotate-12 transition-transform group-hover:rotate-0">
+              <div className="absolute -top-3 -right-3 z-30 h-10 w-10 rounded-full flex items-center justify-center transform rotate-12 transition-transform group-hover:rotate-0" style={{ background: 'var(--gold)', boxShadow: '0 8px 16px rgba(201,168,76,0.4)' }}>
                 <Trophy className="w-5 h-5 text-white" />
               </div>
             )}

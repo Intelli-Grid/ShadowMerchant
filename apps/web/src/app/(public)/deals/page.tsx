@@ -49,6 +49,8 @@ async function getDeals(searchParams: { [key: string]: string | undefined }) {
     let sortObj: any = { deal_score: -1 };
     if (searchParams.sort === 'discount') sortObj = { discount_percent: -1 };
     if (searchParams.sort === 'newest') sortObj = { scraped_at: -1 };
+    if (searchParams.sort === 'price_asc') sortObj = { discounted_price: 1 };
+    if (searchParams.sort === 'price_desc') sortObj = { discounted_price: -1 };
 
     const PAGE_SIZE = 24;
     const [deals, total] = await Promise.all([
@@ -131,13 +133,19 @@ export default async function DealsFeedPage({
         <section className="flex-1 min-w-0">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <h1 className="text-2xl font-bold text-white tracking-tight flex items-baseline gap-3">
-              Live Feed
+              Live Deals
               <span
                 className="font-semibold text-sm px-2.5 py-1 rounded-full"
                 style={{ color: 'var(--gold)', background: 'var(--gold-dim)', border: '1px solid var(--gold-border)' }}
               >
-                {data.total} matches
+                {data.total} active
               </span>
+              {!resolvedParams.category && !resolvedParams.platform && (
+                <span className="text-xs font-medium hidden sm:inline"
+                  style={{ color: 'var(--text-muted)', marginLeft: '8px' }}>
+                  · refreshed today
+                </span>
+              )}
             </h1>
           </div>
 
