@@ -80,6 +80,7 @@ class MyntraScraper(BaseScraper):
             resp = cffi_requests.get(
                 url, params=params,
                 headers=BASE_HEADERS,
+                cookies=self._cookies,
                 impersonate="chrome120",
                 timeout=20,
             )
@@ -95,6 +96,7 @@ class MyntraScraper(BaseScraper):
         return []
 
     def scrape_deals(self) -> list[RawDeal]:
+        self._bootstrap()
         deals = []
 
         for cat_slug, queries in CATEGORY_QUERIES.items():

@@ -81,6 +81,7 @@ class NykaaScraper(BaseScraper):
                 "https://www.nykaa.com/sp/api/search",
                 params={"q": cat_name, "page": 0, "ptype": "list", "sortBy": "discount", "f": "offer_available:True"},
                 headers=self._headers,
+                cookies=self._cookies,
                 impersonate="chrome120",
                 timeout=20,
             )
@@ -97,6 +98,7 @@ class NykaaScraper(BaseScraper):
                 f"https://www.nykaa.com/beauty/c/{cat_id}",
                 params={"sort": "discount", "ptype": "list"},
                 headers={**self._headers, "Accept": "application/json"},
+                cookies=self._cookies,
                 impersonate="chrome120",
                 timeout=20,
             )
@@ -111,6 +113,7 @@ class NykaaScraper(BaseScraper):
                 "https://www.nykaa.com/api/product/products/",
                 params={"rootCat": cat_id, "category": cat_id, "sortBy": "discount"},
                 headers=self._headers,
+                cookies=self._cookies,
                 impersonate="chrome120",
                 timeout=20,
             )
@@ -123,6 +126,7 @@ class NykaaScraper(BaseScraper):
         return []
 
     def scrape_deals(self) -> list[RawDeal]:
+        self._bootstrap()
         deals = []
         for cat_slug, category_list in NYKAA_CATEGORIES.items():
             for cat_id, cat_name in category_list:
