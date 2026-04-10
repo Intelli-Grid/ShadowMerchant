@@ -74,13 +74,15 @@ class NykaaScraper(BaseScraper):
 
     def _fetch_category(self, cat_id: str, cat_name: str) -> list[dict]:
         """Try multiple Nykaa API endpoints for a category."""
+        from curl_cffi import requests as cffi_requests
         # Method 1: Search API sorted by discount
         try:
-            resp = httpx.get(
+            resp = cffi_requests.get(
                 "https://www.nykaa.com/sp/api/search",
                 params={"q": cat_name, "page": 0, "ptype": "list", "sortBy": "discount", "f": "offer_available:True"},
-                headers=self._headers, cookies=self._cookies,
-                timeout=15, follow_redirects=True,
+                headers=self._headers,
+                impersonate="chrome120",
+                timeout=20,
             )
             if resp.status_code == 200:
                 products = resp.json().get("response", {}).get("products", [])
@@ -91,11 +93,12 @@ class NykaaScraper(BaseScraper):
 
         # Method 2: Category browse endpoint
         try:
-            resp2 = httpx.get(
+            resp2 = cffi_requests.get(
                 f"https://www.nykaa.com/beauty/c/{cat_id}",
                 params={"sort": "discount", "ptype": "list"},
                 headers={**self._headers, "Accept": "application/json"},
-                cookies=self._cookies, timeout=15, follow_redirects=True,
+                impersonate="chrome120",
+                timeout=20,
             )
             if resp2.status_code == 200 and "json" in resp2.headers.get("content-type", ""):
                 return resp2.json().get("products", [])
@@ -104,11 +107,12 @@ class NykaaScraper(BaseScraper):
 
         # Method 3: Newer API format
         try:
-            resp3 = httpx.get(
+            resp3 = cffi_requests.get(
                 "https://www.nykaa.com/api/product/products/",
                 params={"rootCat": cat_id, "category": cat_id, "sortBy": "discount"},
-                headers=self._headers, cookies=self._cookies,
-                timeout=15, follow_redirects=True,
+                headers=self._headers,
+                impersonate="chrome120",
+                timeout=20,
             )
             if resp3.status_code == 200:
                 data = resp3.json()
@@ -119,7 +123,6 @@ class NykaaScraper(BaseScraper):
         return []
 
     def scrape_deals(self) -> list[RawDeal]:
-        self._bootstrap()
         deals = []
         for cat_slug, category_list in NYKAA_CATEGORIES.items():
             for cat_id, cat_name in category_list:

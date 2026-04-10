@@ -96,6 +96,12 @@ class FlipkartScraper(BaseScraper):
 
     def _search(self, query: str) -> list[dict]:
         """Call Flipkart internal page API then fall back to HTML scrape."""
+        SCRAPERAPI_KEY = os.getenv("SCRAPERAPI_KEY", "")
+        proxies = None
+        if SCRAPERAPI_KEY:
+            proxy_url = f"http://scraperapi:{SCRAPERAPI_KEY}@proxy-server.scraperapi.com:8001"
+            proxies = {"http://": proxy_url, "https://": proxy_url}
+
         # Method 1: Internal page API
         try:
             resp = httpx.post(
@@ -105,6 +111,7 @@ class FlipkartScraper(BaseScraper):
                     "requestContext": {"slug": "search"},
                 },
                 headers=SEARCH_HEADERS,
+                proxies=proxies,
                 timeout=15,
                 follow_redirects=True,
             )
@@ -125,6 +132,7 @@ class FlipkartScraper(BaseScraper):
             resp2 = httpx.get(
                 f"https://www.flipkart.com/search?q={query}&sort=popularity",
                 headers=BASE_HEADERS,
+                proxies=proxies,
                 timeout=20,
                 follow_redirects=True,
             )

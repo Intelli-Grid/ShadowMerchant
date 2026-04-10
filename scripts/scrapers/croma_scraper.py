@@ -18,20 +18,9 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 CROMA_CATEGORIES = {
-    "electronics": [
-        "https://api.croma.com/searchservices/v2/search?q=:relevance:isOnOffer:True&currentPage=0&pageSize=24&sort=discount",
-        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Mobiles",
-        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Laptops",
-        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Televisions",
-        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Headphones-and-Earphones",
-    ],
-    "home": [
-        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Air-Conditioners",
-        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Refrigerators",
-    ],
-    "gaming": [
-        "https://api.croma.com/searchservices/v2/search?q=:discount-desc&currentPage=0&pageSize=24&category=Gaming",
-    ],
+    "electronics": ["Mobiles", "Laptops", "Televisions", "Headphones-and-Earphones"],
+    "home": ["Air-Conditioners", "Refrigerators"],
+    "gaming": ["Gaming"],
 }
 
 
@@ -50,23 +39,26 @@ class CromaScraper(BaseScraper):
         })
         logger.info(f"Croma: session ready — {len(self._cookies)} cookies")
 
-    def _fetch_api(self, url: str) -> list[dict]:
+    def _fetch_api(self, category: str, page: int = 0) -> list[dict]:
         try:
             resp = httpx.get(
-                url,
-                headers=self._headers,
+                "https://api.croma.com/searchservices/v1/products",
+                params={
+                    "query": f":relevance:category:{category}",
+                    "currentPage": page,
+                    "pageSize": 20,
+                    "sortBy": "discountPercentage_desc",
+                    "isFiltered": "true",
+                },
+                headers={**self._headers, "Accept": "application/json"},
                 cookies=self._cookies,
                 timeout=15,
                 follow_redirects=True,
             )
             if resp.status_code == 200:
                 data = resp.json()
-                return (
-                    data.get("searchresult", {}).get("results", [])
-                    or data.get("products", [])
-                    or []
-                )
-            logger.debug(f"Croma API status {resp.status_code} for {url[:60]}")
+                return data.get("pagination", {}).get("products", data.get("products", []))
+            logger.debug(f"Croma API status {resp.status_code} for {category}")
         except Exception as e:
             logger.debug(f"Croma API error: {e}")
         return []
@@ -115,11 +107,11 @@ class CromaScraper(BaseScraper):
         self._bootstrap()
         deals = []
 
-        for cat_slug, urls in CROMA_CATEGORIES.items():
-            for url in urls:
+        for cat_slug, cat_names in CROMA_CATEGORIES.items():
+            for cat_name in cat_names:
                 try:
-                    products = self._fetch_api(url)
-                    logger.info(f"Croma [{cat_slug}]: {len(products)} products from {url.split('category=')[-1][:30]}")
+                    products = self._fetch_api(cat_name)
+                    logger.info(f"Croma [{cat_slug}]: {len(products)} products from {cat_name}")
                     for p in products[:24]:
                         deal = self._product_to_deal(p, cat_slug)
                         if deal:

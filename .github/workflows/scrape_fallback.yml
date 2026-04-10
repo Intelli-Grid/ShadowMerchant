@@ -1,0 +1,49 @@
+name: Meesho Fallback Scraper
+
+on:
+  schedule:
+    - cron: '0 2 * * *'    # 07:30 IST — 1.5 hours after primary
+    - cron: '0 17 * * *'   # 22:30 IST — 1.5 hours after primary
+  workflow_dispatch:
+
+jobs:
+  check-and-scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check last successful scrape timestamp
+        id: check
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        run: |
+          python3 -c "
+          import pymongo, os
+          from datetime import datetime, timedelta
+          client = pymongo.MongoClient(os.environ['MONGODB_URI'])
+          db = client.shadowmerchant
+          last = db.scrapelogs.find_one({'status':'success'}, sort=[('run_at',-1)])
+          if last:
+              hours_ago = (datetime.utcnow() - last['run_at']).total_seconds() / 3600
+              print(f'HOURS_SINCE_LAST_SCRAPE={hours_ago:.1f}')
+              if hours_ago > 5:
+                  print('NEEDS_FALLBACK=true')
+              else:
+                  print('NEEDS_FALLBACK=false')
+          else:
+              print('NEEDS_FALLBACK=true')
+          " >> $GITHUB_OUTPUT
+      
+      - name: Run fallback Meesho scrape
+        if: steps.check.outputs.NEEDS_FALLBACK == 'true'
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          SCRAPERAPI_KEY: ${{ secrets.SCRAPERAPI_KEY }}
+          MEESHO_AFFILIATE_TAG: ${{ secrets.MEESHO_AFFILIATE_TAG }}
+          ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+          ALGOLIA_ADMIN_KEY: ${{ secrets.ALGOLIA_ADMIN_KEY }}
+          ALGOLIA_INDEX_NAME: ${{ secrets.ALGOLIA_INDEX_NAME }}
+        run: |
+          pip install -r scripts/requirements.txt -q
+          cd scripts
+          python scheduler.py --run-now --scrapers meesho

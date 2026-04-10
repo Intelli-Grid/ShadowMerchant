@@ -38,11 +38,13 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
     handlers=[
-        logging.FileHandler("scheduler.log", encoding="utf-8"),
         logging.StreamHandler(sys.stdout),
     ],
 )
-sys.stdout.reconfigure(encoding='utf-8', errors='replace') if hasattr(sys.stdout, 'reconfigure') else None
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 logger = logging.getLogger("scheduler")
 
 # ── Active Scrapers ─────────────────────────────────────────────
@@ -116,10 +118,19 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
         )
         db = client.shadowmerchant
 
-        # SAFETY: Only mark deals stale if we actually have new deals to replace them.
-        # If scrape produced 0 results (blocked/network), keep all existing deals active.
-        if len(deduped) > 0:
-            db.deals.update_many({}, {"$set": {"is_stale": True}})
+        # SAFETY: Platform-scoped stale management
+        platforms_with_new_deals = list(set(
+            d.get("platform") or d.get("source_platform") 
+            for d in deduped 
+            if d.get("platform") or d.get("source_platform")
+        ))
+        logger.info(f"[STALE] Scoping stale flag to platforms: {platforms_with_new_deals}")
+
+        if platforms_with_new_deals:
+            db.deals.update_many(
+                {"source_platform": {"$in": platforms_with_new_deals}},
+                {"$set": {"is_stale": True}}
+            )
         else:
             logger.warning("Skipping stale-mark: 0 deals collected, keeping existing deals active.")
 
@@ -139,8 +150,19 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
                 category    = str(_f("category", "other") or "other")
                 disc_pct    = int(round((1 - disc_price / orig_price) * 100)) if orig_price > disc_price > 0 else 0
 
-                if not title or disc_price <= 0 or not product_url:
+                if not title or disc_price <= 0 or not product_url or orig_price <= 0:
                     continue
+                    
+                calculated_discount = int(round((1 - disc_price / orig_price) * 100)) if orig_price > disc_price else 0
+                if calculated_discount < 10:
+                    continue
+                
+                if disc_price < 200:
+                    continue
+                    
+                if platform == "meesho" and orig_price > disc_price * 4:
+                    orig_price = disc_price * (1 / 0.30)
+                    disc_pct = 70
 
                 doc = {
                     "title":            title,
@@ -188,16 +210,21 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
                 logger.debug(f"Deal save error: {e}")
 
         # Deactivate stale deals — ONLY if we successfully saved new deals
-        if saved > 0:
+        active_platforms = db.deals.distinct(
+            "source_platform", 
+            {"is_active": True, "is_stale": {"$ne": True}}
+        )
+        platforms_after_deactivation = set(active_platforms + platforms_with_new_deals)
+
+        if len(platforms_after_deactivation) >= 2 or saved >= 50:
             stale_result = db.deals.update_many(
-                {"is_stale": True},
+                {"is_stale": True, "source_platform": {"$in": platforms_with_new_deals}},
                 {"$set": {"is_active": False}}
             )
-            logger.info(f"Deactivated {stale_result.modified_count} stale deals")
+            logger.info(f"[STALE] Deactivated {stale_result.modified_count} stale deals from {platforms_with_new_deals}")
         else:
-            # 0 saved → undo the stale flag to protect existing deals
             db.deals.update_many({"is_stale": True}, {"$set": {"is_stale": False}})
-            logger.warning("0 deals saved — rolled back stale flag, no deals deactivated")
+            logger.warning(f"[SAFETY] Rolled back stale flag — deactivation would leave < 2 platforms")
 
         # ── Professional Trending Selection ─────────────────────────
         # Composite score: absolute savings (30%) + discount% (20%) +
@@ -255,7 +282,7 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
                     hours_old = (now_utc - s_at).total_seconds() / 3600
                 else:
                     hours_old = 0
-                freshness = max(0.0, 100.0 - (hours_old / 12.0 * 100.0))
+                freshness = max(0.0, 100.0 - (hours_old / 36.0 * 100.0))
 
                 return (
                     savings_score  * 0.30 +
@@ -276,12 +303,24 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             # Greedy selection — platform diversity cap: max 3 per platform
             selected = []
             platform_count: dict = {}
+            platform_buckets: dict = {}
+
             for item in scored:
                 platform = item["deal"].get("source_platform", "unknown")
-                if platform_count.get(platform, 0) < 3:
-                    selected.append(item)
-                    platform_count[platform] = platform_count.get(platform, 0) + 1
-                if len(selected) == 10:
+                platform_buckets.setdefault(platform, []).append(item)
+
+            rounds = (10 // max(len(platform_buckets), 1)) + 1
+            for round_num in range(rounds):
+                for platform, bucket in platform_buckets.items():
+                    if len(selected) >= 10:
+                        break
+                    if platform_count.get(platform, 0) >= 3:
+                        continue
+                    platform_idx = platform_count.get(platform, 0)
+                    if platform_idx < len(bucket):
+                        selected.append(bucket[platform_idx])
+                        platform_count[platform] = platform_idx + 1
+                if len(selected) >= 10:
                     break
 
             # Reset all flags, then tag selected with score

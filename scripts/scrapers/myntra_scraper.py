@@ -73,14 +73,15 @@ class MyntraScraper(BaseScraper):
 
 
     def _search(self, query: str) -> list[dict]:
+        from curl_cffi import requests as cffi_requests
         url = f"https://www.myntra.com/gateway/v2/search/{query}"
         params = {"p": 1, "rows": 40, "o": 0, "plaEnabled": "false", "sort": "popularity_desc"}
         try:
-            resp = httpx.get(
+            resp = cffi_requests.get(
                 url, params=params,
-                headers=self._headers,
-                cookies=self._cookies,
-                timeout=15, follow_redirects=True,
+                headers=BASE_HEADERS,
+                impersonate="chrome120",
+                timeout=20,
             )
             if resp.status_code == 200:
                 data = resp.json()
@@ -94,7 +95,6 @@ class MyntraScraper(BaseScraper):
         return []
 
     def scrape_deals(self) -> list[RawDeal]:
-        self._bootstrap()
         deals = []
 
         for cat_slug, queries in CATEGORY_QUERIES.items():

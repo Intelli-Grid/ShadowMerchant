@@ -1,47 +1,39 @@
-"""
-Run this once to add compound indexes that significantly speed up
-category pages, trending feed, and the deals API.
-
-Usage:
-    python create_indexes.py
-"""
 import os
+import sys
 import pymongo
+from pathlib import Path
 from dotenv import load_dotenv
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
 load_dotenv()
 
+MONGO_URI = os.getenv("MONGO_URI") or os.getenv("MONGODB_URI")
+if not MONGO_URI:
+    print("MONGO_URI not found in env.")
+    sys.exit(1)
 
-def create_indexes():
-    client = pymongo.MongoClient(os.getenv("MONGO_URI"))
-    db = client.shadowmerchant
-    col = db.deals
+client = pymongo.MongoClient(MONGO_URI)
+db = client.shadowmerchant
 
-    indexes = [
-        # Trending / homepage
-        ([("is_active", 1), ("is_trending", 1), ("deal_score", -1)],  "idx_active_trending_score"),
-        # Category pages
-        ([("is_active", 1), ("category", 1), ("deal_score", -1)],     "idx_active_category_score"),
-        # Store pages (platform filter)
-        ([("is_active", 1), ("source_platform", 1), ("deal_score", -1)], "idx_active_platform_score"),
-        # New-today feed
-        ([("is_active", 1), ("created_at", -1)],                       "idx_active_created"),
-        # Pro-exclusive feed
-        ([("is_active", 1), ("is_pro_exclusive", 1), ("deal_score", -1)], "idx_pro_exclusive"),
-        # Click tracking / analytics
-        ([("click_count", -1)],                                         "idx_click_count"),
-    ]
+print("Creating MongoDB Indexes...")
 
-    for fields, name in indexes:
-        try:
-            col.create_index(fields, name=name, background=True)
-            print(f"  ✅ Created: {name}")
-        except Exception as e:
-            print(f"  ⚠️  {name}: {e}")
+indexes = [
+    [("is_active", pymongo.ASCENDING), ("is_trending", pymongo.ASCENDING), ("deal_score", pymongo.DESCENDING)],
+    [("is_active", pymongo.ASCENDING), ("scraped_at", pymongo.DESCENDING), ("deal_score", pymongo.DESCENDING)],
+    [("is_active", pymongo.ASCENDING), ("category", pymongo.ASCENDING), ("deal_score", pymongo.DESCENDING)],
+    [("is_active", pymongo.ASCENDING), ("source_platform", pymongo.ASCENDING), ("deal_score", pymongo.DESCENDING)],
+]
 
-    client.close()
-    print("\nAll indexes ensured.")
+for idx in indexes:
+    print(f"Creating index: {idx}")
+    db.deals.create_index(idx)
 
+# Unique index on affiliate_url
+print("Creating unique index on affiliate_url...")
+try:
+    db.deals.create_index([("affiliate_url", pymongo.ASCENDING)], unique=True)
+except Exception as e:
+    print(f"Warning: could not create unique index on affiliate_url: {e}")
 
-if __name__ == "__main__":
-    create_indexes()
+print("Indexes created successfully.")
+client.close()
