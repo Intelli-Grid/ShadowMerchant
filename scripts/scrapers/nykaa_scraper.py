@@ -58,71 +58,52 @@ class NykaaScraper(BaseScraper):
         self._headers: dict = BASE_HEADERS.copy()
 
     def _bootstrap(self):
-        logger.info("Nykaa: bootstrapping session...")
-        try:
-            cookies, headers = get_session("https://www.nykaa.com/beauty/c/3", wait_ms=4000)
-            if cookies:
-                self._cookies = cookies
-                self._headers.update(headers)
-                self._headers["Accept"] = "application/json, text/plain, */*"
-                logger.info(f"Nykaa: session ready — {len(self._cookies)} cookies")
-            else:
-                logger.warning("Nykaa: 0 cookies from bootstrap, proceeding without session")
-        except Exception as e:
-            logger.warning(f"Nykaa bootstrap error: {e}")
+        # HTML fetch doesn't need stealth cookies because curl_cffi covers fingerprint
+        pass
 
 
-    def _fetch_category(self, cat_id: str, cat_name: str) -> list[dict]:
-        """Try multiple Nykaa API endpoints for a category."""
+    def _fetch_category(self, cat_name: str) -> list[dict]:
         from curl_cffi import requests as cffi_requests
-        # Method 1: Search API sorted by discount
+        import re, json
         try:
             resp = cffi_requests.get(
-                "https://www.nykaa.com/sp/api/search",
-                params={"q": cat_name, "page": 0, "ptype": "list", "sortBy": "discount", "f": "offer_available:True"},
-                headers=self._headers,
-                cookies=self._cookies,
+                f"https://www.nykaa.com/search/result/?q={cat_name}",
+                headers=BASE_HEADERS,
                 impersonate="chrome120",
                 timeout=20,
             )
             if resp.status_code == 200:
-                products = resp.json().get("response", {}).get("products", [])
-                if products:
-                    return products
+                match = re.search(r'window\.__PRELOADED_STATE__\s*=\s*(.*?)</script>', resp.text, re.DOTALL)
+                if match:
+                    blob = match.group(1).strip()
+                    if blob.endswith(";"):
+                        blob = blob[:-1]
+                    state = json.loads(blob)
+                    
+                    # Nykaa puts products in categoryListing or desktop search
+                    products = []
+                    cl_products = state.get("categoryListing", {}).get("listingData", {}).get("products", [])
+                    if cl_products:
+                        products.extend(cl_products)
+                    
+                    sl_products = state.get("searchListingPage", {}).get("listingData", {}).get("products", [])
+                    if sl_products:
+                        products.extend(sl_products)
+                    
+                    # Deduplicate based on name or id
+                    seen = set()
+                    unique_results = []
+                    for r in products:
+                        title = r.get("name") or r.get("title") or ""
+                        if title and title not in seen:
+                            seen.add(title)
+                            unique_results.append(r)
+                            
+                    return unique_results
+            logger.debug(f"Nykaa HTML HTTP {resp.status_code}")
         except Exception as e:
-            logger.debug(f"Nykaa method1 [{cat_name}]: {e}")
-
-        # Method 2: Category browse endpoint
-        try:
-            resp2 = cffi_requests.get(
-                f"https://www.nykaa.com/beauty/c/{cat_id}",
-                params={"sort": "discount", "ptype": "list"},
-                headers={**self._headers, "Accept": "application/json"},
-                cookies=self._cookies,
-                impersonate="chrome120",
-                timeout=20,
-            )
-            if resp2.status_code == 200 and "json" in resp2.headers.get("content-type", ""):
-                return resp2.json().get("products", [])
-        except Exception as e:
-            logger.debug(f"Nykaa method2 [{cat_name}]: {e}")
-
-        # Method 3: Newer API format
-        try:
-            resp3 = cffi_requests.get(
-                "https://www.nykaa.com/api/product/products/",
-                params={"rootCat": cat_id, "category": cat_id, "sortBy": "discount"},
-                headers=self._headers,
-                cookies=self._cookies,
-                impersonate="chrome120",
-                timeout=20,
-            )
-            if resp3.status_code == 200:
-                data = resp3.json()
-                return data.get("products", data.get("data", {}).get("products", []))
-        except Exception as e:
-            logger.debug(f"Nykaa method3 [{cat_name}]: {e}")
-
+            logger.debug(f"Nykaa fetch error: {e}")
+            
         return []
 
     def scrape_deals(self) -> list[RawDeal]:
@@ -131,7 +112,7 @@ class NykaaScraper(BaseScraper):
         for cat_slug, category_list in NYKAA_CATEGORIES.items():
             for cat_id, cat_name in category_list:
                 try:
-                    products = self._fetch_category(cat_id, cat_name)
+                    products = self._fetch_category(cat_name)
                     logger.info(f"Nykaa [{cat_slug}/{cat_name}]: {len(products)} products")
                     for p in products[:20]:
                         deal = self._product_to_deal(p, cat_slug)

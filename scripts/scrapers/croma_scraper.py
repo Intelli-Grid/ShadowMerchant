@@ -40,27 +40,7 @@ class CromaScraper(BaseScraper):
         logger.info(f"Croma: session ready — {len(self._cookies)} cookies")
 
     def _fetch_api(self, category: str, page: int = 0) -> list[dict]:
-        try:
-            resp = httpx.get(
-                "https://api.croma.com/searchservices/v1/products",
-                params={
-                    "query": f":relevance:category:{category}",
-                    "currentPage": page,
-                    "pageSize": 20,
-                    "sortBy": "discountPercentage_desc",
-                    "isFiltered": "true",
-                },
-                headers={**self._headers, "Accept": "application/json"},
-                cookies=self._cookies,
-                timeout=15,
-                follow_redirects=True,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                return data.get("pagination", {}).get("products", data.get("products", []))
-            logger.debug(f"Croma API status {resp.status_code} for {category}")
-        except Exception as e:
-            logger.debug(f"Croma API error: {e}")
+        logger.warning(f"Croma API is currently blocked by Akamai WAF __abck challenge. Skipping {category}")
         return []
 
     def _product_to_deal(self, p: dict, cat_slug: str) -> RawDeal | None:
@@ -124,7 +104,7 @@ class CromaScraper(BaseScraper):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     s = CromaScraper()
     results = s.scrape_deals()
     print(f"\nTotal: {len(results)} deals")

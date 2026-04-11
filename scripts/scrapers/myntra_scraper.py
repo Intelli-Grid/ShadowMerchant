@@ -49,54 +49,38 @@ class MyntraScraper(BaseScraper):
         self._cookies: dict = {}
         self._headers: dict = BASE_HEADERS.copy()
 
-    def _bootstrap(self):
-        logger.info("Myntra: bootstrapping session...")
-        try:
-            cookies, headers = get_session("https://www.myntra.com/sale", wait_ms=4000)
-            if cookies:
-                self._cookies = cookies
-                self._headers.update(headers)
-                self._headers.update({
-                    "Accept": "application/json, text/plain, */*",
-                    "sec-fetch-dest": "empty",
-                    "sec-fetch-mode": "cors",
-                    "sec-fetch-site": "same-origin",
-                    "X-Myntra-Abtest": "pdp_glance:true",
-                    "Referer": "https://www.myntra.com/",
-                })
-                logger.info(f"Myntra: session ready — {len(self._cookies)} cookies")
-            else:
-                logger.warning("Myntra: 0 cookies from bootstrap, API may return 401")
-        except Exception as e:
-            logger.warning(f"Myntra bootstrap error: {e}")
-
 
 
     def _search(self, query: str) -> list[dict]:
         from curl_cffi import requests as cffi_requests
-        url = f"https://www.myntra.com/gateway/v2/search/{query}"
-        params = {"p": 1, "rows": 40, "o": 0, "plaEnabled": "false", "sort": "popularity_desc"}
+        import re
+        import json
+        url = f"https://www.myntra.com/{query}"
+        params = {"p": 1, "sort": "popularity_desc"}
         try:
             resp = cffi_requests.get(
                 url, params=params,
                 headers=BASE_HEADERS,
-                cookies=self._cookies,
                 impersonate="chrome120",
                 timeout=20,
             )
             if resp.status_code == 200:
-                data = resp.json()
-                return (
-                    data.get("searchData", {}).get("results", [])
-                    or data.get("products", []) or []
-                )
-            logger.debug(f"Myntra [{query}]: HTTP {resp.status_code}")
+                match = re.search(r'window\.__myx\s*=(.*?)</script>', resp.text)
+                if match:
+                    data_str = match.group(1).strip()
+                    if data_str.endswith(";"):
+                        data_str = data_str[:-1]
+                    data = json.loads(data_str)
+                    return (
+                        data.get("searchData", {}).get("results", {}).get("products", [])
+                        or data.get("products", []) or []
+                    )
+            logger.debug(f"Myntra HTML [{query}]: HTTP {resp.status_code}")
         except Exception as e:
             logger.debug(f"Myntra [{query}] error: {e}")
         return []
 
     def scrape_deals(self) -> list[RawDeal]:
-        self._bootstrap()
         deals = []
 
         for cat_slug, queries in CATEGORY_QUERIES.items():
@@ -124,14 +108,19 @@ class MyntraScraper(BaseScraper):
                 return None
 
             price_info = p.get("price", {}) or {}
-            disc_price = float(
-                price_info.get("discounted", 0)
-                or p.get("discountedPrice", 0) or 0
-            )
-            orig_price = float(
-                price_info.get("mrp", 0)
-                or p.get("mrp", disc_price) or disc_price
-            )
+            if isinstance(price_info, dict):
+                disc_price = float(
+                    price_info.get("discounted", 0)
+                    or p.get("discountedPrice", 0) or 0
+                )
+                orig_price = float(
+                    price_info.get("mrp", 0)
+                    or p.get("mrp", disc_price) or disc_price
+                )
+            else:
+                disc_price = float(p.get("price", 0) or p.get("discountedPrice", 0) or 0)
+                orig_price = float(p.get("mrp", disc_price) or disc_price)
+                
             if disc_price <= 0:
                 return None
 

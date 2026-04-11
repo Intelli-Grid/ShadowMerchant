@@ -356,9 +356,21 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
         
         try:
             import asyncio
-            from social.telegram_poster import post_to_telegram
-            asyncio.run(post_to_telegram())
-            logger.info("[TELEGRAM] Posted")
+            from social.telegram_poster import broadcast_smart, post_pipeline_report
+            asyncio.run(broadcast_smart())
+            logger.info("[TELEGRAM] Broadcasted deals")
+            
+            # Form stats dictionary for report
+            stats = {
+                "scrapers": scraper_stats,
+                "total_collected": len(all_deals),
+                "total_deduped": len(deduped),
+                "saved": saved,
+                "elapsed_seconds": elapsed_current,
+                "run_at": start.isoformat(),
+            }
+            asyncio.run(post_pipeline_report(stats))
+            logger.info("[TELEGRAM] Posted pipeline report to admin")
         except Exception as e:
             logger.error(f"[TELEGRAM] {e}")
 
