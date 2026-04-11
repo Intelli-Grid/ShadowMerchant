@@ -45,7 +45,7 @@ class AmazonScraper(BaseScraper):
             return asyncio.run(self._scrape())
         except Exception as e:
             logger.error(f"Amazon scraper error: {e}")
-            return []
+            raise e
 
     async def _scrape(self) -> list[RawDeal]:
         from playwright.async_api import async_playwright, TimeoutError as PWTimeout
