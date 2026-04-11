@@ -957,7 +957,7 @@ if __name__ == "__main__":
         db = get_db()
         stats = {
             "scrapers":        {"amazon": 0, "meesho": 0, "flipkart": 0, "myntra": 0},
-            "total_collected": db.deals.count_documents({"is_active": True}) if db else 0,
+            "total_collected": db.deals.count_documents({"is_active": True}) if db is not None else 0,
             "saved":           0,
             "elapsed_seconds": 0,
             "run_at":          datetime.utcnow().isoformat(),
