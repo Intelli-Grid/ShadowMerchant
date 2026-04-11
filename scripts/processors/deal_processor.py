@@ -3,6 +3,79 @@ from datetime import datetime
 from processors.deal_scorer import score_deal
 from scrapers.base_scraper import RawDeal
 
+# ─── T1-F: Category normalizer ────────────────────────────────────────────────
+# Keyword → correct category overrides.
+# Keys are lowercase title substrings; values are the target universal category.
+# Order matters — more specific patterns first.
+CATEGORY_KEYWORD_OVERRIDES: list[tuple[str, str]] = [
+    # Books / stationery misclassified as electronics
+    ("planner", "books"),
+    ("organizer", "books"),
+    ("diary", "books"),
+    ("notebook", "books"),
+    ("stationery", "books"),
+    ("journal", "books"),
+    ("sticky note", "books"),
+    ("ball pen", "books"),
+    ("gel pen", "books"),
+    # Sports / fitness misclassified as fashion or electronics
+    ("dumbbell", "sports"),
+    ("barbell", "sports"),
+    ("yoga mat", "sports"),
+    ("resistance band", "sports"),
+    ("weight machine", "sports"),
+    ("exercise bike", "sports"),
+    ("treadmill", "sports"),
+    ("protein powder", "health"),
+    ("whey protein", "health"),
+    # Automotive misclassified as electronics
+    ("soldering iron", "automotive"),
+    ("car cleaner", "automotive"),
+    ("car polish", "automotive"),
+    ("tyre", "automotive"),
+    ("helmet", "automotive"),
+    # Home misclassified as electronics
+    ("air purifier", "home"),
+    ("water purifier", "home"),
+    ("iron box", "home"),
+    ("steam iron", "home"),
+    ("induction cooktop", "home"),
+    ("pressure cooker", "home"),
+    ("mixer grinder", "home"),
+    ("ceiling fan", "home"),
+    # Beauty products in wrong category
+    ("face wash", "beauty"),
+    ("moisturizer", "beauty"),
+    ("sunscreen", "beauty"),
+    ("lipstick", "beauty"),
+    ("mascara", "beauty"),
+    ("foundation", "beauty"),
+    ("serum", "beauty"),
+    ("shampoo", "beauty"),
+    ("conditioner", "beauty"),
+]
+
+VALID_CATEGORIES = {
+    "electronics", "fashion", "beauty", "home", "sports",
+    "books", "toys", "health", "automotive", "grocery", "travel", "gaming"
+}
+
+def normalize_category(raw: RawDeal) -> str:
+    """
+    Inspects the deal title and returns the correct universal category slug.
+    Falls back to the scraper-provided category if no keyword override fires.
+    Ensures the result is always a known valid category.
+    """
+    title_lower = raw.title.lower()
+    for keyword, override_cat in CATEGORY_KEYWORD_OVERRIDES:
+        if keyword in title_lower:
+            return override_cat
+    # Keep scraper-assigned category if it's valid; else fall back to 'electronics'
+    cat = (raw.category or "").lower().strip()
+    return cat if cat in VALID_CATEGORIES else "electronics"
+
+# ──────────────────────────────────────────────────────────────────────────────
+
 def build_deal_document(raw: RawDeal) -> dict:
     return {
         "deal_id": str(uuid.uuid4()),
@@ -14,7 +87,7 @@ def build_deal_document(raw: RawDeal) -> dict:
         "discount_percent": raw.discount_percent,
         "affiliate_url": raw.product_url,
         "image_url": raw.image_url,
-        "category": raw.category,
+        "category": raw.category,  # will be overwritten below after normalization
         "brand": raw.brand,
         "rating": raw.rating,
         "rating_count": raw.rating_count,
@@ -41,6 +114,9 @@ def process_deals(raw_deals: list[RawDeal], db) -> dict:
             stats["skipped"] += 1
             continue
 
+        # T1-F: Normalize category before any DB operation
+        raw.category = normalize_category(raw)
+
         existing = db.deals.find_one({"deal_hash": raw.deal_hash})
 
         if existing:
@@ -52,6 +128,7 @@ def process_deals(raw_deals: list[RawDeal], db) -> dict:
                         "$set": {
                             "discounted_price": raw.discounted_price,
                             "discount_percent": raw.discount_percent,
+                            "category": raw.category,  # also fix category on update
                             "updated_at": datetime.utcnow()
                         },
                         "$push": {"price_history": {

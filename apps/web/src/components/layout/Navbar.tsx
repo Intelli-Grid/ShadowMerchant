@@ -11,7 +11,7 @@ import { MobileMenu } from './MobileMenu';
 
 const NAV_LINKS = [
   { label: 'Top Deals', href: '/deals' },
-  { label: 'Categories', href: '/#categories' },
+  { label: 'Categories', href: '/deals/feed' },
 ];
 
 export function Navbar() {

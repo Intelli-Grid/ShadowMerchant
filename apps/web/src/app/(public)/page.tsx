@@ -4,10 +4,12 @@ import { HeroDeal } from '@/components/HeroDeal';
 import { BentoGrid } from '@/components/BentoGrid';
 import { CategorySwimlane } from '@/components/CategorySwimlane';
 import { ReturnBanner } from '@/components/ReturnBanner';
+import { HeroSearchBar } from '@/components/HeroSearchBar';
+import { HowItWorks } from '@/components/HowItWorks';
+import { TelegramCTA } from '@/components/TelegramCTA';
 import { Badge } from '@/components/ui/badge';
 import { Deal } from '@/types';
 import Link from 'next/link';
-import Image from 'next/image';
 import { connectDB } from '@/lib/db';
 import { redis, CACHE_KEYS, CACHE_TTL } from '@/lib/redis';
 
@@ -133,20 +135,43 @@ async function getCategoryDeals(category: string, limit = 8) {
   }
 }
 
+async function getLastRefreshed(): Promise<string> {
+  try {
+    await connectDB();
+    const DealModel = (await import('@/models/Deal')).default;
+    // Find the most recently scraped deal as a proxy for last pipeline run
+    const latest = await DealModel.findOne({ is_active: true })
+      .sort({ scraped_at: -1 })
+      .select('scraped_at')
+      .lean();
+    if (latest?.scraped_at) {
+      const diff = Math.floor((Date.now() - new Date(latest.scraped_at).getTime()) / 60000);
+      if (diff < 60) return `${diff}m ago`;
+      const hrs = Math.floor(diff / 60);
+      return `${hrs}h ago`;
+    }
+  } catch {}
+  return 'recently';
+}
+
 export default async function Home() {
 
   // Parallelise all data fetching
-  const [trendingResult, newResult, heroDeal, electronicsDeals] = await Promise.all([
+  const [trendingResult, newResult, heroDeal, electronicsDeals, lastRefreshed] = await Promise.all([
     getTrendingDeals(),
     getNewDealsToday(),
     getHeroDeal(),
-    getCategoryDeals('electronics', 8)
+    getCategoryDeals('electronics', 8),
+    getLastRefreshed(),
   ]);
 
   const trendingDeals = trendingResult.deals;
-  const newDeals = newResult.deals;
   const trendingIsStale = trendingResult.isStale;
   const newIsStale = newResult.isStale;
+
+  // T3-E: Deduplicate newDeals — remove any deal already shown in trendingDeals
+  const trendingIds = new Set(trendingDeals.map((d) => String(d._id)));
+  const newDeals = newResult.deals.filter((d) => !trendingIds.has(String(d._id)));
 
   // Total savings across all trending deals
   const totalSavings = trendingDeals.reduce(
@@ -195,37 +220,42 @@ export default async function Home() {
             <span className="hidden sm:inline">·</span>
             <span>💰 {formattedSavings} saveable today</span>
             <span className="hidden sm:inline">·</span>
-            <span>🕐 Refreshes 3× daily</span>
+            <span>🕐 Updated {lastRefreshed}</span>
           </div>
         )}
 
-        {/* Affiliate disclosure banner */}
-        <div className="w-full max-w-7xl px-4 py-2 text-center mb-6 z-10 relative">
-          <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-            ℹ️ ShadowMerchant earns affiliate commissions on purchases. Deals are ranked by savings quality, not commission rate.
-          </p>
-        </div>
 
-        {/* Platform trust badges - Extremely subtle */}
-        <div className="flex items-center justify-center gap-2 flex-wrap mb-4 hover:opacity-100 transition-opacity">
-          {['🛒 Amazon', '🔵 Flipkart', '👗 Myntra', '🛍️ Meesho', '💄 Nykaa'].map(p => (
+
+        {/* Platform trust badges */}
+        <div className="flex items-center justify-center gap-2 flex-wrap mb-6 hover:opacity-100 transition-opacity">
+          {['📦 Amazon', '🛒 Flipkart', '👗 Myntra', '🛍️ Meesho', '💄 Nykaa'].map(p => (
             <span key={p} className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
               style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)', border: '1px solid var(--sm-border)' }}>
               {p}
             </span>
           ))}
         </div>
+
+        {/* T2-D: Hero Search Bar */}
+        <div className="w-full max-w-xl mx-auto">
+          <HeroSearchBar />
+        </div>
       </section>
 
       {/* HeroDeal Component */}
       {heroDeal && (
-        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 pb-10">
+        <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 pb-6">
           <HeroDeal deal={heroDeal} />
         </section>
       )}
 
-      {/* Category Browser */}
-      <CategoryBrowser />
+      {/* T3-A: How It Works */}
+      <HowItWorks />
+
+      {/* T3-B: Category Browser — with #categories anchor */}
+      <section id="categories" className="w-full">
+        <CategoryBrowser />
+      </section>
 
       {/* Category Swimlane */}
       {electronicsDeals.length > 0 && (
@@ -335,6 +365,9 @@ export default async function Home() {
           </div>
         )}
       </section>
+
+      {/* T3-C: Telegram CTA Banner */}
+      <TelegramCTA />
     </main>
   );
 }

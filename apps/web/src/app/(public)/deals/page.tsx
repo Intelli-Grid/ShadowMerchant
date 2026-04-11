@@ -178,10 +178,27 @@ export default async function DealsFeedPage({
               />
             </div>
           ) : (
-             <div className="w-full py-32 flex flex-col items-center justify-center rounded-xl border" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>
-              <span className="text-4xl mb-4">🛸</span>
-              <p className="text-white font-bold text-lg">No deals match your filters.</p>
-              <p className="text-gray-500 mt-2 text-sm max-w-sm text-center">Try opening up your category selection, or expand the active days to search further back in time.</p>
+            <div className="w-full py-24 flex flex-col items-center justify-center rounded-2xl border text-center"
+              style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>
+              <div className="text-6xl mb-4 opacity-40">🔍</div>
+              <p className="text-white font-bold text-xl mb-2">No deals match your filters.</p>
+              <p className="text-sm max-w-xs text-center mb-8" style={{ color: 'var(--text-muted)' }}>
+                Try broadening your search — great deals are waiting.
+              </p>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <a href="/deals" className="px-5 py-2.5 rounded-xl text-sm font-bold border transition-colors"
+                  style={{ background: 'var(--bg-raised)', borderColor: 'var(--sm-border)', color: 'var(--text-primary)' }}>
+                  Show All Categories
+                </a>
+                <a href="/deals?sort=score" className="px-5 py-2.5 rounded-xl text-sm font-bold border transition-colors"
+                  style={{ background: 'var(--bg-raised)', borderColor: 'var(--sm-border)', color: 'var(--text-primary)' }}>
+                  Top Deals
+                </a>
+                <a href="/deals?sort=newest" className="px-5 py-2.5 rounded-xl text-sm font-bold transition-colors"
+                  style={{ background: 'var(--gold)', color: '#0A0A0A' }}>
+                  🆕 View Recent
+                </a>
+              </div>
             </div>
           )}
         </section>

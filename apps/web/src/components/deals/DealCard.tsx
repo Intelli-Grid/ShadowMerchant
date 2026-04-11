@@ -42,8 +42,23 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
 
   const scoreColor =
     score >= 80 ? 'var(--score-high)' :
-    score >= 55 ? 'var(--score-mid)' :
-    'var(--score-low)';
+    score >= 60 ? '#818CF8' :
+    score >= 40 ? '#F59E0B' :
+    'var(--text-muted)';
+
+  const scoreLabel =
+    score >= 80 ? '🏆 Great Value' :
+    score >= 60 ? '👍 Good Deal' :
+    score >= 40 ? '🆗 Fair Deal' :
+    '풤 Low Score';
+
+  // T1-G: Flag suspiciously high discounts (likely data errors)
+  const displayPct = Math.round(deal.discount_percent ?? 0);
+  const isSuspect = displayPct > 90;
+
+  // T2-E: Flag deals scraped within the last hour
+  const isNew = deal.scraped_at &&
+    (Date.now() - new Date(deal.scraped_at).getTime()) < 3_600_000;
 
   // Intersection observer — animate score bar when card enters viewport
   useEffect(() => {
@@ -79,7 +94,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
     <article
       className={cn(
         'deal-card-enter group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-200',
-        'hover:-translate-y-0.5',
+        'hover:-translate-y-1 hover:shadow-2xl',
         className
       )}
       style={{
@@ -135,7 +150,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           <span className="hidden sm:inline">{platform.name}</span>
         </span>
 
-        {/* Deal type + HOT Badges */}
+        {/* Deal type + HOT + NEW Badges */}
         <div className="absolute top-3 right-3 z-20 flex flex-col items-end gap-1 pointer-events-none">
           {((deal as any).deal_type === 'lightning' || (deal as any).deal_type === 'flash') && (
             <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full animate-pulse"
@@ -149,6 +164,13 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
               🔥 HOT
             </div>
           )}
+          {isNew && !isHot && (
+            <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full"
+              style={{ background: 'rgba(59,130,246,0.85)', color: 'white' }}>
+              🆕 New
+            </span>
+          )}
+
         </div>
 
         {/* Wishlist button */}
@@ -204,12 +226,8 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
             </span>
           </div>
           
-          <span className="text-[9px] hidden sm:hidden group-hover/score:hidden"
-            style={{ color: 'var(--text-muted)', marginTop: '4px' }}>
-            Shadow Score — deal quality
-          </span>
-          <span className="text-[9px] block sm:hidden mt-1" style={{ color: 'var(--text-muted)' }}>
-            Shadow Score
+          <span className="text-[9px] block mt-1 font-semibold" style={{ color: scoreColor }}>
+            {scoreLabel}
           </span>
 
           {/* Score tooltip */}
@@ -259,12 +277,16 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
             >
               {formatPrice(deal.discounted_price)}
             </span>
-            {Math.round(deal.discount_percent ?? 0) > 0 && (
-              <span 
-                className={cn("text-[10px] sm:text-[11px] font-bold px-1.5 py-0.5 rounded", isHot && "animate-pulse")}
-                style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444' }}
+            {displayPct > 0 && (
+              <span
+                className={cn('text-[10px] sm:text-[11px] font-bold px-1.5 py-0.5 rounded', isHot && 'animate-pulse')}
+                style={{
+                  background: isSuspect ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)',
+                  color: isSuspect ? '#F59E0B' : '#ef4444',
+                }}
+                title={isSuspect ? 'Unusually high discount — verify price on store' : undefined}
               >
-                {Math.round(deal.discount_percent)}% OFF
+                {isSuspect ? '⚠️ ' : ''}{displayPct}% OFF
               </span>
             )}
           </div>
@@ -294,7 +316,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          {deal.source_platform === 'meesho' ? 'Browse Deal' : 'Get Deal'}
+          Get Deal →
           <ExternalLink className="h-3.5 w-3.5 opacity-80" />
         </a>
 
