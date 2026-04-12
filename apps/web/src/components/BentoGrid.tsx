@@ -12,25 +12,12 @@ interface BentoGridProps {
 export function BentoGrid({ deals }: BentoGridProps) {
   if (!deals || deals.length < 5) return null; // Fallback if not enough deals
 
-  // Bento grid layout array mapping indexes to custom styling classes
   const getBentoClass = (index: number) => {
-    switch(index) {
-      case 0: return 'col-span-1 sm:col-span-2 lg:col-span-3 lg:row-span-2'; // Jumbo - #1
-      case 1: 
-      case 2: return 'col-span-1 sm:col-span-2 lg:col-span-3 lg:row-span-1'; // Medium - #2, #3
-      case 3: 
-      case 4: return 'col-span-1 sm:col-span-1 lg:col-span-2 lg:row-span-1'; // Standard - #4, #5
-      default: return 'col-span-1 lg:col-span-2 lg:row-span-1';
-    }
+    return 'col-span-1'; 
   };
 
   const getSize = (index: number) => {
-    switch(index) {
-      case 0: return 'lg';
-      case 1:
-      case 2: return 'md';
-      default: return 'sm';
-    }
+    return 'md';
   };
 
   return (
@@ -47,8 +34,8 @@ export function BentoGrid({ deals }: BentoGridProps) {
       </div>
 
       {/* CSS Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 sm:gap-6 auto-rows-fr">
-        {deals.slice(0, 9).map((deal, idx) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        {deals.slice(0, 8).map((deal, idx) => (
           <div key={deal._id} className={cn(getBentoClass(idx), 'relative group h-full block')}>
             {idx === 0 && (
               <div className="absolute -top-3 -right-3 z-30 h-10 w-10 rounded-full flex items-center justify-center transform rotate-12 transition-transform group-hover:rotate-0" style={{ background: 'var(--gold)', boxShadow: '0 8px 16px rgba(201,168,76,0.4)' }}>

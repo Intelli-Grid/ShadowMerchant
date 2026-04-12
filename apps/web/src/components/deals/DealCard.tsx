@@ -249,7 +249,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
         {/* Title — clicking navigates to deal detail page */}
         <Link
           href={`/deals/${deal._id}`}
-          className="line-clamp-2 font-medium leading-snug mb-2 hover:text-[var(--gold)] transition-colors"
+          className="line-clamp-2 font-bold leading-tight mb-2 hover:text-[var(--gold)] transition-colors"
           style={{ color: 'var(--text-primary)', letterSpacing: '-0.01em', minHeight: size === 'sm' ? '2.4em' : '2.8em', display: '-webkit-box' }}
           title={deal.title}
         >
@@ -273,8 +273,8 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
         <div className="flex flex-col mt-auto mb-3 gap-0.5">
           <div className="flex items-center gap-2">
             <span
-              className="font-black price-display tracking-tight"
-              style={{ fontSize: size === 'lg' ? '22px' : '19px', color: 'var(--text-primary)' }}
+              className="font-extrabold price-display tracking-tighter"
+              style={{ fontSize: size === 'lg' ? '24px' : '20px', color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}
             >
               {formatPrice(deal.discounted_price)}
             </span>
