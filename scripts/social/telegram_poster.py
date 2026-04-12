@@ -761,6 +761,8 @@ def run_interactive_bot():
         return InlineKeyboardMarkup(rows)
 
     async def admin_run(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        from telegram.constants import ParseMode
+        
         if not is_admin(update):
             await update.message.reply_text("⛔ Admin access only.")
             return
@@ -795,6 +797,7 @@ def run_interactive_bot():
 
     async def handle_run_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+        from telegram.constants import ParseMode
         query = update.callback_query
         await query.answer()
 
