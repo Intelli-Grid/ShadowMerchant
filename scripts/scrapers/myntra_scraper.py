@@ -57,32 +57,35 @@ class MyntraScraper(BaseScraper):
         import json
         url = f"https://www.myntra.com/{query}"
         params = {"p": 1, "sort": "popularity_desc"}
-        api_key = os.getenv("SCRAPERAPI_KEY", "")
-        proxies = None
-        if api_key:
-            proxy_url = f"http://scraperapi:{api_key}@proxy-server.scraperapi.com:8001"
-            proxies = {"http": proxy_url, "https": proxy_url}
-
         try:
             resp = cffi_requests.get(
                 url, params=params,
                 headers=BASE_HEADERS,
-                proxies=proxies,
                 impersonate="chrome120",
-                timeout=30,
+                timeout=25,
             )
             if resp.status_code == 200:
-                match = re.search(r'window\.__myx\s*=(.*?)</script>', resp.text)
-                if match:
-                    data_str = match.group(1).strip()
-                    if data_str.endswith(";"):
-                        data_str = data_str[:-1]
-                    data = json.loads(data_str)
-                    return (
-                        data.get("searchData", {}).get("results", {}).get("products", [])
-                        or data.get("products", []) or []
-                    )
-            logger.debug(f"Myntra HTML [{query}]: HTTP {resp.status_code}")
+                for pattern in [
+                    r'window\.__myx\s*=\s*(.*?)\s*</script>',
+                    r'window\.__INITIAL_STATE__\s*=\s*(.*?)\s*</script>',
+                    r'window\.initialData\s*=\s*(.*?)\s*</script>',
+                ]:
+                    match = re.search(pattern, resp.text, re.DOTALL)
+                    if match:
+                        blob = match.group(1).strip().rstrip(';')
+                        try:
+                            data = json.loads(blob)
+                            products = (
+                                data.get("searchData", {}).get("results", {}).get("products", [])
+                                or data.get("pageData", {}).get("data", {}).get("products", [])
+                                or data.get("products", [])
+                            )
+                            if products:
+                                logger.debug(f"Myntra [{query}]: {len(products)} products via pattern")
+                                return products
+                        except json.JSONDecodeError:
+                            continue
+            logger.debug(f"Myntra [{query}]: HTTP {resp.status_code} — no products found")
         except Exception as e:
             logger.debug(f"Myntra [{query}] error: {e}")
         return []

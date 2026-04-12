@@ -86,8 +86,14 @@ class MeeshoScraper(BaseScraper):
 
     # ─────────────────────────────────────────────────────────────
     def scrape_deals(self) -> list[RawDeal]:
+        if not self.scraperapi_key:
+            logger.error(
+                "SCRAPERAPI_KEY missing. Add it to Render Dashboard → Environment. "
+                "Without it, Meesho blocks all cloud datacenter IPs."
+            )
+
         logger.info("Meesho scraper v5 (ScraperAPI residential proxy + JSON API) starting...")
-        logger.info(f"ScraperAPI key: {'SET (' + self.scraperapi_key[:8] + '...)' if self.scraperapi_key else 'MISSING'}")
+        logger.info(f"ScraperAPI key: {'SET (' + self.scraperapi_key[:8] + '...)' if self.scraperapi_key else 'MISSING — will try direct'}")
 
         proxies = None
         if self.scraperapi_key:

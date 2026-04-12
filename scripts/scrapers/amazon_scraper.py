@@ -1,15 +1,13 @@
 """
-Amazon Scraper — Render-mode ScraperAPI (No Playwright required!)
-This avoids all memory/OOM crashes on Render and guarantees IP bypass.
+Amazon Scraper — Playwright + Stealth (with graceful import fallback).
+Works reliably on GitHub Actions (Linux) even without playwright_stealth installed.
 """
 import sys
 import os
+import asyncio
 import logging
 from pathlib import Path
 from dotenv import load_dotenv
-
-import requests
-from bs4 import BeautifulSoup
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base_scraper import BaseScraper, RawDeal
@@ -41,86 +39,156 @@ class AmazonScraper(BaseScraper):
     def __init__(self):
         super().__init__(platform_name="amazon")
         self.affiliate_tag = AFFILIATE_TAG
-        self.scraperapi_key = os.getenv("SCRAPERAPI_KEY", "")
 
     def scrape_deals(self) -> list[RawDeal]:
-        if not self.scraperapi_key:
-            logger.error("SCRAPERAPI_KEY is missing! Amazon needs it to bypass bans.")
-            return []
+        try:
+            return asyncio.run(self._scrape())
+        except Exception as e:
+            err_str = str(e)
+            if "Executable doesn't exist" in err_str or "BrowserType.launch" in err_str:
+                logger.warning("Amazon: Playwright binary missing — auto-installing chromium...")
+                try:
+                    import subprocess, sys as _sys
+                    result = subprocess.run(
+                        [_sys.executable, "-m", "playwright", "install", "chromium"],
+                        capture_output=True, timeout=180, text=True
+                    )
+                    if result.returncode == 0:
+                        logger.info("Amazon: Playwright install complete — retrying...")
+                        return asyncio.run(self._scrape())
+                    else:
+                        logger.error(f"Amazon: install failed: {result.stderr[:200]}")
+                except Exception as ie:
+                    logger.error(f"Amazon: auto-install error: {ie}")
+            logger.error(f"Amazon scraper error: {e}")
+            return []  # Never raise — always return empty list
+
+    async def _scrape(self) -> list[RawDeal]:
+        from playwright.async_api import async_playwright, TimeoutError as PWTimeout
+
+        # Graceful stealth import — works without playwright_stealth installed
+        try:
+            from playwright_stealth import stealth_async
+        except (ImportError, Exception):
+            async def stealth_async(page):
+                """Minimal stealth: remove webdriver traces."""
+                await page.add_init_script("""
+                    Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+                    window.chrome = { runtime: {} };
+                    Object.defineProperty(navigator, 'languages', {get: () => ['en-IN', 'en']});
+                    Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3]});
+                """)
 
         # Build category URL list (prefer CATEGORY_MAP amazon URLs, fallback to search URLs)
         category_urls = []
         for cat_slug in CATEGORY_SEARCH_URLS:
+            # Prefer curated browse-node URL from category map if available
             amz_config = CATEGORY_MAP.get(cat_slug, {}).get("amazon", {})
             url = amz_config.get("url") or CATEGORY_SEARCH_URLS[cat_slug]
             category_urls.append((cat_slug, url))
 
-        logger.info(f"Amazon: scraping {len(category_urls)} categories via ScraperAPI")
+        logger.info(f"Amazon: scraping {len(category_urls)} categories")
         deals = []
 
-        for cat_slug, url in category_urls:
-            try:
-                # We use ScraperAPI render mode which natively bypasses JS firewalls on Amazon
-                api_url = "http://api.scraperapi.com"
-                params = {
-                    "api_key": self.scraperapi_key,
-                    "url": url,
-                    "render": "true",
-                    "country_code": "in",
-                    "keep_headers": "true"
-                }
-                
-                resp = requests.get(api_url, params=params, timeout=120)
-                if resp.status_code != 200:
-                    logger.warning(f"Amazon [{cat_slug}]: HTTP {resp.status_code}")
-                    continue
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(
+                headless=True,
+                args=[
+                    "--no-sandbox",
+                    "--disable-blink-features=AutomationControlled",
+                    "--disable-dev-shm-usage",
+                ],
+            )
+            context = await browser.new_context(
+                viewport={"width": 1280, "height": 900},
+                locale="en-IN",
+                timezone_id="Asia/Kolkata",
+                user_agent=(
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/123.0.0.0 Safari/537.36"
+                ),
+            )
+            semaphore = asyncio.Semaphore(3)  # 3 parallel pages max
 
-                soup = BeautifulSoup(resp.text, 'html.parser')
-                cards = soup.select("div[data-component-type='s-search-result'][data-asin]")
-                
-                logger.info(f"Amazon [{cat_slug}]: {len(cards)} cards")
-
-                for card in cards[:20]:
+            async def _scrape_one_category(cat_slug, url, context, stealth_async, semaphore):
+                """Scrape a single Amazon category page."""
+                async with semaphore:
+                    cat_deals = []
+                    cat_page = None
                     try:
-                        asin = card.get("data-asin")
-                        if not asin or asin.startswith("SPONSORED"):
-                            continue
+                        cat_page = await context.new_page()
+                        await stealth_async(cat_page)
+                        await cat_page.goto(url, wait_until="domcontentloaded", timeout=25000)
+                        await cat_page.wait_for_timeout(1200)
+                        cards = await cat_page.query_selector_all(
+                            "div[data-component-type='s-search-result'][data-asin]"
+                        )
+                        logger.info(f"Amazon [{cat_slug}]: {len(cards)} cards")
 
-                        title_el  = card.select_one("h2 span, h2 a span")
-                        price_el  = card.select_one("span.a-price > span.a-offscreen")
-                        orig_el   = card.select_one("span.a-price.a-text-price > span.a-offscreen")
-                        img_el    = card.select_one("img.s-image")
-                        rating_el = card.select_one("span.a-icon-alt, i.a-icon-star span")
+                        for card in cards[:20]:
+                            try:
+                                asin = await card.get_attribute("data-asin")
+                                if not asin or asin.startswith("SPONSORED"):
+                                    continue
 
-                        if not title_el or not price_el:
-                            continue
+                                title_el  = await card.query_selector("h2 span, h2 a span")
+                                price_el  = await card.query_selector("span.a-price > span.a-offscreen")
+                                orig_el   = await card.query_selector("span.a-price.a-text-price > span.a-offscreen")
+                                img_el    = await card.query_selector("img.s-image")
+                                rating_el = await card.query_selector("span.a-icon-alt, i.a-icon-star span")
 
-                        title      = title_el.get_text(strip=True)
-                        disc_price = self._parse_price(price_el.get_text(strip=True))
-                        orig_price = self._parse_price(orig_el.get_text(strip=True)) if orig_el else disc_price
-                        image      = img_el.get("src") if img_el else ""
-                        rating_txt = rating_el.get_text(strip=True) if rating_el else "0"
-                        rating     = float(rating_txt.split()[0]) if rating_txt else 0.0
+                                if not title_el or not price_el:
+                                    continue
 
-                        if not title or disc_price <= 0:
-                            continue
+                                title_txt = await title_el.inner_text()
+                                if not title_txt.strip():
+                                    continue
 
-                        product_url = f"https://www.amazon.in/dp/{asin}?tag={self.affiliate_tag}"
+                                disc_price = self._parse_price(await price_el.inner_text())
+                                orig_price = self._parse_price(await orig_el.inner_text()) if orig_el else disc_price
+                                
+                                image = ""
+                                if img_el:
+                                    image = await img_el.get_attribute("src") or ""
 
-                        deals.append(RawDeal(
-                            title=title[:200],
-                            platform="amazon",
-                            original_price=orig_price,
-                            discounted_price=disc_price,
-                            product_url=product_url,
-                            image_url=image,
-                            category=cat_slug,
-                        ))
-                    except Exception:
-                        continue
-                        
-            except Exception as e:
-                logger.warning(f"Amazon [{cat_slug}] proxy error: {e}")
+                                rating_txt = await rating_el.inner_text() if rating_el else "0"
+                                try:
+                                    rating = float(rating_txt.split()[0]) if rating_txt else 0.0
+                                except Exception:
+                                    rating = 0.0
+
+                                if disc_price <= 0:
+                                    continue
+
+                                product_url = f"https://www.amazon.in/dp/{asin}?tag={self.affiliate_tag}"
+
+                                cat_deals.append(RawDeal(
+                                    title=title_txt.strip()[:200],
+                                    platform="amazon",
+                                    original_price=orig_price,
+                                    discounted_price=disc_price,
+                                    product_url=product_url,
+                                    image_url=image,
+                                    category=cat_slug,
+                                ))
+                            except Exception:
+                                continue
+                    except Exception as e:
+                        logger.warning(f"Amazon [{cat_slug}]: {e}")
+                    finally:
+                        if cat_page:
+                            await cat_page.close()
+                    return cat_deals
+
+            tasks = [
+                _scrape_one_category(cat_slug, url, context, stealth_async, semaphore)
+                for cat_slug, url in category_urls
+            ]
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+            deals = [d for result in results if isinstance(result, list) for d in result]
+
+            await browser.close()
 
         logger.info(f"Amazon: {len(deals)} deals total")
         return deals
@@ -139,4 +207,4 @@ if __name__ == "__main__":
     results = s.scrape_deals()
     print(f"\nTotal: {len(results)} deals")
     for r in results[:5]:
-        print(f"[{r.category}] {r.title[:55]} | Rs.{r.discounted_price} | {r.product_url[:60]}")
+        print(f"[{r.category}] {r.title[:55]} | ₹{r.discounted_price} | {r.product_url[:60]}")
