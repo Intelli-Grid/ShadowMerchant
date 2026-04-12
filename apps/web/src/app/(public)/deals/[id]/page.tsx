@@ -193,6 +193,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                     alt={deal.title}
                     fill
                     className="object-contain mix-blend-multiply p-12 transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                    unoptimized
                     priority
                   />
                 ) : (
@@ -254,7 +255,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 href={`/api/go/${deal._id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="fixed bottom-20 left-4 right-4 z-50 md:relative md:w-80 flex items-center justify-center gap-2 h-14 md:h-14 rounded-full font-bold text-base md:text-lg transition-transform active:scale-95 shadow-2xl md:shadow-none"
+                className="fixed bottom-20 left-4 right-4 z-50 md:static md:w-auto lg:w-80 md:mt-2 flex items-center justify-center gap-2 h-14 md:h-14 rounded-full font-bold text-base md:text-lg transition-transform active:scale-95 shadow-2xl md:shadow-none"
                 style={{ background: '#FFD814', color: '#0F1111', border: '1px solid #FCD200' }}
               >
                 Buy on {platform.name} <ExternalLink className="w-4 h-4" />

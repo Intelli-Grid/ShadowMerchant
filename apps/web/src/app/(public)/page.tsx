@@ -249,8 +249,8 @@ export default async function Home() {
         </section>
       )}
 
-      {/* T3-A: How It Works */}
-      <HowItWorks />
+      {/* T3-A: How It Works - Disabled per request */}
+      {/* <HowItWorks /> */}
 
       {/* T3-B: Category Browser — with #categories anchor */}
       <section id="categories" className="w-full">

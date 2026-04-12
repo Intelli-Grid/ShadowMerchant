@@ -131,6 +131,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
               fill
               className="object-contain mix-blend-multiply p-2 transition-transform duration-300 group-hover:scale-[1.05]"
               sizes="(max-width: 640px) 135px, (max-width: 1024px) 33vw, 260px"
+              unoptimized
               onError={() => setImgError(true)}
             />
           ) : (
