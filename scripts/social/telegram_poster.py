@@ -920,12 +920,13 @@ def run_interactive_bot():
                     
                     sample_lines = ""
                     if deals:
+                        def _get_val(obj, fld, default=None): return getattr(obj, fld, default) if not isinstance(obj, dict) else obj.get(fld, default)
                         for d in deals[:3]:
-                            t = getattr(d, 'title', str(d.get('title', '')))[:45]
-                            p = getattr(d, 'discounted_price', d.get('discounted_price', 0))
-                            pct = getattr(d, 'discount_percent', None)
+                            t = str(_get_val(d, 'title', ''))[:45]
+                            p = _get_val(d, 'discounted_price', 0)
+                            pct = _get_val(d, 'discount_percent', None)
                             if pct is None:
-                                op = getattr(d, 'original_price', d.get('original_price', 0))
+                                op = _get_val(d, 'original_price', 0)
                                 pct = int((1 - p / op) * 100) if op > p > 0 else 0
                             sample_lines += f"\n  • {t}... ₹{p:,.0f} ({pct}% off)"
 
