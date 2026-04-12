@@ -57,12 +57,19 @@ class MyntraScraper(BaseScraper):
         import json
         url = f"https://www.myntra.com/{query}"
         params = {"p": 1, "sort": "popularity_desc"}
+        api_key = os.getenv("SCRAPERAPI_KEY", "")
+        proxies = None
+        if api_key:
+            proxy_url = f"http://scraperapi:{api_key}@proxy-server.scraperapi.com:8001"
+            proxies = {"http": proxy_url, "https": proxy_url}
+
         try:
             resp = cffi_requests.get(
                 url, params=params,
                 headers=BASE_HEADERS,
+                proxies=proxies,
                 impersonate="chrome120",
-                timeout=20,
+                timeout=30,
             )
             if resp.status_code == 200:
                 match = re.search(r'window\.__myx\s*=(.*?)</script>', resp.text)
