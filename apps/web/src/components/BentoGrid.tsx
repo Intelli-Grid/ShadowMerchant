@@ -16,7 +16,7 @@ export function BentoGrid({ deals }: BentoGridProps) {
     return 'col-span-1'; 
   };
 
-  const getSize = (index: number) => {
+  const getSize = (_index: number): 'sm' | 'md' | 'lg' => {
     return 'md';
   };
 
