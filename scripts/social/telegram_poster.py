@@ -736,6 +736,30 @@ def run_interactive_bot():
     _pipeline_running = {"flag": False}   # mutable dict acts as a closure-safe lock
 
     # ── /run [scraper...] ─────────────────────────────────────────
+    _run_selections: dict = {}   # chat_id → set of selected scrapers
+
+    ALL_SCRAPERS = [
+        ("amazon",   "📦 Amazon"),
+        ("meesho",   "🛍️ Meesho"),
+        ("flipkart", "🛒 Flipkart"),
+        ("myntra",   "👗 Myntra"),
+        ("nykaa",    "💄 Nykaa"),
+        ("croma",    "📱 Croma"),
+    ]
+
+    def _build_scraper_keyboard(selected: set):
+        from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+        rows = []
+        for slug, label in ALL_SCRAPERS:
+            tick = "✅" if slug in selected else "☐"
+            rows.append([InlineKeyboardButton(f"{tick} {label}", callback_data=f"run_toggle_{slug}")])
+        rows.append([
+            InlineKeyboardButton("▶ Run Selected", callback_data="run_execute"),
+            InlineKeyboardButton("⚡ Run All", callback_data="run_all"),
+        ])
+        rows.append([InlineKeyboardButton("❌ Cancel", callback_data="run_cancel")])
+        return InlineKeyboardMarkup(rows)
+
     async def admin_run(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not is_admin(update):
             await update.message.reply_text("⛔ Admin access only.")
@@ -743,39 +767,235 @@ def run_interactive_bot():
 
         if _pipeline_running["flag"]:
             await update.message.reply_text(
-                "⚠️ Pipeline already running. Wait for the report before triggering again."
+                "⚠️ *Pipeline already running.*\n"
+                "Use /status to check progress. Wait for the report before triggering again.",
+                parse_mode=ParseMode.MARKDOWN
             )
             return
 
-        args = context.args  # e.g. ["amazon", "meesho"]
-        valid = ["amazon", "flipkart", "myntra", "meesho", "nykaa", "croma"]
-        scrapers = [s.lower() for s in args if s.lower() in valid] if args else None
-        label = ", ".join(scrapers) if scrapers else "amazon · meesho"
+        chat_id = str(update.effective_chat.id)
+        args = context.args
+        valid = [s for s, _ in ALL_SCRAPERS]
 
+        if args:
+            scrapers = [s.lower() for s in args if s.lower() in valid]
+            if scrapers:
+                await _start_pipeline_run(update, context, scrapers)
+                return
+
+        _run_selections[chat_id] = set()
+        keyboard = _build_scraper_keyboard(_run_selections[chat_id])
         await update.message.reply_text(
-            f"⏳ *Pipeline starting…*\n"
-            f"Scrapers: `{label}`\n\n"
-            f"_This takes 2–5 min. You'll get a report when done._",
-            parse_mode=ParseMode.MARKDOWN
+            "🔧 *Select Scrapers to Run*\n\n"
+            "Tap to toggle each scraper on/off, then press *▶ Run Selected*.\n\n"
+            "_Tip: Press ⚡ Run All to run every scraper at once._",
+            parse_mode=ParseMode.MARKDOWN,
+            reply_markup=keyboard
         )
 
-        loop = asyncio.get_event_loop()
+    async def handle_run_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+        query = update.callback_query
+        await query.answer()
 
-        async def _run_and_report():
-            _pipeline_running["flag"] = True
+        if not is_admin(update):
+            await query.edit_message_text("⛔ Admin access only.")
+            return
+
+        chat_id = str(update.effective_chat.id)
+        data = query.data
+
+        if data == "run_cancel":
+            _run_selections.pop(chat_id, None)
+            await query.edit_message_text("❌ Run cancelled.")
+            return
+
+        if data == "run_all":
+            scrapers = [s for s, _ in ALL_SCRAPERS]
+            await query.edit_message_text(
+                f"⚡ *Running all {len(scrapers)} scrapers...*\n"
+                f"You'll get a report for each one as it completes.",
+                parse_mode=ParseMode.MARKDOWN
+            )
+            await _start_pipeline_run(update, context, scrapers, query=query)
+            return
+
+        if data == "run_execute":
+            selected = _run_selections.get(chat_id, set())
+            if not selected:
+                await query.answer("⚠️ Select at least one scraper first!", show_alert=True)
+                return
+            scrapers = [s for s, _ in ALL_SCRAPERS if s in selected]
+            await query.edit_message_text(
+                f"▶ *Starting pipeline...*\n"
+                f"Scrapers: {', '.join(f'`{s}`' for s in scrapers)}\n\n"
+                f"_You'll get a live report after each scraper completes._",
+                parse_mode=ParseMode.MARKDOWN
+            )
+            _run_selections.pop(chat_id, None)
+            await _start_pipeline_run(update, context, scrapers, query=query)
+            return
+
+        if data.startswith("run_toggle_"):
+            slug = data[len("run_toggle_"):]
+            if chat_id not in _run_selections:
+                _run_selections[chat_id] = set()
+            if slug in _run_selections[chat_id]:
+                _run_selections[chat_id].discard(slug)
+            else:
+                _run_selections[chat_id].add(slug)
+
+            selected = _run_selections[chat_id]
+            count = len(selected)
+            header = (
+                f"🔧 *Select Scrapers to Run*\n\n"
+                f"{'✅ ' + str(count) + ' selected' if count else '☐ None selected — tap to add'}\n\n"
+                "_Press ▶ Run Selected when ready._"
+            )
             try:
-                import sys as _sys
-                from pathlib import Path as _Path
-                _sys.path.insert(0, str(_Path(__file__).parent.parent))
-                from scheduler import run_pipeline
-                stats = await loop.run_in_executor(None, run_pipeline, scrapers)
-                await post_pipeline_report(stats)
+                await query.edit_message_text(
+                    header, parse_mode=ParseMode.MARKDOWN, reply_markup=_build_scraper_keyboard(selected)
+                )
+            except Exception:
+                pass
+
+
+    async def _start_pipeline_run(update, context, scrapers: list[str], query=None):
+        from telegram.constants import ParseMode
+
+        _pipeline_running["flag"] = True
+
+        async def send_admin(text: str):
+            try:
+                await app.bot.send_message(chat_id=ADMIN_CHAT_ID, text=text, parse_mode=ParseMode.MARKDOWN)
             except Exception as e:
-                await update.message.reply_text(f"❌ Pipeline error: {str(e)[:300]}")
+                logger.error(f"Admin send failed: {e}")
+
+        async def _run():
+            import sys as _sys
+            from pathlib import Path as _Path
+            _sys.path.insert(0, str(_Path(__file__).parent.parent))
+
+            SCRAPER_MAP = {
+                "amazon":   ("scrapers.amazon_scraper",   "AmazonScraper"),
+                "flipkart": ("scrapers.flipkart_scraper", "FlipkartScraper"),
+                "myntra":   ("scrapers.myntra_scraper",   "MyntraScraper"),
+                "meesho":   ("scrapers.meesho_scraper",   "MeeshoScraper"),
+                "nykaa":    ("scrapers.nykaa_scraper",    "NykaaScraper"),
+                "croma":    ("scrapers.croma_scraper",    "CromaScraper"),
+            }
+
+            await send_admin(
+                f"🚀 *Pipeline Started*\n"
+                f"Scrapers queued: {' · '.join(f'`{s}`' for s in scrapers)}\n"
+                f"🕐 {datetime.now().strftime('%H:%M:%S')}"
+            )
+
+            all_deals = []
+            scraper_stats = {}
+            loop = asyncio.get_event_loop()
+
+            for name in scrapers:
+                if name not in SCRAPER_MAP: continue
+                module_path, class_name = SCRAPER_MAP[name]
+                scraper_start = datetime.utcnow()
+
+                await send_admin(f"⏳ *Running {name} scraper...*")
+
+                try:
+                    import importlib
+                    mod = importlib.import_module(module_path)
+                    cls = getattr(mod, class_name)
+                    scraper_obj = cls()
+
+                    deals = await loop.run_in_executor(None, scraper_obj.scrape_deals)
+                    all_deals.extend(deals)
+                    scraper_stats[name] = len(deals)
+
+                    elapsed = int((datetime.utcnow() - scraper_start).total_seconds())
+                    status_icon = "✅" if len(deals) > 0 else "❌"
+                    
+                    sample_lines = ""
+                    if deals:
+                        for d in deals[:3]:
+                            t = getattr(d, 'title', str(d.get('title', '')))[:45]
+                            p = getattr(d, 'discounted_price', d.get('discounted_price', 0))
+                            pct = getattr(d, 'discount_percent', None)
+                            if pct is None:
+                                op = getattr(d, 'original_price', d.get('original_price', 0))
+                                pct = int((1 - p / op) * 100) if op > p > 0 else 0
+                            sample_lines += f"\n  • {t}... ₹{p:,.0f} ({pct}% off)"
+
+                    await send_admin(
+                        f"{status_icon} *{name.capitalize()} Complete*\n"
+                        f"📦 {len(deals)} deals · ⏱️ {elapsed}s"
+                        + (f"\n\n*Sample:*{sample_lines}" if sample_lines else "")
+                    )
+
+                except Exception as e:
+                    scraper_stats[name] = 0
+                    elapsed = int((datetime.utcnow() - scraper_start).total_seconds())
+                    await send_admin(f"❌ *{name.capitalize()} Failed*\n⏱️ {elapsed}s\nError: `{str(e)[:200]}`")
+                    logger.error(f"[TELEGRAM RUN] {name} failed: {e}")
+
+            await send_admin(f"💾 *Saving {len(all_deals)} deals to database...*")
+
+            try:
+                import os, pymongo, uuid
+                from processors.deduplicator import deduplicate_deals
+                from processors.deal_scorer import score_deal_with_breakdown
+                
+                deduped = deduplicate_deals(all_deals)
+                db_client = pymongo.MongoClient(os.getenv("MONGO_URI") or os.getenv("MONGODB_URI"))
+                temp_db = db_client.shadowmerchant
+
+                saved = 0
+                for deal in deduped:
+                    try:
+                        deal_score, score_breakdown = score_deal_with_breakdown(deal)
+                        def _f(fld, default=""): return getattr(deal, fld, default) if not isinstance(deal, dict) else deal.get(fld, default)
+                        title, platform, url, img, cat = str(_f("title", "")).strip(), str(_f("platform", "unk")), str(_f("product_url", "")).strip(), str(_f("image_url", "")).strip(), str(_f("category", "other"))
+                        orig, disc = float(_f("original_price", 0) or 0), float(_f("discounted_price", 0) or 0)
+                        disc_pct = int(round((1 - disc / orig) * 100)) if orig > disc > 0 else 0
+                        if not title or disc <= 0 or not url or disc_pct < 10 or disc < 200: continue
+
+                        doc = {
+                            "title": title, "source_platform": platform, "original_price": orig, "discounted_price": disc,
+                            "discount_percent": disc_pct, "deal_score": int(deal_score), "score_breakdown": score_breakdown,
+                            "affiliate_url": url, "image_url": img, "category": cat, "rating": float(_f("rating", 0)),
+                            "rating_count": int(_f("rating_count", 0)), "is_active": True, "is_stale": False, "is_pro_exclusive": False,
+                            "scraped_at": datetime.utcnow(), "updated_at": datetime.utcnow()
+                        }
+                        res = temp_db.deals.update_one(
+                            {"affiliate_url": url},
+                            {"$set": doc, "$push": {"price_history": {"$each": [{"date": datetime.utcnow(), "price": disc}], "$slice": -30}},
+                             "$setOnInsert": {"created_at": datetime.utcnow(), "deal_id": str(uuid.uuid4())}},
+                            upsert=True
+                        )
+                        if res.upserted_id or res.modified_count: saved += 1
+                    except Exception: pass
+                db_client.close()
+            except Exception as e:
+                saved = 0
+                await send_admin(f"❌ *DB save failed:* `{str(e)[:200]}`")
+
+            scraper_lines = "\n".join(f"  {'✅' if c > 0 else '❌'} {n}: {c} deals" for n, c in scraper_stats.items())
+            platform_summary = " · ".join(f"{n}({c})" for n, c in scraper_stats.items() if c > 0) or "none"
+
+            await send_admin(
+                f"📊 *Pipeline Complete*\n━━━━━━━━━━━━━━━━━━━━━\n{scraper_lines}\n\n"
+                f"📦 Total collected: {len(all_deals)}\n💾 Saved/updated: {saved}\n✅ Working: {platform_summary}\n"
+                f"━━━━━━━━━━━━━━━━━━━━━\n{'✅ Pipeline healthy' if saved > 0 else '⚠️ No deals saved'}"
+            )
+
+        async def _run_with_cleanup():
+            try:
+                await _run()
             finally:
                 _pipeline_running["flag"] = False
 
-        asyncio.create_task(_run_and_report())
+        asyncio.create_task(_run_with_cleanup())
+
 
     # ── /status ───────────────────────────────────────────────────
     async def admin_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -915,6 +1135,8 @@ def run_interactive_bot():
     app.add_handler(CommandHandler("status", admin_status))
     app.add_handler(CommandHandler("push",   admin_push))
     app.add_handler(CommandHandler("report", admin_report))
+
+    app.add_handler(CallbackQueryHandler(handle_run_callback, pattern="^run_"))
 
     app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, unknown))

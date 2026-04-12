@@ -46,6 +46,12 @@ CATEGORY_QUERIES = {
     "home":        "home decor kitchen",
     "sports":      "sports fitness",
     "health":      "health wellness",
+    "books":       "books novels",
+    "toys":        "toys kids",
+    "automotive":  "car accessories",
+    "grocery":     "grocery food",
+    "travel":      "travel bags luggage",
+    "gaming":      "gaming accessories",
 }
 
 # Browser-like headers — same fingerprint as a real Indian Chrome user

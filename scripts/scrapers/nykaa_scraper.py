@@ -73,33 +73,37 @@ class NykaaScraper(BaseScraper):
                 timeout=20,
             )
             if resp.status_code == 200:
-                match = re.search(r'window\.__PRELOADED_STATE__\s*=\s*(.*?)</script>', resp.text, re.DOTALL)
-                if match:
-                    blob = match.group(1).strip()
-                    if blob.endswith(";"):
-                        blob = blob[:-1]
-                    state = json.loads(blob)
-                    
-                    # Nykaa puts products in categoryListing or desktop search
-                    products = []
-                    cl_products = state.get("categoryListing", {}).get("listingData", {}).get("products", [])
-                    if cl_products:
-                        products.extend(cl_products)
-                    
-                    sl_products = state.get("searchListingPage", {}).get("listingData", {}).get("products", [])
-                    if sl_products:
-                        products.extend(sl_products)
-                    
-                    # Deduplicate based on name or id
-                    seen = set()
-                    unique_results = []
-                    for r in products:
-                        title = r.get("name") or r.get("title") or ""
-                        if title and title not in seen:
-                            seen.add(title)
-                            unique_results.append(r)
-                            
-                    return unique_results
+                for pattern in [
+                    r'window\.__PRELOADED_STATE__\s*=\s*(.*?)</script>',
+                    r'window\.__NEXT_DATA__\s*=\s*(.*?)</script>',
+                    r'window\.__STATE__\s*=\s*(.*?)</script>',
+                ]:
+                    match = re.search(pattern, resp.text, re.DOTALL)
+                    if match:
+                        blob = match.group(1).strip()
+                        if blob.endswith(";"):
+                            blob = blob[:-1]
+                        try:
+                            state = json.loads(blob)
+                        except json.JSONDecodeError:
+                            continue
+                        
+                        products = (
+                            state.get("categoryListing", {}).get("listingData", {}).get("products", [])
+                            or state.get("searchListingPage", {}).get("listingData", {}).get("products", [])
+                            or state.get("props", {}).get("pageProps", {}).get("initialState", {}).get("listing", {}).get("products", [])
+                        )
+                        
+                        if products:
+                            # Deduplicate based on name or id
+                            seen = set()
+                            unique_results = []
+                            for r in products:
+                                title = r.get("name") or r.get("title") or ""
+                                if title and title not in seen:
+                                    seen.add(title)
+                                    unique_results.append(r)
+                            return unique_results
             logger.debug(f"Nykaa HTML HTTP {resp.status_code}")
         except Exception as e:
             logger.debug(f"Nykaa fetch error: {e}")

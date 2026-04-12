@@ -94,17 +94,28 @@ class FlipkartScraper(BaseScraper):
                 if match:
                     state = json.loads(match.group(1))
                     
-                    def find_products(obj):
+                    def find_products(obj, depth=0):
                         prods = []
+                        if depth > 15:  # Prevent infinite recursion on deeply nested objects
+                            return prods
                         if isinstance(obj, dict):
-                            if "productInfo" in obj and "value" in obj["productInfo"]:
-                                prods.append(obj["productInfo"]["value"])
-                            else:
-                                for v in obj.values():
-                                    prods.extend(find_products(v))
+                            # Flipkart's current __INITIAL_STATE__ structure (April 2026)
+                            # Products are nested under slots → widget → data → products
+                            if "productInfo" in obj and isinstance(obj.get("productInfo"), dict):
+                                pinfo = obj["productInfo"].get("value", {})
+                                if pinfo and isinstance(pinfo, dict):
+                                    prods.append(pinfo)
+                            # Also check for direct product arrays
+                            if "products" in obj and isinstance(obj["products"], list):
+                                prods.extend(obj["products"])
+                            # Recurse into all dict values
+                            for v in obj.values():
+                                if isinstance(v, (dict, list)):
+                                    prods.extend(find_products(v, depth + 1))
                         elif isinstance(obj, list):
                             for item in obj:
-                                prods.extend(find_products(item))
+                                if isinstance(item, (dict, list)):
+                                    prods.extend(find_products(item, depth + 1))
                         return prods
                         
                     results = find_products(state)
