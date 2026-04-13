@@ -772,7 +772,11 @@ def run_interactive_bot():
     # ══════════════════════════════════════════════════════════
 
     def is_admin(upd: "Update") -> bool:
-        return ADMIN_CHAT_ID and str(upd.effective_chat.id) == str(ADMIN_CHAT_ID)
+        if not ADMIN_CHAT_ID: return False
+        admin_id_clean = str(ADMIN_CHAT_ID).strip()
+        chat_id_clean = str(upd.effective_chat.id).strip()
+        user_id_clean = str(upd.effective_user.id).strip() if upd.effective_user else ""
+        return chat_id_clean == admin_id_clean or user_id_clean == admin_id_clean
 
     _pipeline_running = {"flag": False}   # mutable dict acts as a closure-safe lock
 
