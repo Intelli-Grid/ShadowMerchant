@@ -324,7 +324,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
         {deal.scraped_at && (
           <p className="text-[9px] text-center mt-1.5 font-medium"
             style={{ color: 'var(--text-muted)' }}>
-            Found {formatDistanceToNow(new Date(deal.scraped_at), { addSuffix: true })}
+            Updated {formatDistanceToNow(new Date(deal.scraped_at), { addSuffix: true })}
           </p>
         )}
       </div>

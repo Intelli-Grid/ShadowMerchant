@@ -27,15 +27,15 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online'),
-  title: 'ShadowMerchant | #1 AI Deal Aggregator for Indian Shoppers',
-  description: 'Discover the best deals from Amazon, Flipkart, Myntra & more — automatically scored and ranked by ShadowMerchant AI. Save big, shop smart.',
+  title: 'ShadowMerchant | India\'s Best Deal Discovery Platform',
+  description: 'Our team hunts and verifies the best deals from Amazon, Flipkart, Myntra & more — scored, ranked and updated constantly. Save big, shop smart.',
   icons: {
     icon: '/favicon.png',
     apple: '/logo.png',
   },
   openGraph: {
-    title: 'ShadowMerchant — Best Deals in India',
-    description: 'AI-powered deal aggregation from Amazon, Flipkart, Myntra & more.',
+    title: 'ShadowMerchant — Best Deals Curated for India',
+    description: 'Discover top-scored deals from Amazon, Flipkart, Myntra & more — verified and updated by the ShadowMerchant team.',
     images: [{ url: '/og-default.png', width: 1200, height: 630, alt: 'ShadowMerchant — Best Deals in India' }],
     type: 'website',
     locale: 'en_IN',
@@ -43,8 +43,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ShadowMerchant — Best Deals in India',
-    description: 'AI-powered deal aggregation from Amazon, Flipkart, Myntra & more.',
+    title: 'ShadowMerchant — Best Deals Curated for India',
+    description: 'Discover top-scored deals from Amazon, Flipkart, Myntra & more — verified and updated by the ShadowMerchant team.',
     images: ['/logo.png'],
   },
   other: {

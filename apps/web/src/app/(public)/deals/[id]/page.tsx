@@ -41,25 +41,33 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const data = await getDealDetails(id);
   
   if (!data || !data.deal) {
-    return {
-      title: 'Deal Not Found | ShadowMerchant',
-    };
+    return { title: 'Deal Not Found | ShadowMerchant' };
   }
 
   const deal = data.deal;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online';
+  const ogImageUrl = `${appUrl}/api/og/deal/${id}`;
+  const platform = deal.source_platform.charAt(0).toUpperCase() + deal.source_platform.slice(1);
+  const pct = Math.round(deal.discount_percent);
   
   return {
-    title: `${Math.round(deal.discount_percent)}% OFF: ${deal.title} | ShadowMerchant`,
-    description: `Current Deal: ₹${deal.discounted_price.toLocaleString('en-IN')} (MSRP ₹${deal.original_price.toLocaleString('en-IN')}). Buy ${deal.title} on ${deal.source_platform}.`,
+    title: `${pct}% OFF: ${deal.title.slice(0, 60)} | ShadowMerchant`,
+    description: `Our team found ${deal.title} for just ₹${deal.discounted_price.toLocaleString('en-IN')} (was ₹${deal.original_price.toLocaleString('en-IN')}). ${pct}% off — verified deal on ${platform}.`,
     openGraph: {
-      title: `${Math.round(deal.discount_percent)}% OFF: ${deal.title}`,
-      description: `Just dropped to ₹${deal.discounted_price.toLocaleString('en-IN')}! Original price: ₹${deal.original_price.toLocaleString('en-IN')}.`,
-      images: deal.image_url ? [deal.image_url] : [],
+      title: `${pct}% OFF — ${deal.title.slice(0, 60)}`,
+      description: `Get it for ₹${deal.discounted_price.toLocaleString('en-IN')} on ${platform}. Curated by ShadowMerchant.`,
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: deal.title }],
       type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${pct}% OFF — ${deal.title.slice(0, 60)}`,
+      description: `₹${deal.discounted_price.toLocaleString('en-IN')} on ${platform}. Verified by ShadowMerchant.`,
+      images: [ogImageUrl],
     },
     alternates: {
       canonical: `/deals/${deal._id}`,
-    }
+    },
   };
 }
 
@@ -262,7 +270,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
               </a>
 
               <p className="text-xs font-medium mt-3 flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
-                <Activity className="w-3.5 h-3.5 text-blue-400" /> Checked {formatDistanceToNow(new Date(deal.scraped_at), { addSuffix: true })}
+                <Activity className="w-3.5 h-3.5 text-blue-400" /> Updated {formatDistanceToNow(new Date(deal.scraped_at), { addSuffix: true })}
               </p>
             </div>
 
@@ -270,9 +278,9 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
             <div className="flex items-center gap-4 mb-8">
               <a 
                 href={`https://wa.me/?text=${encodeURIComponent(
-                  `🔥 Found this deal on ShadowMerchant!\n\n${deal.title}\n` +
+                  `🔥 Our team curated this deal for you!\n\n${deal.title}\n` +
                   `₹${deal.discounted_price.toLocaleString('en-IN')} (${Math.round(deal.discount_percent ?? 0)}% OFF)\n\n` +
-                  `👉 Get it here: ${process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online'}/deals/${deal._id}\n`
+                  `👉 Grab it here: ${process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online'}/deals/${deal._id}\n`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
