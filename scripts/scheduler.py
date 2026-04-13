@@ -427,9 +427,20 @@ def start_scheduler():
     schedule.every().day.at("01:00").do(job)   # 06:30 IST
     schedule.every().day.at("15:00").do(job)   # 20:30 IST
     schedule.every().day.at("04:00").do(email_job)  # 09:30 IST
-    schedule.every().day.at("01:30").do(lambda: asyncio.run(
-        __import__('social.telegram_poster', fromlist=['broadcast_deal_of_day']).broadcast_deal_of_day()
-    ))
+    
+    # ── SOCIAL GROWTH MASTERGUIDE SCHEDULE (IST converted to UTC) ──
+    # IST: 07:30, 09:00, 13:00, 16:00, 19:00, 20:30, 22:00
+    # UTC: 02:00, 03:30, 07:30, 10:30, 13:30, 15:00, 16:30
+    def trigger_broadcast():
+        asyncio.run(__import__('social.telegram_poster', fromlist=['broadcast_smart']).broadcast_smart())
+        
+    schedule.every().day.at("02:00").do(trigger_broadcast)
+    schedule.every().day.at("03:30").do(trigger_broadcast)
+    schedule.every().day.at("07:30").do(trigger_broadcast)
+    schedule.every().day.at("10:30").do(trigger_broadcast)
+    schedule.every().day.at("13:30").do(trigger_broadcast)
+    schedule.every().day.at("15:00").do(trigger_broadcast)
+    schedule.every().day.at("16:30").do(trigger_broadcast)
 
 
     logger.info("Scheduler loop initialized.")

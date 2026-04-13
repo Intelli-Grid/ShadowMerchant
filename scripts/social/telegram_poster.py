@@ -136,8 +136,37 @@ def format_deal_compact(deal: dict) -> str:
     return f"• [{title}...]({APP_URL}/deals/{deal_id}) — *₹{disc:,.0f}* ({pct}% OFF) · {platform}"
 
 def format_flash_deal(deal: dict) -> str:
-    title, orig, disc, pct, platform, deal_id, saved = deal.get("title", "")[:70], deal.get("original_price", 0), deal.get("discounted_price", 0), deal.get("discount_percent", 0), deal.get("source_platform", "").capitalize(), str(deal.get("_id", "")), _savings(deal)
-    return (f"⚡️ *FLASH DEAL — ACT NOW!* ⚡️\n\n*{title}*\n\n🔴 ~~₹{orig:,.0f}~~ → *₹{disc:,.0f}*\n💥 *{pct}% OFF*" + (f" · Saving {saved}" if saved else "") + f"\n🏪 {platform}\n\n⏰ Prices on {platform} change fast. Don't wait!\n\n👉 [Grab This Deal]({APP_URL}/api/go/{deal_id})")
+    title = deal.get("title", "")[:70]
+    orig = deal.get("original_price", 0)
+    disc = deal.get("discounted_price", 0)
+    pct = deal.get("discount_percent", 0)
+    platform = deal.get("source_platform", "").capitalize()
+    deal_id = str(deal.get("_id", ""))
+    score = deal.get("deal_score", 0)
+    rating = deal.get("rating", 0)
+    rating_c = deal.get("rating_count", 0)
+    is_trending = deal.get("is_trending", False)
+    
+    saved = orig - disc
+    rating_str = f"⭐ Rating: {rating:.1f}/5 ({rating_c:,}+ reviews)" if rating > 0 else "⭐ Rating: Not available"
+    trending_str = "\n🔥 TRENDING — Grabbed multiple times today" if is_trending else ""
+    history_str = "\n📉 Algorithm confirms: Historical LOW price" if score > 85 else "\n📉 Algorithm confirms: Good price drop"
+    
+    utm = "?utm_source=telegram&utm_medium=channel&utm_campaign=deal_post"
+    
+    return (
+        f"🔴 [SCORE: {score}/100] {'HISTORICAL LOW' if score > 85 else 'PRICE DROP'}\n\n"
+        f"🛍️ *{title}*\n"
+        f"💰 ~~₹{orig:,.0f}~~ → *₹{disc:,.0f}* — *{pct}% OFF*\n"
+        f"{rating_str}\n"
+        f"🏪 {platform}\n"
+        f"{trending_str}{history_str}\n\n"
+        f"⏰ Limited stock. Act fast.\n\n"
+        f"👉 [Grab This Deal]({APP_URL}/api/go/{deal_id}{utm})\n"
+        f"🔔 [Get Alerts for Your Keywords]({APP_URL}{utm})\n\n"
+        f"───────────────────\n"
+        f"📢 Share to save a friend ₹{saved:,.0f} today"
+    )
 
 def format_deal_of_the_day(deal: dict) -> str:
     title, orig, disc, pct, rating, rating_c, platform, category, deal_id, score, saved = deal.get("title", "")[:80], deal.get("original_price", 0), deal.get("discounted_price", 0), deal.get("discount_percent", 0), deal.get("rating", 0), deal.get("rating_count", 0), deal.get("source_platform", "").capitalize(), deal.get("category", "").capitalize(), str(deal.get("_id", "")), deal.get("deal_score", 0), _savings(deal)
@@ -701,7 +730,7 @@ def run_interactive_bot():
 
     # ── /help ─────────────────────────────────────────────────────
     async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text(
+        base_help = (
             "🤖 *ShadowMerchant Bot Commands*\n\n"
             "/start — Welcome & subscribe\n"
             "/deals — Today's top 5 deals\n"
@@ -712,7 +741,19 @@ def run_interactive_bot():
             "/pro — Pro membership info\n"
             "/stop — Unsubscribe from all alerts\n"
             "/help — This message\n\n"
-            f"🌐 [Visit ShadowMerchant]({APP_URL})",
+        )
+        if is_admin(update):
+            base_help += (
+                "🛠️ *Admin Commands*\n"
+                "/run — Trigger scraper pipeline\n"
+                "/status — Check pipeline status\n"
+                "/push — Manual channel broadcast\n"
+                "/report — View last scrape log\n\n"
+            )
+        base_help += f"🌐 [Visit ShadowMerchant]({APP_URL})"
+        
+        await update.message.reply_text(
+            base_help,
             parse_mode=ParseMode.MARKDOWN,
             disable_web_page_preview=True
         )
