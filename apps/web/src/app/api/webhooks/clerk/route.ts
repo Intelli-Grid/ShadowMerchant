@@ -48,7 +48,7 @@ export async function POST(req: Request) {
   const eventType = evt.type;
 
   if (eventType === 'user.created' || eventType === 'user.updated') {
-    const { email_addresses, first_name, last_name, primary_email_address_id } = evt.data;
+    const { email_addresses, first_name, last_name, primary_email_address_id, unsafe_metadata } = evt.data;
 
     let email = '';
     if (email_addresses && email_addresses.length > 0) {
@@ -76,8 +76,29 @@ export async function POST(req: Request) {
         },
         { upsert: true, new: true }
       );
-      
+
       console.log(`User ${id} synchronized to MongoDB`);
+
+      // Apply referral code if new user signed up via a referral link
+      if (eventType === 'user.created') {
+        const refCode = unsafe_metadata?.referral_code as string | undefined;
+        if (refCode) {
+          try {
+            const Referral = (await import('@/models/Referral')).default;
+            const ref = await Referral.findOne({ referral_code: refCode.toUpperCase() });
+            if (ref && ref.referrer_clerk_id !== id && !ref.referred_users.includes(id)) {
+              ref.referred_users.push(id);
+              ref.total_referrals = ref.referred_users.length;
+              const newProMonths = Math.floor(ref.total_referrals / 5) - ref.pro_months_earned;
+              if (newProMonths > 0) ref.pro_months_earned += newProMonths;
+              await ref.save();
+              console.log(`Referral applied: ${refCode} → new user ${id}`);
+            }
+          } catch (refErr) {
+            console.error('Referral apply error:', refErr);
+          }
+        }
+      }
     } catch (e) {
       console.error('Error synchronizing user to MongoDB:', e);
       return NextResponse.json({ error: 'Database error' }, { status: 500 });

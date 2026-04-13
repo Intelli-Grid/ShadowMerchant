@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Deal } from '@/types';
-import { Lock, ExternalLink, Heart } from 'lucide-react';
+import { Lock, ExternalLink, Heart, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useRef, useEffect } from 'react';
 import { getPlatform } from '@/lib/platforms';
@@ -320,9 +320,34 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           Get Deal →
           <ExternalLink className="h-3.5 w-3.5 opacity-80" />
         </a>
+        {/* Share button */}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://www.shadowmerchant.online'}/deals/${deal._id}`;
+            const text = `🔥 ${Math.round(deal.discount_percent ?? 0)}% OFF — ${deal.title}\n₹${deal.discounted_price?.toLocaleString('en-IN')} on ${deal.source_platform}\nCurated by ShadowMerchant 👉`;
+            if (navigator.share) {
+              navigator.share({ title: deal.title, text, url }).catch(() => {});
+            } else {
+              navigator.clipboard.writeText(`${text} ${url}`).then(() => {
+                const btn = e.currentTarget as HTMLButtonElement;
+                const orig = btn.innerHTML;
+                btn.textContent = 'Copied!';
+                setTimeout(() => { btn.innerHTML = orig; }, 1500);
+              });
+            }
+          }}
+          className="flex items-center justify-center gap-1 w-full mt-1.5 py-1.5 rounded text-[10px] font-semibold transition-all hover:opacity-80 active:scale-95"
+          style={{ color: 'var(--text-muted)', background: 'transparent' }}
+          aria-label="Share this deal"
+        >
+          <Share2 className="w-3 h-3" />
+          Share Deal
+        </button>
 
         {deal.scraped_at && (
-          <p className="text-[9px] text-center mt-1.5 font-medium"
+          <p className="text-[9px] text-center mt-1 font-medium"
             style={{ color: 'var(--text-muted)' }}>
             Updated {formatDistanceToNow(new Date(deal.scraped_at), { addSuffix: true })}
           </p>

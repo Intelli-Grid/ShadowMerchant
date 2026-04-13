@@ -9,6 +9,8 @@ import { SplashScreen } from '@/components/SplashScreen';
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
 import { PostHogProvider } from '@/components/PostHogProvider';
 import { WishlistProvider } from '@/context/WishlistContext';
+import { ReferralTracker } from '@/components/ReferralTracker';
+import { ReferralApplier } from '@/components/ReferralApplier';
 import { Suspense } from 'react';
 
 const syne = Syne({
@@ -72,6 +74,12 @@ export default function RootLayout({
           <Suspense fallback={null}>
             <PostHogProvider>
               <WishlistProvider>
+                {/* Captures ?ref= param on any page for referral attribution */}
+                <Suspense fallback={null}>
+                  <ReferralTracker />
+                </Suspense>
+                {/* Applies stored referral code once user logs in */}
+                <ReferralApplier />
                 {/* First-visit splash screen */}
                 <SplashScreen />
                 {/* Atmospheric gold glow behind everything */}
