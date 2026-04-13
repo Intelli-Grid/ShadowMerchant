@@ -6,6 +6,7 @@ import Deal from '@/models/Deal';
 import Link from 'next/link';
 import { Heart, Bell, Zap, TrendingUp, Package, ChevronRight, CheckCircle } from 'lucide-react';
 import { CancelSubscriptionButton } from '@/components/pro/CancelSubscriptionButton';
+import { ReferralWidget } from '@/components/ReferralWidget';
 
 async function getDashboardData(clerkId: string) {
   await connectDB();
@@ -126,6 +127,11 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <CancelSubscriptionButton />
         </div>
       )}
+
+      {/* Referral Program */}
+      <div className="mb-8">
+        <ReferralWidget />
+      </div>
 
       {/* Recent deals */}
       {recentDeals.length > 0 && (

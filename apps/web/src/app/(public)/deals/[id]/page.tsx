@@ -16,7 +16,12 @@ async function getDealDetails(id: string) {
     const { connectDB } = await import('@/lib/db');
     await connectDB();
     const Deal = (await import('@/models/Deal')).default;
-    const deal = await Deal.findById(id).lean();
+    // Atomically increment view_count and return the deal
+    const deal = await Deal.findByIdAndUpdate(
+      id,
+      { $inc: { view_count: 1 } },
+      { new: true }
+    ).lean();
     if (!deal) return null;
     
     const similar_deals = await Deal.find({
