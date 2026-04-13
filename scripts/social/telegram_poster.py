@@ -1191,7 +1191,7 @@ def run_interactive_bot():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, unknown))
 
     logger.info(f"🤖 ShadowMerchant Bot (@{BOT_USERNAME}) is running... (Ctrl+C to stop)")
-    app.run_polling(drop_pending_updates=True)
+    app.run_polling(drop_pending_updates=True, stop_signals=None)
 
 
 # ═══════════════════════════════════════════════════════════════
