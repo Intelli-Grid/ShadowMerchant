@@ -1,17 +1,18 @@
 """
-Myntra Scraper — Pure httpx, no browser session required.
-Calls Myntra's gateway search API directly with static headers.
+Myntra Scraper — curl_cffi + Gateway v2 JSON API.
+Calls Myntra's internal product list API directly, avoiding fragile HTML regex parsing.
+Falls back to HTML scraping if API returns no results.
 """
 import sys
 import os
 import logging
-import httpx
+import json
+import re
 from pathlib import Path
 from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base_scraper import BaseScraper, RawDeal
-from scrapers.session_bootstrap import get_session
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ BASE_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/123.0.0.0 Safari/537.36"
+        "Chrome/124.0.0.0 Safari/537.36"
     ),
     "Accept": "application/json, text/plain, */*",
     "Accept-Language": "en-IN,en;q=0.9",
@@ -42,6 +43,9 @@ BASE_HEADERS = {
     "X-Myntra-Abtest": "pdp_glance:true",
 }
 
+# Myntra's internal product list Gateway API — stable JSON response
+GATEWAY_API = "https://www.myntra.com/gateway/v2/product/list/filter/json"
+
 
 class MyntraScraper(BaseScraper):
     def __init__(self):
@@ -49,19 +53,47 @@ class MyntraScraper(BaseScraper):
         self._cookies: dict = {}
         self._headers: dict = BASE_HEADERS.copy()
 
-
-
-    def _search(self, query: str) -> list[dict]:
+    def _search_via_api(self, query: str) -> list[dict]:
+        """Primary: call Myntra's Gateway v2 JSON API directly."""
         from curl_cffi import requests as cffi_requests
-        import re
-        import json
+        try:
+            params = {
+                "category": query,
+                "pageNo": 1,
+                "pageSize": 50,
+                "plaEnabled": False,
+            }
+            resp = cffi_requests.get(
+                GATEWAY_API,
+                params=params,
+                headers=BASE_HEADERS,
+                impersonate="chrome124",
+                timeout=25,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                products = (
+                    data.get("products", [])
+                    or data.get("searchData", {}).get("results", {}).get("products", [])
+                )
+                if products:
+                    logger.debug(f"Myntra API [{query}]: {len(products)} products")
+                    return products
+            logger.debug(f"Myntra API [{query}]: HTTP {resp.status_code} — no products")
+        except Exception as e:
+            logger.debug(f"Myntra API [{query}] error: {e}")
+        return []
+
+    def _search_via_html(self, query: str) -> list[dict]:
+        """Fallback: HTML scrape with multi-pattern regex on page state variables."""
+        from curl_cffi import requests as cffi_requests
         url = f"https://www.myntra.com/{query}"
         params = {"p": 1, "sort": "popularity_desc"}
         try:
             resp = cffi_requests.get(
                 url, params=params,
                 headers=BASE_HEADERS,
-                impersonate="chrome120",
+                impersonate="chrome124",
                 timeout=25,
             )
             if resp.status_code == 200:
@@ -69,26 +101,42 @@ class MyntraScraper(BaseScraper):
                     r'window\.__myx\s*=\s*(.*?)\s*</script>',
                     r'window\.__INITIAL_STATE__\s*=\s*(.*?)\s*</script>',
                     r'window\.initialData\s*=\s*(.*?)\s*</script>',
+                    r'window\.__DATA__\s*=\s*(.*?)\s*</script>',
+                    r'"products"\s*:\s*(\[.*?\])\s*[,}]',
                 ]:
                     match = re.search(pattern, resp.text, re.DOTALL)
                     if match:
                         blob = match.group(1).strip().rstrip(';')
                         try:
                             data = json.loads(blob)
-                            products = (
-                                data.get("searchData", {}).get("results", {}).get("products", [])
-                                or data.get("pageData", {}).get("data", {}).get("products", [])
-                                or data.get("products", [])
-                            )
-                            if products:
-                                logger.debug(f"Myntra [{query}]: {len(products)} products via pattern")
-                                return products
+                            # If the match was the products array directly
+                            if isinstance(data, list):
+                                if data:
+                                    logger.debug(f"Myntra HTML [{query}]: {len(data)} products via direct array")
+                                    return data
+                            else:
+                                products = (
+                                    data.get("searchData", {}).get("results", {}).get("products", [])
+                                    or data.get("pageData", {}).get("data", {}).get("products", [])
+                                    or data.get("products", [])
+                                )
+                                if products:
+                                    logger.debug(f"Myntra HTML [{query}]: {len(products)} products")
+                                    return products
                         except json.JSONDecodeError:
                             continue
-            logger.debug(f"Myntra [{query}]: HTTP {resp.status_code} — no products found")
+            logger.debug(f"Myntra HTML [{query}]: HTTP {resp.status_code} — no products found")
         except Exception as e:
-            logger.debug(f"Myntra [{query}] error: {e}")
+            logger.debug(f"Myntra HTML [{query}] error: {e}")
         return []
+
+    def _search(self, query: str) -> list[dict]:
+        """Try Gateway API first, fall back to HTML scraping."""
+        products = self._search_via_api(query)
+        if not products:
+            logger.debug(f"Myntra [{query}]: API returned 0 — trying HTML fallback")
+            products = self._search_via_html(query)
+        return products
 
     def scrape_deals(self) -> list[RawDeal]:
         deals = []
@@ -113,6 +161,7 @@ class MyntraScraper(BaseScraper):
             title = (
                 ((p.get("product") or "") + " " + (p.get("brand") or "")).strip()
                 or p.get("productName", "")
+                or p.get("name", "")
             )
             if not title:
                 return None
@@ -130,7 +179,7 @@ class MyntraScraper(BaseScraper):
             else:
                 disc_price = float(p.get("price", 0) or p.get("discountedPrice", 0) or 0)
                 orig_price = float(p.get("mrp", disc_price) or disc_price)
-                
+
             if disc_price <= 0:
                 return None
 

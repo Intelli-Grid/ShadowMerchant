@@ -71,18 +71,20 @@ class AmazonScraper(BaseScraper):
             from playwright_stealth import stealth_async
         except (ImportError, Exception):
             async def stealth_async(page):
-                """Minimal stealth: remove webdriver traces."""
+                """Enhanced stealth: spoof multiple browser fingerprint signals."""
                 await page.add_init_script("""
                     Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-                    window.chrome = { runtime: {} };
-                    Object.defineProperty(navigator, 'languages', {get: () => ['en-IN', 'en']});
-                    Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3]});
+                    window.chrome = { runtime: {}, loadTimes: function(){}, csi: function(){}, app: {} };
+                    Object.defineProperty(navigator, 'languages', {get: () => ['en-IN', 'en-US', 'en']});
+                    Object.defineProperty(navigator, 'plugins', {get: () => [1, 2, 3, 4, 5]});
+                    Object.defineProperty(navigator, 'platform', {get: () => 'Win32'});
+                    Object.defineProperty(navigator, 'hardwareConcurrency', {get: () => 8});
+                    Object.defineProperty(screen, 'colorDepth', {get: () => 24});
                 """)
 
         # Build category URL list (prefer CATEGORY_MAP amazon URLs, fallback to search URLs)
         category_urls = []
         for cat_slug in CATEGORY_SEARCH_URLS:
-            # Prefer curated browse-node URL from category map if available
             amz_config = CATEGORY_MAP.get(cat_slug, {}).get("amazon", {})
             url = amz_config.get("url") or CATEGORY_SEARCH_URLS[cat_slug]
             category_urls.append((cat_slug, url))
@@ -97,6 +99,8 @@ class AmazonScraper(BaseScraper):
                     "--no-sandbox",
                     "--disable-blink-features=AutomationControlled",
                     "--disable-dev-shm-usage",
+                    "--disable-infobars",
+                    "--window-size=1280,900",
                 ],
             )
             context = await browser.new_context(
@@ -106,8 +110,16 @@ class AmazonScraper(BaseScraper):
                 user_agent=(
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                     "AppleWebKit/537.36 (KHTML, like Gecko) "
-                    "Chrome/123.0.0.0 Safari/537.36"
+                    "Chrome/124.0.0.0 Safari/537.36"
                 ),
+                extra_http_headers={
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+                    "Accept-Language": "en-IN,en-US;q=0.9,en;q=0.8",
+                    "sec-ch-ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-ch-ua-platform": '"Windows"',
+                    "Upgrade-Insecure-Requests": "1",
+                },
             )
             semaphore = asyncio.Semaphore(3)  # 3 parallel pages max
 
@@ -120,7 +132,7 @@ class AmazonScraper(BaseScraper):
                         cat_page = await context.new_page()
                         await stealth_async(cat_page)
                         await cat_page.goto(url, wait_until="domcontentloaded", timeout=25000)
-                        await cat_page.wait_for_timeout(1200)
+                        await cat_page.wait_for_timeout(1500)
                         cards = await cat_page.query_selector_all(
                             "div[data-component-type='s-search-result'][data-asin]"
                         )
@@ -147,7 +159,7 @@ class AmazonScraper(BaseScraper):
 
                                 disc_price = self._parse_price(await price_el.inner_text())
                                 orig_price = self._parse_price(await orig_el.inner_text()) if orig_el else disc_price
-                                
+
                                 image = ""
                                 if img_el:
                                     image = await img_el.get_attribute("src") or ""
