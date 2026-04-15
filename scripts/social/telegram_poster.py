@@ -352,7 +352,7 @@ def format_category_digest(deals: list, category: str, emoji: str) -> str:
 
     header = f"{emoji} *Best {category.capitalize()} Deals Right Now*\n━━━━━━━━━━━━━━━━━━━━━\nAI-curated from Amazon, Flipkart & more\n\n"
 
-    lines = [f"{i}\. [{d.get('title', '')[:50]}...]({APP_URL}/deals/{str(d.get('_id', ''))})\n   *₹{d.get('discounted_price', 0):,.0f}* — {d.get('discount_percent', 0)}% OFF · {d.get('source_platform', '').capitalize()}" for i, d in enumerate(deals[:5], 1)]
+    lines = [f"{i}\\. [{d.get('title', '')[:50]}...]({APP_URL}/deals/{str(d.get('_id', ''))})\n   *₹{d.get('discounted_price', 0):,.0f}* — {d.get('discount_percent', 0)}% OFF · {d.get('source_platform', '').capitalize()}" for i, d in enumerate(deals[:5], 1)]
 
     return header + "\n\n".join(lines) + f"\n\n🔔 Never miss a deal → [Set Alert]({APP_URL}/alerts)\n👀 [See All {category.capitalize()} Deals]({APP_URL}/category/{category})"
 
@@ -649,9 +649,8 @@ async def broadcast_smart():
             await asyncio.sleep(2)
 
             if len(deals) > 1:
-
-            label = config.get("label", "More Deals")
-            await _send_message(bot, f"*{label}*\n\n" + "\n\n".join([format_deal_compact(d) for d in deals[1:]]) + f"\n\n🌐 [Browse All]({APP_URL}/deals/feed)")
+                label = config.get("label", "More Deals")
+                await _send_message(bot, f"*{label}*\n\n" + "\n\n".join([format_deal_compact(d) for d in deals[1:]]) + f"\n\n🌐 [Browse All]({APP_URL}/deals/feed)")
 
             mark_deals_as_posted(db, [str(d["_id"]) for d in deals])
 
