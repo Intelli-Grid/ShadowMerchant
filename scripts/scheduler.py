@@ -51,9 +51,10 @@ logger = logging.getLogger("scheduler")
 SCRAPER_PRIORITY = [
     "meesho",    # Pure httpx API — 720 deals/run confirmed
     "amazon",    # Playwright stealth — works on GitHub Actions (Linux)
-    "flipkart",  # Pure httpx — session-bootstrap removed
-    "myntra",    # Pure httpx — gateway API direct
-    "nykaa",     # Pure httpx — search API direct
+    "flipkart",  # Official Affiliate API
+    "myntra",    # curl_cffi Chrome TLS
+    "nykaa",     # curl_cffi Chrome TLS
+    "croma",     # Playwright stealth + REST API
 ]
 
 

@@ -2,15 +2,17 @@ name: ShadowMerchant — Deal Scraper
 
 on:
   schedule:
-    # 2x/day (UTC) — morning and evening IST
+    # 4x/day (UTC) — IST mapping below
     - cron: '30 0 * * *'    # 06:00 AM IST
+    - cron: '30 7 * * *'    # 01:00 PM IST
+    - cron: '30 12 * * *'   # 06:00 PM IST
     - cron: '30 15 * * *'   # 09:00 PM IST
   workflow_dispatch:
     inputs:
       scrapers:
-        description: 'Scrapers to run (space-separated, e.g. "meesho amazon")'
+        description: 'Scrapers to run (space-separated, e.g. "meesho amazon flipkart myntra nykaa croma")'
         required: false
-        default: 'meesho amazon'
+        default: 'meesho amazon flipkart myntra nykaa croma'
 
 jobs:
   scrape:
@@ -36,6 +38,14 @@ jobs:
           MONGODB_URI:              ${{ secrets.MONGODB_URI || secrets.MONGO_URI }}
           AMAZON_AFFILIATE_TAG:     ${{ secrets.AMAZON_AFFILIATE_TAG }}
           MEESHO_AFFILIATE_TAG:     ${{ secrets.MEESHO_AFFILIATE_TAG }}
+          # ── New platforms (Phase 2-3) ──────────────────────────────
+          FLIPKART_AFFILIATE_ID:    ${{ secrets.FLIPKART_AFFILIATE_ID }}
+          FLIPKART_AFFILIATE_TOKEN: ${{ secrets.FLIPKART_AFFILIATE_TOKEN }}
+          MYNTRA_AFFILIATE_TAG:     ${{ secrets.MYNTRA_AFFILIATE_TAG }}
+          NYKAA_AFFILIATE_TAG:      ${{ secrets.NYKAA_AFFILIATE_TAG }}
+          CROMA_AFFILIATE_TAG:      ${{ secrets.CROMA_AFFILIATE_TAG }}
+          SCRAPERAPI_KEY:           ${{ secrets.SCRAPERAPI_KEY }}
+          # ── Infrastructure ─────────────────────────────────────────
           ALGOLIA_APP_ID:           ${{ secrets.ALGOLIA_APP_ID }}
           ALGOLIA_ADMIN_KEY:        ${{ secrets.ALGOLIA_ADMIN_KEY }}
           ALGOLIA_INDEX_NAME:       ${{ secrets.ALGOLIA_INDEX_NAME }}
@@ -45,12 +55,13 @@ jobs:
           GROQ_API_KEY:             ${{ secrets.GROQ_API_KEY }}
           TELEGRAM_BOT_TOKEN:       ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHANNEL_ID:      "@ShadowMerchantDeals"
+          TELEGRAM_ADMIN_CHAT_ID:   ${{ secrets.TELEGRAM_ADMIN_CHAT_ID }}
           PYTHONIOENCODING:         utf-8
         run: |
           Set-Location scripts
           $scrapers = "${{ github.event.inputs.scrapers }}"
           if ([string]::IsNullOrEmpty($scrapers.Trim())) {
-            $scrapers = "meesho amazon"
+            $scrapers = "meesho amazon flipkart myntra nykaa croma"
           }
           $scraperArgs = $scrapers -split '\s+'
           python scheduler.py --run-now --scrapers $scraperArgs
@@ -70,7 +81,7 @@ jobs:
           }
           $status  = if ("${{ job.status }}" -eq "success") { "Success" } else { "Failed" }
           $scrapers_run = "${{ github.event.inputs.scrapers }}"
-          if ([string]::IsNullOrEmpty($scrapers_run)) { $scrapers_run = "meesho amazon" }
+          if ([string]::IsNullOrEmpty($scrapers_run)) { $scrapers_run = "meesho amazon flipkart myntra nykaa croma" }
           $msg = "GitHub Actions Run - $status - Scrapers: $scrapers_run | Check /status for updated deal counts"
           $body = @{ chat_id = $chat_id; text = $msg } | ConvertTo-Json
           Invoke-RestMethod -Uri "https://api.telegram.org/bot$token/sendMessage" `
