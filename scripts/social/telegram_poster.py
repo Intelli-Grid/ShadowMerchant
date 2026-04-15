@@ -2415,7 +2415,43 @@ def run_interactive_bot():
 
     # ── BUILD APPLICATION ─────────────────────────────────────────
 
-    app = Application.builder().token(BOT_TOKEN).build()
+    async def post_init(application):
+        """
+        Called by PTB right after the bot connects to Telegram.
+        We force-delete any active webhook and wait for Render's old
+        instance to shut down before starting polling.
+        """
+        import asyncio as _asyncio
+        logger.info("Bot post_init: clearing stale sessions...")
+        try:
+            await application.bot.delete_webhook(drop_pending_updates=True)
+            logger.info("Webhook cleared successfully.")
+        except Exception as e:
+            logger.warning(f"Could not delete webhook (may not exist): {e}")
+
+        # Give Render's old instance time to shut down (zero-downtime deploys)
+        logger.info("Startup delay: waiting 8s for old instance to stop...")
+        await _asyncio.sleep(8)
+        logger.info("Bot post_init complete - starting polling.")
+
+    async def conflict_error_handler(update, context):
+        """
+        Gracefully handle 409 Conflict errors instead of crashing.
+        If another instance is still polling, wait 30s and let Render
+        eventually kill it naturally.
+        """
+        from telegram.error import Conflict
+        if isinstance(context.error, Conflict):
+            import asyncio as _asyncio
+            logger.warning(
+                "Telegram Conflict (409): another bot instance is polling. "
+                "Render zero-downtime deploy in progress. Waiting 30s..."
+            )
+            await _asyncio.sleep(30)
+        else:
+            logger.error(f"Unhandled bot error: {context.error}", exc_info=context.error)
+
+    app = Application.builder().token(BOT_TOKEN).post_init(post_init).build()
 
 
 
@@ -2497,7 +2533,17 @@ def run_interactive_bot():
 
     logger.info(f"🤖 ShadowMerchant Bot (@{BOT_USERNAME}) is running... (Ctrl+C to stop)")
 
-    app.run_polling(drop_pending_updates=True, stop_signals=None)
+    # Register conflict error handler (handles Render zero-downtime 409s)
+    app.add_error_handler(conflict_error_handler)
+
+    logger.info(f"Bot ready - starting polling with conflict protection enabled")
+    app.run_polling(
+        drop_pending_updates=True,
+        stop_signals=None,
+        read_timeout=20,       # Drop stale connections faster
+        write_timeout=20,
+        connect_timeout=10,
+    )
 
 
 
