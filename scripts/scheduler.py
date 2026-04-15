@@ -54,7 +54,7 @@ SCRAPER_PRIORITY = [
     # "flipkart" — requires FLIPKART_AFFILIATE_ID + TOKEN from affiliate.flipkart.com
     "myntra",    # curl_cffi Chrome TLS
     "nykaa",     # curl_cffi Chrome TLS
-    "croma",     # Playwright stealth + REST API
+    # "croma",     # Playwright stealth + REST API
 ]
 
 

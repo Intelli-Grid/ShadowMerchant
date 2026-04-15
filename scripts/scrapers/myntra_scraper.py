@@ -59,7 +59,7 @@ class MyntraScraper(BaseScraper):
     def _myntra_headers(self) -> dict:
         """Headers that match Myntra's expected browser profile."""
         return {
-            "Accept":          "application/json, text/plain, */*",
+            "Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
             "Accept-Language": "en-IN,en;q=0.9,hi;q=0.8",
             "Accept-Encoding": "gzip, deflate, br, zstd",
             "Origin":          "https://www.myntra.com",
@@ -67,62 +67,55 @@ class MyntraScraper(BaseScraper):
             "sec-ch-ua":       '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
             "sec-ch-ua-mobile": "?0",
             "sec-ch-ua-platform": '"Windows"',
-            "sec-fetch-dest":  "empty",
-            "sec-fetch-mode":  "cors",
+            "sec-fetch-dest":  "document",
+            "sec-fetch-mode":  "navigate",
             "sec-fetch-site":  "same-origin",
-            "X-Meta-App":      '{"pageType":"search","subType":""}',
-            "x-location-code": "IN",
             "User-Agent":      self.get_random_ua(),
         }
 
-    def _search(self, path: str, sort: str = "popularity_desc") -> list[dict]:
-        """
-        Call Myntra's search API for a given category path.
-        Returns list of raw product dicts.
-        """
-        url    = f"{self.search_base}/{path}"
-        params = {
-            "o":          0,
-            "p":          1,
-            "rows":       40,
-            "sort":       sort,
-            "plaEnabled": "false",
-        }
-
-        data = self.curl_get(url, params=params, headers=self._myntra_headers())
-        if not data or not isinstance(data, dict):
+    def _extract_from_html(self, html: str) -> list[dict]:
+        import json
+        import re
+        match = re.search(r'window\.__myx\s*=\s*(.*?)</script>', html, re.DOTALL)
+        if not match:
+            return []
+        s = match.group(1).strip()
+        if s.endswith(';'):
+            s = s[:-1]
+        try:
+            data = json.loads(s)
+            return data.get("searchData", {}).get("results", {}).get("products", []) or []
+        except Exception as e:
+            logger.error(f"Myntra JSON parse error: {e}")
             return []
 
-        # Myntra nests products at different keys depending on endpoint
-        products = (
-            data.get("searchData", {}).get("results", []) or
-            data.get("products",   []) or
-            data.get("results",    []) or
-            []
-        )
-        return products
+    def _search(self, path: str, sort: str = "popularity_desc") -> list[dict]:
+        """
+        Call Myntra's frontend and extract JSON state.
+        Returns list of raw product dicts.
+        """
+        url = f"https://www.myntra.com/{path}?sort={sort}"
+        data = self.curl_get(url, headers=self._myntra_headers())
+        if not data or not isinstance(data, str):
+            return []
+        try:
+            return self._extract_from_html(data)
+        except Exception:
+            return []
 
     def _sale_items(self, category_path: str) -> list[dict]:
         """
-        Fetch sale/discounted items specifically.
+        Fetch sale/discounted items specifically via HTML extraction.
         Myntra has a discount filter parameter.
         """
-        url    = f"{self.search_base}/{category_path}"
-        params = {
-            "o":          0,
-            "p":          1,
-            "rows":       40,
-            "sort":       "discountRange_desc",
-            "plaEnabled": "false",
-            "f":          "Discount_Range:30.0_100.0",  # Only 30%+ discounts
-        }
-        data = self.curl_get(url, params=params, headers=self._myntra_headers())
-        if not data or not isinstance(data, dict):
+        url = f"https://www.myntra.com/{category_path}?sort=discountRange_desc&f=Discount_Range%3A30.0_100.0"
+        data = self.curl_get(url, headers=self._myntra_headers())
+        if not data or not isinstance(data, str):
             return []
-        return (
-            data.get("searchData", {}).get("results", []) or
-            data.get("products", []) or []
-        )
+        try:
+            return self._extract_from_html(data)
+        except Exception:
+            return []
 
     def _parse_product(self, p: dict, category_slug: str) -> RawDeal | None:
         """Convert a Myntra product JSON object to a RawDeal."""
@@ -191,13 +184,13 @@ class MyntraScraper(BaseScraper):
         deals = []
 
         for category_slug, query_list in MYNTRA_QUERIES.items():
-            for (path, sub_label) in query_list:
+            for (api_path, sub_label) in query_list:
                 try:
-                    # Fetch discounted items first
-                    products = self._sale_items(path)
+                    # Fetch discounted items first using the sub_label (SEO web slug)
+                    products = self._sale_items(sub_label)
                     if not products:
                         # Fallback: regular popularity sort
-                        products = self._search(path)
+                        products = self._search(sub_label)
 
                     logger.info(f"Myntra [{category_slug}/{sub_label}]: {len(products)} products")
 

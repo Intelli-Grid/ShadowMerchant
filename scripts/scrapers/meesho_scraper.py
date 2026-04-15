@@ -143,7 +143,8 @@ class MeeshoScraper(BaseScraper):
                         "cursor":        cursor,
                         "isDevicePhone": False,
                     }
-                    resp = requests.post(
+                    # We use curl_cffi from BaseScraper (self.get_curl_session()) to bypass TLS fingerprinting
+                    resp = self.get_curl_session().post(
                         MEESHO_SEARCH_API,
                         json=payload,
                         headers=BASE_HEADERS,
