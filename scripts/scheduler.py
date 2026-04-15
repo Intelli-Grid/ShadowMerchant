@@ -435,12 +435,20 @@ def start_scheduler():
     def trigger_broadcast():
         asyncio.run(__import__('social.telegram_poster', fromlist=['broadcast_smart']).broadcast_smart())
         
-    schedule.every().day.at("02:00").do(trigger_broadcast)
-    schedule.every().day.at("03:30").do(trigger_broadcast)
-    schedule.every().day.at("07:30").do(trigger_broadcast)
-    schedule.every().day.at("10:30").do(trigger_broadcast)
-    schedule.every().day.at("13:30").do(trigger_broadcast)
-    schedule.every().day.at("15:00").do(trigger_broadcast)
+    # 7 daily broadcasts mapped to IST post-type windows:
+    #   UTC 01:30 -> IST 07:00  Morning Brief
+    #   UTC 04:30 -> IST 10:00  Mid-Morning Flash
+    #   UTC 06:30 -> IST 12:00  Category Spotlight (lunch)
+    #   UTC 09:30 -> IST 15:00  Platform Spotlight (afternoon)
+    #   UTC 12:30 -> IST 18:00  Prime Time Flash
+    #   UTC 14:30 -> IST 20:00  Evening Category Spotlight
+    #   UTC 16:30 -> IST 22:00  Late Night Picks
+    schedule.every().day.at("01:30").do(trigger_broadcast)
+    schedule.every().day.at("04:30").do(trigger_broadcast)
+    schedule.every().day.at("06:30").do(trigger_broadcast)
+    schedule.every().day.at("09:30").do(trigger_broadcast)
+    schedule.every().day.at("12:30").do(trigger_broadcast)
+    schedule.every().day.at("14:30").do(trigger_broadcast)
     schedule.every().day.at("16:30").do(trigger_broadcast)
 
 
