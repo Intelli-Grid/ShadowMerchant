@@ -11,6 +11,7 @@ import { PostHogProvider } from '@/components/PostHogProvider';
 import { WishlistProvider } from '@/context/WishlistContext';
 import { ReferralTracker } from '@/components/ReferralTracker';
 import { ReferralApplier } from '@/components/ReferralApplier';
+import { WhatsAppFloat } from '@/components/WhatsAppFloat';
 import { Suspense } from 'react';
 
 const syne = Syne({
@@ -89,6 +90,8 @@ export default function RootLayout({
                   {children}
                 </main>
                 <Footer />
+                {/* WhatsApp floating action button — shown on all pages */}
+                <WhatsAppFloat />
                 {/* Mobile bottom navigation — shown only on small screens */}
                 <MobileBottomNav />
               </WishlistProvider>

@@ -7,6 +7,7 @@ import { ReturnBanner } from '@/components/ReturnBanner';
 import { HeroSearchBar } from '@/components/HeroSearchBar';
 import { HowItWorks } from '@/components/HowItWorks';
 import { TelegramCTA } from '@/components/TelegramCTA';
+import { WhatsAppCTA } from '@/components/WhatsAppCTA';
 import { Badge } from '@/components/ui/badge';
 import { Deal } from '@/types';
 import Link from 'next/link';
@@ -368,6 +369,8 @@ export default async function Home() {
 
       {/* T3-C: Telegram CTA Banner */}
       <TelegramCTA />
+      {/* WhatsApp CTA Banner — companion channel, sits directly below Telegram */}
+      <WhatsAppCTA />
     </main>
   );
 }
