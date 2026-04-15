@@ -10,9 +10,9 @@ on:
   workflow_dispatch:
     inputs:
       scrapers:
-        description: 'Scrapers to run (space-separated, e.g. "meesho amazon flipkart myntra nykaa croma")'
+        description: 'Scrapers to run (space-separated). flipkart requires FLIPKART_AFFILIATE_ID+TOKEN first.'
         required: false
-        default: 'meesho amazon flipkart myntra nykaa croma'
+        default: 'meesho amazon myntra nykaa croma'
 
 jobs:
   scrape:
@@ -61,7 +61,7 @@ jobs:
           Set-Location scripts
           $scrapers = "${{ github.event.inputs.scrapers }}"
           if ([string]::IsNullOrEmpty($scrapers.Trim())) {
-            $scrapers = "meesho amazon flipkart myntra nykaa croma"
+            $scrapers = "meesho amazon myntra nykaa croma"
           }
           $scraperArgs = $scrapers -split '\s+'
           python scheduler.py --run-now --scrapers $scraperArgs
@@ -81,7 +81,7 @@ jobs:
           }
           $status  = if ("${{ job.status }}" -eq "success") { "Success" } else { "Failed" }
           $scrapers_run = "${{ github.event.inputs.scrapers }}"
-          if ([string]::IsNullOrEmpty($scrapers_run)) { $scrapers_run = "meesho amazon flipkart myntra nykaa croma" }
+          if ([string]::IsNullOrEmpty($scrapers_run)) { $scrapers_run = "meesho amazon myntra nykaa croma" }
           $msg = "GitHub Actions Run - $status - Scrapers: $scrapers_run | Check /status for updated deal counts"
           $body = @{ chat_id = $chat_id; text = $msg } | ConvertTo-Json
           Invoke-RestMethod -Uri "https://api.telegram.org/bot$token/sendMessage" `
