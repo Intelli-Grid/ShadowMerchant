@@ -542,13 +542,35 @@ async def _send_message(bot, text: str, keyboard=None, image_url: str = None):
 
                 return True
 
-            except Exception: pass
+            except Exception as e:
+
+                if "parse" in str(e).lower() or "entity" in str(e).lower():
+
+                    try:
+
+                        await bot.send_photo(chat_id=CHANNEL_ID, photo=image_url, caption=text[:1024], reply_markup=keyboard)
+
+                        return True
+
+                    except Exception: pass
+
+                logger.error(f"Send photo failed: {e}")
 
         await bot.send_message(chat_id=CHANNEL_ID, text=text, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard, disable_web_page_preview=False)
 
         return True
 
     except Exception as e:
+
+        if "parse" in str(e).lower() or "entity" in str(e).lower():
+
+            try:
+
+                await bot.send_message(chat_id=CHANNEL_ID, text=text, reply_markup=keyboard, disable_web_page_preview=False)
+
+                return True
+
+            except Exception: pass
 
         logger.error(f"Send message failed: {e}")
 
