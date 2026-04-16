@@ -2450,9 +2450,13 @@ def run_interactive_bot():
         except Exception as e:
             logger.warning(f"Could not delete webhook (may not exist): {e}")
 
-        # Give Render's old instance time to shut down (zero-downtime deploys)
-        logger.info("Startup delay: waiting 8s for old instance to stop...")
-        await _asyncio.sleep(8)
+        # Give Render's old instance time to fully release its Telegram long-poll
+        # connection after receiving SIGTERM. In practice the old Python process
+        # takes ~50s to die cleanly on zero-downtime deploys, so we wait 60s to
+        # be safe. The 409 Conflict errors will only appear if we start polling
+        # before the old instance has released the connection.
+        logger.info("Startup delay: waiting 60s for old Render instance to fully release Telegram polling...")
+        await _asyncio.sleep(60)
         logger.info("Bot post_init complete - starting polling.")
 
     async def conflict_error_handler(update, context):
