@@ -1,8 +1,18 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
+
+// Each pill links to a category page (MongoDB-backed, Algolia-independent)
+const QUICK_LINKS = [
+  { label: '📱 Phones',   href: '/category/electronics' },
+  { label: '👗 Fashion',  href: '/category/fashion'     },
+  { label: '💄 Skincare', href: '/category/beauty'      },
+  { label: '🏠 Home',     href: '/category/home'        },
+  { label: '🎮 Gaming',   href: '/category/gaming'      },
+];
 
 export function HeroSearchBar() {
   const router = useRouter();
@@ -56,13 +66,13 @@ export function HeroSearchBar() {
           Search
         </button>
       </div>
-      {/* Quick search pills */}
+
+      {/* Quick category links — directly backed by MongoDB, no Algolia needed */}
       <div className="flex items-center gap-2 mt-3 flex-wrap justify-center">
-        {['Phones', 'Laptops', 'Sneakers', 'Skincare', 'Earbuds'].map((tag) => (
-          <button
-            key={tag}
-            type="button"
-            onClick={() => router.push(`/search?q=${encodeURIComponent(tag)}`)}
+        {QUICK_LINKS.map(({ label, href }) => (
+          <Link
+            key={href}
+            href={href}
             className="text-xs px-3 py-1 rounded-full transition-colors"
             style={{
               background: 'var(--bg-raised)',
@@ -78,10 +88,11 @@ export function HeroSearchBar() {
               (e.currentTarget as HTMLElement).style.borderColor = 'var(--sm-border)';
             }}
           >
-            {tag}
-          </button>
+            {label}
+          </Link>
         ))}
       </div>
     </form>
   );
 }
+

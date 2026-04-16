@@ -28,8 +28,36 @@ export async function GET(req: NextRequest) {
       query,
     });
   } catch (err) {
-    // Gracefully degrade — Algolia may not be configured in dev
-    console.warn('[Search] Algolia error, falling back to empty results:', err);
-    return NextResponse.json({ hits: [], nbHits: 0, error: 'Search unavailable' });
+    // Algolia unavailable — fall back to MongoDB regex search so the
+    // search bar always returns results for users.
+    console.warn('[Search] Algolia error, falling back to MongoDB:', err);
+    try {
+      const { connectDB } = await import('@/lib/db');
+      await connectDB();
+      const DealModel = (await import('@/models/Deal')).default;
+      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const deals = await DealModel.find({
+        is_active: true,
+        $or: [
+          { title:    { $regex: escaped, $options: 'i' } },
+          { brand:    { $regex: escaped, $options: 'i' } },
+          { category: { $regex: escaped, $options: 'i' } },
+        ],
+      })
+        .sort({ deal_score: -1 })
+        .limit(20)
+        .lean();
+
+      return NextResponse.json({
+        hits: JSON.parse(JSON.stringify(deals)),
+        nbHits: deals.length,
+        query,
+        source: 'mongodb_fallback',
+      });
+    } catch (dbErr) {
+      console.error('[Search] MongoDB fallback also failed:', dbErr);
+      return NextResponse.json({ hits: [], nbHits: 0, error: 'Search unavailable' });
+    }
   }
 }
+
