@@ -35,16 +35,55 @@ export function PriceHistoryChart({ data, platformColor = '#C9A84C', isUserPro =
   if (!isUserPro) {
     return (
       <div className="w-full h-[320px] rounded-2xl border p-4 sm:p-6 relative overflow-hidden flex flex-col items-center justify-center text-center" style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}>
-        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'linear-gradient(to right, #222 1px, transparent 1px), linear-gradient(to bottom, #222 1px, transparent 1px)', backgroundSize: '30px 30px', filter: 'blur(2px)' }} />
         
-        <div className="relative z-10 p-6 flex flex-col items-center justify-center max-w-sm rounded-[24px] shadow-2xl backdrop-blur-md" style={{ background: 'rgba(20, 20, 24, 0.7)', border: '1px solid var(--gold-border)' }}>
+        {/* Ghost chart — blurred SVG price curve so users see what they're missing */}
+        <svg
+          className="absolute inset-0 w-full h-full opacity-25 pointer-events-none"
+          viewBox="0 0 400 220"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ filter: 'blur(4px)' }}
+          aria-hidden="true"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <linearGradient id="ghostGradFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%"  stopColor="#C9A84C" stopOpacity="0.45"/>
+              <stop offset="95%" stopColor="#C9A84C" stopOpacity="0"/>
+            </linearGradient>
+          </defs>
+          {/* Horizontal grid lines */}
+          {[40, 80, 120, 160].map(y => (
+            <line key={y} x1="0" y1={y} x2="400" y2={y} stroke="#ffffff" strokeOpacity="0.06" strokeWidth="1"/>
+          ))}
+          {/* Price curve — realistic looking drop pattern */}
+          <path
+            d="M0,170 C20,165 40,150 60,155 S100,130 120,100 S155,115 175,80 S210,95 230,55 S265,75 285,45 S320,60 340,35 S375,48 400,30"
+            fill="none"
+            stroke="#C9A84C"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* Area fill under the curve */}
+          <path
+            d="M0,170 C20,165 40,150 60,155 S100,130 120,100 S155,115 175,80 S210,95 230,55 S265,75 285,45 S320,60 340,35 S375,48 400,30 L400,220 L0,220 Z"
+            fill="url(#ghostGradFill)"
+          />
+          {/* Data point dots */}
+          {[[60,155],[120,100],[175,80],[230,55],[285,45],[340,35]].map(([cx,cy],i) => (
+            <circle key={i} cx={cx} cy={cy} r="4" fill="#C9A84C" fillOpacity="0.8"/>
+          ))}
+        </svg>
+
+        {/* Lock card */}
+        <div className="relative z-10 p-6 flex flex-col items-center justify-center max-w-sm rounded-[24px] shadow-2xl backdrop-blur-md" style={{ background: 'rgba(20, 20, 24, 0.82)', border: '1px solid var(--gold-border)' }}>
           <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--gold-dim)' }}>
             <Sparkles className="w-6 h-6" style={{ color: 'var(--gold)' }} />
           </div>
           <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-display)' }}>Pro Feature</h3>
-          <p className="text-sm text-gray-400 mb-6">Upgrade to see 30-day historical price volatility and never buy at the wrong time.</p>
+          <p className="text-sm text-gray-400 mb-6">See exactly when this product hit its lowest price. Pro members get full 30-day pricing intel on every deal.</p>
           <Link href="/pro" className="px-8 py-3 rounded-xl font-bold w-full text-center hover:scale-105 active:scale-95 transition-all" style={{ background: 'var(--gold)', color: '#0A0A0A' }}>
-            Unlock Analytics
+            Unlock Price History →
           </Link>
         </div>
       </div>

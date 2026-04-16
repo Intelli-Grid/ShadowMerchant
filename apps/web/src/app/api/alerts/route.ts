@@ -4,12 +4,19 @@ import { connectDB } from '@/lib/db';
 import Alert from '@/models/Alert';
 import User from '@/models/User';
 
-// GET — list user's active alerts
+// GET — list user's active alerts (Pro only)
 export async function GET() {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   await connectDB();
+
+  // Mirror the same Pro check as POST so the client-side isPro gate fires correctly
+  const user = await User.findOne({ clerk_id: userId }).lean();
+  if (!user || user.subscription_tier !== 'pro') {
+    return NextResponse.json({ error: 'Pro subscription required' }, { status: 403 });
+  }
+
   const alerts = await Alert.find({ user_id: userId, is_active: true }).lean();
   return NextResponse.json({ alerts });
 }
