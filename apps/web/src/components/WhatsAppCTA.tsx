@@ -97,7 +97,7 @@ export function WhatsAppCTA() {
             }}
           >
             <WhatsAppIcon size={15} color="white" />
-            Chat Now →
+            Join Now →
           </a>
         </div>
 
