@@ -83,7 +83,7 @@ export function WhatsAppCTA() {
             }}
           >
             <WhatsAppIcon size={15} color="white" />
-            Follow WhatsApp Channel →
+            Follow Free →
           </button>
         </div>
 
