@@ -265,13 +265,21 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
               </p>
               
               <a 
+
                 href={`/api/go/${deal._id}`}
+
                 target="_blank"
+
                 rel="noopener noreferrer"
-                className="fixed bottom-20 left-4 right-4 z-50 md:static md:w-auto lg:w-80 md:mt-2 flex items-center justify-center gap-2 h-14 md:h-14 rounded-full font-bold text-base md:text-lg transition-transform active:scale-95 shadow-2xl md:shadow-none"
+
+                className="w-full mt-4 md:w-auto lg:w-80 md:mt-2 flex items-center justify-center gap-2 h-14 md:h-14 rounded-full font-bold text-base md:text-lg transition-transform hover:opacity-90 active:scale-95 shadow-lg md:shadow-none"
+
                 style={{ background: '#FFD814', color: '#0F1111', border: '1px solid #FCD200' }}
+
               >
+
                 Buy on {platform.name} <ExternalLink className="w-4 h-4" />
+
               </a>
 
               <p className="text-xs font-medium mt-3 flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
