@@ -2463,12 +2463,10 @@ def run_interactive_bot():
         """
         from telegram.error import Conflict
         if isinstance(context.error, Conflict):
-            import asyncio as _asyncio
             logger.warning(
                 "Telegram Conflict (409): another bot instance is polling. "
-                "Render zero-downtime deploy in progress. Waiting 30s..."
+                "Render zero-downtime deploy in progress. Poller will retry in background until old instance dies."
             )
-            await _asyncio.sleep(30)
         else:
             logger.error(f"Unhandled bot error: {context.error}", exc_info=context.error)
 
