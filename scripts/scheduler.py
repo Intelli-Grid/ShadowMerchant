@@ -23,6 +23,7 @@ import os
 import logging
 import argparse
 import time
+import asyncio
 from pathlib import Path
 from datetime import datetime
 
@@ -433,7 +434,10 @@ def start_scheduler():
     # IST: 07:30, 09:00, 13:00, 16:00, 19:00, 20:30, 22:00
     # UTC: 02:00, 03:30, 07:30, 10:30, 13:30, 15:00, 16:30
     def trigger_broadcast():
-        asyncio.run(__import__('social.telegram_poster', fromlist=['broadcast_smart']).broadcast_smart())
+        try:
+            asyncio.run(__import__('social.telegram_poster', fromlist=['broadcast_smart']).broadcast_smart())
+        except Exception as exc:
+            logger.error("[Scheduler] Broadcast job failed, scheduler stays alive: %s", exc, exc_info=True)
         
     # 7 daily broadcasts mapped to IST post-type windows:
     #   UTC 01:30 -> IST 07:00  Morning Brief
@@ -454,7 +458,11 @@ def start_scheduler():
 
     logger.info("Scheduler loop initialized.")
     while True:
-        schedule.run_pending()
+        try:
+            schedule.run_pending()
+        except Exception as exc:
+            # Log but never let a single job crash the scheduler thread
+            logger.error("[Scheduler] Unhandled exception in run_pending, continuing: %s", exc, exc_info=True)
         time.sleep(30)
 
 
