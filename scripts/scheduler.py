@@ -25,7 +25,7 @@ import argparse
 import time
 import asyncio
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 # ── Path Setup ──────────────────────────────────────────────────
 sys.path.insert(0, str(Path(__file__).parent))
@@ -481,7 +481,7 @@ def start_web_server():
         return jsonify({
             "status": "online",
             "service": "ShadowMerchant Intelligence Scraper",
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         })
 
     @app.route('/diagnose')

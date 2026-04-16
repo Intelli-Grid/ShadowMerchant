@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 // Each pill links to a category page (MongoDB-backed, Algolia-independent)
 const QUICK_LINKS = [
-  { label: '📱 Phones',   href: '/category/electronics' },
+  { label: '💻 Electronics', href: '/category/electronics' },
   { label: '👗 Fashion',  href: '/category/fashion'     },
   { label: '💄 Skincare', href: '/category/beauty'      },
   { label: '🏠 Home',     href: '/category/home'        },
