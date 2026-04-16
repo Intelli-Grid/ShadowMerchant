@@ -1,8 +1,29 @@
 'use client';
 
+// ─── ShadowMerchant Telegram CTA Banner ──────────────────────────────────────
+// Clicking the CTA takes visitors to the Telegram channel's "JOIN" prompt.
+// - Mobile  → tg:// deep link opens the Telegram app directly, showing the
+//             JOIN confirmation screen before the channel feed (zero browser hop).
+// - Desktop → t.me URL opens the Telegram Web join page with the same prompt.
+
 import { Send } from 'lucide-react';
 
+const TG_USERNAME = 'ShadowMerchantDeals';
+
 export function TelegramCTA() {
+  /**
+   * Navigate to the Telegram channel's native JOIN prompt.
+   * On mobile the Telegram app opens directly via the tg:// scheme;
+   * on desktop the standard t.me link shows the join prompt in browser.
+   */
+  const handleJoin = () => {
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    const target = isMobile
+      ? `tg://resolve?domain=${TG_USERNAME}`
+      : `https://t.me/${TG_USERNAME}`;
+    window.open(target, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div
@@ -19,6 +40,7 @@ export function TelegramCTA() {
           style={{ background: '#229ED9' }}
         />
 
+        {/* Left — icon + text */}
         <div className="flex items-center gap-4 relative z-10">
           <div
             className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl"
@@ -31,16 +53,16 @@ export function TelegramCTA() {
               Get instant deal alerts on Telegram
             </p>
             <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>
-              Join <strong style={{ color: '#229ED9' }}>@ShadowMerchantDeals</strong> — flash sales posted the moment they go live
+              Join <strong style={{ color: '#229ED9' }}>@{TG_USERNAME}</strong> — flash sales posted the moment they go live
             </p>
           </div>
         </div>
 
-        <a
-          href="https://t.me/ShadowMerchantDeals"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="relative z-10 flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold flex-shrink-0 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+        {/* CTA — routes to Telegram JOIN prompt, native app on mobile */}
+        <button
+          onClick={handleJoin}
+          className="relative z-10 flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold
+                     flex-shrink-0 transition-all hover:scale-105 active:scale-95 whitespace-nowrap cursor-pointer"
           style={{ background: '#229ED9', color: 'white' }}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(34,158,217,0.4)';
@@ -51,7 +73,7 @@ export function TelegramCTA() {
         >
           <Send className="w-4 h-4" />
           Join Free →
-        </a>
+        </button>
       </div>
     </section>
   );

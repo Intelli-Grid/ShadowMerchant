@@ -1,16 +1,14 @@
 'use client';
 
 // ─── ShadowMerchant WhatsApp CTA Banner ───────────────────────────────────────
-// Homepage companion banner to TelegramCTA.tsx.
-// Mirrors TelegramCTA's dark-card style with WhatsApp green palette.
-// Shows two entry points: 1-on-1 business chat + channel join.
+// Clicking the CTA takes visitors to the WhatsApp Channel "Follow" prompt.
+// On mobile the WA app opens directly via the wa:// scheme, landing straight
+// on the native "Follow" confirmation screen before the channel feed.
+// On desktop, the whatsapp.com URL opens WhatsApp Web with the same prompt.
 
-const WA_NUMBER = '919152952052';
-const WA_CHANNEL = 'https://whatsapp.com/channel/0029Vb7dimp1XquQpiaSWQ1N';
-const WA_TEXT = encodeURIComponent(
-  "Hi! I found ShadowMerchant. Send me today's top deals 🔥"
-);
-const WA_CHAT_URL = `https://wa.me/${WA_NUMBER}?text=${WA_TEXT}`;
+// WhatsApp broadcast channel — shows the platform's "Follow" prompt on click.
+const WA_CHANNEL_WEB = 'https://whatsapp.com/channel/0029Vb7dimp1XquQpiaSWQ1N';
+const WA_CHANNEL_ID  = '0029Vb7dimp1XquQpiaSWQ1N';
 
 const WhatsAppIcon = ({ size = 20, color = '#25D366' }: { size?: number; color?: string }) => (
   <svg viewBox="0 0 24 24" width={size} height={size} fill={color} aria-hidden="true">
@@ -19,6 +17,20 @@ const WhatsAppIcon = ({ size = 20, color = '#25D366' }: { size?: number; color?:
 );
 
 export function WhatsAppCTA() {
+  /**
+   * Route to the WhatsApp channel's native "Follow" prompt.
+   * - Mobile  → wa:// deep link opens the WhatsApp app directly, showing the
+   *             Follow confirmation before the channel feed (zero browser step).
+   * - Desktop → whatsapp.com URL opens WhatsApp Web with the same Follow prompt.
+   */
+  const handleFollow = () => {
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+    const target = isMobile
+      ? `whatsapp://channel/${WA_CHANNEL_ID}`
+      : WA_CHANNEL_WEB;
+    window.open(target, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
       <div
@@ -29,7 +41,7 @@ export function WhatsAppCTA() {
           boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
         }}
       >
-        {/* Green glow orb — mirrors TelegramCTA's blue orb */}
+        {/* Green glow orb */}
         <div
           className="absolute -top-16 -left-16 w-48 h-48 rounded-full blur-[80px] opacity-25 pointer-events-none"
           style={{ background: '#25D366' }}
@@ -56,70 +68,31 @@ export function WhatsAppCTA() {
           </div>
         </div>
 
-        {/* Right — dual CTAs */}
+        {/* Right — single CTA → WhatsApp Channel Follow prompt */}
         <div className="relative z-10 flex items-center gap-3 flex-shrink-0">
-          {/* Secondary — Channel join */}
-          <a
-            href={WA_CHANNEL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold
-                       transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
-            style={{
-              background: 'rgba(37,211,102,0.12)',
-              border: '1px solid rgba(37,211,102,0.28)',
-              color: '#25D366',
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.background = 'rgba(37,211,102,0.2)';
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.background = 'rgba(37,211,102,0.12)';
-            }}
-          >
-            📢 Join Channel
-          </a>
-
-          {/* Primary — 1-on-1 chat */}
-          <a
-            href={WA_CHAT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={handleFollow}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold
-                       transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+                       transition-all hover:scale-105 active:scale-95 whitespace-nowrap cursor-pointer"
             style={{ background: '#25D366', color: 'white' }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.boxShadow =
-                '0 0 20px rgba(37,211,102,0.4)';
+              (e.currentTarget as HTMLElement).style.boxShadow = '0 0 20px rgba(37,211,102,0.4)';
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLElement).style.boxShadow = 'none';
             }}
           >
             <WhatsAppIcon size={15} color="white" />
-            Join Now →
-          </a>
+            Follow WhatsApp Channel →
+          </button>
         </div>
 
-        {/* Mobile — Channel link row */}
-        <div className="sm:hidden relative z-10 flex items-center gap-2 w-full justify-center">
-          <a
-            href={WA_CHANNEL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs font-semibold transition-colors"
-            style={{ color: 'rgba(37,211,102,0.75)' }}
-          >
-            📢 or join our WhatsApp Channel
-          </a>
-        </div>
-
-        {/* DPDP compliance */}
+        {/* DPDP compliance note */}
         <p
           className="absolute bottom-1.5 right-4 text-[9px] italic hidden sm:block"
           style={{ color: 'rgba(255,255,255,0.2)' }}
         >
-          You initiate contact · Reply STOP to opt out
+          You&apos;ll see a &quot;Follow&quot; prompt before joining · Reply STOP to opt out
         </p>
       </div>
     </section>
