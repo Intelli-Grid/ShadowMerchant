@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { PLATFORM_CONFIG } from '@/lib/platforms';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
@@ -8,6 +8,7 @@ import { X } from 'lucide-react';
 export function PlatformFilter() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const activePlatform = searchParams.get('platform');
 
   const updatePlatform = (platformSlug: string | null) => {
@@ -17,7 +18,8 @@ export function PlatformFilter() {
     } else {
       params.delete('platform');
     }
-    router.push(`/?${params.toString()}`, { scroll: false });
+    // Use current pathname so this works on any page (/deals/feed, /deals, etc.)
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   const platforms = Object.values(PLATFORM_CONFIG);

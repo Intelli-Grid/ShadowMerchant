@@ -21,12 +21,24 @@ async function getDealsData(platform?: string) {
       .sort({ deal_score: -1 })
       .lean();
 
-    // Fetch next 9 top deals for Bento Grid
-    const topDeals = await DealModel.find(baseQuery)
-      .sort({ deal_score: -1 })
-      .skip(heroDeal ? 1 : 0)
-      .limit(9)
-      .lean();
+    // Fetch next 9 top deals for Bento Grid.
+    // When no platform filter is active, cap each platform at 2 deals max so
+    // the grid shows a healthy mix of providers, not just one dominant store.
+    const bentoQuery: any = { ...baseQuery };
+    if (heroDeal?._id) bentoQuery._id = { $ne: heroDeal._id };
+
+    const topDeals = platform
+      ? await DealModel.find(bentoQuery).sort({ deal_score: -1 }).limit(9).lean()
+      : await DealModel.aggregate([
+          { $match: bentoQuery },
+          { $sort: { deal_score: -1 } },
+          { $group: { _id: '$source_platform', docs: { $push: '$$ROOT' } } },
+          { $project: { docs: { $slice: ['$docs', 2] } } },
+          { $unwind: '$docs' },
+          { $replaceRoot: { newRoot: '$docs' } },
+          { $sort: { deal_score: -1 } },
+          { $limit: 9 },
+        ]);
 
     // Fetch swimlanes using generic DB aggregation or multiple finds
     // For performance, we'll do 4 parallel finds for the 4 primary categories

@@ -53,12 +53,27 @@ async function getDeals(searchParams: { [key: string]: string | undefined }) {
     if (searchParams.sort === 'price_desc') sortObj = { discounted_price: -1 };
 
     const PAGE_SIZE = 24;
-    const [deals, total] = await Promise.all([
-      DealModel.find(query).sort(sortObj).limit(PAGE_SIZE).lean(),
-      DealModel.countDocuments(query)
+    const MAX_PER_PLATFORM = 4; // Max deals per provider in unfiltered view
+
+    const [rawDeals, total] = await Promise.all([
+      // When no platform filter is active, use a diversity-aware aggregation so the
+      // top 24 results aren't dominated by a single platform.
+      !query.source_platform
+        ? DealModel.aggregate([
+            { $match: query },
+            { $sort: sortObj },
+            { $group: { _id: '$source_platform', docs: { $push: '$$ROOT' } } },
+            { $project: { docs: { $slice: ['$docs', MAX_PER_PLATFORM] } } },
+            { $unwind: '$docs' },
+            { $replaceRoot: { newRoot: '$docs' } },
+            { $sort: sortObj },
+            { $limit: PAGE_SIZE },
+          ])
+        : DealModel.find(query).sort(sortObj).limit(PAGE_SIZE).lean(),
+      DealModel.countDocuments(query),
     ]);
 
-    const result = { deals: JSON.parse(JSON.stringify(deals)), total, hasMore: total > PAGE_SIZE };
+    const result = { deals: JSON.parse(JSON.stringify(rawDeals)), total, hasMore: total > PAGE_SIZE };
     // Cache for 5 min — safe since scraper runs every 6 hours
     await redis.set(cacheKey, result, { ex: CACHE_TTL.DEAL_LIST });
     return result;
