@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 
 /**
- * POST /api/cron/refresh-deals
+ * GET /api/cron/refresh-deals
  *
  * Called by Vercel Cron 2x/day after the GitHub Actions pipeline completes.
- * Deactivates stale deals, clears Redis cache, and revalidates ISR pages
- * so fresh data is served immediately after the scraper pipeline runs.
+ * Also runs a subscription expiry sweep since Razorpay does not emit a
+ * 'subscription.expired' webhook event — users whose subscription_expires_at
+ * has passed are downgraded from pro → free here as a safety net.
  *
  * Security: Always requires a valid Bearer CRON_SECRET header.
  * CRON_SECRET must be set in environment variables — returns 500 if missing.
@@ -15,7 +16,6 @@ import { revalidatePath } from 'next/cache';
 export async function GET(req: NextRequest) {
   const CRON_SECRET = process.env.CRON_SECRET;
 
-  // Always require CRON_SECRET to be configured
   if (!CRON_SECRET) {
     console.error('[cron/refresh-deals] CRON_SECRET env var is not set!');
     return NextResponse.json({ error: 'Server misconfiguration: CRON_SECRET missing' }, { status: 500 });
@@ -30,25 +30,25 @@ export async function GET(req: NextRequest) {
     const { connectDB } = await import('@/lib/db');
     const { redis, CACHE_KEYS } = await import('@/lib/redis');
     const Deal = (await import('@/models/Deal')).default;
+    const User = (await import('@/models/User')).default;
+    const { clerkClient } = await import('@clerk/nextjs/server');
 
     await connectDB();
 
-    // Deactivate deals older than 72 h that the pipeline didn't refresh
+    // ── 1. Deactivate stale deals ────────────────────────────────────────────
     const cutoff = new Date(Date.now() - 72 * 60 * 60 * 1000);
     const staleResult = await Deal.updateMany(
       { scraped_at: { $lt: cutoff }, is_active: true },
       { $set: { is_active: false } }
     );
 
-    // Clear all known Redis cache keys including the homepage "new today" section
-    // and the deal list cache. The deals:feed:* keys are not scannable without
-    // redis.keys() so we clear the known static variants.
+    // ── 2. Clear Redis cache ─────────────────────────────────────────────────
     const keysToDelete = [
       CACHE_KEYS.TRENDING_DEALS,
       CACHE_KEYS.CATEGORIES,
       CACHE_KEYS.DEAL_LIST(''),
-      'deals:new_today',              // BUG-10: was missing; caches homepage new deals section
-      'deals:feed:all',               // NEW-05: feed page cache variants
+      'deals:new_today',
+      'deals:feed:all',
       'deals:feed:electronics',
       'deals:feed:fashion',
       'deals:feed:beauty',
@@ -56,16 +56,56 @@ export async function GET(req: NextRequest) {
     ];
     await Promise.allSettled(keysToDelete.map((k) => redis.del(k)));
 
-    // NEW-05: Revalidate Vercel ISR cache — Redis del alone does not bust ISR pages
+    // ── 3. Revalidate ISR pages ──────────────────────────────────────────────
     revalidatePath('/');
     revalidatePath('/deals');
     revalidatePath('/deals/feed');
 
+    // ── 4. Subscription expiry sweep ─────────────────────────────────────────
+    // Razorpay does NOT emit subscription.expired webhook events, so Pro users
+    // whose subscription_expires_at has passed need to be downgraded here.
+    // We only target users whose status is NOT one of the known live active states
+    // (avoid downgrading paused users who may still reinstate payment).
+    const now = new Date();
+    const expiredProUsers = await User.find(
+      {
+        subscription_tier: 'pro',
+        subscription_expires_at: { $lt: now },
+        subscription_status: { $nin: ['active', 'authenticated', 'created', 'paused'] },
+      },
+      { clerk_id: 1, email: 1 }
+    ).lean();
+
+    let expiredCount = 0;
+    if (expiredProUsers.length > 0) {
+      const clerk = await clerkClient();
+      await Promise.allSettled(
+        expiredProUsers.map(async (u: any) => {
+          // Downgrade in MongoDB
+          await User.updateOne(
+            { clerk_id: u.clerk_id },
+            { subscription_tier: 'free', updated_at: new Date() }
+          );
+          // Sync Clerk publicMetadata (safe merge)
+          try {
+            const clerkUser = await clerk.users.getUser(u.clerk_id);
+            const existingMeta = (clerkUser.publicMetadata as Record<string, unknown>) ?? {};
+            await clerk.users.updateUserMetadata(u.clerk_id, {
+              publicMetadata: { ...existingMeta, tier: 'free' },
+            });
+          } catch { /* Clerk sync failure is non-fatal — MongoDB is source of truth */ }
+          console.log(`[cron] Downgraded expired Pro user: ${u.email}`);
+          expiredCount++;
+        })
+      );
+    }
+
     const stats = {
-      stale_deactivated: staleResult.modifiedCount,
-      cache_keys_cleared: keysToDelete.length,
-      isr_revalidated: ['/', '/deals', '/deals/feed'],
-      timestamp: new Date().toISOString(),
+      stale_deactivated:        staleResult.modifiedCount,
+      cache_keys_cleared:       keysToDelete.length,
+      isr_revalidated:          ['/', '/deals', '/deals/feed'],
+      expired_subs_downgraded:  expiredCount,
+      timestamp:                new Date().toISOString(),
     };
 
     console.log('[cron/refresh-deals]', stats);
