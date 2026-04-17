@@ -7,13 +7,28 @@ import User from '@/models/User';
  * POST /api/user/link-telegram
  * Links a user's ShadowMerchant account to their Telegram chat_id.
  *
- * Called by the Telegram bot when a user sends /start link_<clerkUserId>.
- * Also called directly from the frontend if we need to confirm the link.
+ * Called exclusively by the Telegram bot when a user sends /start link_<clerkUserId>.
+ * Secured via a shared TELEGRAM_BOT_SECRET header to prevent account hijacking.
  *
  * Body: { clerkUserId: string, telegramChatId: string }
+ * Header: x-telegram-bot-secret: <TELEGRAM_BOT_SECRET>
  */
 export async function POST(req: NextRequest) {
   try {
+    // ── Security: validate shared bot secret header ──────────────────────
+    const botSecret = req.headers.get('x-telegram-bot-secret');
+    const expectedSecret = process.env.TELEGRAM_BOT_SECRET;
+
+    if (!expectedSecret) {
+      console.error('[link-telegram] TELEGRAM_BOT_SECRET env var is not set');
+      return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 });
+    }
+
+    if (!botSecret || botSecret !== expectedSecret) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    // ─────────────────────────────────────────────────────────────────────
+
     const body = await req.json();
     const { clerkUserId, telegramChatId } = body;
 

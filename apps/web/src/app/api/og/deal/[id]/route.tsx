@@ -1,7 +1,9 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
-export const runtime = 'edge';
+// HIGH-11 fix: nodejs runtime required for MongoDB native driver.
+// Edge runtime cannot use Node.js built-ins (net, tls, etc.) that Mongoose needs.
+export const runtime = 'nodejs';
 
 export async function GET(
   req: NextRequest,
@@ -9,13 +11,16 @@ export async function GET(
 ) {
   const { id } = await params;
 
+  // HIGH-11 fix: fetch deal data directly from MongoDB instead of self-calling the API.
+  // Self-fetch fails at Vercel build time (app not yet live) and creates circular
+  // HTTP requests at runtime.
   let deal: any = null;
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online'}/api/deals/${id}`,
-      { next: { revalidate: 900 } }
-    );
-    if (res.ok) deal = await res.json();
+    const { connectDB } = await import('@/lib/db');
+    await connectDB();
+    const Deal = (await import('@/models/Deal')).default;
+    const raw = await Deal.findById(id).lean();
+    if (raw) deal = JSON.parse(JSON.stringify(raw));
   } catch {}
 
   const title = deal?.title ?? 'Exclusive Deal on ShadowMerchant';

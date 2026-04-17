@@ -18,7 +18,7 @@ async function getDashboardData(clerkId: string) {
   return { user, totalDeals, recentDeals };
 }
 
-export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ upgraded?: string }> }) {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ upgraded?: string; pending?: string }> }) {
   const clerkUser = await currentUser();
   if (!clerkUser) redirect('/sign-in');
 
@@ -26,6 +26,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const isPro = user?.subscription_tier === 'pro';
   const resolvedParams = await searchParams;
   const justUpgraded = resolvedParams?.upgraded === 'true';
+  const paymentPending = resolvedParams?.pending === 'true';
 
   const STATS = [
     { icon: Package,    label: 'Live Deals', value: totalDeals.toLocaleString(), color: 'var(--gold)' },
@@ -45,6 +46,25 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         >
           <CheckCircle className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--gold)' }} />
           <p className="text-white font-semibold text-sm">🎉 Welcome to Pro! Your account has been upgraded.</p>
+        </div>
+      )}
+
+      {/* Payment processing banner — shown when webhook hasn't fired yet (HIGH-04) */}
+      {paymentPending && (
+        <div
+          className="mb-6 rounded-xl px-5 py-4 flex items-center gap-3"
+          style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.25)' }}
+        >
+          <div className="w-5 h-5 flex-shrink-0 rounded-full border-2 border-blue-400 border-t-transparent animate-spin" />
+          <div>
+            <p className="text-white font-semibold text-sm">⏳ Payment received — activating your Pro account...</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+              This takes a few seconds. The page will refresh automatically.
+            </p>
+          </div>
+          {/* Auto-refresh after 5s so the user sees Pro UI without manual reload */}
+          {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+          <script dangerouslySetInnerHTML={{ __html: 'setTimeout(()=>location.replace("/dashboard"),5000)' }} />
         </div>
       )}
 

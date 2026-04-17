@@ -59,7 +59,7 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
         }, 200);
       });
 
-      // 3 — Open Razorpay checkout modal
+        // 3 — Open Razorpay checkout modal
       const rzp = new window.Razorpay({
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         subscription_id,
@@ -67,8 +67,29 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
         description: `Pro ${plan === 'annual' ? 'Annual' : 'Monthly'} Plan`,
         image: '/logo.png',
         theme: { color: '#C9A84C' },
-        handler: () => {
-          router.push('/dashboard?upgraded=true');
+        handler: async () => {
+          // HIGH-04 fix: poll for Pro status before redirecting.
+          // Razorpay's handler fires when the *checkout UI* completes, but the
+          // webhook (subscription.activated) arrives ~1-3 seconds later and is
+          // what actually upgrades the DB. Redirect immediately = show Pro UI
+          // before it's real. Poll /api/user/me up to 8× (4 s) instead.
+          let confirmed = false;
+          for (let i = 0; i < 8; i++) {
+            await new Promise((r) => setTimeout(r, 500));
+            try {
+              const check = await fetch('/api/user/me');
+              if (check.ok) {
+                const data = await check.json();
+                if (data?.subscription_tier === 'pro') {
+                  confirmed = true;
+                  break;
+                }
+              }
+            } catch { /* network hiccup — keep polling */ }
+          }
+          // confirmed=true  → webhook already fired, user is Pro
+          // confirmed=false → webhook is delayed, show pending message
+          router.push(confirmed ? '/dashboard?upgraded=true' : '/dashboard?pending=true');
         },
         modal: {
           ondismiss: () => setLoading(false),

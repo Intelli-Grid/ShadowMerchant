@@ -75,7 +75,7 @@ export function Footer() {
               >
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="mailto:deals@shadowmerchant.in" className="transition-colors" style={{ color: 'var(--text-muted)' }}
+              <a href="mailto:deals@shadowmerchant.online" className="transition-colors" style={{ color: 'var(--text-muted)' }}
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--gold)')}
                 onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-muted)')}
                 aria-label="Email"

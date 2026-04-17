@@ -18,7 +18,12 @@ export async function GET() {
   }
 
   const alerts = await Alert.find({ user_id: userId, is_active: true }).lean();
-  return NextResponse.json({ alerts });
+
+  // MED-03 fix: include telegramLinked so the alerts page renders the correct
+  // Connect/Connected banner without a separate API call.
+  const telegramLinked = !!(user as any).notification_channels?.telegram;
+
+  return NextResponse.json({ alerts, telegramLinked });
 }
 
 // POST — create a new alert (Pro only)

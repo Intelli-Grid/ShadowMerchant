@@ -12,7 +12,7 @@ import { revalidatePath } from 'next/cache';
  * CRON_SECRET must be set in environment variables — returns 500 if missing.
  */
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   const CRON_SECRET = process.env.CRON_SECRET;
 
   // Always require CRON_SECRET to be configured

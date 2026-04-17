@@ -153,7 +153,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
   };
 
   return (
-    <main className="flex-1 w-full pb-20 relative">
+    <main className="flex-1 w-full relative">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       
       {/* Brand Strip Gradient Overlay (Absolute) */}

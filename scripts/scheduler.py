@@ -325,12 +325,24 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
                 if len(selected) >= 10:
                     break
 
-            # Reset all flags, then tag selected with score
-            db.deals.update_many({}, {"$set": {"is_trending": False, "trending_score": 0}})
+            # HIGH-09 fix: Two-phase trending update to prevent 0-trending-deals
+            # if the process fails between the reset and the re-tagging step.
+            #
+            # Phase 1: Tag selected deals as trending (safe to do first)
+            new_trending_ids = [item["deal"]["_id"] for item in selected]
             for item in selected:
                 db.deals.update_one(
                     {"_id": item["deal"]["_id"]},
                     {"$set": {"is_trending": True, "trending_score": round(item["score"], 2)}}
+                )
+
+            # Phase 2: Clear is_trending ONLY for deals NOT in the new selection
+            # This means a partial failure between Phase 1 and 2 leaves the new
+            # trending deals correctly tagged rather than wiping everything first.
+            if new_trending_ids:
+                db.deals.update_many(
+                    {"_id": {"$nin": new_trending_ids}},
+                    {"$set": {"is_trending": False, "trending_score": 0}}
                 )
 
             top_score = f"{selected[0]['score']:.1f}" if selected else "n/a"

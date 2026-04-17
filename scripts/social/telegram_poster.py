@@ -1026,11 +1026,18 @@ def run_interactive_bot():
 
                 import httpx
 
+                # HIGH-06 fix: include x-telegram-bot-secret header.
+                # The link-telegram endpoint now requires this to prevent
+                # any arbitrary caller from hijacking account links.
+                _bot_secret = os.getenv("TELEGRAM_BOT_SECRET", "")
+
                 httpx.post(
 
                     f"{APP_URL}/api/user/link-telegram",
 
                     json={"clerkUserId": clerk_id, "telegramChatId": chat_id},
+
+                    headers={"x-telegram-bot-secret": _bot_secret},
 
                     timeout=10
 

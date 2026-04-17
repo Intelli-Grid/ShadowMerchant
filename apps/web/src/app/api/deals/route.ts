@@ -35,8 +35,11 @@ export async function GET(req: NextRequest) {
     score: { deal_score: -1 },
   };
 
+  const VALID_SORT = ['newest', 'discount', 'score'] as const;
+  const safeSortKey = VALID_SORT.includes(sort as any) ? (sort as typeof VALID_SORT[number]) : 'score';
+
   const [deals, total] = await Promise.all([
-    Deal.find(query).sort(sortMap[sort]).skip((page - 1) * limit).limit(limit).lean(),
+    Deal.find(query).sort(sortMap[safeSortKey]).skip((page - 1) * limit).limit(limit).lean(),
     Deal.countDocuments(query),
   ]);
 

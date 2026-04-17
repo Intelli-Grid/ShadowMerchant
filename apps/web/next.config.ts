@@ -28,6 +28,9 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'adn-static1.nykaa.com' },
       { protocol: 'https', hostname: 'www.croma.com' },
       { protocol: 'https', hostname: 'res.cloudinary.com' },
+      // MED-12 fix: Tatacliq was in source_platform enum but domains were missing
+      { protocol: 'https', hostname: 'img.tatacliq.com' },
+      { protocol: 'https', hostname: 'images.tatacliq.com' },
     ],
   },
 };

@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Deal } from '@/types';
 import { Lock, ExternalLink, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { getPlatform } from '@/lib/platforms';
 import { useWishlist } from '@/context/WishlistContext';
 import { formatDistanceToNow } from 'date-fns';
@@ -27,7 +27,10 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
   const [scoreVisible, setScoreVisible] = useState(false);
   const scoreBarRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  // MED-10 fix: useLayoutEffect fires synchronously before the browser paints,
+  // preventing the 1-frame flash where a wishlisted item shows as not-wishlisted.
+  // (useEffect fired AFTER the first paint, causing the heart icon to flicker.)
+  useLayoutEffect(() => {
     if (!isSignedIn) {
       const stored = JSON.parse(localStorage.getItem('sm_guest_wishlist') || '[]') as string[];
       setLocalWishlisted(stored.includes(String(deal._id)));
@@ -50,7 +53,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
     score >= 80 ? '🏆 Great Value' :
     score >= 60 ? '👍 Good Deal' :
     score >= 40 ? '🆗 Fair Deal' :
-    '풤 Low Score';
+    '😐 Low Score';
 
   // T1-G: Flag suspiciously high discounts (likely data errors)
   const displayPct = Math.round(deal.discount_percent ?? 0);

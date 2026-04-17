@@ -37,11 +37,9 @@ export async function GET(request: Request) {
     for (const cat of CATEGORIES) {
       const query: any = { is_active: true, is_pro_exclusive: false };
       
-      // We broadly match the category keyword instead of exact match for safety
-      if (cat.slug === 'electronics') query.category = { $regex: /electronic|mobile|laptop|gadget/i };
-      else if (cat.slug === 'fashion') query.category = { $regex: /fashion|clothing|apparel/i };
-      else if (cat.slug === 'beauty') query.category = { $regex: /beauty|makeup|skincare/i };
-      else if (cat.slug === 'home') query.category = { $regex: /home|kitchen|furniture/i };
+      // MED-04 fix: use exact slug match instead of unanchored $regex so MongoDB
+      // can use the compound index on `category`. Scrapers normalize to these slugs.
+      query.category = cat.slug;
 
       if (platformFilter) {
         query.source_platform = platformFilter;
