@@ -60,9 +60,17 @@ export async function POST(req: NextRequest) {
     );
 
     if (user?.clerk_id) {
-      // Sync Clerk publicMetadata so session tokens reflect the new tier immediately
+      // Fetch existing publicMetadata first so we don't wipe other fields.
+      // clerk.users.updateUserMetadata does a SHALLOW merge on the top-level
+      // object, but nested publicMetadata is replaced — so we spread manually.
+      let existingMeta: Record<string, unknown> = {};
+      try {
+        const clerkUser = await clerk.users.getUser(user.clerk_id);
+        existingMeta = (clerkUser.publicMetadata as Record<string, unknown>) ?? {};
+      } catch { /* if fetch fails, proceed with empty base — tier will still be set */ }
+
       await clerk.users.updateUserMetadata(user.clerk_id, {
-        publicMetadata: { tier },
+        publicMetadata: { ...existingMeta, tier },
       });
       console.log(`[Webhook] ${eventType}: User ${user.email} → tier=${tier}, status=${sub.status}`);
     } else {
