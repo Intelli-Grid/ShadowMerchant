@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Search, Bell, Zap } from 'lucide-react';
+import { Search, Bell, Zap, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SignInButton, UserButton, useAuth, ClerkLoading, ClerkLoaded } from '@clerk/nextjs';
+import { SignInButton, UserButton, useAuth, useUser, ClerkLoading, ClerkLoaded } from '@clerk/nextjs';
 import { MobileMenu } from './MobileMenu';
 
 const NAV_LINKS = [
@@ -19,12 +19,30 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
   const [scrolled, setScrolled] = useState(false);
+  const [isPro, setIsPro] = useState(false);
+
+  // Check Pro status — Clerk publicMetadata is the fast path (set by webhook).
+  // Fall back to /api/user/me if metadata not yet populated (e.g. legacy accounts).
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (!isSignedIn) { setIsPro(false); return; }
+
+    // Fast path: Clerk publicMetadata (set by Razorpay webhook on payment)
+    if (user?.publicMetadata?.tier === 'pro') { setIsPro(true); return; }
+
+    // Fallback: server read from MongoDB (covers accounts not yet synced to Clerk)
+    fetch('/api/user/me')
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data?.subscription_tier === 'pro') setIsPro(true); })
+      .catch(() => { /* non-fatal */ });
+  }, [isLoaded, isSignedIn, user]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll, { passive: true });
-    
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
@@ -32,7 +50,7 @@ export function Navbar() {
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('keydown', handleKeyDown);
@@ -112,15 +130,26 @@ export function Navbar() {
           </Link>
         ))}
 
-        {/* Pro link with glow */}
-        <Link
-          href="/pro"
-          className="flex items-center gap-1.5 text-sm font-semibold transition-all duration-200 hover:opacity-90"
-          style={{ color: 'var(--gold)' }}
-        >
-          <Zap className="h-3.5 w-3.5" />
-          ✦ Pro Features
-        </Link>
+        {/* Pro link — shows "Pro Features" for free/guest, "Pro Member" badge for Pro users */}
+        {isPro ? (
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-1.5 text-sm font-semibold transition-all duration-200 hover:opacity-90"
+            style={{ color: 'var(--gold)' }}
+          >
+            <Crown className="h-3.5 w-3.5" />
+            Pro Member
+          </Link>
+        ) : (
+          <Link
+            href="/pro"
+            className="flex items-center gap-1.5 text-sm font-semibold transition-all duration-200 hover:opacity-90"
+            style={{ color: 'var(--gold)' }}
+          >
+            <Zap className="h-3.5 w-3.5" />
+            ✦ Pro Features
+          </Link>
+        )}
       </div>
 
       {/* ── Right side ── */}
@@ -148,7 +177,7 @@ export function Navbar() {
           </span>
         </div>
 
-        {/* Auth — Swaps skeleton with signed-in/signed-out states using Clerk components for perfect hydration */}
+        {/* Auth */}
         <div className="flex items-center gap-2 sm:gap-3">
           <ClerkLoading>
             <div className="hidden sm:block h-8 w-14 rounded animate-pulse" style={{ background: 'var(--bg-raised)' }} />
@@ -203,8 +232,8 @@ export function Navbar() {
           </ClerkLoaded>
         </div>
 
-        {/* Mobile menu */}
-        <MobileMenu />
+        {/* Mobile menu — pass isPro and isSignedIn so it can show correct footer CTAs */}
+        <MobileMenu isPro={isPro} isSignedIn={!!isSignedIn} />
       </div>
     </nav>
   );
