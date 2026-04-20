@@ -85,6 +85,57 @@ class MeeshoScraper(BaseScraper):
         self.scraperapi_key  = os.getenv("SCRAPERAPI_KEY", "")
 
     # ─────────────────────────────────────────────────────────────
+    def _check_scraperapi_credits(self) -> int | None:
+        """
+        Calls the ScraperAPI account endpoint to get remaining credits.
+        Returns remaining credits int, or None if the check fails.
+        Logs a warning and triggers a Telegram alert when credits are low.
+        """
+        if not self.scraperapi_key:
+            return None
+        try:
+            import requests as _req
+            r = _req.get(
+                "https://api.scraperapi.com/account",
+                params={"api_key": self.scraperapi_key},
+                timeout=10,
+            )
+            if r.status_code == 200:
+                data = r.json()
+                remaining = int(data.get("requestCount", 0) or 0)
+                limit     = int(data.get("requestLimit", 5000) or 5000)
+                used      = limit - remaining
+                logger.info(
+                    f"ScraperAPI credits: {remaining} remaining "
+                    f"({used}/{limit} used this month)"
+                )
+                if remaining < 200:
+                    msg = (
+                        f"🔴 *ScraperAPI credits critically low!*\n"
+                        f"Only {remaining} credits left ({used}/{limit} used).\n"
+                        f"Meesho scraper will fail until credits reset or plan upgraded.\n"
+                        f"Top up: https://dashboard.scraperapi.com"
+                    )
+                    logger.error(msg)
+                    try:
+                        import asyncio
+                        from social.telegram_poster import post_admin_alert
+                        asyncio.run(post_admin_alert(msg))
+                    except Exception:
+                        pass
+                elif remaining < 500:
+                    logger.warning(
+                        f"ScraperAPI credits low: {remaining} left — "
+                        f"consider upgrading plan before next pipeline run."
+                    )
+                return remaining
+            else:
+                logger.warning(f"ScraperAPI account check returned HTTP {r.status_code}")
+        except Exception as e:
+            logger.warning(f"ScraperAPI credit check failed: {e}")
+        return None
+
+    # ─────────────────────────────────────────────────────────────
     def scrape_deals(self) -> list[RawDeal]:
         if not self.scraperapi_key:
             logger.error(
@@ -92,8 +143,25 @@ class MeeshoScraper(BaseScraper):
                 "Without it, Meesho blocks all cloud datacenter IPs."
             )
 
-        logger.info("Meesho scraper v5 (ScraperAPI residential proxy + JSON API) starting...")
+        logger.info("Meesho scraper v6 (circuit-breaker proxy + JSON API) starting...")
         logger.info(f"ScraperAPI key: {'SET (' + self.scraperapi_key[:8] + '...)' if self.scraperapi_key else 'MISSING — will try direct'}")
+
+        # ── Check credits before burning a run ─────────────────────────
+        remaining_credits = self._check_scraperapi_credits()
+        if remaining_credits is not None and remaining_credits < 50:
+            logger.error(
+                f"ScraperAPI credits exhausted ({remaining_credits} left) — "
+                "skipping proxy entirely, trying direct mode."
+            )
+            # Skip proxy, go straight to direct
+            all_deals: list[RawDeal] = []
+            for cat_slug, query in CATEGORY_QUERIES.items():
+                cat_deals = self._scrape_category(query, cat_slug, proxies=None)
+                all_deals.extend(cat_deals)
+                logger.info(f"Meesho direct [{cat_slug}]: {len(cat_deals)} deals")
+                time.sleep(1)
+            logger.info(f"Meesho direct total: {len(all_deals)} deals")
+            return all_deals
 
         proxies = None
         if self.scraperapi_key:
@@ -104,26 +172,34 @@ class MeeshoScraper(BaseScraper):
             }
 
         all_deals: list[RawDeal] = []
+        use_proxy = proxies is not None
 
+        # ── Circuit-breaker: probe with first category before full run ────
+        if use_proxy:
+            probe_cat, probe_query = next(iter(CATEGORY_QUERIES.items()))
+            probe_deals = self._scrape_category(probe_query, probe_cat, proxies)
+            if probe_deals:
+                logger.info(f"Meesho proxy OK ({len(probe_deals)} deals on probe — running full scrape)")
+                all_deals.extend(probe_deals)
+            else:
+                logger.warning(
+                    "Meesho proxy probe returned 0 — ScraperAPI credits likely exhausted "
+                    "or Meesho API changed. Switching to DIRECT mode immediately."
+                )
+                use_proxy = False
+                proxies   = None
+
+        # ── Full scrape across all categories ────────────────────────
         for cat_slug, query in CATEGORY_QUERIES.items():
+            # Skip the probe category if proxy succeeded (already scraped)
+            if use_proxy and cat_slug == next(iter(CATEGORY_QUERIES)):
+                continue
             cat_deals = self._scrape_category(query, cat_slug, proxies)
             all_deals.extend(cat_deals)
             logger.info(f"Meesho [{cat_slug}]: {len(cat_deals)} deals")
             time.sleep(1)   # Small delay between categories
 
         logger.info(f"Meesho total: {len(all_deals)} deals")
-
-        # If proxy gave 0 results, try direct (Render's IP might be ok for API)
-        if not all_deals:
-            logger.warning("Proxy returned 0 deals — retrying direct (no proxy)...")
-            for cat_slug, query in CATEGORY_QUERIES.items():
-                cat_deals = self._scrape_category(query, cat_slug, proxies=None)
-                all_deals.extend(cat_deals)
-                if cat_deals:
-                    logger.info(f"Meesho direct [{cat_slug}]: {len(cat_deals)} deals")
-                time.sleep(1)
-            logger.info(f"Meesho direct total: {len(all_deals)} deals")
-
         return all_deals
 
     # ─────────────────────────────────────────────────────────────
@@ -131,8 +207,13 @@ class MeeshoScraper(BaseScraper):
         all_deals: list[RawDeal] = []
         cursor = None
 
-        for page in range(1, 4):   # Up to 3 pages per category
-            for attempt in range(1, 4):   # Up to 3 retries per page
+        # Tune aggressiveness based on whether we're going through a proxy.
+        # Direct mode (no proxy on Render) almost always fails — fail fast.
+        max_retries = 2 if proxies else 1
+        req_timeout = 25 if proxies else 12
+
+        for page in range(1, 3):   # Up to 2 pages per category (credit budget: 24 req/run)
+            for attempt in range(1, max_retries + 1):
                 try:
                     payload = {
                         "query":         query,
@@ -149,10 +230,10 @@ class MeeshoScraper(BaseScraper):
                         json=payload,
                         headers=BASE_HEADERS,
                         proxies=proxies,
-                        timeout=30,
+                        timeout=req_timeout,
                         verify=False,
                     )
-                    logger.debug(
+                    logger.info(
                         f"Meesho [{cat_slug}] p{page} attempt {attempt}: "
                         f"HTTP {resp.status_code} ({len(resp.text)} chars)"
                     )
@@ -169,8 +250,8 @@ class MeeshoScraper(BaseScraper):
                                 all_deals.append(deal)
                         break   # Success — move to next page
                     else:
-                        logger.debug(f"Meesho API returned {resp.status_code} for {cat_slug} p{page}")
-                        if attempt < 3:
+                        logger.info(f"Meesho API non-200 ({resp.status_code}) for [{cat_slug}] p{page} — {'retry' if attempt < max_retries else 'giving up'}")
+                        if attempt < max_retries:
                             time.sleep(2 * attempt)
 
                 except Exception as e:

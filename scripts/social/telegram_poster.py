@@ -256,11 +256,55 @@ def format_deal_personal(deal: dict) -> str:
 
 def format_pipeline_report(stats: dict) -> str:
 
-    scrapers, total, saved, elapsed, run_at = stats.get("scrapers", {}), stats.get("total_collected", 0), stats.get("saved", 0), stats.get("elapsed_seconds", 0), stats.get("run_at", "unknown")
+    scrapers  = stats.get("scrapers", {})
+    total     = stats.get("total_collected", 0)
+    saved     = stats.get("saved", 0)
+    elapsed   = stats.get("elapsed_seconds", 0)
+    run_at    = stats.get("run_at", "unknown")
 
-    scraper_lines = "\n".join(f"  {'✅' if count > 0 else '❌'} {name}: {count} deals" for name, count in scrapers.items())
+    # ── scraper-level lines (with optional timing) ────────────────────
+    scraper_lines = []
+    dead_scrapers = []
+    scraper_times = stats.get("scraper_times", {})
+    for name, count in scrapers.items():
+        icon = "✅" if count > 0 else "❌"
+        t = scraper_times.get(name)
+        time_suffix = f" · {t}s" if t is not None else ""
+        scraper_lines.append(f"  {icon} {name}: {count} deals{time_suffix}")
+        if count == 0:
+            dead_scrapers.append(name)
 
-    return (f"📊 *Pipeline Report*\n🕐 {str(run_at)[:19]}\n\n{scraper_lines}\n\n📦 Collected: {total} | 💾 Saved: {saved}\n⏱️ Duration: {elapsed}s\n\n{'✅ Pipeline healthy' if saved > 0 else '⚠️ No deals saved — check logs'}")
+    working   = len(scrapers) - len(dead_scrapers)
+    total_sc  = len(scrapers)
+
+    # ── health classification ─────────────────────────────────────────
+    save_rate = round((saved / total * 100)) if total > 0 else 0
+    if working == 0 or saved == 0:
+        health = "🔴 CRITICAL — all scrapers returned 0 deals"
+    elif working < total_sc / 2:
+        health = f"🟠 DEGRADED — only {working}/{total_sc} scrapers active"
+    elif save_rate < 15:
+        health = f"🟡 LOW YIELD — save rate only {save_rate}%"
+    else:
+        health = "✅ Pipeline healthy"
+
+    # ── dead-scraper callout ─────────────────────────────────────────
+    dead_note = ""
+    if dead_scrapers:
+        dead_note = f"\n⚠️ Dead scrapers: {', '.join(dead_scrapers)} — check proxy/API"
+
+    efficiency = f" ({save_rate}% save rate)" if total > 0 else ""
+
+    return (
+        f"📊 *Pipeline Report*\n"
+        f"🕐 {str(run_at)[:19]}\n\n"
+        + "\n".join(scraper_lines) +
+        f"\n\n"
+        f"📦 Collected: {total} | 💾 Saved: {saved}{efficiency}\n"
+        f"⏱️ Duration: {elapsed}s\n"
+        f"{dead_note}\n\n"
+        f"{health}"
+    )
 
 
 

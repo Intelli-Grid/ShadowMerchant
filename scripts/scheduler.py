@@ -49,16 +49,37 @@ if sys.platform == "win32":
 logger = logging.getLogger("scheduler")
 
 # ── Active Scrapers ─────────────────────────────────────────────
+# Credit budget (ScraperAPI free tier = 5,000/month):
+#   meesho:  12 cat × 2 pages = 24 req/run
+#   myntra:  15 queries × 1   = 15 req/run
+#   nykaa:   8  queries × 1   =  8 req/run
+#   total:   47 req/run × 2 runs/day × 30 days = 2,820/month ✅
+#
+# Amazon uses Playwright (no ScraperAPI credits).
+# Flipkart uses official affiliate API (no credits needed) — enable once
+# FLIPKART_AFFILIATE_ID + FLIPKART_AFFILIATE_TOKEN are set in env.
 SCRAPER_PRIORITY = [
-    "meesho",    # Pure httpx API — 720 deals/run confirmed
-    "amazon",    # Playwright stealth — works on GitHub Actions (Linux)
-    # "flipkart" — requires FLIPKART_AFFILIATE_ID + TOKEN from affiliate.flipkart.com
-    "myntra",    # curl_cffi Chrome TLS
-    "nykaa",     # curl_cffi Chrome TLS
-    # "croma",     # Playwright stealth + REST API
+    "meesho",    # ScraperAPI residential proxy + Meesho JSON API
+    "amazon",    # Playwright stealth (Linux/Render compatible)
+    "myntra",    # ScraperAPI residential proxy + HTML __myx extraction
+    "nykaa",     # ScraperAPI residential proxy + __PRELOADED_STATE__ extraction
+    # "flipkart", # Official affiliate feed API — set FLIPKART_AFFILIATE_ID to enable
+    # "croma",    # Excluded by user preference
 ]
 
+# Conditionally add Flipkart if credentials are configured
+import os as _os
+if _os.getenv("FLIPKART_AFFILIATE_ID") and _os.getenv("FLIPKART_AFFILIATE_TOKEN"):
+    SCRAPER_PRIORITY.append("flipkart")
 
+# Baseline deal counts — auto-updated after each successful run.
+# Used to detect regressions (scraper was working before, now returns 0).
+_BASELINE_COUNTS: dict[str, int] = {
+    "meesho": 200,
+    "amazon":  40,
+    "myntra":  50,
+    "nykaa":   20,
+}
 
 def run_pipeline(scrapers: list[str] | None = None) -> dict:
     """Run the scraper pipeline and return stats."""
@@ -82,11 +103,13 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
 
     all_deals = []
     scraper_stats = {}
+    scraper_times = {}
 
     for name in to_run:
         if name not in SCRAPER_MAP:
             continue
         module_path, class_name = SCRAPER_MAP[name]
+        sc_start = datetime.utcnow()
         try:
             mod = importlib.import_module(module_path)
             cls = getattr(mod, class_name)
@@ -94,14 +117,31 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             deals = scraper.scrape_deals()
             all_deals.extend(deals)
             scraper_stats[name] = len(deals)
-            logger.info(f"  [OK] {name}: {len(deals)} deals")
+            sc_elapsed = (datetime.utcnow() - sc_start).seconds
+            scraper_times[name] = sc_elapsed
+            logger.info(f"  [OK] {name}: {len(deals)} deals in {sc_elapsed}s")
+
+            # ── Dead-scraper alert: was working before, now 0 ───────
+            baseline = _BASELINE_COUNTS.get(name, 0)
+            if len(deals) == 0 and baseline > 0:
+                try:
+                    from social.telegram_poster import post_admin_alert
+                    asyncio.run(post_admin_alert(
+                        f"🔴 *{name.upper()} SCRAPER DEAD*\n"
+                        f"Expected ~{baseline} deals, got 0.\n"
+                        f"ScraperAPI credits exhausted or Meesho API changed.\n"
+                        f"Action needed: check ScraperAPI dashboard."
+                    ))
+                except Exception:
+                    pass
+
         except Exception as e:
             logger.error(f"  [FAIL] {name}: {e}")
             scraper_stats[name] = 0
+            scraper_times[name] = (datetime.utcnow() - sc_start).seconds
             try:
-                import asyncio
                 from social.telegram_poster import post_admin_alert
-                asyncio.run(post_admin_alert(f"⚠️ {name} scraper failed: {str(e)[:150]}"))
+                asyncio.run(post_admin_alert(f"⚠️ {name} scraper EXCEPTION: {str(e)[:150]}"))
             except Exception:
                 pass
 
@@ -354,11 +394,21 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             elapsed_current = (datetime.utcnow() - start).seconds
             db.scrapelogs.insert_one({
                 "run_at": start, "completed_at": datetime.utcnow(),
-                "elapsed_seconds": elapsed_current, "scrapers": scraper_stats,
+                "elapsed_seconds": elapsed_current,
+                "scrapers": scraper_stats,
+                "scraper_times_seconds": scraper_times,
                 "total_collected": len(all_deals), "saved": saved, "status": "success",
             })
         except Exception as e:
             logger.error(f"[LOG] ScrapeLog write failed: {e}")
+
+        # ── Auto-calibrate baselines ──────────────────────────────────
+        # If a scraper returns > 0 deals this run, update its baseline so
+        # future runs can detect regressions (0 deals after a good run).
+        for name, count in scraper_stats.items():
+            if count > 0:
+                _BASELINE_COUNTS[name] = max(count // 2, 10)  # Use 50% of good run as floor
+                logger.info(f"[BASELINE] Updated {name} baseline to {_BASELINE_COUNTS[name]}")
 
         try:
             import subprocess
@@ -369,14 +419,14 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             logger.error(f"[ALGOLIA] {e}")
         
         try:
-            import asyncio
             from social.telegram_poster import broadcast_smart, post_pipeline_report
             asyncio.run(broadcast_smart())
             logger.info("[TELEGRAM] Broadcasted deals")
-            
-            # Form stats dictionary for report
+
+            # Form stats dictionary for report — include timing breakdown
             stats = {
                 "scrapers": scraper_stats,
+                "scraper_times": scraper_times,
                 "total_collected": len(all_deals),
                 "total_deduped": len(deduped),
                 "saved": saved,
@@ -389,7 +439,6 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             logger.error(f"[TELEGRAM] {e}")
 
         try:
-            import asyncio
             from trigger_alerts import dispatch_alerts
             asyncio.run(dispatch_alerts(start))
         except Exception as e:
@@ -498,62 +547,110 @@ def start_web_server():
 
     @app.route('/diagnose')
     def diagnose():
-        """Live diagnostic — tests both ScraperAPI render mode and proxy+API mode."""
+        """
+        Comprehensive live diagnostic endpoint.
+        Returns: ScraperAPI credit status, last pipeline run summary,
+        and a live Meesho proxy probe.
+        """
         import requests as req
         key = os.getenv("SCRAPERAPI_KEY", "")
         result = {
             "scraperapi_key_set":     bool(key),
             "scraperapi_key_preview": f"{key[:8]}..." if key else "MISSING",
-            "render_mode":            {},
-            "proxy_api_mode":         {},
+            "scraperapi_credits":     {},
+            "last_pipeline_run":      {},
+            "live_meesho_probe":      {},
         }
 
-        if not key:
-            return jsonify(result)
-
-        # ── Test 1: Render mode (we expect this to fail with 500) ──────────
-        try:
-            r = req.get(
-                "https://api.scraperapi.com",
-                params={"api_key": key, "url": "https://www.meesho.com/search?q=electronics", "render": "true", "country_code": "in"},
-                timeout=60,
-            )
-            result["render_mode"] = {"status": r.status_code, "body_length": len(r.text), "has_products": "/p/" in r.text}
-        except Exception as e:
-            result["render_mode"] = {"error": str(e)}
-
-        # ── Test 2: Proxy + JSON API mode (our new approach) ───────────────
-        try:
-            proxies = {"http": "http://proxy-server.scraperapi.com:8001", "https": "http://proxy-server.scraperapi.com:8001"}
-            payload = {"query": "electronics", "type": "text_search", "page": 1, "offset": 0, "limit": 5, "cursor": None, "isDevicePhone": False}
-            headers = {
-                "accept": "application/json, text/plain, */*",
-                "content-type": "application/json",
-                "origin": "https://www.meesho.com",
-                "referer": "https://www.meesho.com/",
-                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-            }
-            r2 = req.post(
-                "https://www.meesho.com/api/v1/products/search",
-                json=payload, headers=headers,
-                proxies=proxies,
-                auth=("scraperapi", key),
-                timeout=30, verify=False,
-            )
-            data = {}
+        # ── 1. ScraperAPI account credits ─────────────────────────────────
+        if key:
             try:
-                data = r2.json()
-            except Exception:
-                pass
-            catalogs = data.get("catalogs", [])
-            result["proxy_api_mode"] = {
-                "status":         r2.status_code,
-                "body_length":    len(r2.text),
-                "catalogs_found": len(catalogs),
-                "first_item":     catalogs[0].get("hero_product_name", "?") if catalogs else None,
-            }
+                r = req.get(
+                    "https://api.scraperapi.com/account",
+                    params={"api_key": key},
+                    timeout=10,
+                )
+                if r.status_code == 200:
+                    data = r.json()
+                    remaining = int(data.get("requestCount", 0) or 0)
+                    limit     = int(data.get("requestLimit", 5000) or 5000)
+                    result["scraperapi_credits"] = {
+                        "remaining": remaining,
+                        "limit":     limit,
+                        "used":      limit - remaining,
+                        "pct_used":  round((limit - remaining) / max(limit, 1) * 100, 1),
+                        "status":    "critical" if remaining < 200 else "low" if remaining < 500 else "ok",
+                    }
+                else:
+                    result["scraperapi_credits"] = {"error": f"HTTP {r.status_code}"}
+            except Exception as e:
+                result["scraperapi_credits"] = {"error": str(e)}
+
+        # ── 2. Last pipeline run from MongoDB ─────────────────────────────
+        try:
+            import pymongo
+            client = pymongo.MongoClient(
+                os.getenv("MONGO_URI") or os.getenv("MONGODB_URI"),
+                serverSelectionTimeoutMS=5000,
+            )
+            db = client.shadowmerchant
+            last_log = db.scrapelogs.find_one(
+                {}, sort=[("run_at", pymongo.DESCENDING)]
+            )
+            if last_log:
+                result["last_pipeline_run"] = {
+                    "run_at":            last_log.get("run_at", "?").isoformat() if hasattr(last_log.get("run_at"), "isoformat") else str(last_log.get("run_at", "?")),
+                    "elapsed_seconds":   last_log.get("elapsed_seconds", 0),
+                    "total_collected":   last_log.get("total_collected", 0),
+                    "saved":             last_log.get("saved", 0),
+                    "scrapers":          last_log.get("scrapers", {}),
+                    "scraper_times":     last_log.get("scraper_times_seconds", {}),
+                    "status":            last_log.get("status", "unknown"),
+                }
+            active_count = db.deals.count_documents({"is_active": True})
+            result["last_pipeline_run"]["active_deals_in_db"] = active_count
+            client.close()
         except Exception as e:
-            result["proxy_api_mode"] = {"error": str(e)}
+            result["last_pipeline_run"] = {"error": str(e)}
+
+        # ── 3. Live Meesho proxy probe (1 request only) ───────────────────
+        if key:
+            try:
+                proxies = {
+                    "http":  f"http://scraperapi:{key}@proxy-server.scraperapi.com:8001",
+                    "https": f"http://scraperapi:{key}@proxy-server.scraperapi.com:8001",
+                }
+                payload = {
+                    "query": "electronics", "type": "text_search",
+                    "page": 1, "offset": 0, "limit": 3,
+                    "cursor": None, "isDevicePhone": False,
+                }
+                headers = {
+                    "accept": "application/json, text/plain, */*",
+                    "content-type": "application/json",
+                    "origin": "https://www.meesho.com",
+                    "referer": "https://www.meesho.com/",
+                    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+                }
+                r2 = req.post(
+                    "https://www.meesho.com/api/v1/products/search",
+                    json=payload, headers=headers,
+                    proxies=proxies, timeout=20, verify=False,
+                )
+                data = {}
+                try:
+                    data = r2.json()
+                except Exception:
+                    pass
+                catalogs = data.get("catalogs", [])
+                result["live_meesho_probe"] = {
+                    "status":         r2.status_code,
+                    "catalogs_found": len(catalogs),
+                    "proxy_working":  r2.status_code == 200 and len(catalogs) > 0,
+                    "first_item":     catalogs[0].get("hero_product_name", "?") if catalogs else None,
+                }
+            except Exception as e:
+                result["live_meesho_probe"] = {"error": str(e), "proxy_working": False}
 
         return jsonify(result)
 
