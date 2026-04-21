@@ -129,8 +129,9 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
                     asyncio.run(post_admin_alert(
                         f"🔴 *{name.upper()} SCRAPER DEAD*\n"
                         f"Expected ~{baseline} deals, got 0.\n"
-                        f"ScraperAPI credits exhausted or Meesho API changed.\n"
-                        f"Action needed: check ScraperAPI dashboard."
+                        f"Possible causes: ScraperAPI key invalid/exhausted, "
+                        f"{name} blocked datacenter IP, or {name} API changed.\n"
+                        f"Action: check ScraperAPI dashboard + GitHub Actions logs."
                     ))
                 except Exception:
                     pass

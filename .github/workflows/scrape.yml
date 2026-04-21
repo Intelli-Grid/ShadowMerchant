@@ -41,7 +41,7 @@ jobs:
   scrape-amazon:
     name: Amazon Scraper
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 25
     if: ${{ github.event_name == 'schedule' || github.event.inputs.run_amazon == 'true' }}
     steps:
       - uses: actions/checkout@v4
@@ -52,8 +52,10 @@ jobs:
           cache-dependency-path: scripts/requirements.txt
       - name: Install deps
         run: pip install -r scripts/requirements.txt --quiet
-      - name: Install Playwright
-        run: python -m playwright install chromium --with-deps
+      - name: Install Playwright browser
+        run: python -m playwright install chromium
+      - name: Install Playwright system dependencies
+        run: python -m playwright install-deps chromium
       - name: Run scraper
         env:
           MONGODB_URI:            ${{ secrets.MONGODB_URI }}
