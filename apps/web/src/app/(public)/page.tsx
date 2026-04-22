@@ -110,12 +110,32 @@ async function getHeroDeal(): Promise<Deal | null> {
   try {
     await connectDB();
     const DealModel = (await import('@/models/Deal')).default;
-    const deal = await DealModel.findOne({ is_active: true, is_trending: true })
+    const cutoff48h = new Date(Date.now() - 48 * 60 * 60 * 1000);
+
+    // Primary: top 5 trending deals scraped within last 48 hours
+    let candidates = await DealModel.find({
+      is_active: true,
+      is_trending: true,
+      scraped_at: { $gte: cutoff48h },
+    })
       .sort({ deal_score: -1 })
+      .limit(5)
       .lean();
-    if (deal) {
+
+    // Fallback: any active trending deal regardless of age
+    if (!candidates || candidates.length === 0) {
+      candidates = await DealModel.find({ is_active: true, is_trending: true })
+        .sort({ deal_score: -1 })
+        .limit(5)
+        .lean();
+    }
+
+    if (candidates && candidates.length > 0) {
+      // Rotate the hero daily — day-index offset so it changes every 24h
+      const dayIndex = Math.floor(Date.now() / 86_400_000);
+      const deal = candidates[dayIndex % candidates.length];
       const result = JSON.parse(JSON.stringify(deal));
-      await redis.set('deals:hero', result, { ex: 900 });
+      await redis.set('deals:hero', result, { ex: 900 }); // 15 min TTL
       return result;
     }
   } catch {}
@@ -123,6 +143,10 @@ async function getHeroDeal(): Promise<Deal | null> {
 }
 
 async function getCategoryDeals(category: string, limit = 8) {
+  // Cache per-category for 30 min — cleared by refresh cron after each pipeline run
+  const cacheKey = `deals:category:${category}`;
+  const cached = await redis.get<Deal[]>(cacheKey);
+  if (cached) return cached;
   try {
     await connectDB();
     const DealModel = (await import('@/models/Deal')).default;
@@ -130,7 +154,9 @@ async function getCategoryDeals(category: string, limit = 8) {
       .sort({ deal_score: -1 })
       .limit(limit)
       .lean();
-    return JSON.parse(JSON.stringify(deals));
+    const result = JSON.parse(JSON.stringify(deals));
+    await redis.set(cacheKey, result, { ex: 1800 }); // 30 min TTL
+    return result;
   } catch {
     return [];
   }
@@ -155,14 +181,29 @@ async function getLastRefreshed(): Promise<string> {
   return 'recently';
 }
 
+// Daily rotating category swimlane — advances one slot per day.
+// Add/remove entries freely; the modulo ensures no out-of-bounds.
+const ROTATING_CATEGORIES = [
+  { slug: 'electronics', title: 'Electronics Deals',  emoji: '💻' },
+  { slug: 'fashion',     title: 'Fashion Deals',       emoji: '👗' },
+  { slug: 'beauty',      title: 'Beauty & Skincare',   emoji: '✨' },
+  { slug: 'home',        title: 'Home & Kitchen',      emoji: '🏠' },
+  { slug: 'sports',      title: 'Sports & Fitness',    emoji: '🏋️' },
+  { slug: 'gaming',      title: 'Gaming Deals',        emoji: '🎮' },
+] as const;
+
 export default async function Home() {
 
+  // Deterministic daily category rotation (changes at midnight UTC)
+  const dayIndex = Math.floor(Date.now() / 86_400_000);
+  const featuredCategory = ROTATING_CATEGORIES[dayIndex % ROTATING_CATEGORIES.length];
+
   // Parallelise all data fetching
-  const [trendingResult, newResult, heroDeal, electronicsDeals, lastRefreshed] = await Promise.all([
+  const [trendingResult, newResult, heroDeal, featuredCategoryDeals, lastRefreshed] = await Promise.all([
     getTrendingDeals(),
     getNewDealsToday(),
     getHeroDeal(),
-    getCategoryDeals('electronics', 8),
+    getCategoryDeals(featuredCategory.slug, 8),
     getLastRefreshed(),
   ]);
 
@@ -258,14 +299,14 @@ export default async function Home() {
         <CategoryBrowser />
       </section>
 
-      {/* Category Swimlane */}
-      {electronicsDeals.length > 0 && (
+      {/* Daily Rotating Category Swimlane */}
+      {featuredCategoryDeals.length > 0 && (
         <section className="w-full pb-10">
           <CategorySwimlane
-            title="Electronics Deals"
-            emoji="💻"
-            categorySlug="electronics"
-            deals={electronicsDeals}
+            title={featuredCategory.title}
+            emoji={featuredCategory.emoji}
+            categorySlug={featuredCategory.slug}
+            deals={featuredCategoryDeals}
           />
         </section>
       )}

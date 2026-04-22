@@ -284,13 +284,12 @@ def process_and_save(all_deals: list) -> int:
             except Exception as e:
                 logger.debug(f"Deal save error: {e}")
 
-        # ── Enforce Top 8 Trending Deals ─────────────────────────────
-        logger.info("Updating is_trending flags across all active deals...")
-        db.deals.update_many({"is_trending": True}, {"$set": {"is_trending": False}})
-        top_deals = list(db.deals.find({"is_active": True}, {"_id": 1}).sort("deal_score", -1).limit(8))
-        if top_deals:
-            top_ids = [d["_id"] for d in top_deals]
-            db.deals.update_many({"_id": {"$in": top_ids}}, {"$set": {"is_trending": True}})
+        # ── Trending flag management ───────────────────────────────────
+        # The authoritative trending selection (composite score: absolute savings,
+        # discount %, price tier, deal_score, social proof, freshness) lives in
+        # scheduler.py → run_pipeline() and runs automatically after each scrape.
+        # Do NOT replicate a simplified version here \u2014 it would race-overwrite
+        # the composite selection and cause inconsistent trending sets.
 
         client.close()
         logger.info(f"💾 Saved/updated {saved}/{len(deduped_deals)} deals to MongoDB")

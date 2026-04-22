@@ -48,11 +48,19 @@ export async function GET(req: NextRequest) {
       CACHE_KEYS.CATEGORIES,
       CACHE_KEYS.DEAL_LIST(''),
       'deals:new_today',
+      'deals:hero',           // F-1: hero must be cleared so rotation picks a fresh deal
       'deals:feed:all',
       'deals:feed:electronics',
       'deals:feed:fashion',
       'deals:feed:beauty',
       'deals:feed:home',
+      // Rotating category swimlane cache keys (one per category slug)
+      'deals:category:electronics',
+      'deals:category:fashion',
+      'deals:category:beauty',
+      'deals:category:home',
+      'deals:category:sports',
+      'deals:category:gaming',
     ];
     await Promise.allSettled(keysToDelete.map((k) => redis.del(k)));
 

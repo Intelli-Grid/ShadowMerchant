@@ -271,3 +271,34 @@ jobs:
           curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
             --data-urlencode "chat_id=${CHAT_ID}" \
             --data-urlencode "text=${MSG}" || true
+
+  notify-vercel-refresh:
+    name: Trigger Vercel Cache Refresh
+    runs-on: ubuntu-latest
+    # Run after all scrapers are done — regardless of individual scraper outcomes.
+    # This ensures Vercel always refreshes its cache once new deals are in MongoDB,
+    # instead of relying on the time-based Vercel cron (which fires simultaneously
+    # with the pipeline start and clears cache before new data exists).
+    needs: [scrape-amazon, scrape-meesho, scrape-myntra, scrape-nykaa]
+    if: always()
+    steps:
+      - name: Ping Vercel refresh-deals endpoint
+        env:
+          VERCEL_APP_URL: ${{ secrets.VERCEL_APP_URL }}
+          CRON_SECRET:    ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$VERCEL_APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "VERCEL_APP_URL or CRON_SECRET not set in GH Secrets — skipping refresh ping"
+            echo "Add VERCEL_APP_URL=https://www.shadowmerchant.online and CRON_SECRET to repository secrets"
+            exit 0
+          fi
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X GET "${VERCEL_APP_URL}/api/cron/refresh-deals" \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            --max-time 45)
+          echo "Vercel refresh-deals response: HTTP ${STATUS}"
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Vercel cache refreshed — homepage will serve fresh deals"
+          else
+            echo "⚠️  Refresh returned HTTP ${STATUS} — check Vercel function logs"
+          fi

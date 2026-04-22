@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 import { PLATFORM_CONFIG } from '@/lib/platforms';
 import { Deal } from '@/types';
 import { ExternalLink, Flame } from 'lucide-react';
@@ -11,6 +12,7 @@ interface HeroDealProps {
 }
 
 export function HeroDeal({ deal }: HeroDealProps) {
+  const [imgError, setImgError] = useState(false);
   if (!deal) return null;
 
   const platform = PLATFORM_CONFIG[deal.source_platform] || PLATFORM_CONFIG['amazon'];
@@ -167,7 +169,7 @@ export function HeroDeal({ deal }: HeroDealProps) {
           {/* Right Image Column */}
           <div className="md:col-span-5 relative w-full aspect-square md:aspect-auto flex items-center justify-center p-8 bg-white">
             <div className="absolute inset-0 z-0 bg-gradient-to-t from-black/10 to-transparent" />
-            {deal.image_url ? (
+            {deal.image_url && !imgError ? (
               <div className="relative w-full h-full max-w-[85%] max-h-[85%] z-10 transition-transform duration-700 group-hover:scale-105">
                 <Image
                   src={deal.image_url}
@@ -176,10 +178,14 @@ export function HeroDeal({ deal }: HeroDealProps) {
                   className="object-contain mix-blend-multiply"
                   sizes="(max-width: 768px) 100vw, 40vw"
                   priority
+                  onError={() => setImgError(true)}
                 />
               </div>
             ) : (
-              <div className="text-8xl">{platform.emoji}</div>
+              <div className="flex flex-col items-center justify-center gap-3">
+                <span className="text-8xl">{platform.emoji}</span>
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-muted)' }}>{platform.name}</span>
+              </div>
             )}
           </div>
         </Link>
