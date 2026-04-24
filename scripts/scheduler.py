@@ -450,9 +450,13 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             logger.error(f"[ALGOLIA] {e}")
         
         try:
-            from social.telegram_poster import broadcast_smart, post_pipeline_report
+            from social.telegram_poster import broadcast_smart, post_pipeline_report, post_hot_deals
             asyncio.run(broadcast_smart())
             logger.info("[TELEGRAM] Broadcasted deals")
+
+            # Trigger Hot Deal posts — only deals with Shadow Score > 90
+            asyncio.run(post_hot_deals())
+            logger.info("[TELEGRAM] Hot deals check complete")
 
             # Form stats dictionary for report — include timing breakdown
             stats = {

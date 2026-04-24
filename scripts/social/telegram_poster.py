@@ -854,6 +854,54 @@ async def post_pipeline_report(stats: dict):
 
 
 
+async def post_hot_deals():
+    """
+    HOT DEAL Trigger — posts only deals with Shadow Score > 90 to the channel.
+    Called automatically after each pipeline run by scheduler.py.
+    Respects the 24h post-log deduplication to avoid re-posting.
+    """
+    if not BOT_TOKEN:
+        return
+
+    from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
+
+    db  = get_db()
+    bot = Bot(token=BOT_TOKEN)
+
+    recently_posted = get_recently_posted_ids(db, hours=24)
+
+    # Only deals with Shadow Score > 90 — the "exceptional" tier
+    hot_deals = get_fresh_deals(
+        db,
+        limit=3,
+        min_score=90,
+        exclude_ids=recently_posted,
+    )
+
+    if not hot_deals:
+        logger.info("[HOT DEALS] No deals with score > 90 to post.")
+        return
+
+    logger.info(f"[HOT DEALS] Posting {len(hot_deals)} hot deal(s) with score > 90")
+
+    for deal in hot_deals:
+        score = deal.get("deal_score", 0)
+        deal_id = str(deal.get("_id", ""))
+        kb = InlineKeyboardMarkup([[
+            InlineKeyboardButton("🔥 Grab This Deal", url=f"{APP_URL}/api/go/{deal_id}"),
+            InlineKeyboardButton("📊 Score Details",  url=f"{APP_URL}/deals/{deal_id}"),
+        ]])
+        msg = (
+            f"🔥 *HOT DEAL ALERT — Score {score}/100*\n\n"
+            + format_flash_deal(deal)
+        )
+        await _send_message(bot, msg, keyboard=kb, image_url=deal.get("image_url", ""))
+        await asyncio.sleep(2)
+
+    mark_deals_as_posted(db, [str(d["_id"]) for d in hot_deals])
+    logger.info("[HOT DEALS] Broadcast complete.")
+
+
 # ═══════════════════════════════════════════════════════════════
 
 #  PART 4 — PERSONAL ALERT NOTIFICATIONS (DM to individual users)

@@ -138,6 +138,34 @@ def score_deal_with_breakdown(deal: Union[object, dict]) -> tuple[int, dict]:
     rating_count   = int(_get(deal, "rating_count", 0) or 0)
     scraped_at     = _get(deal, "scraped_at", None) or _get(deal, "created_at", None)
 
+    # Calculate price history penalty
+    price_history = _get(deal, "price_history", [])
+    penalty = 0
+    if price_history:
+        now = datetime.now(timezone.utc)
+        recent_prices = []
+        for entry in price_history:
+            entry_price = float(_get(entry, "price", 0) or 0)
+            entry_date = _get(entry, "date")
+            if not entry_price or not entry_date:
+                continue
+            try:
+                if isinstance(entry_date, str):
+                    date_val = datetime.fromisoformat(entry_date.replace("Z", "+00:00"))
+                else:
+                    date_val = entry_date
+                if date_val.tzinfo is None:
+                    date_val = date_val.replace(tzinfo=timezone.utc)
+                days_old = (now - date_val).total_seconds() / (3600.0 * 24)
+                if days_old <= 7:
+                    recent_prices.append(entry_price)
+            except Exception:
+                continue
+        if recent_prices:
+            avg_7_day = sum(recent_prices) / len(recent_prices)
+            if disc_price > avg_7_day:
+                penalty = 30
+
     # ── Component Scores (each 0.0 – 1.0) ──────────────────────────────────
     s_discount   = compute_discount_score(discount_pct)
     s_price_drop = compute_price_drop_score(original_price, disc_price)
@@ -157,7 +185,11 @@ def score_deal_with_breakdown(deal: Union[object, dict]) -> tuple[int, dict]:
     # Sigmoid normalization — makes high scores exponentially harder to achieve.
     # Replaces the old linear scale + flat bonus/penalty approach.
     final_score = _sigmoid_normalize(weighted)
-    final_score = max(0, min(100, final_score))  # safety clamp
+    
+    # Apply penalty for price higher than 7-day average
+    final_score -= penalty
+    
+    final_score = max(0, min(100, int(final_score)))  # safety clamp
 
     breakdown = {
         "discount_score":   round(s_discount, 4),

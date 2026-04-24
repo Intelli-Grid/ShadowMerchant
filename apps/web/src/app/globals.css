@@ -137,10 +137,14 @@
 
 @theme {
   --color-background: #0A0A0A;
+  --color-surface:    #111111;
   --color-card: #0D1B2A;
   --color-primary: #C9A84C;
   --color-secondary: #1C2942;
   --color-accent: #C9A84C;
+  --color-accent-gold: #FFD700;
+  --color-action: #FF4F00;
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 :root {

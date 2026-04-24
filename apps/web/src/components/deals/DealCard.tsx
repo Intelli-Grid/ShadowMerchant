@@ -11,6 +11,7 @@ import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { getPlatform } from '@/lib/platforms';
 import { useWishlist } from '@/context/WishlistContext';
 import { formatDistanceToNow } from 'date-fns';
+import { ShadowScoreGauge } from '@/components/ui/ShadowScoreGauge';
 
 interface DealCardProps {
   deal: Deal;
@@ -25,6 +26,8 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
   const [localWishlisted, setLocalWishlisted] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [scoreVisible, setScoreVisible] = useState(false);
+  const [priceToast, setPriceToast] = useState<string | null>(null);
+  const [validating, setValidating] = useState(false);
   const scoreBarRef = useRef<HTMLDivElement>(null);
 
   // MED-10 fix: useLayoutEffect fires synchronously before the browser paints,
@@ -126,7 +129,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
       {/* ── IMAGE SECTION — clicking the image navigates to deal detail ── */}
       <Link
         href={`/deals/${deal._id}`}
-        className="relative overflow-hidden shrink-0 w-full flex items-center justify-center aspect-square md:aspect-[4/3] border-b p-2 sm:p-3 block"
+        className="relative overflow-hidden shrink-0 w-full flex items-center justify-center aspect-[4/5] border-b p-2 sm:p-3 block"
         style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}
         aria-label={`View ${deal.title}`}
       >
@@ -211,45 +214,19 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
       {/* ── CONTENT SECTION ── */}
       <div className={cn('flex flex-col flex-1 p-3 sm:p-3.5 min-w-0', sizeClasses[size])}>
 
-        {/* Score row with tooltip */}
-        <div className="mb-2.5 flex flex-col group/score relative">
-          <div className="flex items-center gap-2" ref={scoreBarRef}>
-            <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-overlay)' }}>
-              <div
-                className="score-bar-fill h-full rounded-full"
-                style={{
-                  '--score-target': `${score}%`,
-                  backgroundColor: scoreColor,
-                  width: scoreVisible ? `${score}%` : '0%',
-                  transition: 'width 0.85s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                  boxShadow: score >= 80 ? `0 0 6px ${scoreColor}80` : 'none',
-                } as React.CSSProperties}
-              />
-            </div>
+        {/* Score — Semi-circle gauge */}
+        <div className="mb-2.5 flex items-center gap-3" ref={scoreBarRef}>
+          <ShadowScoreGauge score={score} size={72} strokeWidth={7} showLabel={false} />
+          <div className="flex flex-col min-w-0">
             <span
-              className="text-[10px] font-bold min-w-[28px] text-right"
-              style={{ fontFamily: 'var(--font-display)', color: scoreColor }}
+              className="text-[10px] font-bold"
+              style={{ color: scoreColor }}
             >
-              {score}
+              {scoreLabel}
             </span>
-          </div>
-          
-          <span className="text-[9px] block mt-1 font-semibold" style={{ color: scoreColor }}>
-            {scoreLabel}
-          </span>
-
-          {/* Score tooltip */}
-          <div
-            className="absolute bottom-full left-0 mb-2 w-48 p-2.5 rounded-lg text-xs opacity-0 group-hover/score:opacity-100 pointer-events-none transition-opacity z-30"
-            style={{
-              background: 'var(--bg-overlay)',
-              border: '1px solid var(--gold-border)',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            <span style={{ color: 'var(--gold)', fontWeight: 700 }}>Deal Score {score}/100</span>
-            <br />
-            Based on discount %, rating &amp; brand trust.
+            <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>
+              Score {score}/100
+            </span>
           </div>
         </div>
 
@@ -312,8 +289,8 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           rel="noopener noreferrer sponsored"
           className="deal-card-cta relative z-10 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-[13px] font-bold transition-all active:scale-[0.98] mt-2 sm:mt-0"
           style={{
-            background: 'var(--gold)',
-            color: '#0A0A0A',
+            background: validating ? 'var(--bg-overlay)' : 'var(--gold)',
+            color: validating ? 'var(--text-muted)' : '#0A0A0A',
             letterSpacing: '0.02em',
           }}
           onMouseEnter={(e) => {
@@ -322,9 +299,26 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           onMouseLeave={(e) => {
             (e.currentTarget as HTMLElement).style.boxShadow = 'none';
           }}
-          onClick={(e) => e.stopPropagation()}
+          onClick={async (e) => {
+            e.stopPropagation();
+            if (validating) return;
+            setValidating(true);
+            try {
+              const res = await fetch(`/api/deals/${deal._id}/validate`, { method: 'POST' });
+              const data = await res.json();
+              if (data.priceChanged) {
+                e.preventDefault();
+                setPriceToast('⚠️ Price updated! Deal may have expired.');
+                setTimeout(() => setPriceToast(null), 4000);
+              }
+            } catch {
+              // silent — don't block the user
+            } finally {
+              setValidating(false);
+            }
+          }}
         >
-          Get Deal →
+          {validating ? 'Checking...' : 'Get Deal →'}
           <ExternalLink className="h-3.5 w-3.5 opacity-80" />
         </a>
         {/* WhatsApp Share button */}
@@ -370,6 +364,21 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
             style={{ color: 'var(--text-muted)' }}>
             Updated {formatDistanceToNow(new Date(deal.scraped_at), { addSuffix: true })}
           </p>
+        )}
+
+        {/* Price updated toast */}
+        {priceToast && (
+          <div
+            className="absolute inset-x-2 bottom-2 z-50 rounded-lg px-3 py-2 text-center text-xs font-bold"
+            style={{
+              background: 'rgba(239,68,68,0.95)',
+              color: '#fff',
+              backdropFilter: 'blur(8px)',
+              animation: 'fadeInUp 0.3s ease both',
+            }}
+          >
+            {priceToast}
+          </div>
         )}
       </div>
 

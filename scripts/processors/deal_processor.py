@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from processors.deal_scorer import score_deal
 from scrapers.base_scraper import RawDeal
+from utils.algolia import push_deals_to_algolia
 
 # ─── T1-F: Category normalizer ────────────────────────────────────────────────
 # Keyword → correct category overrides.
@@ -107,6 +108,7 @@ def build_deal_document(raw: RawDeal) -> dict:
 
 def process_deals(raw_deals: list[RawDeal], db) -> dict:
     stats = {"new": 0, "updated": 0, "skipped": 0}
+    algolia_updates = []
 
     for raw in raw_deals:
         # Skip deals with less than 20% discount
@@ -137,6 +139,12 @@ def process_deals(raw_deals: list[RawDeal], db) -> dict:
                         }}
                     }
                 )
+                
+                # Fetch the updated doc to sync to Algolia
+                updated_doc = db.deals.find_one({"_id": existing["_id"]})
+                if updated_doc:
+                    algolia_updates.append(updated_doc)
+                    
                 stats["updated"] += 1
             else:
                 stats["skipped"] += 1
@@ -145,7 +153,12 @@ def process_deals(raw_deals: list[RawDeal], db) -> dict:
             deal_doc = build_deal_document(raw)
             deal_doc["deal_score"] = score_deal(raw)
             deal_doc["is_pro_exclusive"] = False
-            db.deals.insert_one(deal_doc)
+            result = db.deals.insert_one(deal_doc)
+            deal_doc["_id"] = result.inserted_id
+            algolia_updates.append(deal_doc)
             stats["new"] += 1
+
+    if algolia_updates:
+        push_deals_to_algolia(algolia_updates)
 
     return stats
