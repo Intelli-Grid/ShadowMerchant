@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    // Serve modern formats: AVIF is 50% smaller than WebP, WebP is 30% smaller than JPEG
+    formats: ['image/avif', 'image/webp'],
+    // Cache optimized images for 24 hours at the CDN/browser level
+    minimumCacheTTL: 86400,
+    deviceSizes: [320, 480, 640, 750, 828, 1080, 1200],
+    imageSizes: [16, 32, 64, 96, 128, 256],
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'm.media-amazon.com' },

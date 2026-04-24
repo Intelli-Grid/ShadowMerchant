@@ -135,6 +135,10 @@ class MyntraScraper(BaseScraper):
             brand_name   = (p.get("brand")   or "").strip()
             product_name = (p.get("product") or "").strip()
             title = f"{brand_name} {product_name}".strip() if brand_name else product_name
+            # Guard: if product_name already starts with brand_name, don't duplicate it.
+            # e.g. brand="H&M", product="H&M Slim Fit Shirt" → title="H&M Slim Fit Shirt"
+            if brand_name and product_name.lower().startswith(brand_name.lower()):
+                title = product_name.strip()
             if not title:
                 return None
 

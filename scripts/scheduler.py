@@ -48,6 +48,20 @@ if sys.platform == "win32":
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 logger = logging.getLogger("scheduler")
 
+# ── Sentry Error Tracking ────────────────────────────────────
+try:
+    import sentry_sdk as _sentry_sdk
+    _sentry_dsn = os.getenv("SENTRY_DSN")
+    if _sentry_dsn:
+        _sentry_sdk.init(
+            dsn=_sentry_dsn,
+            traces_sample_rate=0.1,
+            environment=os.getenv("ENVIRONMENT", "production"),
+        )
+        logger.info("✅ Sentry initialized")
+except ImportError:
+    logger.debug("sentry-sdk not installed — error tracking disabled")
+
 # ── Active Scrapers ─────────────────────────────────────────────
 # Credit budget (ScraperAPI free tier = 5,000/month):
 #   meesho:  12 cat × 2 pages = 24 req/run
@@ -87,6 +101,7 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
     import pymongo
     from processors.deal_scorer import score_deal_with_breakdown
     from processors.deduplicator import deduplicate_deals
+    from processors.title_sanitizer import sanitize_title
 
     to_run = scrapers or SCRAPER_PRIORITY
     logger.info(f"[START] Pipeline triggered - scrapers: {to_run}")
@@ -195,7 +210,14 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
 
                 if not title or disc_price <= 0 or not product_url or orig_price <= 0:
                     continue
-                    
+
+                # Title Quality Gate: reject short/generic/ALL-CAPS titles before saving
+                clean_title = sanitize_title(title, platform=platform)
+                if not clean_title:
+                    logger.debug(f"[skip] Title failed quality gate: '{title[:50]}'")
+                    continue
+                title = clean_title
+
                 calculated_discount = int(round((1 - disc_price / orig_price) * 100)) if orig_price > disc_price else 0
                 if calculated_discount < 10:
                     continue
@@ -203,9 +225,13 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
                 if disc_price < 200:
                     continue
                     
-                if platform == "meesho" and orig_price > disc_price * 4:
-                    orig_price = disc_price * (1 / 0.30)
-                    disc_pct = 70
+                # Meesho MRP Cap: realistic max is 2.5× selling price (~60% max discount)
+                # The old 4× cap allowed 75%+ fake discounts from inflated MRP data.
+                if platform == "meesho":
+                    max_realistic_orig = disc_price * 2.5
+                    if orig_price > max_realistic_orig:
+                        orig_price = max_realistic_orig
+                        disc_pct = int(round((1 - disc_price / orig_price) * 100))
 
                 doc = {
                     "title":            title,
@@ -277,12 +303,16 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             import math
             now_utc = datetime.utcnow()
 
-            # Fetch all qualifying candidates — price floor + discount floor
+            # Fetch qualifying trending candidates with quality gates.
+            # deal_score >= 55 ensures only Fair/Good/Great deals become trending
+            # (a score of 24, observed live, is categorically excluded).
             candidates = list(db.deals.find(
                 {
                     "is_active": True,
                     "original_price":   {"$gte": 500},
                     "discount_percent": {"$gte": 20},
+                    "deal_score":       {"$gte": 55},
+                    "title":            {"$regex": ".{15,}"},
                 },
                 {
                     "_id": 1, "original_price": 1, "discounted_price": 1,

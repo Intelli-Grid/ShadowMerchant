@@ -206,7 +206,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                     alt={deal.title}
                     fill
                     className="object-contain mix-blend-multiply p-12 transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                    unoptimized
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                     priority
                   />
                 ) : (
@@ -270,7 +270,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
 
                 target="_blank"
 
-                rel="noopener noreferrer"
+                rel="noopener noreferrer sponsored"
 
                 className="w-full mt-4 md:w-auto lg:w-80 md:mt-2 flex items-center justify-center gap-2 h-14 md:h-14 rounded-full font-bold text-base md:text-lg transition-transform hover:opacity-90 active:scale-95 shadow-lg md:shadow-none"
 

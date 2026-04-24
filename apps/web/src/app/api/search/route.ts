@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchClient, ALGOLIA_INDEX } from '@/lib/algolia';
+import { ratelimitSearch } from '@/lib/redis';
 
 export async function GET(req: NextRequest) {
+  // ── Rate limiting: 10 requests per minute per IP (stricter — prevent enumeration) ──
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim()
+    ?? req.headers.get('x-real-ip')
+    ?? 'anon';
+  const { success } = await ratelimitSearch.limit(ip);
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please slow down.' },
+      { status: 429, headers: { 'Retry-After': '60' } }
+    );
+  }
+
   const query = req.nextUrl.searchParams.get('q');
   if (!query || query.trim().length < 2) {
     return NextResponse.json({ hits: [], nbHits: 0 });

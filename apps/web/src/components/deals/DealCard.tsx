@@ -57,7 +57,11 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
 
   // T1-G: Flag suspiciously high discounts (likely data errors)
   const displayPct = Math.round(deal.discount_percent ?? 0);
-  const isSuspect = displayPct > 90;
+  // Platform-aware suspect threshold: Meesho/Myntra/Nykaa use inflated MRP
+  // so 80%+ is suspect on those platforms, vs 90%+ on Amazon/Flipkart.
+  const highRiskPlatforms = ['meesho', 'myntra', 'nykaa'];
+  const suspectThreshold = highRiskPlatforms.includes(deal.source_platform ?? '') ? 80 : 90;
+  const isSuspect = displayPct > suspectThreshold;
 
   // T2-E: Flag deals scraped within the last hour
   const isNew = deal.scraped_at &&
@@ -134,7 +138,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
               fill
               className="object-contain mix-blend-multiply p-2 transition-transform duration-300 group-hover:scale-[1.05]"
               sizes="(max-width: 640px) 135px, (max-width: 1024px) 33vw, 260px"
-              unoptimized
+              quality={75}
               onError={() => setImgError(true)}
             />
           ) : (
@@ -253,7 +257,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
         <Link
           href={`/deals/${deal._id}`}
           className="line-clamp-2 font-bold leading-tight mb-2 hover:text-[var(--gold)] transition-colors"
-          style={{ color: 'var(--text-primary)', letterSpacing: '-0.01em', minHeight: size === 'sm' ? '2.4em' : '2.8em', display: '-webkit-box' }}
+          style={{ color: 'var(--text-primary)', letterSpacing: '-0.01em', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden', minHeight: size === 'sm' ? '2.4em' : '2.8em' }}
           title={deal.title}
         >
           {deal.title}
@@ -305,7 +309,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
         <a
           href={`/api/go/${deal._id}`}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener noreferrer sponsored"
           className="deal-card-cta relative z-10 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-[13px] font-bold transition-all active:scale-[0.98] mt-2 sm:mt-0"
           style={{
             background: 'var(--gold)',

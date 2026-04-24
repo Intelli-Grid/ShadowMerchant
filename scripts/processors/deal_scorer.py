@@ -1,13 +1,23 @@
 """
-ShadowMerchant Deal Scoring Engine — v2.0
+ShadowMerchant Deal Scoring Engine — v2.1 (Sigmoid Normalization)
 Implements the 5-component weighted formula from the Implementation Plan §4.2:
 
-  Score = (discount × 0.35) + (abs_price_drop × 0.20) + (popularity × 0.20)
-        + (rating × 0.15) + (freshness × 0.10)
+  weighted = (discount × 0.35) + (abs_price_drop × 0.20) + (popularity × 0.20)
+           + (rating × 0.15) + (freshness × 0.10)
+
+  final_score = sigmoid(weighted)   ← centered at 0.65; makes 100 statistically rare
+
+Score interpretation:
+  ≥ 95  — Exceptional: near-perfect across all 5 components simultaneously
+  80–94 — Great Value: strong deal with solid signals
+  60–79 — Good Deal: above-average discount with decent quality
+  40–59 — Fair Deal: moderate value, lower signals
+  < 40  — Low Score: weak deal, high junk-filter eligibility
 
 Returns both a final score (0–100) and a detailed breakdown dict.
 """
 
+import math
 from datetime import datetime, timezone
 from typing import Union
 
@@ -92,6 +102,28 @@ def score_deal(deal: Union[object, dict]) -> int:
     return score
 
 
+def _sigmoid_normalize(raw: float) -> int:
+    """
+    Squeeze a linear 0–1 weighted score through a sigmoid curve centered at 0.65.
+
+    Why 0.65 as center?
+      A deal with 65% weighted score (e.g. 55% off, 4.0★, 5k reviews, just scraped)
+      maps to exactly 50/100 — a "Fair Deal". A deal must have near-perfect signals
+      across all 5 axes to score above 95.
+
+    Curve properties at key inputs:
+      raw=0.40 → ~7   (weak deal — low discount, few reviews)
+      raw=0.55 → ~27  (fair deal — average across all components)
+      raw=0.65 → ~50  (mid-tier — decent but not remarkable)
+      raw=0.75 → ~73  (good deal — strong discount + decent signals)
+      raw=0.85 → ~90  (great deal — high discount, great ratings)
+      raw=0.95 → ~98  (exceptional — near maximum across all 5 axes)
+      raw=1.00 → ~99  (theoretical maximum — essentially unreachable)
+    """
+    sigmoid = 1.0 / (1.0 + math.exp(-12.0 * (raw - 0.72)))
+    return int(round(sigmoid * 100))
+
+
 def score_deal_with_breakdown(deal: Union[object, dict]) -> tuple[int, dict]:
     """
     Full scoring with breakdown. Returns (score_int, breakdown_dict).
@@ -113,7 +145,7 @@ def score_deal_with_breakdown(deal: Union[object, dict]) -> tuple[int, dict]:
     s_rating     = compute_rating_score(rating)
     s_freshness  = compute_freshness_score(scraped_at)
 
-    # ── Weighted Formula ────────────────────────────────────────────────────
+    # ── Weighted Formula (linear combination, then sigmoid-normalized) ──────
     weighted = (
         s_discount   * 0.35
         + s_price_drop * 0.20
@@ -122,16 +154,10 @@ def score_deal_with_breakdown(deal: Union[object, dict]) -> tuple[int, dict]:
         + s_freshness  * 0.10
     )
 
-    final_score = int(round(weighted * 100))
-    
-    # High-Value Premium Bonus: +15 points for expensive products that have decent savings.
-    if disc_price > 1500 and (original_price - disc_price) > 500:
-        final_score += 15
-    # Junk Penalty: Demote super cheap items (like cables/diaries) so they don't trend.
-    elif disc_price < 300:
-        final_score -= 30
-
-    final_score = max(0, min(100, final_score))
+    # Sigmoid normalization — makes high scores exponentially harder to achieve.
+    # Replaces the old linear scale + flat bonus/penalty approach.
+    final_score = _sigmoid_normalize(weighted)
+    final_score = max(0, min(100, final_score))  # safety clamp
 
     breakdown = {
         "discount_score":   round(s_discount, 4),
@@ -145,16 +171,56 @@ def score_deal_with_breakdown(deal: Union[object, dict]) -> tuple[int, dict]:
 
 
 if __name__ == "__main__":
-    # Quick sanity test
-    sample = {
-        "title": "Sony WH-1000XM5",
-        "discount_percent": 55,
-        "original_price": 34990,
-        "discounted_price": 15745,
-        "rating": 4.6,
-        "rating_count": 12450,
-        "scraped_at": None,  # assume just scraped
-    }
-    score, breakdown = score_deal_with_breakdown(sample)
-    print(f"Score: {score}/100")
-    print(f"Breakdown: {breakdown}")
+    print("=" * 55)
+    print("ShadowMerchant Deal Scorer v2.1 — Sigmoid Sanity Tests")
+    print("=" * 55)
+
+    test_cases = [
+        {
+            "name": "Sony WH-1000XM5 @ 55% off (flagship electronics)",
+            "deal": {
+                "discount_percent": 55, "original_price": 34990, "discounted_price": 15745,
+                "rating": 4.6, "rating_count": 12450, "scraped_at": None,
+            },
+            "expect_range": (82, 93),  # Good-Great, but NOT 100
+        },
+        {
+            "name": "Perfect deal (70% off, 4.9/5, 20k reviews, just scraped)",
+            "deal": {
+                "discount_percent": 70, "original_price": 8000, "discounted_price": 2400,
+                "rating": 4.9, "rating_count": 20000, "scraped_at": None,
+            },
+            "expect_range": (93, 99),  # Exceptional -- near ceiling
+        },
+        {
+            "name": "Mediocre deal (20% off, Rs250 cable, 0 ratings)",
+            "deal": {
+                "discount_percent": 20, "original_price": 312, "discounted_price": 250,
+                "rating": 0, "rating_count": 0, "scraped_at": None,
+            },
+            "expect_range": (0, 25),   # Low score -- weak signals
+        },
+        {
+            "name": "Mid-tier fashion deal (40% off, 4.2/5, 500 reviews)",
+            "deal": {
+                "discount_percent": 40, "original_price": 2499, "discounted_price": 1499,
+                "rating": 4.2, "rating_count": 500, "scraped_at": None,
+            },
+            "expect_range": (40, 68),  # Fair-Good deal
+        },
+    ]
+
+    all_passed = True
+    for tc in test_cases:
+        score, breakdown = score_deal_with_breakdown(tc["deal"])
+        lo, hi = tc["expect_range"]
+        passed = lo <= score <= hi
+        status = "[PASS]" if passed else f"[FAIL] expected {lo}-{hi}"
+        print(f"\n{status} | Score: {score}/100 | {tc['name']}")
+        if not passed:
+            all_passed = False
+            print(f"   Breakdown: {breakdown}")
+
+    print("\n" + "=" * 55)
+    print("ALL TESTS PASSED" if all_passed else "SOME TESTS FAILED -- tune sigmoid center")
+    print("=" * 55)

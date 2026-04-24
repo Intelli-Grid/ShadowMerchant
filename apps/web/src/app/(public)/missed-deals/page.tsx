@@ -1,6 +1,7 @@
 import { connectDB } from '@/lib/db';
 import Deal from '@/models/Deal';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -110,11 +111,11 @@ export default async function MissedDealsPage() {
                     Score: {deal.deal_score}/100
                   </span>
                 </div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={deal.image_url || '/placeholder.png'}
                   alt={deal.title}
-                  className="max-h-full max-w-full object-contain"
+                  fill
+                  className="object-contain p-4"
                 />
               </div>
 

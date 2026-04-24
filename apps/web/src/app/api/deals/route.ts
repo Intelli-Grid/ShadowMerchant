@@ -1,9 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
-import { redis, CACHE_KEYS, CACHE_TTL } from '@/lib/redis';
+import { redis, ratelimit, CACHE_KEYS, CACHE_TTL } from '@/lib/redis';
 import Deal from '@/models/Deal';
 
 export async function GET(req: NextRequest) {
+  // ── Rate limiting: 30 requests per minute per IP ──────────────────────────
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim()
+    ?? req.headers.get('x-real-ip')
+    ?? 'anon';
+  const { success } = await ratelimit.limit(ip);
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please slow down.' },
+      { status: 429, headers: { 'Retry-After': '60' } }
+    );
+  }
+
   const params = req.nextUrl.searchParams;
   const platform = params.get('platform');
   const category = params.get('category');

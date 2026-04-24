@@ -117,6 +117,10 @@ async function getHeroDeal(): Promise<Deal | null> {
       is_active: true,
       is_trending: true,
       scraped_at: { $gte: cutoff48h },
+      deal_score: { $gte: 60 },                    // Hero must be Good Deal or better
+      discount_percent: { $lte: 85 },              // No suspect discounts as Hero
+      image_url: { $exists: true, $ne: '' },        // Hero must have an image
+      title: { $regex: '.{20,}' },                 // Hero must have a proper title
     })
       .sort({ deal_score: -1 })
       .limit(5)
@@ -150,10 +154,26 @@ async function getCategoryDeals(category: string, limit = 8) {
   try {
     await connectDB();
     const DealModel = (await import('@/models/Deal')).default;
-    const deals = await DealModel.find({ is_active: true, category })
-      .sort({ deal_score: -1 })
-      .limit(limit)
-      .lean();
+    // Platform-diversity aggregation: cap at 2 deals per platform per category.
+    // Prevents Meesho-dominated swimlanes when one platform dominates the database.
+    const MAX_PER_PLATFORM = 2;
+    const deals = await DealModel.aggregate([
+      {
+        $match: {
+          is_active: true,
+          category,
+          deal_score: { $gte: 30 },       // Exclude very low quality deals
+          title: { $regex: '.{15,}' },    // Exclude garbage/short titles
+        },
+      },
+      { $sort: { deal_score: -1 } },
+      { $group: { _id: '$source_platform', docs: { $push: '$$ROOT' } } },
+      { $project: { docs: { $slice: ['$docs', MAX_PER_PLATFORM] } } },
+      { $unwind: '$docs' },
+      { $replaceRoot: { newRoot: '$docs' } },
+      { $sort: { deal_score: -1 } },
+      { $limit: limit },
+    ]);
     const result = JSON.parse(JSON.stringify(deals));
     await redis.set(cacheKey, result, { ex: 1800 }); // 30 min TTL
     return result;
@@ -207,7 +227,11 @@ export default async function Home() {
     getLastRefreshed(),
   ]);
 
-  const trendingDeals = trendingResult.deals;
+  // Frontend quality gate: only display trending deals with score >= 50.
+  // Falls back to raw results if fewer than 4 quality deals are available,
+  // ensuring the section never appears empty.
+  const qualityTrendingDeals = trendingResult.deals.filter((d: Deal) => (d.deal_score ?? 0) >= 50);
+  const trendingDeals = qualityTrendingDeals.length >= 4 ? qualityTrendingDeals : trendingResult.deals;
   const trendingIsStale = trendingResult.isStale;
   const newIsStale = newResult.isStale;
 
