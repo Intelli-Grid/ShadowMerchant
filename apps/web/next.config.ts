@@ -30,8 +30,10 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'rukminim2.flixcart.com' },
       { protocol: 'https', hostname: 'rukminim1.flixcart.com' },
       { protocol: 'https', hostname: 'assets.myntassets.com' },
+      { protocol: 'http', hostname: 'assets.myntassets.com' },
       { protocol: 'https', hostname: 'images.meesho.com' },
       { protocol: 'https', hostname: 'adn-static1.nykaa.com' },
+      { protocol: 'https', hostname: 'images-static.nykaa.com' },
       { protocol: 'https', hostname: 'www.croma.com' },
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       // MED-12 fix: Tatacliq was in source_platform enum but domains were missing

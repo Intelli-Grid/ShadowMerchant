@@ -174,6 +174,8 @@ class MyntraScraper(BaseScraper):
                 src = images[0].get("src", "") if isinstance(images[0], dict) else str(images[0])
                 if src:
                     image_url = src if src.startswith("http") else f"https://assets.myntassets.com/{src}"
+                    if image_url.startswith("http://"):
+                        image_url = image_url.replace("http://", "https://")
 
             return RawDeal(
                 title            = title[:200],
