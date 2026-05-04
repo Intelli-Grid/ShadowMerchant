@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { label: 'Top Deals', href: '/deals' },
   { label: 'Categories', href: '/deals/feed' },
   { label: 'Missed Deals', href: '/missed-deals' },
+  { label: '🔥 Submit Deal', href: '/submit-deal' },
 ];
 
 export function Navbar() {
@@ -224,7 +225,7 @@ export function Navbar() {
                       (e.currentTarget as HTMLElement).style.boxShadow = 'none';
                     }}
                   >
-                    ⚡ Go Pro · ₹99/mo
+                    ⚡ Deal Scout · ₹99/mo
                   </button>
                 </SignInButton>
               </>

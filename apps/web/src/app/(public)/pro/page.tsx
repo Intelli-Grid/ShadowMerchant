@@ -5,10 +5,10 @@ import Image from 'next/image';
 import { RazorpayButton } from '@/components/pro/RazorpayButton';
 
 const PRO_FEATURES = [
-  '📊 Full 30-day price history on every deal',
-  '⚡ Deal Alerts (up to 10 rules)',
-  '📉 Price drop notifications on wishlisted deals',
-  '💛 Unlimited wishlist',
+  '🔔 Target Price Alerts — set your price, we watch until it drops',
+  '📊 Know if today’s price is actually a good price (30-day history)',
+  '⚡ Flash sale alerts before deals sell out (up to 10 rules)',
+  '💛 Track any product — unlimited wishlist',
   '📬 Priority support',
 ];
 
@@ -52,11 +52,11 @@ export default function ProPage() {
           className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight leading-tight"
           style={{ fontFamily: 'var(--font-display)' }}
         >
-          Know when to buy. <br />
-          <span className="heading-gold">Never overpay again.</span>
+          Set your price.{' '}<br />
+          <span className="heading-gold">We watch. You buy right.</span>
         </h1>
         <p className="text-lg max-w-xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
-          Pro gives you the intelligence layer on top of India's best deal feed. See price history, set alerts, get notified — all for less than your last impulse buy.
+          Stop guessing. Pro tells you if today’s deal is actually a good price — and alerts you the moment a product you’re watching hits your target.
         </p>
       </div>
 
@@ -126,8 +126,8 @@ export default function ProPage() {
           </div>
 
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-white mb-1">Pro</h2>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>For serious deal hunters</p>
+            <h2 className="text-xl font-bold text-white mb-1">Deal Scout</h2>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>For buyers who want to buy at the right time</p>
           </div>
 
           <div className="mb-8">

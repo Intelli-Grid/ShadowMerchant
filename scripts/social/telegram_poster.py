@@ -2501,6 +2501,154 @@ def run_interactive_bot():
 
 
 
+    # ── /pending — review community deal submissions ─────────────
+
+    async def admin_pending(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+        if not is_admin(update):
+
+            await update.message.reply_text("⛔ Admin access only.")
+
+            return
+
+        try:
+
+            submissions = list(
+
+                db.dealsubmissions.find({"status": "pending"})
+
+                .sort("submitted_at", -1)
+
+                .limit(10)
+
+            )
+
+            if not submissions:
+
+                await update.message.reply_text(
+
+                    "✅ *No pending submissions* — inbox is clear!",
+
+                    parse_mode=ParseMode.MARKDOWN
+
+                )
+
+                return
+
+            await update.message.reply_text(
+
+                f"📥 *{len(submissions)} pending deal submission(s):*",
+
+                parse_mode=ParseMode.MARKDOWN
+
+            )
+
+            for s in submissions:
+
+                sid    = str(s["_id"])
+
+                url    = s.get("url", "N/A")
+
+                title  = s.get("title", "")[:60] or url[:60]
+
+                price  = s.get("price", "?")
+
+                plat   = s.get("platform", "unknown").capitalize()
+
+                note   = s.get("note", "")[:80] or "—"
+
+                ts     = s.get("submitted_at", "")[:10]
+
+                msg = (
+
+                    f"🔗 *{title}*\n"
+
+                    f"🏪 {plat}  |  💸 {price}  |  📅 {ts}\n"
+
+                    f"📝 {note}\n"
+
+                    f"🌐 {url}"
+
+                )
+
+                kb = InlineKeyboardMarkup([[
+
+                    InlineKeyboardButton("✅ Approve", callback_data=f"sub_approve_{sid}"),
+
+                    InlineKeyboardButton("❌ Reject",  callback_data=f"sub_reject_{sid}"),
+
+                ]])
+
+                await update.message.reply_text(
+
+                    msg, parse_mode=ParseMode.MARKDOWN, reply_markup=kb,
+
+                    disable_web_page_preview=True
+
+                )
+
+                await asyncio.sleep(0.3)
+
+        except Exception as e:
+
+            await update.message.reply_text(f"❌ Pending error: {e}")
+
+
+
+    # ── Submission approve/reject callback ────────────────────────
+
+    async def handle_submission_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+        query = update.callback_query
+
+        await query.answer()
+
+        if not is_admin(update):
+
+            return
+
+        data = query.data  # "sub_approve_<id>" or "sub_reject_<id>"
+
+        parts = data.split("_", 2)
+
+        if len(parts) != 3:
+
+            return
+
+        action, sid = parts[1], parts[2]
+
+        from bson import ObjectId
+
+        try:
+
+            new_status = "approved" if action == "approve" else "rejected"
+
+            db.dealsubmissions.update_one(
+
+                {"_id": ObjectId(sid)},
+
+                {"$set": {"status": new_status, "reviewed_at": datetime.utcnow()}}
+
+            )
+
+            emoji = "✅" if new_status == "approved" else "❌"
+
+            await query.edit_message_reply_markup(reply_markup=None)
+
+            await query.message.reply_text(
+
+                f"{emoji} Submission *{new_status}*!",
+
+                parse_mode=ParseMode.MARKDOWN
+
+            )
+
+        except Exception as e:
+
+            await query.message.reply_text(f"❌ Update failed: {e}")
+
+
+
     # ── Callback router ───────────────────────────────────────────
 
     async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -2639,9 +2787,13 @@ def run_interactive_bot():
 
     app.add_handler(CommandHandler("push",   admin_push))
 
-    app.add_handler(CommandHandler("report", admin_report))
+    app.add_handler(CommandHandler("report",  admin_report))
+
+    app.add_handler(CommandHandler("pending", admin_pending))
 
 
+
+    app.add_handler(CallbackQueryHandler(handle_submission_callback, pattern="^sub_"))
 
     app.add_handler(CallbackQueryHandler(handle_run_callback, pattern="^run_"))
 

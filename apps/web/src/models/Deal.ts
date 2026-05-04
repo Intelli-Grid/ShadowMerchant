@@ -67,6 +67,7 @@ const DealSchema = new Schema({
   is_active:        { type: Boolean, default: true },
   is_trending:      { type: Boolean, default: false },  // Top 8 across all categories
   is_stale:         { type: Boolean, default: false },  // BUG-13: written by scheduler.py staleness check
+  data_may_be_stale: { type: Boolean, default: false }, // set after 3 consecutive scraper failures for this platform
 
   // Algorithmic scoring
   trending_score:  { type: Number, default: 0 },        // BUG-13: written by scheduler.py trending algo
@@ -77,6 +78,13 @@ const DealSchema = new Schema({
   // Analytics
   click_count: { type: Number, default: 0 },
   view_count:  { type: Number, default: 0 },
+
+  // Community reactions (denormalised cache — kept in sync by reactions API)
+  reactions_cache: {
+    fire:    { type: Number, default: 0 },
+    meh:     { type: Number, default: 0 },
+    expired: { type: Number, default: 0 },
+  },
 
   // Lifecycle
   published_at: { type: Date },
@@ -100,5 +108,9 @@ DealSchema.index({ affiliate_url: 1 }, { unique: true, sparse: true });
 // BUG-13: index on scraper-written fields for staleness and trending queries
 DealSchema.index({ is_stale: 1, is_active: 1 });
 DealSchema.index({ trending_score: -1, is_active: 1 });
+// HEALTH: index for fast platform-scoped stale flagging from scheduler
+DealSchema.index({ data_may_be_stale: 1, source_platform: 1 });
+// COMMUNITY: index for fire-count sort on trending listing
+DealSchema.index({ 'reactions_cache.fire': -1, is_active: 1 });
 
 export default mongoose.models.Deal || mongoose.model('Deal', DealSchema);

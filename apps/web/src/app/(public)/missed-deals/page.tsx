@@ -2,6 +2,7 @@ import { connectDB } from '@/lib/db';
 import Deal from '@/models/Deal';
 import Link from 'next/link';
 import Image from 'next/image';
+import { BackInStockForm } from '@/components/ui/BackInStockForm';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -120,32 +121,42 @@ export default async function MissedDealsPage() {
               </div>
 
               {/* Deal Info */}
-              <div className="p-5">
-                <h3
-                  className="font-medium line-clamp-2 mb-4"
-                  style={{ color: 'var(--text-primary)' }}
-                >
-                  {deal.title}
-                </h3>
-                <div className="flex items-end gap-3">
-                  <span
-                    className="text-2xl font-bold"
-                    style={{ color: 'var(--text-secondary)' }}
+              <div className="p-5 flex flex-col h-full">
+                <div className="flex-grow">
+                  <h3
+                    className="font-medium line-clamp-2 mb-4"
+                    style={{ color: 'var(--text-primary)' }}
                   >
-                    ₹{(deal.discounted_price || 0).toLocaleString()}
-                  </span>
-                  <span
-                    className="text-sm line-through mb-1"
-                    style={{ color: 'var(--text-muted)' }}
-                  >
-                    ₹{(deal.original_price || 0).toLocaleString()}
-                  </span>
-                  <span
-                    className="text-sm font-bold mb-1 ml-auto"
-                    style={{ color: 'var(--text-muted)' }}
-                  >
-                    {deal.source_platform}
-                  </span>
+                    {deal.title}
+                  </h3>
+                  <div className="flex items-end gap-3">
+                    <span
+                      className="text-2xl font-bold"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
+                      ₹{(deal.discounted_price || 0).toLocaleString()}
+                    </span>
+                    <span
+                      className="text-sm line-through mb-1"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      ₹{(deal.original_price || 0).toLocaleString()}
+                    </span>
+                    <span
+                      className="text-sm font-bold mb-1 ml-auto"
+                      style={{ color: 'var(--text-muted)' }}
+                    >
+                      {deal.source_platform}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Back in stock notification form */}
+                <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--sm-border)' }}>
+                  <BackInStockForm 
+                    dealId={deal._id.toString()} 
+                    dealTitle={deal.title} 
+                  />
                 </div>
               </div>
             </div>

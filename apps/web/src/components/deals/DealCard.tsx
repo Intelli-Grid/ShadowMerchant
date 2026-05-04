@@ -161,6 +161,28 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           <span className="hidden sm:inline">{platform.name}</span>
         </span>
 
+        {/* Stale data warning badge — shown when scraper has failed 3+ consecutive runs */}
+        {(deal as any).data_may_be_stale && (
+          <span
+            className="absolute bottom-2 left-2 z-10 flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold shadow-md"
+            style={{ background: 'rgba(245,158,11,0.15)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.3)' }}
+            title="Price data may be outdated — our scraper is recovering"
+          >
+            ⚠ Stale data
+          </span>
+        )}
+
+        {/* Community fire count — from reactions_cache (no extra query) */}
+        {((deal as any).reactions_cache?.fire ?? 0) > 0 && (
+          <span
+            className="absolute bottom-2 right-2 z-10 flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold shadow-md"
+            style={{ background: 'rgba(251,146,60,0.15)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.3)' }}
+            title="Community reaction: 🔥 Hot deal"
+          >
+            🔥 {(deal as any).reactions_cache.fire}
+          </span>
+        )}
+
         {/* Deal type + HOT + NEW Badges */}
         <div className="absolute top-3 right-3 z-20 flex flex-col items-end gap-1 pointer-events-none">
           {((deal as any).deal_type === 'lightning' || (deal as any).deal_type === 'flash') && (
@@ -321,6 +343,19 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           {validating ? 'Checking...' : 'Get Deal →'}
           <ExternalLink className="h-3.5 w-3.5 opacity-80" />
         </a>
+        {/* Affiliate transparency disclosure */}
+        <p className="text-[9px] text-center mt-2" style={{ color: 'var(--text-muted)' }}>
+          We earn a commission.{' '}
+          <a
+            href="/how-scoring-works"
+            onClick={(e) => e.stopPropagation()}
+            className="underline underline-offset-2 hover:opacity-80 transition-opacity"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            Scoring is independent →
+          </a>
+        </p>
+
         {/* WhatsApp Share button */}
         <button
           onClick={(e) => {

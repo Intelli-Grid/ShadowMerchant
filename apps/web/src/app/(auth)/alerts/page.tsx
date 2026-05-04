@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Bell, Plus, Trash2, Tag, TrendingDown, Search, Package, Loader2 } from 'lucide-react';
+import { Bell, Plus, Trash2, Tag, TrendingDown, Search, Package, Loader2, Target, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
@@ -14,6 +14,20 @@ interface Alert {
     keyword?: string;
     max_price?: number;
     min_discount?: number;
+  };
+  is_active: boolean;
+  created_at: string;
+}
+
+interface PriceAlert {
+  _id: string;
+  type: 'target_price';
+  criteria: {
+    deal_id: string;
+    product_title: string;
+    platform: string;
+    target_price: number;
+    current_price: number;
   };
   is_active: boolean;
   created_at: string;
@@ -40,15 +54,17 @@ const inputStyle: React.CSSProperties = {
 };
 
 export default function AlertsPage() {
+  const [activeTab, setActiveTab] = useState<'pro' | 'price'>('price');
   const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [priceAlerts, setPriceAlerts] = useState<PriceAlert[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [isPro, setIsPro] = useState(false);
   const [form, setForm] = useState({ type: 'keyword', keyword: '', brand: '', category: '', max_price: '', min_discount: '30' });
-
   const [telegramLinked, setTelegramLinked] = useState(false);
 
   useEffect(() => {
+    // Fetch Pro alerts
     fetch('/api/alerts')
       .then(r => r.json())
       .then(data => {
@@ -62,6 +78,21 @@ export default function AlertsPage() {
         setLoading(false);
       })
       .catch(() => setLoading(false));
+
+    // Fetch Target Price Alerts (available to all logged-in users)
+    fetch('/api/alerts/target-price?deal_id=__all__')
+      .then(r => r.json())
+      .then(data => {
+        // The route returns hasAlert when queried for a specific deal.
+        // We query the user's full list via /api/user/price-alerts instead.
+      })
+      .catch(() => {});
+
+    // Fetch all user price alerts from a dedicated list endpoint
+    fetch('/api/alerts/target-price/list')
+      .then(r => r.json())
+      .then(data => setPriceAlerts(data.alerts || []))
+      .catch(() => {});
   }, []);
 
   const handleCreate = async () => {
@@ -85,6 +116,15 @@ export default function AlertsPage() {
   const handleDelete = async (id: string) => {
     await fetch('/api/alerts', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ alert_id: id }) });
     setAlerts(prev => prev.filter(a => a._id !== id));
+  };
+
+  const handleRemovePriceAlert = async (id: string) => {
+    await fetch('/api/alerts/target-price', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ alert_id: id }),
+    });
+    setPriceAlerts(prev => prev.filter(a => a._id !== id));
   };
 
   // Loading spinner
@@ -149,18 +189,149 @@ export default function AlertsPage() {
 
   return (
     <main className="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-black text-white flex items-center gap-3 section-heading" style={{ fontFamily: 'var(--font-display)' }}>
             Deal Alerts
           </h1>
           <p className="mt-1" style={{ color: 'var(--text-muted)' }}>
-            {alerts.length} active alert{alerts.length !== 1 ? 's' : ''}
+            {priceAlerts.length} price watch{priceAlerts.length !== 1 ? 'es' : ''} · {alerts.length} rule alert{alerts.length !== 1 ? 's' : ''}
           </p>
         </div>
       </div>
 
-      {/* ── Connect Telegram Banner ── */}
+      {/* ── Tab switcher ── */}
+      <div className="flex gap-1 p-1 rounded-xl mb-6" style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)' }}>
+        <button
+          onClick={() => setActiveTab('price')}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all"
+          style={{
+            background: activeTab === 'price' ? 'var(--gold)' : 'transparent',
+            color: activeTab === 'price' ? '#0A0A0A' : 'var(--text-muted)',
+          }}
+        >
+          <Target className="w-4 h-4" />
+          My Price Alerts
+          {priceAlerts.length > 0 && (
+            <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full"
+              style={{ background: activeTab === 'price' ? '#0A0A0A22' : 'var(--gold)', color: activeTab === 'price' ? '#0A0A0A' : '#0A0A0A' }}>
+              {priceAlerts.length}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setActiveTab('pro')}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all"
+          style={{
+            background: activeTab === 'pro' ? 'var(--gold)' : 'transparent',
+            color: activeTab === 'pro' ? '#0A0A0A' : 'var(--text-muted)',
+          }}
+        >
+          <Bell className="w-4 h-4" />
+          Pro Rule Alerts
+          {!isPro && (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'var(--bg-raised)', color: 'var(--text-muted)' }}>Pro</span>
+          )}
+        </button>
+      </div>
+
+      {/* ── PRICE ALERTS TAB ── */}
+      {activeTab === 'price' && (
+        <div>
+          {priceAlerts.length === 0 ? (
+            <div
+              className="rounded-2xl p-10 text-center flex flex-col items-center gap-4"
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)' }}
+            >
+              <Target className="w-10 h-10 opacity-30" style={{ color: 'var(--gold)' }} />
+              <div>
+                <p className="text-white font-bold mb-1">No price alerts set yet</p>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                  Browse deals and tap &quot;Alert me when price drops&quot; on any product page.
+                </p>
+              </div>
+              <Link
+                href="/deals"
+                className="px-5 py-2.5 rounded-xl font-bold text-sm transition-all hover:opacity-90"
+                style={{ background: 'var(--gold)', color: '#0A0A0A' }}
+              >
+                Browse Deals →
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {priceAlerts.map(alert => {
+                const fmt = (n: number) => `₹${n?.toLocaleString('en-IN')}`;
+                const savings = alert.criteria.current_price - alert.criteria.target_price;
+                const savingsPct = Math.round((savings / alert.criteria.current_price) * 100);
+                return (
+                  <div
+                    key={alert._id}
+                    className="rounded-xl p-4 flex items-center gap-4"
+                    style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)' }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                      style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid var(--gold-border)' }}
+                    >
+                      <Target className="w-5 h-5" style={{ color: 'var(--gold)' }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-sm font-semibold line-clamp-1">
+                        {alert.criteria.product_title || 'Unknown product'}
+                      </p>
+                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                        <span className="text-[11px] capitalize" style={{ color: 'var(--text-muted)' }}>
+                          {alert.criteria.platform}
+                        </span>
+                        <span className="text-[11px] font-bold" style={{ color: 'var(--gold)' }}>
+                          Target: {fmt(alert.criteria.target_price)}
+                        </span>
+                        {alert.criteria.current_price > 0 && (
+                          <span className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+                            Now: {fmt(alert.criteria.current_price)}
+                          </span>
+                        )}
+                        {savingsPct > 0 && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                            style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80' }}>
+                            -{savingsPct}% below current
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {alert.criteria.deal_id && (
+                        <Link
+                          href={`/deals/${alert.criteria.deal_id}`}
+                          className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:opacity-80"
+                          style={{ color: 'var(--text-muted)', background: 'var(--bg-raised)' }}
+                          title="View deal"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+                      )}
+                      <button
+                        onClick={() => handleRemovePriceAlert(alert._id)}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors hover:bg-red-500/10"
+                        style={{ color: 'var(--text-muted)' }}
+                        title="Remove alert"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── PRO ALERTS TAB ── */}
+      {activeTab === 'pro' && (
+        <div>
+
       <div
         className="rounded-xl p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
         style={{ background: telegramLinked ? 'rgba(34,158,217,0.08)' : 'var(--bg-surface)', border: `1px solid ${telegramLinked ? 'rgba(34,158,217,0.3)' : 'var(--sm-border)'}` }}
@@ -325,6 +496,8 @@ export default function AlertsPage() {
               </button>
             </div>
           ))}
+        </div>
+      )}
         </div>
       )}
     </main>

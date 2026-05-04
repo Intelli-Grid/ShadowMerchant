@@ -164,7 +164,7 @@ class MyntraScraper(BaseScraper):
             pid = str(p.get("productId") or p.get("id") or "")
             if not pid:
                 return None
-            product_url = f"https://www.myntra.com/product/{pid}"
+            product_url = f"https://www.myntra.com/{pid}"
             if AFFILIATE_TAG:
                 product_url += f"?utm_source={AFFILIATE_TAG}"
 

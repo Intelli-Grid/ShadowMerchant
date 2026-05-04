@@ -163,6 +163,65 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
 
     logger.info(f"[DATA] Total collected: {len(all_deals)}")
 
+    # ── Scraper Health Tracking ──────────────────────────────────
+    # Write per-platform health record so we can track failure history
+    # and auto-flag deals as stale after 3 consecutive scraper failures.
+    try:
+        _health_client = pymongo.MongoClient(
+            os.getenv("MONGO_URI") or os.getenv("MONGODB_URI"),
+            serverSelectionTimeoutMS=5000
+        )
+        _health_db = _health_client.shadowmerchant
+
+        for _name, _count in scraper_stats.items():
+            _health_db.scraper_health.insert_one({
+                "platform":        _name,
+                "run_at":          datetime.utcnow(),
+                "deals_collected": _count,
+                "elapsed_seconds": scraper_times.get(_name, 0),
+                "status":          "ok" if _count > 0 else "failed",
+            })
+
+        # Consecutive-failure check — if a platform fails 3 runs in a row,
+        # mark its active deals as data_may_be_stale so the UI can warn users.
+        for _name in scraper_stats:
+            if scraper_stats[_name] == 0:
+                _recent = list(_health_db.scraper_health.find(
+                    {"platform": _name},
+                    sort=[("run_at", -1)],
+                    limit=3
+                ))
+                _consecutive_fails = sum(1 for r in _recent if r.get("status") == "failed")
+                if _consecutive_fails >= 3:
+                    _health_db.deals.update_many(
+                        {"source_platform": _name, "is_active": True},
+                        {"$set": {"data_may_be_stale": True}}
+                    )
+                    logger.warning(
+                        f"[HEALTH] {_name}: 3 consecutive failures — "
+                        f"marked all active deals as data_may_be_stale"
+                    )
+                    try:
+                        from social.telegram_poster import post_admin_alert
+                        asyncio.run(post_admin_alert(
+                            f"🔴 *{_name.upper()} SCRAPER: 3 CONSECUTIVE FAILURES*\n"
+                            f"All active {_name} deals flagged as potentially stale.\n"
+                            f"Users will see a warning badge on affected deals."
+                        ))
+                    except Exception:
+                        pass
+                elif _consecutive_fails < 3:
+                    # If it was stale before but recovered, clear the flag
+                    _health_db.deals.update_many(
+                        {"source_platform": _name, "data_may_be_stale": True},
+                        {"$set": {"data_may_be_stale": False}}
+                    )
+
+        _health_client.close()
+        logger.info("[HEALTH] scraper_health records written")
+    except Exception as _he:
+        logger.error(f"[HEALTH] Failed to write scraper_health: {_he}")
+
     # De-duplicate
     deduped = deduplicate_deals(all_deals)
     logger.info(f"[DATA] After dedup: {len(deduped)} unique deals")

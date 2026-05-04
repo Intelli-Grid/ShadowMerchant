@@ -4,6 +4,10 @@ Alert Dispatcher — ShadowMerchant
 Checks new deals from the current pipeline run against all active
 user Alert documents and dispatches notifications for matches.
 
+Supports alert types:
+  - keyword, brand, category, price_drop  (Pro users only)
+  - target_price                          (all logged-in users)
+
 Called automatically at end of each scheduler.py pipeline run.
 
 Usage:
@@ -24,7 +28,10 @@ logger = logging.getLogger("trigger_alerts")
 async def dispatch_alerts(run_start: datetime):
     """
     Find deals scraped after `run_start` and match against active alerts.
-    Sends notifications via WhatsApp/Email for matching Pro users.
+    Sends notifications via Telegram/WhatsApp/Email for matching users.
+
+    - Pro-only types: keyword, brand, category, price_drop
+    - All users:      target_price (the core retention mechanism)
     """
     db = get_db()
     if db is None:
@@ -45,18 +52,110 @@ async def dispatch_alerts(run_start: datetime):
         logger.info("No new deals to match against alerts.")
         return
 
-    # Get all active web alerts (from alerts collection, set via website)
-    alerts = list(db.alerts.find({"is_active": True}))
-    logger.info(f"Matching {len(new_deals)} new deals against {len(alerts)} active alerts")
+    # ── Target Price Alerts ──────────────────────────────────────
+    # These are deal-specific and available to ALL logged-in users (not Pro-only).
+    # We query ALL active deals (not just new ones) because a deal may have been
+    # in the DB already — its price may have changed this run.
+    target_price_alerts = list(db.alerts.find({
+        "is_active": True,
+        "type": "target_price",
+    }))
+    logger.info(f"Checking {len(target_price_alerts)} target price alerts")
 
-    if not alerts:
-        logger.info("No active alerts configured.")
+    for alert in target_price_alerts:
+        try:
+            criteria = alert.get("criteria", {})
+            deal_id_str = criteria.get("deal_id", "")
+            target = float(criteria.get("target_price") or 0)
+            if not deal_id_str or target <= 0:
+                continue
+
+            from bson import ObjectId
+            matched_deal = db.deals.find_one(
+                {"_id": ObjectId(deal_id_str), "is_active": True},
+                {
+                    "discounted_price": 1, "title": 1, "affiliate_url": 1,
+                    "image_url": 1, "deal_score": 1, "source_platform": 1,
+                    "discount_percent": 1,
+                }
+            )
+            if not matched_deal:
+                continue
+
+            current_price = float(matched_deal.get("discounted_price") or 0)
+            if current_price <= 0 or current_price > target:
+                continue
+
+            # 🎯 Price has hit target — fire notification
+            uid = alert.get("user_id", "")
+            user = db.users.find_one(
+                {"clerk_id": uid},
+                {"notification_channels": 1, "subscription_tier": 1}
+            )
+            if not user:
+                continue
+
+            # target_price alerts fire for ALL logged-in users, not just Pro
+            channels = user.get("notification_channels") or {}
+
+            logger.info(
+                f"Target price hit: deal={deal_id_str}, "
+                f"target=₹{target}, current=₹{current_price}, user={uid}"
+            )
+
+            # ── Telegram notification ───────────────────────────
+            tg_chat_id = channels.get("telegram", "")
+            if tg_chat_id:
+                try:
+                    import asyncio as _aio
+                    from social.telegram_poster import notify_user_alert
+                    _aio.run(notify_user_alert(
+                        tg_chat_id, matched_deal, "target_price",
+                        f"₹{int(target):,}"
+                    ))
+                    logger.info(f"Target price Telegram alert sent to user {uid}")
+                except Exception as e:
+                    logger.error(f"Telegram target price alert failed for {uid}: {e}")
+
+            # ── WhatsApp notification ───────────────────────────
+            whatsapp_num = channels.get("whatsapp", "")
+            if whatsapp_num:
+                try:
+                    from notifiers.whatsapp_notifier import send_deal_alert
+                    send_deal_alert(whatsapp_num, matched_deal)
+                    logger.info(f"WhatsApp target price alert sent to user {uid}")
+                except Exception as e:
+                    logger.error(f"WhatsApp target price alert failed for {uid}: {e}")
+
+            # Deactivate the alert — it has fired
+            db.alerts.update_one(
+                {"_id": alert["_id"]},
+                {"$set": {
+                    "is_active": False,
+                    "triggered_at": datetime.utcnow(),
+                    "last_triggered_at": datetime.utcnow(),
+                }}
+            )
+
+        except Exception as e:
+            logger.error(f"Target price alert processing error: {e}")
+
+    # ── Keyword / Brand / Category / Price Drop Alerts (Pro only) ──
+    # Get all active non-target-price alerts
+    pro_alerts = list(db.alerts.find({
+        "is_active": True,
+        "type": {"$ne": "target_price"},
+    }))
+    logger.info(f"Matching {len(new_deals)} new deals against {len(pro_alerts)} Pro alerts")
+
+    if not pro_alerts:
+        logger.info("No active Pro alerts configured.")
         return
 
     # Match each alert against new deals
     matches: dict = {}  # user_id → list of (alert, deal) pairs
 
-    for alert in alerts:
+    for alert in pro_alerts:
         uid = alert.get("user_id", "")
         alert_type = alert.get("type", "keyword")
         criteria = alert.get("criteria", {})
@@ -84,10 +183,10 @@ async def dispatch_alerts(run_start: datetime):
                 matches[uid].append((alert, deal))
 
     if not matches:
-        logger.info("No alert matches found.")
+        logger.info("No Pro alert matches found.")
         return
 
-    logger.info(f"Found matches for {len(matches)} users")
+    logger.info(f"Found Pro alert matches for {len(matches)} users")
 
     for user_id, user_matches in matches.items():
         try:
@@ -98,7 +197,7 @@ async def dispatch_alerts(run_start: datetime):
             if not user:
                 continue
 
-            # Only notify Pro users
+            # Pro-only gate for keyword/brand/category/price_drop alerts
             if user.get("subscription_tier") != "pro":
                 continue
 

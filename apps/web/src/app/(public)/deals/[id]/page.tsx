@@ -5,6 +5,8 @@ import { auth } from '@clerk/nextjs/server';
 import Link from 'next/link';
 import { DealCard } from '@/components/deals/DealCard';
 import { PriceHistoryChart } from '@/components/deals/PriceHistoryChart';
+import { TargetPriceAlertButton } from '@/components/deals/TargetPriceAlertButton';
+import { DealReactionBar } from '@/components/deals/DealReactionBar';
 import { PLATFORM_CONFIG } from '@/lib/platforms';
 import { ShieldCheck, Clock, ExternalLink, Activity, Sparkles, TrendingDown } from 'lucide-react';
 import { Deal } from '@/types';
@@ -282,6 +284,16 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
 
               </a>
 
+              {/* Target Price Alert — the retention mechanism */}
+              <div className="w-full md:w-auto lg:w-80">
+                <TargetPriceAlertButton
+                  dealId={String(deal._id)}
+                  currentPrice={deal.discounted_price}
+                  productTitle={deal.title}
+                  platform={deal.source_platform}
+                />
+              </div>
+
               <p className="text-xs font-medium mt-3 flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
                 <Activity className="w-3.5 h-3.5 text-blue-400" /> Updated {formatDistanceToNow(new Date(deal.scraped_at), { addSuffix: true })}
               </p>
@@ -305,6 +317,14 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 </svg>
                 Share on WhatsApp
               </a>
+            </div>
+
+            {/* Community Verdict */}
+            <div
+              className="rounded-xl p-4 mt-2"
+              style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)' }}
+            >
+              <DealReactionBar dealId={String(deal._id)} />
             </div>
 
             {/* Disclaimer */}

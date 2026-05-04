@@ -14,14 +14,14 @@ interface UpgradeModalProps {
 export function UpgradeModal({ 
   isOpen, 
   onClose,
-  title = "Unlock ShadowMerchant Pro",
-  description = "You've hit a free tier limit. Upgrade to Pro to get full access to the platform."
+  title = "Unlock Deal Scout Pro",
+  description = "Set your target price on any product. We watch it 3x daily and alert you the moment it drops."
 }: UpgradeModalProps) {
   const features = [
-    "Unlimited Wishlist Saves",
-    "Real-time Deal Alerts",
-    "Historical Price Analytics",
-    "Priority AI Scoring"
+    "🔔 Target Price Alerts — buy at the right time",
+    "📊 Know if today's price is actually good (30-day history)",
+    "⚡ Flash sale alerts before they sell out",
+    "💛 Unlimited wishlist — track anything",
   ];
 
   return (
