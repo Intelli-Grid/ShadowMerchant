@@ -403,6 +403,9 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
             e.stopPropagation();
             if (validating) return;
 
+            // UPGRADE-K: Fire-and-forget click tracking for velocity score (never blocks user)
+            fetch(`/api/deals/${deal._id}/click`, { method: 'POST' }).catch(() => {});
+
             // UPGRADE-B fix 1.4: Only validate deals < 6h old — older deals aren't worth the latency
             const ageH = deal.scraped_at
               ? (Date.now() - new Date(deal.scraped_at).getTime()) / 3_600_000
@@ -428,8 +431,8 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           {validating ? 'Checking...' : 'Get Deal →'}
           <ExternalLink className="h-3.5 w-3.5 opacity-80" />
         </a>
-        {/* Affiliate transparency disclosure */}
-        <p className="text-[9px] text-center mt-2" style={{ color: 'var(--text-muted)' }}>
+        {/* Affiliate transparency disclosure — min 11px per QA checklist */}
+        <p className="text-[11px] text-center mt-2" style={{ color: 'var(--text-muted)' }}>
           We earn a commission.{' '}
           <a
             href="/how-scoring-works"

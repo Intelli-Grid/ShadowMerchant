@@ -76,8 +76,13 @@ const DealSchema = new Schema({
   price_history: [PriceHistorySchema],
   
   // Analytics
-  click_count: { type: Number, default: 0 },
-  view_count:  { type: Number, default: 0 },
+  click_count:       { type: Number, default: 0 },
+  view_count:        { type: Number, default: 0 },
+
+  // UPGRADE-K: Velocity tracking — click rate triggers "Trending Now" Telegram alerts
+  velocity_score:      { type: Number, default: 0 },
+  click_count_1h:      { type: Number, default: 0 },     // rolling 1-hour click count
+  last_velocity_check: { type: Date },                    // prevents duplicate Telegram notifications
 
   // Community reactions (denormalised cache — kept in sync by reactions API)
   reactions_cache: {

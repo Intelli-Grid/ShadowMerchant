@@ -29,6 +29,56 @@ def _get(deal, field: str, default=0):
     return getattr(deal, field, default)
 
 
+def check_mrp_clarity(price_history: list, current_mrp: float, current_price: float) -> dict:
+    """
+    UPGRADE-G / Sprint 2B — MRP Clarity check.
+    Compares the listed MRP against historical prices to detect 'shifted' MRPs
+    (i.e. the MRP was artificially raised before a sale).
+
+    Returns a dict with:
+      verdict: 'verified' | 'shifted' | 'unknown'
+      note:    human-readable explanation shown on the DealCard badge
+
+    Called by score_deal_with_breakdown() — result is stored in:
+      deal.mrp_verified and deal.mrp_note
+    """
+    if not price_history or len(price_history) < 3:
+        return {"verdict": "unknown", "note": "Insufficient history to assess"}
+
+    try:
+        historical_prices = []
+        for entry in price_history:
+            p = float(_get(entry, "price", 0) or 0)
+            if p > 0:
+                historical_prices.append(p)
+
+        if len(historical_prices) < 3:
+            return {"verdict": "unknown", "note": "Insufficient history to assess"}
+
+        hist_max = max(historical_prices)
+        hist_min = min(historical_prices)
+
+        # MRP significantly above the highest ever tracked price → likely shifted
+        if current_mrp > hist_max * 1.4:
+            gap_pct = round((current_mrp / hist_max - 1) * 100)
+            return {
+                "verdict": "shifted",
+                "note": f"Listed MRP is ~{gap_pct}% above observed historical prices",
+            }
+
+        # Current price is at or below the historical minimum → genuine low
+        if current_price <= hist_min * 1.05:
+            return {
+                "verdict": "verified",
+                "note": "Near 30-day lowest tracked price",
+            }
+
+        return {"verdict": "unknown", "note": "Limited history — context unavailable"}
+
+    except Exception:
+        return {"verdict": "unknown", "note": "Error during MRP analysis"}
+
+
 def compute_discount_score(discount_pct: float) -> float:
     """
     Discount % component — weight 35%.

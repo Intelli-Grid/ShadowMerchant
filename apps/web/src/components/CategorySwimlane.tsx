@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { DealCard } from './deals/DealCard';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { Deal } from '@/types';
+import { EmailCaptureInline } from '@/components/EmailCaptureInline';
 
 interface CategorySwimlaneProps {
   title: string;
@@ -33,7 +34,38 @@ export function CategorySwimlane({ title, emoji, categorySlug, deals, totalDeals
     }
   };
 
-  if (!deals || deals.length === 0) return null;
+  // UPGRADE-L / Sprint 4B: Empty state — replace "Scanning" / null with a helpful prompt
+  if (!deals || deals.length === 0) {
+    return (
+      <section className="w-full mb-10 overflow-hidden">
+        <div className="flex items-center gap-3 mb-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+          <span className="text-2xl">{emoji}</span>
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}>
+            {title}
+          </h2>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div
+            className="rounded-2xl py-14 px-6 text-center"
+            style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)' }}
+          >
+            <div className="text-4xl mb-4">🔍</div>
+            <h3 className="text-white font-bold text-lg mb-2">
+              We're building out {title}
+            </h3>
+            <p className="text-sm mb-6 max-w-sm mx-auto" style={{ color: 'var(--text-secondary)' }}>
+              Our deal tracker is warming up for this category. Want a heads-up when the first deals land?
+            </p>
+            <EmailCaptureInline
+              source={`empty_category_${categorySlug}`}
+              placeholder="Your email — we'll notify you"
+              ctaLabel="Notify Me →"
+            />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="w-full mb-10 overflow-hidden">
