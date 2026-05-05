@@ -91,6 +91,19 @@ const DealSchema = new Schema({
   scraped_at:   { type: Date },
   expires_at:   { type: Date },
 
+  // UPGRADE-H: Bank-specific offer — populated by scraper when detected (e.g. "Extra 10% off with SBI card")
+  bank_offer: { type: String, default: null },
+
+  // UPGRADE-G: MRP Clarity — populated by deal_scorer.py using price_history
+  mrp_verified: { type: String, enum: ['verified', 'shifted', 'unknown'], default: 'unknown' },
+  mrp_note: { type: String },   // e.g. "Near 30-day low" or "Listed MRP ~40% above observed historical prices"
+
+  // UPGRADE-J: Stock signal — independent of is_active (which only flips after 72h)
+  is_available: { type: Boolean, default: true },
+
+  // UPGRADE-I: Flash deal notification tracker — prevents duplicate Telegram posts
+  telegram_notified: { type: Boolean, default: false },
+
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
 
 // ─── Indexes ────────────────────────────────────────────────────────────────
@@ -103,6 +116,7 @@ DealSchema.index({ scraped_at: -1, is_active: 1 });          // NEW — day-wise
 DealSchema.index({ published_at: -1 });
 DealSchema.index({ title: 'text', description: 'text' });
 DealSchema.index({ deal_score: -1, is_active: 1 });          // NEW — homepage score sort
+DealSchema.index({ deal_type: 1, scraped_at: -1, is_active: 1 }); // UPGRADE-I — flash deal queries
 // NEW-04: unique index on affiliate_url prevents duplicate deals from concurrent pipeline runs
 DealSchema.index({ affiliate_url: 1 }, { unique: true, sparse: true });
 // BUG-13: index on scraper-written fields for staleness and trending queries

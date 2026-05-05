@@ -94,6 +94,7 @@ def build_deal_document(raw: RawDeal) -> dict:
         "rating_count": raw.rating_count,
         "deal_type": raw.deal_type,
         "is_active": True,
+        "is_available": True,
         "deal_hash": raw.deal_hash,
         "price_history": [{
             "date": datetime.utcnow(),
@@ -103,8 +104,43 @@ def build_deal_document(raw: RawDeal) -> dict:
         "scraped_at": datetime.utcnow(),
         "expires_at": raw.expires_at,
         "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow()
+        "updated_at": datetime.utcnow(),
+        # UPGRADE-G: MRP clarity defaults — scorer will update these after history builds
+        "mrp_verified": "unknown",
+        "mrp_note": None,
+        # UPGRADE-H: bank offer — scrapers will populate this when they detect card offers
+        "bank_offer": None,
     }
+
+
+# UPGRADE-G: MRP Clarity check — compares listed MRP against observed price history
+def check_mrp_clarity(price_history: list, current_mrp: float, current_price: float) -> dict:
+    """
+    Returns mrp_verified verdict and an explanatory note.
+    Requires at least 3 data points; returns 'unknown' otherwise.
+    """
+    if not price_history or len(price_history) < 3:
+        return {"verdict": "unknown", "note": "Insufficient history to assess"}
+
+    historical_prices = [p["price"] for p in price_history]
+    hist_max = max(historical_prices)
+    hist_min = min(historical_prices)
+
+    # If stated MRP is >40% above the highest price we've ever seen, it's likely inflated
+    if current_mrp > hist_max * 1.4:
+        gap_pct = round((current_mrp / hist_max - 1) * 100)
+        return {
+            "verdict": "shifted",
+            "note": f"Listed MRP appears ~{gap_pct}% above observed historical prices"
+        }
+
+    # If current price is within 5% of the historical minimum, the discount is real
+    if current_price <= hist_min * 1.05:
+        return {"verdict": "verified", "note": "Near 30-day lowest tracked price"}
+
+    return {"verdict": "unknown", "note": "Limited history — context unavailable"}
+
+
 
 def process_deals(raw_deals: list[RawDeal], db) -> dict:
     stats = {"new": 0, "updated": 0, "skipped": 0}
@@ -124,13 +160,23 @@ def process_deals(raw_deals: list[RawDeal], db) -> dict:
         if existing:
             # Update price if changed
             if existing.get("discounted_price") != raw.discounted_price:
+                # Build new price_history with the new point appended
+                new_history = list(existing.get("price_history", [])) + [{
+                    "date": datetime.utcnow(),
+                    "price": raw.discounted_price
+                }]
+                # UPGRADE-G: Recalculate MRP clarity on every price update
+                mrp_result = check_mrp_clarity(new_history, raw.original_price, raw.discounted_price)
+
                 db.deals.update_one(
                     {"_id": existing["_id"]},
                     {
                         "$set": {
                             "discounted_price": raw.discounted_price,
                             "discount_percent": raw.discount_percent,
-                            "category": raw.category,  # also fix category on update
+                            "category": raw.category,
+                            "mrp_verified": mrp_result["verdict"],
+                            "mrp_note": mrp_result["note"],
                             "updated_at": datetime.utcnow()
                         },
                         "$push": {"price_history": {
@@ -139,12 +185,12 @@ def process_deals(raw_deals: list[RawDeal], db) -> dict:
                         }}
                     }
                 )
-                
+
                 # Fetch the updated doc to sync to Algolia
                 updated_doc = db.deals.find_one({"_id": existing["_id"]})
                 if updated_doc:
                     algolia_updates.append(updated_doc)
-                    
+
                 stats["updated"] += 1
             else:
                 stats["skipped"] += 1

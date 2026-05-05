@@ -154,21 +154,37 @@ async function getCategoryDeals(category: string, limit = 8) {
   try {
     await connectDB();
     const DealModel = (await import('@/models/Deal')).default;
-    // Platform-diversity aggregation: cap at 2 deals per platform per category.
-    // Prevents Meesho-dominated swimlanes when one platform dominates the database.
-    const MAX_PER_PLATFORM = 2;
+    // UPGRADE-F: Meesho-aware cap — exclude from premium categories, limit to 1 elsewhere
+    const PREMIUM_CATEGORIES = ['electronics', 'gaming', 'mobile'];
+    const meeshoCap = PREMIUM_CATEGORIES.includes(category) ? 0 : 1;
+
     const deals = await DealModel.aggregate([
       {
         $match: {
           is_active: true,
           category,
-          deal_score: { $gte: 30 },       // Exclude very low quality deals
+          deal_score: { $gte: 45 },       // UPGRADE-F: raised from 30 — removes low-quality deals
           title: { $regex: '.{15,}' },    // Exclude garbage/short titles
         },
       },
       { $sort: { deal_score: -1 } },
       { $group: { _id: '$source_platform', docs: { $push: '$$ROOT' } } },
-      { $project: { docs: { $slice: ['$docs', MAX_PER_PLATFORM] } } },
+      {
+        $project: {
+          docs: {
+            $slice: [
+              '$docs',
+              {
+                $cond: {
+                  if: { $eq: ['$_id', 'meesho'] },
+                  then: meeshoCap,
+                  else: 2,
+                },
+              },
+            ],
+          },
+        },
+      },
       { $unwind: '$docs' },
       { $replaceRoot: { newRoot: '$docs' } },
       { $sort: { deal_score: -1 } },
@@ -255,6 +271,7 @@ export default async function Home() {
       {/* Hero Section */}
       <section className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12 text-center flex flex-col items-center">
         {/* Compact Hero badge */}
+        {/* UPGRADE-A: User-first badge */}
         <Badge
           className="mb-3 font-semibold px-3 py-1 text-xs shadow-sm"
           style={{
@@ -264,31 +281,29 @@ export default async function Home() {
           }}
           variant="secondary"
         >
-          ⚡ {totalSavings > 0
-            ? `Save up to ${formattedSavings} today`
-            : "India's Best Deals, All in One Place"}
+          🛡️ India&apos;s independent deal tracker
         </Badge>
 
-        {/* Main headline - Compacted */}
+        {/* UPGRADE-A: User-first H1 */}
         <h1 className="text-2xl md:text-4xl font-black mb-3 tracking-tight text-white leading-tight max-w-3xl">
-          Stop hunting across 10 apps. <br className="hidden md:block" />
-          <span className="text-gold-shimmer">The best deals find you.</span>
+          Not sure if that sale price is actually a good deal?<br className="hidden md:block" />
+          <span className="text-gold-shimmer">ShadowMerchant helps you find out.</span>
         </h1>
 
         <p className="text-sm md:text-base max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-          ShadowMerchant automatically discovers &amp; scores the best-discounted products from Amazon, Flipkart, Myntra, and more.
+          We cross-check every deal&apos;s price history before surfacing it.
+          Transparent pricing. Real savings. 5 platforms, one honest feed.
         </p>
 
-        {trendingDeals.length > 0 && (
-          <div className="flex items-center justify-center gap-2 sm:gap-6 text-[10px] sm:text-xs font-semibold mt-4 mb-6 flex-wrap"
-            style={{ color: 'var(--text-muted)' }}>
-            <span>🔥 {trendingDeals.length} hot deals right now</span>
-            <span className="hidden sm:inline">·</span>
-            <span>💰 {formattedSavings} saveable today</span>
-            <span className="hidden sm:inline">·</span>
-            <span>🕐 Updated {lastRefreshed}</span>
-          </div>
-        )}
+        {/* UPGRADE-A: Static trust proof-points */}
+        <div className="flex items-center justify-center gap-2 sm:gap-6 text-[10px] sm:text-xs font-semibold mt-4 mb-6 flex-wrap"
+          style={{ color: 'var(--text-muted)' }}>
+          <span>✓ Price vs 30-day history — verified</span>
+          <span className="hidden sm:inline">·</span>
+          <span>✓ Amazon · Flipkart · Myntra · Meesho · Nykaa</span>
+          <span className="hidden sm:inline">·</span>
+          <span>✓ Shadow Score: ranked by real saving</span>
+        </div>
 
 
 

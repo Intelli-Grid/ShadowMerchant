@@ -1,3 +1,4 @@
+// UPGRADE-F: tier differentiates branded vs value platforms for UI logic
 export interface PlatformConfig {
   name: string;
   slug: string;
@@ -6,6 +7,8 @@ export interface PlatformConfig {
   borderColor: string;
   accentColor: string;
   emoji: string;
+  tier: 'branded' | 'value';
+  trustLabel?: string; // shown as badge on value-tier cards
 }
 
 export const PLATFORM_CONFIG: Record<string, PlatformConfig> = {
@@ -17,6 +20,7 @@ export const PLATFORM_CONFIG: Record<string, PlatformConfig> = {
     borderColor: 'rgba(255,153,0,0.3)',
     accentColor: '#FF9900',
     emoji: '📦',
+    tier: 'branded',
   },
   flipkart: {
     name: 'Flipkart',
@@ -26,6 +30,7 @@ export const PLATFORM_CONFIG: Record<string, PlatformConfig> = {
     borderColor: 'rgba(40,116,240,0.3)',
     accentColor: '#2874F0',
     emoji: '🛒',
+    tier: 'branded',
   },
   myntra: {
     name: 'Myntra',
@@ -35,6 +40,7 @@ export const PLATFORM_CONFIG: Record<string, PlatformConfig> = {
     borderColor: 'rgba(255,63,108,0.3)',
     accentColor: '#FF3F6C',
     emoji: '👗',
+    tier: 'branded',
   },
   meesho: {
     name: 'Meesho',
@@ -44,6 +50,8 @@ export const PLATFORM_CONFIG: Record<string, PlatformConfig> = {
     borderColor: 'rgba(155,47,206,0.3)',
     accentColor: '#9B2FCE',
     emoji: '🛍️',
+    tier: 'value',
+    trustLabel: 'Unbranded / Generic',
   },
   nykaa: {
     name: 'Nykaa',
@@ -53,6 +61,7 @@ export const PLATFORM_CONFIG: Record<string, PlatformConfig> = {
     borderColor: 'rgba(252,39,121,0.3)',
     accentColor: '#FC2779',
     emoji: '💄',
+    tier: 'branded',
   },
   croma: {
     name: 'Croma',
@@ -62,6 +71,7 @@ export const PLATFORM_CONFIG: Record<string, PlatformConfig> = {
     borderColor: 'rgba(103,160,36,0.3)',
     accentColor: '#67A024',
     emoji: '📱',
+    tier: 'branded',
   },
 };
 

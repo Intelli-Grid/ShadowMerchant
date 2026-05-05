@@ -28,6 +28,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
   const [scoreVisible, setScoreVisible] = useState(false);
   const [priceToast, setPriceToast] = useState<string | null>(null);
   const [validating, setValidating] = useState(false);
+  const [scoreExpanded, setScoreExpanded] = useState(false); // UPGRADE-E: mobile score explainer toggle
   const scoreBarRef = useRef<HTMLDivElement>(null);
 
   // MED-10 fix: useLayoutEffect fires synchronously before the browser paints,
@@ -99,6 +100,20 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
     md: 'text-sm',
     lg: 'text-base',
   };
+  // UPGRADE-B: Color-coded freshness signal based on deal age and type
+  function getFreshnessSignal(scrapedAt: Date | string | undefined, dealType?: string) {
+    if (!scrapedAt) return null;
+    const ageH = (Date.now() - new Date(scrapedAt).getTime()) / 3_600_000;
+    const isFlash = dealType === 'lightning' || dealType === 'flash';
+
+    if (isFlash && ageH > 3) {
+      return { label: '⚠️ May no longer be available', bg: 'rgba(239,68,68,0.12)', color: '#ef4444' };
+    }
+    if (ageH < 1)  return { label: '🟢 Just added', bg: 'rgba(34,197,94,0.1)', color: '#22c55e' };
+    if (ageH < 6)  return { label: `✓ Verified ${Math.floor(ageH)}h ago`, bg: 'rgba(34,197,94,0.08)', color: '#22c55e' };
+    if (ageH < 12) return { label: `🕐 ${Math.floor(ageH)}h old — worth a quick check`, bg: 'rgba(245,158,11,0.1)', color: '#F59E0B' };
+    return { label: `⚠️ ${Math.floor(ageH)}h old — please verify on platform`, bg: 'rgba(239,68,68,0.1)', color: '#ef4444' };
+  }
 
   return (
     <article
@@ -236,21 +251,50 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
       {/* ── CONTENT SECTION ── */}
       <div className={cn('flex flex-col flex-1 p-3 sm:p-3.5 min-w-0', sizeClasses[size])}>
 
-        {/* Score — Semi-circle gauge */}
-        <div className="mb-2.5 flex items-center gap-3" ref={scoreBarRef}>
-          <ShadowScoreGauge score={score} size={72} strokeWidth={7} showLabel={false} />
-          <div className="flex flex-col min-w-0">
-            <span
-              className="text-[10px] font-bold"
-              style={{ color: scoreColor }}
-            >
-              {scoreLabel}
-            </span>
-            <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>
-              Score {score}/100
-            </span>
+        {/* Score — Semi-circle gauge with mobile tap explainer (UPGRADE-E+K) */}
+        <div className="mb-2.5" ref={scoreBarRef}>
+          <div className="flex items-center gap-3">
+            <ShadowScoreGauge score={score} size={72} strokeWidth={7} showLabel={false} />
+            <div className="flex flex-col min-w-0">
+              <div className="flex items-center gap-1">
+                <span className="text-[10px] font-bold" style={{ color: scoreColor }}>
+                  {scoreLabel}
+                </span>
+                <button
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setScoreExpanded(v => !v); }}
+                  className="text-[9px] font-bold px-1 rounded leading-none"
+                  style={{ color: 'var(--text-muted)', background: 'var(--bg-raised)' }}
+                  aria-label="What is the Shadow Score?"
+                >
+                  ?
+                </button>
+              </div>
+              <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>
+                Score {score}/100
+              </span>
+            </div>
           </div>
+          {scoreExpanded && (
+            <div className="mt-2 p-2.5 rounded-lg text-[10px] leading-snug"
+              style={{ background: 'var(--bg-raised)', border: '1px solid var(--sm-border)', color: 'var(--text-secondary)' }}>
+              <p className="font-bold text-white mb-1">What is the Shadow Score?</p>
+              <p>A 0–100 score: absolute ₹ saving (30%), discount % (20%), price tier (20%), 30-day history (20%), reviews (5%), freshness (5%).</p>
+              <p className="mt-1">It is <strong className="text-white">not</strong> influenced by affiliate commission rates.</p>
+              <a href="/how-scoring-works" onClick={(e) => e.stopPropagation()}
+                className="underline underline-offset-2 block mt-1" style={{ color: 'var(--gold)' }}>
+                Full methodology →
+              </a>
+            </div>
+          )}
         </div>
+
+        {/* UPGRADE-F: Value-tier label — only shown for Meesho (tier: 'value') */}
+        {platform.tier === 'value' && platform.trustLabel && (
+          <span className="text-[8px] font-semibold px-1.5 py-0.5 rounded mb-1 inline-block"
+            style={{ background: 'rgba(148,163,184,0.1)', color: 'var(--text-muted)', border: '1px solid rgba(148,163,184,0.15)' }}>
+            {platform.trustLabel}
+          </span>
+        )}
 
         {/* Title — clicking navigates to deal detail page */}
         <Link
@@ -302,7 +346,41 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
               M.R.P: <span className="line-through">{formatPrice(deal.original_price)}</span>
             </span>
           )}
+          {/* UPGRADE-G: MRP clarity badges */}
+          {(deal as any).mrp_verified === 'verified' && (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit mt-0.5"
+              style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}>
+              ✓ Price Consistent
+            </span>
+          )}
+          {(deal as any).mrp_verified === 'shifted' && (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit mt-0.5"
+              title={(deal as any).mrp_note}
+              style={{ background: 'rgba(245,158,11,0.1)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.2)' }}>
+              ℹ️ MRP shifted recently
+            </span>
+          )}
         </div>
+
+        {/* UPGRADE-J: Unavailability notice — shown when is_available is false */}
+        {(deal as any).is_available === false && (
+          <div className="rounded-lg px-3 py-2 text-center text-xs font-bold mb-2"
+            style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)' }}>
+            ⚠️ Currently Unavailable — price may have changed
+          </div>
+        )}
+
+        {/* UPGRADE-B: Color-coded freshness badge above CTA */}
+        {(() => {
+          const sig = getFreshnessSignal(deal.scraped_at, (deal as any).deal_type);
+          if (!sig) return null;
+          return (
+            <p className="text-[10px] font-semibold text-center mb-1.5 px-2 py-1 rounded-full"
+              style={{ background: sig.bg, color: sig.color }}>
+              {sig.label}
+            </p>
+          );
+        })()}
 
         {/* CTA — gold; Meesho uses 'Browse Deal' since it links to a catalog page */}
         <a
@@ -324,6 +402,13 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           onClick={async (e) => {
             e.stopPropagation();
             if (validating) return;
+
+            // UPGRADE-B fix 1.4: Only validate deals < 6h old — older deals aren't worth the latency
+            const ageH = deal.scraped_at
+              ? (Date.now() - new Date(deal.scraped_at).getTime()) / 3_600_000
+              : 999;
+            if (ageH > 6) return; // just open the link directly
+
             setValidating(true);
             try {
               const res = await fetch(`/api/deals/${deal._id}/validate`, { method: 'POST' });
@@ -394,12 +479,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           Share
         </button>
 
-        {deal.scraped_at && (
-          <p className="text-[9px] text-center mt-1 font-medium"
-            style={{ color: 'var(--text-muted)' }}>
-            Updated {formatDistanceToNow(new Date(deal.scraped_at), { addSuffix: true })}
-          </p>
-        )}
+        {/* Old bottom timestamp removed — replaced by freshness badge above CTA (UPGRADE-B) */}
 
         {/* Price updated toast */}
         {priceToast && (

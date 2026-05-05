@@ -1,0 +1,44 @@
+name: Flash Deal Monitor
+
+# UPGRADE-I: Dedicated flash/lightning deal pipeline — runs every 2h independently of the main scrape
+# Purpose: catch Amazon lightning deals before they expire and notify Telegram immediately.
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'   # Every 2 hours, on the hour
+  workflow_dispatch:          # Manual trigger for testing
+
+jobs:
+  flash-scan:
+    name: Scan & Post Flash Deals
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Install Python dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Run Amazon Lightning Deal Scanner
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+        run: |
+          python scripts/scrapers/amazon_scraper.py --lightning-only --limit 15
+
+      - name: Post Flash Deals to Telegram
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+        run: |
+          python scripts/social/telegram_poster.py --flash-only --include-expiry --limit 5

@@ -122,6 +122,39 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
     deal.deal_score >= 55 ? "Moderate discount. Good if you need it now." :
     "Limited discount. Consider waiting for a better drop.";
 
+  // UPGRADE-C: Buy Now or Wait? verdict — uses price_history when available, falls back to score
+  function getBuyWaitVerdict(ph: { price: number; date: string }[]) {
+    const score = deal.deal_score ?? 0;
+    const currentPrice = deal.discounted_price;
+
+    if (ph && ph.length >= 3) {
+      const prices = ph.map((p) => p.price);
+      const minPrice = Math.min(...prices);
+      const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+
+      if (currentPrice <= minPrice * 1.03) {
+        return { verdict: 'BUY NOW', emoji: '🟢', color: '#22c55e', bg: 'rgba(34,197,94,0.08)', border: 'rgba(34,197,94,0.2)',
+          reason: `This is near the lowest price we've tracked for this product in the past 30 days.` };
+      }
+      if (currentPrice < avgPrice * 0.9) {
+        return { verdict: 'GOOD TIME TO BUY', emoji: '👍', color: '#60A5FA', bg: 'rgba(96,165,250,0.08)', border: 'rgba(96,165,250,0.2)',
+          reason: `Currently ₹${Math.round(avgPrice - currentPrice).toLocaleString('en-IN')} below the 30-day average price.` };
+      }
+      if (currentPrice >= avgPrice) {
+        return { verdict: 'CONSIDER WAITING', emoji: '⏳', color: '#94A3B8', bg: 'rgba(148,163,184,0.08)', border: 'rgba(148,163,184,0.15)',
+          reason: `The 30-day average is ₹${Math.round(avgPrice).toLocaleString('en-IN')} — today's price is at or above that.` };
+      }
+    }
+
+    if (score >= 80) return { verdict: 'STRONG BUY', emoji: '🔥', color: '#F59E0B', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.2)',
+      reason: `Shadow Score ${score}/100 — one of the highest-rated deals we've seen in this category.` };
+    if (score >= 60) return { verdict: 'FAIR PRICE', emoji: '🆗', color: '#818CF8', bg: 'rgba(129,140,248,0.08)', border: 'rgba(129,140,248,0.2)',
+      reason: `Solid discount on paper. Not a historic low, but reasonable. Worth buying if you need it now.` };
+    return { verdict: 'CONSIDER WAITING', emoji: '⏳', color: '#94A3B8', bg: 'rgba(148,163,184,0.08)', border: 'rgba(148,163,184,0.15)',
+      reason: `Score ${score}/100 — limited savings here. A better deal may come soon.` };
+  }
+  const verdict = getBuyWaitVerdict(price_history);
+
   // Generate Product JSON-LD
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -262,10 +295,35 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                   <span className="text-2xl mt-1.5 mr-0.5">₹</span>{deal.discounted_price.toLocaleString('en-IN')}
                 </span>
               </div>
-              <p className="text-sm font-semibold line-through text-gray-500 mb-6">
+              <p className="text-sm font-semibold line-through text-gray-500 mb-3">
                 M.R.P.: ₹{deal.original_price.toLocaleString('en-IN')}
               </p>
-              
+
+              {/* UPGRADE-H: Bank offer — show if captured, note if not */}
+              {(deal as any).bank_offer ? (
+                <div className="flex items-start gap-2 p-3 rounded-lg mb-4"
+                  style={{ background: 'rgba(59,130,246,0.07)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                  <span className="text-blue-400 text-sm">💳</span>
+                  <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                    <strong className="text-white">Bank Offer:</strong> {(deal as any).bank_offer}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-[11px] mb-4" style={{ color: 'var(--text-muted)' }}>
+                  💳 Bank card offers (SBI/HDFC/ICICI) may apply on {platform.name} — check the product page for eligibility.
+                </p>
+              )}
+
+              {/* UPGRADE-C: Buy Now or Wait? verdict — above the primary CTA */}
+              <div className="rounded-xl p-4 flex items-start gap-3 mb-4"
+                style={{ background: verdict.bg, border: `1px solid ${verdict.border}` }}>
+                <span className="text-2xl leading-none mt-0.5">{verdict.emoji}</span>
+                <div>
+                  <p className="font-black text-white text-sm tracking-wide">{verdict.verdict}</p>
+                  <p className="text-xs mt-1 leading-snug" style={{ color: 'var(--text-secondary)' }}>{verdict.reason}</p>
+                </div>
+              </div>
+
               <a 
 
                 href={`/api/go/${deal._id}`}
@@ -283,6 +341,12 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 Buy on {platform.name} <ExternalLink className="w-4 h-4" />
 
               </a>
+
+              {/* UPGRADE-D: Delivery charge disclaimer */}
+              <p className="text-[11px] text-center mt-2 leading-snug" style={{ color: 'var(--text-muted)' }}>
+                💡 Price shown may exclude delivery charges (₹0–₹100 based on your location &amp; order value).
+                Always verify the final price on {platform.name} before completing your order.
+              </p>
 
               {/* Target Price Alert — the retention mechanism */}
               <div className="w-full md:w-auto lg:w-80">
@@ -327,14 +391,16 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
               <DealReactionBar dealId={String(deal._id)} />
             </div>
 
-            {/* Disclaimer */}
-            <div className="flex items-start gap-4 p-5 rounded-xl" style={{ border: '1px solid var(--gold-border)', background: 'var(--gold-glow)' }}>
-              <Clock className="w-6 h-6 shrink-0 mt-0.5" style={{ color: 'var(--gold)' }} />
-              <p className="text-sm">
-                <strong className="text-white block mb-0.5" style={{ fontFamily: 'var(--font-display)' }}>Flash Deals Expire Quickly!</strong>
-                <span className="text-gray-400">Inventory and discounts are completely controlled by {platform.name}. Prices are guaranteed only at the exact time of algorithmic detection. Do not wait if the score is above 80.</span>
-              </p>
-            </div>
+            {/* UPGRADE-C fix 3.3: Flash disclaimer only for actual flash/lightning deals */}
+            {((deal as any).deal_type === 'lightning' || (deal as any).deal_type === 'flash') && (
+              <div className="flex items-start gap-4 p-5 rounded-xl" style={{ border: '1px solid var(--gold-border)', background: 'var(--gold-glow)' }}>
+                <Clock className="w-6 h-6 shrink-0 mt-0.5" style={{ color: 'var(--gold)' }} />
+                <p className="text-sm">
+                  <strong className="text-white block mb-0.5" style={{ fontFamily: 'var(--font-display)' }}>Flash Deal — Available for a Limited Time</strong>
+                  <span className="text-gray-400">Lightning deals on {platform.name} typically last 2–4 hours. If the score is above 70, it&apos;s worth acting quickly.</span>
+                </p>
+              </div>
+            )}
 
             {/* Compare Prices */}
             {deal.alternate_links && deal.alternate_links.length > 0 && (

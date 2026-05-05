@@ -10,6 +10,7 @@ interface TargetPriceAlertButtonProps {
   currentPrice: number;
   productTitle: string;
   platform: string;
+  buttonLabel?: string; // UPGRADE-J: optional custom label for contextual CTAs
 }
 
 type AlertState = 'idle' | 'loading' | 'set' | 'setting' | 'removing' | 'error';
@@ -19,6 +20,7 @@ export function TargetPriceAlertButton({
   currentPrice,
   productTitle,
   platform,
+  buttonLabel,
 }: TargetPriceAlertButtonProps) {
   const { isSignedIn } = useAuth();
   const router = useRouter();
@@ -250,7 +252,7 @@ export function TargetPriceAlertButton({
       aria-label="Set a price drop alert for this product"
     >
       <Bell className="w-4 h-4" />
-      Alert me when price drops
+      {buttonLabel ?? 'Alert me when price drops'}
     </button>
   );
 }

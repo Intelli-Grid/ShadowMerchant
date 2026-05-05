@@ -3,6 +3,7 @@ import Deal from '@/models/Deal';
 import Link from 'next/link';
 import Image from 'next/image';
 import { BackInStockForm } from '@/components/ui/BackInStockForm';
+import { TargetPriceAlertButton } from '@/components/deals/TargetPriceAlertButton';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -151,11 +152,20 @@ export default async function MissedDealsPage() {
                   </div>
                 </div>
                 
-                {/* Back in stock notification form */}
+                {/* Back in stock / alert section (UPGRADE-J) */}
                 <div className="mt-4 pt-4 border-t" style={{ borderColor: 'var(--sm-border)' }}>
-                  <BackInStockForm 
-                    dealId={deal._id.toString()} 
-                    dealTitle={deal.title} 
+                  {/* TargetPriceAlertButton for signed-in users */}
+                  <TargetPriceAlertButton
+                    dealId={deal._id.toString()}
+                    currentPrice={deal.discounted_price}
+                    productTitle={deal.title}
+                    platform={deal.source_platform}
+                    buttonLabel="Notify Me When Back →"
+                  />
+                  {/* BackInStockForm for email-based fallback (unauthenticated users) */}
+                  <BackInStockForm
+                    dealId={deal._id.toString()}
+                    dealTitle={deal.title}
                   />
                 </div>
               </div>

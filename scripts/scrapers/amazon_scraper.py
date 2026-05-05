@@ -214,9 +214,90 @@ class AmazonScraper(BaseScraper):
 
 
 if __name__ == "__main__":
+    import argparse
+    import pymongo
+
+    # UPGRADE-I: argparse flags for targeted flash-deal invocation from flash_deals.yml
+    parser = argparse.ArgumentParser(description="Amazon Scraper")
+    parser.add_argument("--lightning-only", action="store_true",
+                        help="Only scrape Amazon lightning/deal-of-the-day URLs, skip category search")
+    parser.add_argument("--limit", type=int, default=50,
+                        help="Max deals to process (default: 50)")
+    args = parser.parse_args()
+
     logging.basicConfig(level=logging.INFO)
+
+    LIGHTNING_URLS = [
+        ("electronics", "https://www.amazon.in/deals?deals-widget=%7B%22version%22%3A1%2C%22viewIndex%22%3A0%2C%22presetId%22%3A%22deals-collection-lightning-deals%22%7D"),
+        ("electronics", "https://www.amazon.in/gp/goldbox/?ref_=nav_cs_gb"),
+    ]
+
     s = AmazonScraper()
-    results = s.scrape_deals()
-    print(f"\nTotal: {len(results)} deals")
-    for r in results[:5]:
-        print(f"[{r.category}] {r.title[:55]} | ₹{r.discounted_price} | {r.product_url[:60]}")
+
+    if args.lightning_only:
+        # Run only lightning deal URLs and tag results as deal_type='lightning'
+        import asyncio
+        from playwright.async_api import async_playwright
+
+        async def scrape_lightning():
+            results = []
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(headless=True, args=["--no-sandbox", "--disable-dev-shm-usage"])
+                context = await browser.new_context(locale="en-IN", timezone_id="Asia/Kolkata")
+                for cat, url in LIGHTNING_URLS:
+                    page = await context.new_page()
+                    try:
+                        await page.goto(url, wait_until="domcontentloaded", timeout=25000)
+                        await page.wait_for_timeout(2000)
+                        cards = await page.query_selector_all("div[data-asin]")
+                        for card in cards[:args.limit]:
+                            try:
+                                asin = await card.get_attribute("data-asin")
+                                title_el = await card.query_selector("span.a-truncate-cut, span[aria-label]")
+                                price_el = await card.query_selector("span.a-price > span.a-offscreen")
+                                orig_el = await card.query_selector("span.a-text-price > span.a-offscreen")
+                                img_el = await card.query_selector("img")
+                                if not asin or not title_el or not price_el:
+                                    continue
+                                title = await title_el.inner_text()
+                                disc_price = s._parse_price(await price_el.inner_text())
+                                orig_price = s._parse_price(await orig_el.inner_text()) if orig_el else disc_price
+                                img = await img_el.get_attribute("src") if img_el else ""
+                                if disc_price <= 0:
+                                    continue
+                                results.append(RawDeal(
+                                    title=title.strip()[:200],
+                                    platform="amazon",
+                                    original_price=orig_price,
+                                    discounted_price=disc_price,
+                                    product_url=f"https://www.amazon.in/dp/{asin}?tag={s.affiliate_tag}",
+                                    image_url=img,
+                                    category=cat,
+                                    deal_type="lightning",
+                                ))
+                            except Exception:
+                                continue
+                    except Exception as e:
+                        logger.warning(f"Lightning [{cat}]: {e}")
+                    finally:
+                        await page.close()
+                await browser.close()
+            return results
+
+        raw_results = asyncio.run(scrape_lightning())
+    else:
+        raw_results = s.scrape_deals()
+
+    raw_results = raw_results[:args.limit]
+
+    if raw_results and os.getenv("MONGODB_URI"):
+        client = pymongo.MongoClient(os.getenv("MONGODB_URI"))
+        db = client["shadowmerchant"]
+        from processors.deal_processor import process_deals
+        stats = process_deals(raw_results, db)
+        print(f"Processed: {stats}")
+    else:
+        print(f"Total: {len(raw_results)} deals (dry run — no MONGODB_URI set)")
+        for r in raw_results[:5]:
+            print(f"  [{r.category}] {r.title[:55]} | ₹{r.discounted_price}")
+

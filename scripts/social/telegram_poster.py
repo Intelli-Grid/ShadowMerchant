@@ -2855,15 +2855,20 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="ShadowMerchant Telegram System")
 
-    parser.add_argument("--broadcast", action="store_true", help="Post top deals to channel")
+    parser.add_argument("--broadcast",      action="store_true", help="Post top deals to channel")
 
-    parser.add_argument("--setup-db", action="store_true", help="Create DB indexes")
+    parser.add_argument("--setup-db",       action="store_true", help="Create DB indexes")
 
-    parser.add_argument("--bot",       action="store_true", help="Run interactive bot daemon")
+    parser.add_argument("--bot",            action="store_true", help="Run interactive bot daemon")
 
-    parser.add_argument("--report",    action="store_true", help="Send admin pipeline health report")
+    parser.add_argument("--report",         action="store_true", help="Send admin pipeline health report")
 
-    parser.add_argument("--limit",     type=int, default=3,  help="Number of deals to broadcast")
+    # UPGRADE-I: Flash deal pipeline flags
+    parser.add_argument("--flash-only",     action="store_true", help="Post only lightning/flash deals scraped in the last 2h")
+
+    parser.add_argument("--include-expiry", action="store_true", help="Include flash_ends_at countdown in message")
+
+    parser.add_argument("--limit",          type=int, default=3,  help="Number of deals to broadcast")
 
     args = parser.parse_args()
 
@@ -2874,6 +2879,53 @@ if __name__ == "__main__":
         ensure_post_log_index()
 
         print("✅ DB indexes created for telegram_post_log")
+
+    # UPGRADE-I: Flash-only mode — posts top lightning deals scraped in the last 2h
+    elif args.flash_only:
+
+        async def post_flash_deals():
+            if not BOT_TOKEN:
+                logger.error("TELEGRAM_BOT_TOKEN not set")
+                return
+            from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
+            db  = get_db()
+            bot = Bot(token=BOT_TOKEN)
+            cutoff = datetime.now(timezone.utc) - timedelta(hours=2)
+            # Query: flash/lightning deals scraped in the last 2h, not yet telegram-notified
+            query = {
+                "is_active": True,
+                "deal_type": {"$in": ["lightning", "flash"]},
+                "scraped_at": {"$gte": cutoff},
+                "telegram_notified": {"$ne": True},
+                "deal_score": {"$gte": 60},
+            }
+            flash_deals = list(db.deals.find(query).sort("deal_score", -1).limit(args.limit))
+            if not flash_deals:
+                logger.info("No new flash deals to post")
+                return
+            posted_ids = []
+            for deal in flash_deals:
+                msg = format_flash_deal(deal)
+                if args.include_expiry and deal.get("flash_ends_at"):
+                    ends = deal["flash_ends_at"]
+                    if isinstance(ends, datetime):
+                        remaining = ends - datetime.now(timezone.utc)
+                        mins = int(remaining.total_seconds() // 60)
+                        if mins > 0:
+                            msg += f"\n\n⏱ Expires in ~{mins} minutes"
+                kb = InlineKeyboardMarkup([[
+                    InlineKeyboardButton("🛒 Get This Deal", url=f"{APP_URL}/api/go/{deal['_id']}"),
+                    InlineKeyboardButton("📊 Price History", url=f"{APP_URL}/deals/{deal['_id']}"),
+                ]])
+                ok = await _send_message(bot, msg, keyboard=kb, image_url=deal.get("image_url", ""))
+                if ok:
+                    posted_ids.append(deal["_id"])
+                await asyncio.sleep(1)
+            if posted_ids:
+                db.deals.update_many({"_id": {"$in": posted_ids}}, {"$set": {"telegram_notified": True}})
+                logger.info(f"Posted {len(posted_ids)} flash deals to Telegram")
+
+        asyncio.run(post_flash_deals())
 
     elif args.broadcast:
 
@@ -2906,4 +2958,3 @@ if __name__ == "__main__":
     else:
 
         asyncio.run(broadcast_top_deals(limit=3))
-
