@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     const searchResults = await Promise.all(
       testQueries.map(async (q) => {
         try {
-          const result = await adminClient.searchSingleIndex({
+          const result = await adminClient!.searchSingleIndex({
             indexName: ALGOLIA_INDEX,
             searchParams: { query: q, hitsPerPage: 1, filters: 'is_active:true' },
           });
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
     // Get index settings
     let indexSettings: any = {};
     try {
-      indexSettings = await adminClient.getSettings({ indexName: ALGOLIA_INDEX });
+      indexSettings = await adminClient!.getSettings({ indexName: ALGOLIA_INDEX });
     } catch { /* ignore */ }
 
     return NextResponse.json({
