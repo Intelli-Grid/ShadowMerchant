@@ -14,15 +14,14 @@ export default clerkMiddleware(async (auth, req) => {
     await auth.protect();
   }
 
-  // Admin routes: must be signed in AND have role=admin in Clerk public metadata
+  // Admin routes: must be signed in.
+  // Role check (publicMetadata.role === 'admin') is handled in
+  // app/admin/layout.tsx via currentUser() because publicMetadata
+  // is not included in the Clerk JWT by default.
   if (isAdminRoute(req)) {
-    const { userId, sessionClaims } = await auth();
+    const { userId } = await auth();
     if (!userId) {
       return NextResponse.redirect(new URL('/sign-in', req.url));
-    }
-    const isAdmin = (sessionClaims?.publicMetadata as any)?.role === 'admin';
-    if (!isAdmin) {
-      return NextResponse.redirect(new URL('/', req.url));
     }
   }
 });
