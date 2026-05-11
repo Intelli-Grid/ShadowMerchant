@@ -18,9 +18,10 @@ const ScrapeLogSchema = new Schema({
   completed_at: { type: Date },
   status:       {
     type: String,
-    enum: ['running', 'success', 'partial', 'failed'],
+    enum: ['running', 'success', 'partial', 'failed', 'triggered_manually'],
     default: 'running',
   },
+  triggered_by: { type: String },   // ADMIN: clerk_id of admin who triggered manually
 
   scrapers_run: [String],  // e.g. ["amazon", "flipkart", "myntra"]
   results:      [ScrapeResultSchema],

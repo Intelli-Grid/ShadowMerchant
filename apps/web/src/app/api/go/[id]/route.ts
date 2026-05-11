@@ -25,10 +25,10 @@ export async function GET(
     await connectDB();
     const Deal = (await import('@/models/Deal')).default;
 
-    // Atomically increment click_count and return the affiliate URL
+    // Atomically increment click_count, update last_clicked_at, and return the affiliate URL
     const deal = await Deal.findByIdAndUpdate(
       id,
-      { $inc: { click_count: 1 } },
+      { $inc: { click_count: 1 }, $set: { last_clicked_at: new Date() } },
       { new: true, select: 'affiliate_url is_active title source_platform category discount_percent deal_score' }
     ).lean() as any;
 

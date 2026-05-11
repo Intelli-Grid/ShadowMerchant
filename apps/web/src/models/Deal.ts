@@ -78,6 +78,7 @@ const DealSchema = new Schema({
   // Analytics
   click_count:       { type: Number, default: 0 },
   view_count:        { type: Number, default: 0 },
+  last_clicked_at:   { type: Date },                     // ADMIN: set on affiliate click for 24h click analytics
 
   // UPGRADE-K: Velocity tracking — click rate triggers "Trending Now" Telegram alerts
   velocity_score:      { type: Number, default: 0 },
@@ -131,5 +132,9 @@ DealSchema.index({ trending_score: -1, is_active: 1 });
 DealSchema.index({ data_may_be_stale: 1, source_platform: 1 });
 // COMMUNITY: index for fire-count sort on trending listing
 DealSchema.index({ 'reactions_cache.fire': -1, is_active: 1 });
+// ADMIN: top-clicked deals sort
+DealSchema.index({ click_count: -1, is_active: 1 });
+// ADMIN: 24h click analytics
+DealSchema.index({ last_clicked_at: -1 });
 
 export default mongoose.models.Deal || mongoose.model('Deal', DealSchema);
