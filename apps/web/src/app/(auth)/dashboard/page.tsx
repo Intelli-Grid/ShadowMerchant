@@ -8,6 +8,11 @@ import { Heart, Bell, Zap, TrendingUp, Package, ChevronRight, CheckCircle } from
 import { CancelSubscriptionButton } from '@/components/pro/CancelSubscriptionButton';
 import { ReferralWidget } from '@/components/ReferralWidget';
 
+// E5: Prevent Google from indexing authenticated user pages
+export const metadata = {
+  robots: 'noindex, nofollow',
+};
+
 async function getDashboardData(clerkId: string) {
   await connectDB();
   const [user, totalDeals, recentDeals] = await Promise.all([

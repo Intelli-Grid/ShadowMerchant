@@ -254,7 +254,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
         {/* Score — Semi-circle gauge with mobile tap explainer (UPGRADE-E+K) */}
         <div className="mb-2.5" ref={scoreBarRef}>
           <div className="flex items-center gap-3">
-            <ShadowScoreGauge score={score} size={72} strokeWidth={7} showLabel={false} />
+            <ShadowScoreGauge score={score} size={72} strokeWidth={7} showLabel={false} aria-label={`Shadow Score: ${score} out of 100`} />
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1">
                 <span className="text-[10px] font-bold" style={{ color: scoreColor }}>

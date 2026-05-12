@@ -14,6 +14,10 @@ import Link from 'next/link';
 import { connectDB } from '@/lib/db';
 import { redis, CACHE_KEYS, CACHE_TTL } from '@/lib/redis';
 
+// B1: ISR — re-render page every 3 minutes from Vercel edge cache.
+// Redis handles data-layer caching; ISR handles the rendered HTML layer.
+export const revalidate = 180;
+
 // Fetch the top 8 trending deals (is_trending=true, mix of free + pro)
 async function getTrendingDeals(): Promise<{ deals: Deal[]; isStale: boolean }> {
   const cached = await redis.get<{ deals: Deal[]; isStale: boolean }>(CACHE_KEYS.TRENDING_DEALS);
@@ -292,7 +296,7 @@ export default async function Home() {
 
         <p className="text-sm md:text-base max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           We cross-check every deal&apos;s price history before surfacing it.
-          Transparent pricing. Real savings. 5 platforms, one honest feed.
+          Transparent pricing. Real savings. 8 platforms, one honest feed.
         </p>
 
         {/* UPGRADE-A: Static trust proof-points */}
@@ -300,7 +304,7 @@ export default async function Home() {
           style={{ color: 'var(--text-muted)' }}>
           <span>✓ Price vs 30-day history — verified</span>
           <span className="hidden sm:inline">·</span>
-          <span>✓ Amazon · Flipkart · Myntra · Meesho · Nykaa</span>
+          <span>✓ Amazon · Flipkart · Myntra · Meesho · Nykaa · Croma · TataCliq</span>
           <span className="hidden sm:inline">·</span>
           <span>✓ Shadow Score: ranked by real saving</span>
         </div>
@@ -309,7 +313,7 @@ export default async function Home() {
 
         {/* Platform trust badges */}
         <div className="flex items-center justify-center gap-2 flex-wrap mb-6 hover:opacity-100 transition-opacity">
-          {['📦 Amazon', '🛒 Flipkart', '👗 Myntra', '🛍️ Meesho', '💄 Nykaa'].map(p => (
+          {['📦 Amazon', '🛒 Flipkart', '👗 Myntra', '🛍️ Meesho', '💄 Nykaa', '🖥️ Croma', '🏷️ TataCliq'].map(p => (
             <span key={p} className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
               style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)', border: '1px solid var(--sm-border)' }}>
               {p}

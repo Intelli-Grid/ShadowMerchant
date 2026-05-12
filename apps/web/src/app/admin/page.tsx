@@ -15,6 +15,7 @@ import {
   SectionHeader,
 } from '@/components/admin';
 import { AgentQueryPanel } from '@/components/admin/AgentQueryPanel';
+import { MissionControlRefreshButton } from './_MissionControlRefreshButton';
 
 // ── Data fetcher ─────────────────────────────────────────────────────────────
 async function getMissionControlData() {
@@ -137,8 +138,9 @@ export default async function AdminDashboard() {
           </p>
         </div>
 
-        {/* System status pills */}
+        {/* System status pills + refresh */}
         <div className="flex items-center gap-2 flex-wrap justify-end">
+          <MissionControlRefreshButton />
           <StatusPill label="Scraper" healthy={scraperHealthy} />
           <StatusPill label="Cache" healthy={cacheHealthy} />
           <StatusPill label="Data Feed" healthy={dataHealthy} />

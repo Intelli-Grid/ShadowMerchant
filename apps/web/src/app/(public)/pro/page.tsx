@@ -191,7 +191,7 @@ export default function ProPage() {
             <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Savings Tracked</p>
           </div>
           <div className="text-center">
-            <p className="text-4xl font-black mb-1 price-display" style={{ color: 'var(--gold)' }}>5+</p>
+            <p className="text-4xl font-black mb-1 price-display" style={{ color: 'var(--gold)' }}>8+</p>
             <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Platforms Tracked</p>
           </div>
         </div>

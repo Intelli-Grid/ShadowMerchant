@@ -2,8 +2,8 @@ export function HowItWorks() {
   const steps = [
     {
       emoji: '🤖',
-      title: 'AI Monitors 5 Stores',
-      description: 'Our scrapers run 3× daily across Amazon, Flipkart, Myntra, Meesho & Nykaa — tracking hundreds of categories automatically.',
+      title: 'AI Monitors 8 Stores',
+      description: 'Our scrapers run 3× daily across Amazon, Flipkart, Myntra, Meesho, Nykaa, Croma, TataCliq & more — tracking hundreds of categories automatically.',
       color: '#818CF8',
     },
     {
@@ -45,38 +45,42 @@ export function HowItWorks() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {steps.map((step, i) => (
-          <div
-            key={step.title}
-            className="relative flex flex-col p-6 rounded-2xl overflow-hidden"
-            style={{
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--sm-border)',
-            }}
-          >
-            {/* Step number watermark */}
-            <span
-              className="absolute top-4 right-5 text-6xl font-black opacity-[0.06] select-none"
-              style={{ color: step.color, fontFamily: 'var(--font-display)' }}
-            >
-              {i + 1}
-            </span>
-
+          // F5: Wrap each card in a relative container so the connector arrow is
+          // positioned relative to the card, NOT the grid — avoids Safari clip bug
+          // where overflow:hidden on the card itself would clip the -right-4 arrow.
+          <div key={step.title} className="relative">
             <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-5 flex-shrink-0"
-              style={{ background: `${step.color}18`, border: `1px solid ${step.color}30` }}
+              className="flex flex-col p-6 rounded-2xl h-full"
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--sm-border)',
+              }}
             >
-              {step.emoji}
-            </div>
-            <h3 className="font-bold text-white text-lg mb-2">{step.title}</h3>
-            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              {step.description}
-            </p>
+              {/* Step number watermark */}
+              <span
+                className="absolute top-4 right-5 text-6xl font-black opacity-[0.06] select-none pointer-events-none"
+                style={{ color: step.color, fontFamily: 'var(--font-display)' }}
+              >
+                {i + 1}
+              </span>
 
-            {/* Connector arrow (hide on last) */}
+              <div
+                className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl mb-5 flex-shrink-0"
+                style={{ background: `${step.color}18`, border: `1px solid ${step.color}30` }}
+              >
+                {step.emoji}
+              </div>
+              <h3 className="font-bold text-white text-lg mb-2">{step.title}</h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                {step.description}
+              </p>
+            </div>
+
+            {/* F5: Connector arrow — on the wrapper div so it's never clipped */}
             {i < steps.length - 1 && (
               <div
-                className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-lg z-10"
-                style={{ color: 'var(--text-muted)' }}
+                className="hidden md:flex items-center justify-center absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full"
+                style={{ background: 'var(--bg-base)', color: 'var(--text-muted)', fontSize: '18px' }}
               >
                 →
               </div>

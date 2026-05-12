@@ -25,7 +25,7 @@ export interface Deal {
   created_at: string;
   updated_at: string;
 
-  // Added in Phase A Schema Updates:
+  // Phase A Schema Updates:
   is_trending?: boolean;
   score_breakdown?: {
     discount_score: number;
@@ -38,6 +38,15 @@ export interface Deal {
   title_normalized?: string;
   click_count?: number;
   view_count?: number;
+  last_clicked_at?: string;
+
+  // F1: Runtime fields used by DealCard and admin components (previously via `as any`):
+  data_may_be_stale?: boolean;
+  reactions_cache?: { fire?: number; love?: number; meh?: number };
+  is_available?: boolean;
+  mrp_verified?: 'verified' | 'shifted' | 'unverified';
+  mrp_note?: string;
+  velocity_score?: number;
 }
 
 export interface User {

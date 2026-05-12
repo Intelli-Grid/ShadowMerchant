@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Zap, Loader2 } from 'lucide-react';
+import { Zap, Loader2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 declare global {
@@ -21,7 +21,14 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
   const defaultLabel = plan === 'annual' ? 'Get Annual Plan — ₹799/yr' : 'Upgrade to Pro — ₹99/mo';
   const displayLabel = label ?? defaultLabel;
   const [loading, setLoading] = useState(false);
+  const [errorToast, setErrorToast] = useState<string | null>(null);
   const router = useRouter();
+
+  // Auto-dismiss toast after 5s
+  const showError = (msg: string) => {
+    setErrorToast(msg);
+    setTimeout(() => setErrorToast(null), 5000);
+  };
 
   const handleUpgrade = async () => {
     setLoading(true);
@@ -35,7 +42,7 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
 
       if (!res.ok) {
         const err = await res.json();
-        alert(err.error || 'Failed to start subscription.');
+        showError(err.error || 'Failed to start subscription. Please try again.');
         setLoading(false);
         return;
       }
@@ -99,24 +106,39 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
       rzp.open();
     } catch (err: any) {
       console.error('[RazorpayButton]', err);
-      alert(err.message || 'Something went wrong. Please try again.');
+      showError(err.message || 'Something went wrong. Please try again.');
       setLoading(false);
     }
   };
 
   return (
-    <Button
-      onClick={handleUpgrade}
-      disabled={loading}
-      className={`font-extrabold h-14 text-lg transition-all hover:scale-[1.02] active:scale-95 gap-2 ${className}`}
-      style={{ background: 'var(--gold)', color: '#0A0A0A', boxShadow: '0 8px 24px rgba(201,168,76,0.25)' }}
-      id="razorpay-upgrade-btn"
-    >
-      {loading ? (
-        <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</>
-      ) : (
-        <><Zap className="w-5 h-5" /> {displayLabel}</>
+    <div className="relative">
+      <Button
+        onClick={handleUpgrade}
+        disabled={loading}
+        className={`font-extrabold h-14 text-lg transition-all hover:scale-[1.02] active:scale-95 gap-2 ${className}`}
+        style={{ background: 'var(--gold)', color: '#0A0A0A', boxShadow: '0 8px 24px rgba(201,168,76,0.25)' }}
+        id="razorpay-upgrade-btn"
+      >
+        {loading ? (
+          <><Loader2 className="w-5 h-5 animate-spin" /> Processing...</>
+        ) : (
+          <><Zap className="w-5 h-5" /> {displayLabel}</>
+        )}
+      </Button>
+      {/* F4: Inline toast — replaces browser alert() */}
+      {errorToast && (
+        <div
+          className="absolute left-0 right-0 -bottom-16 flex items-center justify-between gap-2 rounded-xl px-4 py-3 text-sm font-semibold"
+          style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444' }}
+          role="alert"
+        >
+          <span>{errorToast}</span>
+          <button onClick={() => setErrorToast(null)} aria-label="Dismiss">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       )}
-    </Button>
+    </div>
   );
 }

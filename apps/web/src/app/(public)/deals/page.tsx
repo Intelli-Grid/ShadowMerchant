@@ -5,6 +5,9 @@ import { FilterSidebar } from '@/components/deals/FilterSidebar';
 import { Deal } from '@/types';
 import { redis, CACHE_TTL } from '@/lib/redis';
 
+// B1: ISR — render at most every 3 min from Vercel edge (Redis handles data layer)
+export const revalidate = 180;
+
 export async function generateMetadata({ searchParams }: any) {
   const p = await searchParams;
   const hasFilters = p.category || p.platform || (p.sort && p.sort !== 'score');

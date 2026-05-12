@@ -1,4 +1,4 @@
-import { currentUser } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { AdminNavbar } from '@/components/admin/AdminNavbar';
 
@@ -12,12 +12,11 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Use currentUser() — unlike auth()/sessionClaims, this fetches live
-  // data from Clerk's API so publicMetadata is always up-to-date,
-  // regardless of whether it's in the JWT token or not.
-  const user = await currentUser();
+  // Fast JWT-based check — publicMetadata is now included in the Clerk
+  // session token template, so no extra API call needed.
+  const { sessionClaims } = await auth();
 
-  if ((user?.publicMetadata as any)?.role !== 'admin') {
+  if ((sessionClaims?.publicMetadata as any)?.role !== 'admin') {
     redirect('/');
   }
 
