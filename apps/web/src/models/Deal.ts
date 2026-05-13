@@ -110,6 +110,13 @@ const DealSchema = new Schema({
   // UPGRADE-I: Flash deal notification tracker — prevents duplicate Telegram posts
   telegram_notified: { type: Boolean, default: false },
 
+  // FIX-W2C: Manual pin mechanism — admin can pin any deal as DoTD or Featured
+  // Only one deal can have pinned_as: 'dotd' at a time (enforced by pin-deal API)
+  is_pinned:  { type: Boolean, default: false },
+  pinned_as:  { type: String, enum: ['dotd', 'featured', null], default: null },
+  pinned_by:  { type: String, default: null },   // clerk_id of admin who pinned
+  pinned_at:  { type: Date,   default: null },
+
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
 
 // ─── Indexes ────────────────────────────────────────────────────────────────
@@ -136,5 +143,7 @@ DealSchema.index({ 'reactions_cache.fire': -1, is_active: 1 });
 DealSchema.index({ click_count: -1, is_active: 1 });
 // ADMIN: 24h click analytics
 DealSchema.index({ last_clicked_at: -1 });
+// FIX-W2C: Fast lookup for pinned DoTD and featured deals
+DealSchema.index({ is_pinned: 1, pinned_as: 1, is_active: 1 });
 
 export default mongoose.models.Deal || mongoose.model('Deal', DealSchema);

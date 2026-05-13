@@ -29,8 +29,9 @@
     "TELEGRAM_BOT_SECRET": "@telegram_bot_secret"
   },
   "crons": [
-    { "path": "/api/cron/refresh-deals", "schedule": "30 2 * * *" },
-    { "path": "/api/cron/refresh-deals", "schedule": "30 16 * * *" }
+    { "path": "/api/cron/refresh-deals",      "schedule": "30 2 * * *"  },
+    { "path": "/api/cron/refresh-deals",      "schedule": "30 16 * * *" },
+    { "path": "/api/cron/scraper-watchdog",   "schedule": "*/15 * * * *" }
   ],
   "headers": [
     {

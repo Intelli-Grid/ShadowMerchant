@@ -10,6 +10,7 @@ Setup: Generate API token at https://affiliate.flipkart.com → Tools → API
 import os
 import sys
 import json
+import re
 import logging
 import time
 import random
@@ -186,16 +187,136 @@ class FlipkartScraper(BaseScraper):
             logger.debug(f"Flipkart parse error: {e}")
             return None
 
+    def _scrape_via_next_data(self) -> list[RawDeal]:
+        """
+        FIX-W2A: Fallback scraper using Flipkart's embedded __NEXT_DATA__ JSON blob.
+        Activated when FLIPKART_AFFILIATE_ID / FLIPKART_AFFILIATE_TOKEN are not set.
+        No API credentials required — parses structured product data from page HTML.
+        """
+        try:
+            from bs4 import BeautifulSoup
+        except ImportError:
+            logger.error("BeautifulSoup not installed. Run: pip install beautifulsoup4")
+            return []
+
+        # Category pages to scrape (category_slug -> Flipkart deals URL)
+        FLIPKART_HTML_URLS = {
+            "electronics": "https://www.flipkart.com/electronics/~cs-4jx1ti/pr?sid=tyy",
+            "fashion":     "https://www.flipkart.com/clothing-and-accessories/~cs-4jx1ti/pr?sid=clo",
+            "beauty":      "https://www.flipkart.com/beauty-and-personal-care/~cs-4jx1ti/pr?sid=bmf",
+            "home":        "https://www.flipkart.com/home-furniture-decor/~cs-4jx1ti/pr?sid=nif",
+            "sports":      "https://www.flipkart.com/sports-and-fitness/~cs-4jx1ti/pr?sid=ats",
+        }
+
+        deals: list[RawDeal] = []
+        headers = {
+            "User-Agent":      self.get_random_ua(),
+            "Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-IN,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate, br",
+        }
+
+        for cat_slug, url in FLIPKART_HTML_URLS.items():
+            try:
+                time.sleep(random.uniform(2.0, 4.0))  # Human-like pacing
+                resp = requests.get(url, headers=headers, timeout=20)
+                if resp.status_code != 200:
+                    logger.warning(f"Flipkart __NEXT_DATA__ [{cat_slug}]: HTTP {resp.status_code}")
+                    continue
+
+                soup = BeautifulSoup(resp.text, "html.parser")
+
+                # Attempt 1: parse __NEXT_DATA__ JSON blob
+                script_tag = soup.find("script", {"id": "__NEXT_DATA__"})
+                if script_tag and script_tag.string:
+                    try:
+                        next_data = json.loads(script_tag.string)
+                        # Product list path varies by page type — try common paths
+                        products_raw = (
+                            next_data.get("props", {}).get("pageProps", {}).get("initialState", {}).get("listing", {}).get("items", [])
+                            or next_data.get("props", {}).get("pageProps", {}).get("data", {}).get("products", [])
+                        )
+                        for p in products_raw[:30]:
+                            deal = self._parse_next_data_product(p, cat_slug)
+                            if deal and deal.is_valid() and deal.discount_percent >= 15:
+                                deals.append(deal)
+                        logger.info(f"Flipkart __NEXT_DATA__ [{cat_slug}]: {len(deals)} deals so far")
+                        continue
+                    except Exception as je:
+                        logger.debug(f"Flipkart __NEXT_DATA__ parse failed [{cat_slug}]: {je}")
+
+                # Attempt 2: fallback to structured JSON inline scripts
+                for script in soup.find_all("script", type="application/ld+json"):
+                    try:
+                        data = json.loads(script.string or "{}")
+                        if data.get("@type") == "ItemList":
+                            for item in data.get("itemListElement", [])[:20]:
+                                offer = item.get("item", {}).get("offers", {})
+                                title = item.get("item", {}).get("name", "")
+                                url_  = item.get("item", {}).get("url", "")
+                                price = float(offer.get("price", 0) or 0)
+                                if title and price > 0 and url_:
+                                    deals.append(RawDeal(
+                                        title=title[:200],
+                                        platform="flipkart",
+                                        original_price=price * 1.3,  # estimate MRP
+                                        discounted_price=price,
+                                        product_url=url_,
+                                        image_url="",
+                                        category=cat_slug,
+                                    ))
+                    except Exception:
+                        continue
+
+            except Exception as e:
+                logger.error(f"Flipkart __NEXT_DATA__ error [{cat_slug}]: {e}")
+
+        logger.info(f"Flipkart __NEXT_DATA__ fallback: {len(deals)} total deals")
+        return deals
+
+    def _parse_next_data_product(self, p: dict, category_slug: str) -> RawDeal | None:
+        """Parse a product dict from __NEXT_DATA__ structure into a RawDeal."""
+        try:
+            title      = (p.get("title") or p.get("name") or "").strip()
+            disc_price = float(p.get("price") or p.get("discountedPrice") or p.get("finalPrice") or 0)
+            orig_price = float(p.get("mrp") or p.get("originalPrice") or p.get("listingPrice") or disc_price)
+            product_url = p.get("url") or p.get("productUrl") or ""
+            image_url   = p.get("image") or p.get("imageUrl") or ""
+            rating      = float(p.get("rating") or p.get("averageRating") or 0)
+
+            if not title or disc_price <= 0 or not product_url:
+                return None
+            if not product_url.startswith("http"):
+                product_url = f"https://www.flipkart.com{product_url}"
+
+            return RawDeal(
+                title=title[:200],
+                platform="flipkart",
+                original_price=orig_price,
+                discounted_price=disc_price,
+                product_url=product_url,
+                image_url=image_url,
+                category=category_slug,
+                rating=rating,
+            )
+        except Exception:
+            return None
+
     def scrape_deals(self) -> list[RawDeal]:
         """
-        Fetch deals from Flipkart's official Affiliate Product Feed API.
-        Returns list of RawDeal objects with valid prices and affiliate URLs.
+        Fetch deals from Flipkart.
+        Primary: Official Affiliate Product Feed API (requires credentials).
+        Fallback: __NEXT_DATA__ HTML parsing (FIX-W2A — no credentials needed).
         """
-        # Step 1: Get all available feed URLs from the directory
+        if not self.affiliate_id or not self.affiliate_token:
+            logger.info("Flipkart: no affiliate credentials — using __NEXT_DATA__ fallback scraper")
+            return self._scrape_via_next_data()
+
+        # ── Official affiliate API path ─────────────────────────────────────
         all_feeds = self._get_category_feed_urls()
         if not all_feeds:
-            logger.error("Flipkart: No feeds available. Check credentials.")
-            return []
+            logger.warning("Flipkart: affiliate API returned no feeds — falling back to __NEXT_DATA__")
+            return self._scrape_via_next_data()
 
         deals = []
         # We only need a few key categories — fetching all 50+ would take too long

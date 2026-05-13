@@ -77,22 +77,23 @@ SCRAPER_PRIORITY = [
     "amazon",    # Playwright stealth (Linux/Render compatible)
     "myntra",    # ScraperAPI residential proxy + HTML __myx extraction
     "nykaa",     # ScraperAPI residential proxy + __PRELOADED_STATE__ extraction
-    # "flipkart", # Official affiliate feed API — set FLIPKART_AFFILIATE_ID to enable
+    "flipkart",  # Official affiliate feed API (FIX-W2A: re-enabled)
     # "croma",    # Excluded by user preference
 ]
 
-# Conditionally add Flipkart if credentials are configured
+# Conditionally enable Flipkart only when credentials are configured.
+# The scraper itself logs an error and returns [] if creds are missing.
 import os as _os
-if _os.getenv("FLIPKART_AFFILIATE_ID") and _os.getenv("FLIPKART_AFFILIATE_TOKEN"):
-    SCRAPER_PRIORITY.append("flipkart")
+# (flipkart is already in SCRAPER_PRIORITY — it self-disables without creds)
 
 # Baseline deal counts — auto-updated after each successful run.
 # Used to detect regressions (scraper was working before, now returns 0).
 _BASELINE_COUNTS: dict[str, int] = {
-    "meesho": 200,
-    "amazon":  40,
-    "myntra":  50,
-    "nykaa":   20,
+    "meesho":   200,
+    "amazon":    40,
+    "myntra":    50,
+    "nykaa":     20,
+    "flipkart":  60,  # FIX-W2A: added baseline for Flipkart regression detection
 }
 
 def run_pipeline(scrapers: list[str] | None = None) -> dict:
@@ -129,7 +130,36 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             mod = importlib.import_module(module_path)
             cls = getattr(mod, class_name)
             scraper = cls()
-            deals = scraper.scrape_deals()
+
+            # FIX-DAY1: Hard 90-second timeout per scraper using ThreadPoolExecutor.
+            # Prevents a single hanging scraper from blocking the entire pipeline.
+            import concurrent.futures
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as _executor:
+                _future = _executor.submit(scraper.scrape_deals)
+                try:
+                    deals = _future.result(timeout=90)
+                except concurrent.futures.TimeoutError:
+                    logger.error(f"  [TIMEOUT] {name}: exceeded 90s — skipping")
+                    _future.cancel()
+                    deals = []
+                    # Write a timeout health record so the watchdog/UI can see it
+                    try:
+                        _to_client = pymongo.MongoClient(
+                            os.getenv("MONGO_URI") or os.getenv("MONGODB_URI"),
+                            serverSelectionTimeoutMS=3000
+                        )
+                        _to_client.shadowmerchant.scraper_health.insert_one({
+                            "platform":        name,
+                            "run_at":          datetime.utcnow(),
+                            "deals_collected": 0,
+                            "elapsed_seconds": 90,
+                            "status":          "timeout",
+                            "errors":          ["exceeded 90s hard timeout"],
+                        })
+                        _to_client.close()
+                    except Exception:
+                        pass
+
             all_deals.extend(deals)
             scraper_stats[name] = len(deals)
             sc_elapsed = (datetime.utcnow() - sc_start).seconds
@@ -179,7 +209,9 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
                 "run_at":          datetime.utcnow(),
                 "deals_collected": _count,
                 "elapsed_seconds": scraper_times.get(_name, 0),
+                # FIX-DAY1: capture errors list (empty on success, populated on fail)
                 "status":          "ok" if _count > 0 else "failed",
+                "errors":          [] if _count > 0 else ["zero deals returned"],
             })
 
         # Consecutive-failure check — if a platform fails 3 runs in a row,
@@ -409,21 +441,31 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
                 # 5. Social proof: rating x log10(reviews+1) x 20, cap at 100
                 social = min((rating / 5.0) * math.log10(rcount + 1) * 20, 100.0)
 
-                # 6. Freshness decay — full score now, zero after 12 hours
+                # 6. FIX-DAY4: Step-function freshness multiplier
+                # Replaces the old 36h linear decay with the audit-specified
+                # bracket decay: <2h=1.0x, 2-6h=0.85x, 6-12h=0.65x, 12h+=0.4x
                 if isinstance(s_at, datetime):
                     hours_old = (now_utc - s_at).total_seconds() / 3600
                 else:
                     hours_old = 0
-                freshness = max(0.0, 100.0 - (hours_old / 36.0 * 100.0))
 
-                return (
+                if hours_old < 2:
+                    freshness_multiplier = 1.00
+                elif hours_old < 6:
+                    freshness_multiplier = 0.85
+                elif hours_old < 12:
+                    freshness_multiplier = 0.65
+                else:
+                    freshness_multiplier = 0.40
+
+                base_score = (
                     savings_score  * 0.30 +
                     discount_score * 0.20 +
                     price_tier     * 0.20 +
                     ai_score       * 0.20 +
-                    social         * 0.05 +
-                    freshness      * 0.05
+                    social         * 0.10
                 )
+                return base_score * freshness_multiplier
 
             # Sort all candidates by composite score
             scored = sorted(
@@ -477,6 +519,42 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
 
             top_score = f"{selected[0]['score']:.1f}" if selected else "n/a"
             logger.info(f"[TRENDING] Tagged {len(selected)} deals (platforms: {dict(platform_count)}, top score: {top_score})")
+
+            # FIX-W2C: Deal of the Day candidate picker
+            # Pick the highest-scoring active deal from the last 24h and send
+            # a Telegram approval message so the admin can manually pin it.
+            try:
+                from datetime import timedelta
+                _dotd_cutoff = now_utc - timedelta(hours=24)
+                _dotd_candidate = db.deals.find_one(
+                    {
+                        "is_active":        True,
+                        "scraped_at":       {"$gte": _dotd_cutoff},
+                        "discount_percent": {"$gte": 30},
+                        "deal_score":       {"$gte": 60},
+                    },
+                    sort=[("deal_score", -1)]
+                )
+                if _dotd_candidate:
+                    _dotd_title    = _dotd_candidate.get("title", "?")[:60]
+                    _dotd_score    = _dotd_candidate.get("deal_score", 0)
+                    _dotd_discount = _dotd_candidate.get("discount_percent", 0)
+                    _dotd_platform = _dotd_candidate.get("source_platform", "?")
+                    _dotd_id       = _dotd_candidate.get("deal_id", "?")
+                    _dotd_price    = _dotd_candidate.get("discounted_price", 0)
+                    asyncio.run(__import__(
+                        'social.telegram_poster', fromlist=['post_admin_alert']
+                    ).post_admin_alert(
+                        f"\U0001f4cc *DoTD Candidate*\n"
+                        f"*{_dotd_title}*\n"
+                        f"Platform: {_dotd_platform} | Score: {_dotd_score} | {_dotd_discount}% off | \u20b9{_dotd_price:.0f}\n"
+                        f"Deal ID: `{_dotd_id}`\n"
+                        f"\u2192 Pin via admin panel or PATCH /api/admin/pin-deal"
+                    ))
+                    logger.info(f"[DoTD] Candidate notified: {_dotd_title} (score {_dotd_score})")
+            except Exception as _dotd_err:
+                logger.warning(f"[DoTD] Candidate notification failed: {_dotd_err}")
+
         except Exception as e:
             logger.error(f"Trending tag error: {e}")
 

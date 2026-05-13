@@ -18,7 +18,43 @@ logger = logging.getLogger(__name__)
 
 AFFILIATE_TAG = os.getenv("AMAZON_AFFILIATE_TAG", "shadowmerc0a0-21")
 
-# Reliable Amazon IN search URLs per category
+# ── FIX-DAY3B: User-Agent rotation ─────────────────────────────────────────
+# Rotate across Chrome/Firefox/Safari UAs to avoid fingerprint-based blocking.
+# Amazon rate-limits IPs that use the same UA repeatedly.
+ROTATING_USER_AGENTS = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_4_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4.1 Safari/605.1.15",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0",
+]
+
+# ── FIX-DAY3A: Per-category keyword blocklist ───────────────────────────────
+# Prevents misrouted products from entering the wrong category.
+# Amazon's generic deals pages sometimes return stationery / accessories
+# under electronics, cables under fashion, etc.
+CATEGORY_BLOCKLIST: dict[str, list[str]] = {
+    "electronics": [
+        "planner", "diary", "notebook", "journal", "stationery",
+        "pen ", "pencil", "eraser", "ruler", "folder", "binder",
+        "greeting card", "calendar", "notepad", "sticky note",
+    ],
+    "fashion": [
+        "cable", "charger", "adapter", "battery", "power bank",
+        "earphone", "headphone", "speaker", "mouse", "keyboard",
+    ],
+    "beauty": [
+        "cable", "charger", "adapter", "battery", "phone case",
+        "screen protector",
+    ],
+    "books": [
+        "dvd", "blu-ray", "video game", "software",
+    ],
+    "grocery": [
+        "cosmetic", "shampoo", "conditioner", "lipstick", "mascara",
+    ],
+}
 CATEGORY_SEARCH_URLS = {
     "electronics":  "https://www.amazon.in/s?k=electronics+deals&i=electronics&s=discount-rank",
     "fashion":      "https://www.amazon.in/s?k=clothing+fashion&i=apparel&s=discount-rank",
@@ -103,15 +139,14 @@ class AmazonScraper(BaseScraper):
                     "--window-size=1280,900",
                 ],
             )
+            # FIX-DAY3B: Pick a random UA per session
+            import random as _random
+            session_ua = _random.choice(ROTATING_USER_AGENTS)
             context = await browser.new_context(
                 viewport={"width": 1280, "height": 900},
                 locale="en-IN",
                 timezone_id="Asia/Kolkata",
-                user_agent=(
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                    "AppleWebKit/537.36 (KHTML, like Gecko) "
-                    "Chrome/124.0.0.0 Safari/537.36"
-                ),
+                user_agent=session_ua,
                 extra_http_headers={
                     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
                     "Accept-Language": "en-IN,en-US;q=0.9,en;q=0.8",
@@ -155,6 +190,18 @@ class AmazonScraper(BaseScraper):
 
                                 title_txt = await title_el.inner_text()
                                 if not title_txt.strip():
+                                    continue
+
+                                # FIX-DAY3A: Category keyword blocklist
+                                # Reject products whose title contains words that
+                                # indicate they belong to a different category.
+                                title_lower = title_txt.lower()
+                                blocked_words = CATEGORY_BLOCKLIST.get(cat_slug, [])
+                                if any(w in title_lower for w in blocked_words):
+                                    logger.debug(
+                                        f"Amazon [{cat_slug}]: rejected misrouted product "
+                                        f"'{title_txt[:50]}' (matched blocklist)"
+                                    )
                                     continue
 
                                 disc_price = self._parse_price(await price_el.inner_text())
