@@ -207,9 +207,11 @@ jobs:
   scrape-flipkart:
     name: Flipkart Scraper
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     needs: scrape-nykaa
-    if: ${{ always() && github.event.inputs.run_flipkart == 'true' }}
+    # FIX: was always() && run_flipkart == 'true' which made it ALWAYS skip on schedule.
+    # Now matches the pattern used by every other job — runs on schedule unconditionally.
+    if: ${{ always() && (github.event_name == 'schedule' || github.event.inputs.run_flipkart == 'true') }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -279,7 +281,7 @@ jobs:
     # This ensures Vercel always refreshes its cache once new deals are in MongoDB,
     # instead of relying on the time-based Vercel cron (which fires simultaneously
     # with the pipeline start and clears cache before new data exists).
-    needs: [scrape-amazon, scrape-meesho, scrape-myntra, scrape-nykaa]
+    needs: [scrape-amazon, scrape-meesho, scrape-myntra, scrape-nykaa, scrape-flipkart]
     if: always()
     steps:
       - name: Ping Vercel refresh-deals endpoint
