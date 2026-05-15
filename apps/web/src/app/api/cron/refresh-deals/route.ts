@@ -43,26 +43,27 @@ export async function GET(req: NextRequest) {
     );
 
     // ── 2. Clear Redis cache ─────────────────────────────────────────────────
+    // Clear known static keys first
     const keysToDelete = [
       CACHE_KEYS.TRENDING_DEALS,
       CACHE_KEYS.CATEGORIES,
       CACHE_KEYS.DEAL_LIST(''),
       'deals:new_today',
       'deals:hero',           // F-1: hero must be cleared so rotation picks a fresh deal
-      'deals:feed:all',
-      'deals:feed:electronics',
-      'deals:feed:fashion',
-      'deals:feed:beauty',
-      'deals:feed:home',
-      // Rotating category swimlane cache keys (one per category slug)
-      'deals:category:electronics',
-      'deals:category:fashion',
-      'deals:category:beauty',
-      'deals:category:home',
-      'deals:category:sports',
-      'deals:category:gaming',
     ];
     await Promise.allSettled(keysToDelete.map((k) => redis.del(k)));
+
+    // Wildcard scan: flush all per-deal, per-filter, and feed caches so stale
+    // data doesn't survive past a scraper refresh cycle.
+    const patterns = ['deals:*', 'deal:*', 'deal_live:*'];
+    for (const pattern of patterns) {
+      try {
+        const matched = await redis.keys(pattern);
+        if (matched.length > 0) {
+          await Promise.allSettled(matched.map((k: string) => redis.del(k)));
+        }
+      } catch { /* keys() may not be supported on mock — safe to skip */ }
+    }
 
     // ── 3. Revalidate ISR pages ──────────────────────────────────────────────
     revalidatePath('/');

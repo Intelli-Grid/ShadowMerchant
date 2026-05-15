@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    if (!searchClient) throw new Error('Algolia not configured');
     const results = await searchClient.searchSingleIndex({
       indexName: ALGOLIA_INDEX,
       searchParams: {

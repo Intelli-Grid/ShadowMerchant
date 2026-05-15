@@ -73,6 +73,16 @@ export const PLATFORM_CONFIG: Record<string, PlatformConfig> = {
     emoji: '📱',
     tier: 'branded',
   },
+  tatacliq: {
+    name: 'TataCliq',
+    slug: 'tatacliq',
+    bg: '#E62E6B',
+    text: '#FFFFFF',
+    borderColor: 'rgba(230,46,107,0.3)',
+    accentColor: '#E62E6B',
+    emoji: '🏷️',
+    tier: 'branded',
+  },
 };
 
 export function getPlatform(slug: string): PlatformConfig {

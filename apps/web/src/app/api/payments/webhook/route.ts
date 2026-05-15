@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
-import { clerkClient } from '@clerk/nextjs/server';
+// clerkClient is imported dynamically inside the handler to avoid
+// Clerk SDK initialization overhead on cold starts for non-subscription events.
 
 /**
  * Canonical Razorpay webhook handler.
@@ -37,6 +38,7 @@ export async function POST(req: NextRequest) {
   }
 
   await connectDB();
+  const { clerkClient } = await import('@clerk/nextjs/server');
   const clerk = await clerkClient();
 
   /**

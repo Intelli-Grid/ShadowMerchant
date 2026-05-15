@@ -26,7 +26,11 @@
     "NEXT_PUBLIC_POSTHOG_KEY": "@next_public_posthog_key",
     "NEXT_PUBLIC_POSTHOG_HOST": "@next_public_posthog_host",
     "POSTHOG_PROJECT_API_KEY": "@posthog_project_api_key",
-    "TELEGRAM_BOT_SECRET": "@telegram_bot_secret"
+    "NEXT_PUBLIC_SENTRY_DSN": "@next_public_sentry_dsn",
+    "SENTRY_ORG": "@sentry_org",
+    "SENTRY_PROJECT": "@sentry_project",
+    "TELEGRAM_BOT_TOKEN": "@telegram_bot_token",
+    "TELEGRAM_CHANNEL_ID": "@telegram_channel_id"
   },
   "crons": [
     { "path": "/api/cron/refresh-deals",      "schedule": "30 2 * * *"  },

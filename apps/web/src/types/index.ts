@@ -42,9 +42,9 @@ export interface Deal {
 
   // F1: Runtime fields used by DealCard and admin components (previously via `as any`):
   data_may_be_stale?: boolean;
-  reactions_cache?: { fire?: number; love?: number; meh?: number };
+  reactions_cache?: { fire?: number; meh?: number; expired?: number };
   is_available?: boolean;
-  mrp_verified?: 'verified' | 'shifted' | 'unverified';
+  mrp_verified?: 'verified' | 'shifted' | 'unknown';
   mrp_note?: string;
   velocity_score?: number;
 }

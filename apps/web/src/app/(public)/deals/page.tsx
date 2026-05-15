@@ -28,7 +28,7 @@ async function getDeals(searchParams: { [key: string]: string | undefined }) {
     await connectDB();
     const DealModel = (await import('@/models/Deal')).default;
     
-    const query: any = { is_active: true };
+    const query: any = { is_active: true, deal_score: { $gte: 30 } };
     
     // Platform Match
     if (searchParams.platform && searchParams.platform !== 'all') {
@@ -46,6 +46,22 @@ async function getDeals(searchParams: { [key: string]: string | undefined }) {
       const dateLimit = new Date();
       dateLimit.setDate(dateLimit.getDate() - days);
       query.scraped_at = { $gte: dateLimit };
+    }
+
+    // Minimum Discount Filter
+    if (searchParams.min_discount) {
+      const minDisc = parseInt(searchParams.min_discount, 10);
+      if (!isNaN(minDisc) && minDisc > 0) {
+        query.discount_percent = { $gte: minDisc };
+      }
+    }
+
+    // Maximum Price Filter
+    if (searchParams.max_price) {
+      const maxPrice = parseInt(searchParams.max_price, 10);
+      if (!isNaN(maxPrice) && maxPrice > 0) {
+        query.discounted_price = { $lte: maxPrice };
+      }
     }
 
     // Sorting

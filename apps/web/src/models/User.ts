@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 
 const UserSchema = new Schema({
   clerk_id: { type: String, required: true, unique: true },
-  email: { type: String, required: true },
+  email: { type: String },  // Set by Clerk webhook; not required since other routes may create the user first
   name: String,
   subscription_tier: { type: String, enum: ['free', 'pro'], default: 'free' },
   subscription_id: String,

@@ -13,6 +13,20 @@ import { Deal } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { sanitizeHtml } from '@/lib/sanitize';
 
+async function getDealMeta(id: string) {
+  try {
+    const { connectDB } = await import('@/lib/db');
+    await connectDB();
+    const Deal = (await import('@/models/Deal')).default;
+    // Read-only — no $inc; used by generateMetadata to avoid double view_count
+    const deal = await Deal.findById(id).lean();
+    return deal ? JSON.parse(JSON.stringify(deal)) : null;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
 async function getDealDetails(id: string) {
   try {
     const { connectDB } = await import('@/lib/db');
@@ -45,13 +59,12 @@ async function getDealDetails(id: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }, parent: ResolvingMetadata): Promise<Metadata> {
   const { id } = await params;
-  const data = await getDealDetails(id);
+  const deal = await getDealMeta(id);
   
-  if (!data || !data.deal) {
+  if (!deal) {
     return { title: 'Deal Not Found | ShadowMerchant' };
   }
 
-  const deal = data.deal;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online';
   const ogImageUrl = `${appUrl}/api/og/deal/${id}`;
   const platform = deal.source_platform.charAt(0).toUpperCase() + deal.source_platform.slice(1);

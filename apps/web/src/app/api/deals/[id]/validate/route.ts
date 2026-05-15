@@ -11,19 +11,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import mongoose from 'mongoose';
 import Deal from '@/models/Deal';
 import { redis } from '@/lib/redis';
+import { connectDB } from '@/lib/db';
 
-const MONGODB_URI = process.env.MONGODB_URI;
 const CACHE_TTL_SECONDS = 900; // 15 minutes
-
-async function connectDB() {
-  if (mongoose.connection.readyState === 0) {
-    if (!MONGODB_URI) throw new Error('MONGODB_URI not defined');
-    await mongoose.connect(MONGODB_URI);
-  }
-}
 
 export async function POST(
   req: NextRequest,
