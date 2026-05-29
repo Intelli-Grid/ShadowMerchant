@@ -1,23 +1,28 @@
 /**
- * Lightweight server-side HTML sanitizer.
- * Strips XSS vectors (scripts, event handlers, javascript: links) from
- * scraper-sourced description HTML before dangerouslySetInnerHTML rendering.
+ * Server-safe HTML sanitizer using isomorphic-dompurify.
+ * Runs on both server (via JSDOM) and client (native DOM).
  *
- * Keeps safe formatting tags: <p>, <ul>, <li>, <b>, <strong>, <em>, <br>
- * Does NOT require any external npm package.
+ * Replaces the previous custom regex sanitizer which could be bypassed via:
+ *   - SVG <animate> with attributeName="href" to="javascript:..."
+ *   - data: URIs containing HTML payloads
+ *   - CSS expression() in style attributes
+ *   - Null-byte injection like <scri\0pt>
+ *
+ * Allowlists only safe formatting tags and strips all attributes.
  */
+import DOMPurify from 'isomorphic-dompurify';
+
+const ALLOWED_TAGS = ['p', 'ul', 'ol', 'li', 'b', 'strong', 'em', 'i', 'br', 'span'];
+
 export function sanitizeHtml(html: string): string {
   if (!html || typeof html !== 'string') return '';
 
-  return html
-    // Remove <script>...</script> blocks entirely
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    // Remove <style>...</style> blocks entirely
-    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-    // Remove all on* event handler attributes (onclick, onerror, onload, etc.)
-    .replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi, '')
-    // Remove javascript: and vbscript: in href/src attributes
-    .replace(/\b(href|src|action)\s*=\s*["']\s*(?:javascript|vbscript):[^"']*/gi, '$1="#"')
-    // Remove <iframe>, <object>, <embed>, <form> tags
-    .replace(/<\/?(iframe|object|embed|form|input|button|meta|link)\b[^>]*>/gi, '');
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS,
+    ALLOWED_ATTR:     [],   // no attributes — eliminates all attribute injection vectors
+    FORBID_CONTENTS:  ['script', 'style'],
+    FORCE_BODY:       false,
+    RETURN_DOM:       false,
+    RETURN_DOM_FRAGMENT: false,
+  });
 }

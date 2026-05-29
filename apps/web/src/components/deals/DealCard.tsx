@@ -142,13 +142,15 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
     >
 
       {/* ── IMAGE SECTION — clicking the image navigates to deal detail ── */}
-      <Link
-        href={`/deals/${deal._id}`}
-        className="relative overflow-hidden shrink-0 w-full flex items-center justify-center aspect-[4/5] border-b p-2 sm:p-3 block"
+      <div
+        className="relative overflow-hidden shrink-0 w-full flex items-center justify-center aspect-[4/5] border-b p-2 sm:p-3"
         style={{ background: 'var(--bg-surface)', borderColor: 'var(--sm-border)' }}
-        aria-label={`View ${deal.title}`}
       >
-        <div className="relative w-full h-full bg-white rounded-lg shadow-inner overflow-hidden flex items-center justify-center">
+        <Link
+          href={`/deals/${deal._id}`}
+          className="relative w-full h-full bg-white rounded-lg shadow-inner overflow-hidden flex items-center justify-center block"
+          aria-label={`View ${deal.title}`}
+        >
           {deal.image_url && !imgError ? (
             <Image
               src={deal.image_url}
@@ -165,7 +167,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
               <span className="text-xs font-semibold">{platform.name}</span>
             </div>
           )}
-        </div>
+        </Link>
 
         {/* Platform badge */}
         <span
@@ -190,8 +192,13 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
         {/* Community fire count — from reactions_cache (no extra query) */}
         {((deal as any).reactions_cache?.fire ?? 0) > 0 && (
           <span
-            className="absolute bottom-2 right-2 z-10 flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold shadow-md"
-            style={{ background: 'rgba(251,146,60,0.15)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.3)' }}
+            className="absolute bottom-2 left-2 z-10 flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-bold shadow-md"
+            style={{
+              background: 'rgba(251,146,60,0.15)',
+              color: '#fb923c',
+              border: '1px solid rgba(251,146,60,0.3)',
+              left: (deal as any).data_may_be_stale ? '5.5rem' : '0.5rem'
+            }}
             title="Community reaction: 🔥 Hot deal"
           >
             🔥 {(deal as any).reactions_cache.fire}
@@ -218,15 +225,15 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
               🆕 New
             </span>
           )}
-
         </div>
 
         {/* Wishlist button */}
         <button
           className={cn(
-            'absolute bottom-2 right-2 sm:bottom-2.5 sm:right-2.5 z-10 flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm transition-colors hover:bg-black/70',
+            'absolute bottom-2 right-2 sm:bottom-2.5 sm:right-2.5 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm transition-colors hover:bg-black/70',
             wishlisted && 'heart-active'
           )}
+          style={{ minHeight: '44px', minWidth: '44px' }}
           onClick={async (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -242,11 +249,11 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
             }
             await toggle(String(deal._id));
           }}
-          aria-label="Save to wishlist"
+          aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
         >
-          <Heart className={cn('h-3 w-3 sm:h-3.5 sm:w-3.5', wishlisted ? 'fill-red-500 text-red-500' : 'text-white')} />
+          <Heart className={cn('h-5 w-5', wishlisted ? 'fill-red-500 text-red-500' : 'text-white')} />
         </button>
-      </Link>
+      </div>
 
       {/* ── CONTENT SECTION ── */}
       <div className={cn('flex flex-col flex-1 p-3 sm:p-3.5 min-w-0', sizeClasses[size])}>

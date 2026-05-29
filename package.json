@@ -9,5 +9,14 @@
   "devDependencies": {
     "next": "16.2.1",
     "typescript": "^5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "@sentry/cli",
+      "msw",
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }

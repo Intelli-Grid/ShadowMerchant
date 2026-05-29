@@ -12,6 +12,25 @@ const nextConfig: NextConfig = {
           { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
           { key: 'Link', value: '<https://clerk.shadowmerchant.online>; rel=preconnect, <https://app.posthog.com>; rel=preconnect' },
+          // ── SEC-02: Content Security Policy ───────────────────────────────
+          // Start in report-only mode, monitor violations for 1 week, then
+          // switch key to Content-Security-Policy to enforce.
+          {
+            key: 'Content-Security-Policy-Report-Only',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://cdn.razorpay.com https://clerk.shadowmerchant.online https://app.posthog.com https://www.googletagmanager.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' https://fonts.gstatic.com",
+              "img-src 'self' data: blob: https:",
+              "connect-src 'self' https://clerk.shadowmerchant.online https://api.clerk.dev https://app.posthog.com https://*.algolia.net https://*.algolianet.com wss://clerk.shadowmerchant.online https://api.razorpay.com https://o*.ingest.sentry.io",
+              "frame-src https://api.razorpay.com https://checkout.razorpay.com",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
+              "upgrade-insecure-requests",
+            ].join('; '),
+          },
         ],
       },
     ];
@@ -30,7 +49,8 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'rukminim2.flixcart.com' },
       { protocol: 'https', hostname: 'rukminim1.flixcart.com' },
       { protocol: 'https', hostname: 'assets.myntassets.com' },
-      { protocol: 'http', hostname: 'assets.myntassets.com' },
+      // BUG-07 fix: removed { protocol: 'http', hostname: 'assets.myntassets.com' }
+      // Myntra CDN is exclusively HTTPS; HTTP entry caused mixed-content warnings.
       { protocol: 'https', hostname: 'images.meesho.com' },
       { protocol: 'https', hostname: 'adn-static1.nykaa.com' },
       { protocol: 'https', hostname: 'images-static.nykaa.com' },

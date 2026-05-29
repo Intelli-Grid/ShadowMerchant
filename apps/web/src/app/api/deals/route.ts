@@ -60,6 +60,23 @@ function applyDiversityCap(deals: any[], limit: number): {
   return { diversified, activePlatforms: platformsWithDeals, singleSourceWarning };
 }
 
+// ── PERF-01: Only fetch fields needed for deal cards — saves bandwidth ──────
+// Full description, price_history etc. are loaded on the detail page.
+const FEED_PROJECTION = {
+  title:            1,
+  discounted_price: 1,
+  original_price:   1,
+  discount_percent: 1,
+  deal_score:       1,
+  source_platform:  1,
+  category:         1,
+  affiliate_url:    1,
+  image_url:        1,
+  is_pro_exclusive: 1,
+  scraped_at:       1,
+  tags:             1,
+} as const;
+
 export async function GET(req: NextRequest) {
   // ── Rate limiting: 30 requests per minute per IP ─────────────────────────
   const ip =
@@ -74,30 +91,39 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const params        = req.nextUrl.searchParams;
-  const platform      = params.get('platform');
-  const category      = params.get('category');
-  const min_discount  = Number(params.get('min_discount') || 0);
-  const max_price     = Number(params.get('max_price') || 999999);
-  const sort          = params.get('sort') || 'score';
-  const page          = Number(params.get('page') || 1);
-  const limit         = Number(params.get('limit') || 20);
-  const pro_only      = params.get('pro_only') === 'true';
+  const params       = req.nextUrl.searchParams;
+  const platform     = params.get('platform');
+  const category     = params.get('category');
+  const min_discount = Number(params.get('min_discount') || 0);
+  const max_price    = Number(params.get('max_price') || 999999);
+  const sort         = params.get('sort') || 'score';
+  const page         = Math.max(1, Number(params.get('page') || 1));
+  const limit        = Math.min(50, Math.max(1, Number(params.get('limit') || 20)));
+  const pro_only     = params.get('pro_only') === 'true';
 
-  const cacheKey = CACHE_KEYS.DEAL_LIST(params.toString());
+  // ── PERF-03: Normalise cache key — prevent fragmentation from param ordering
+  const normalizedParams = new URLSearchParams();
+  const paramKeys = ['platform', 'category', 'min_discount', 'max_price', 'sort', 'page', 'limit', 'pro_only'];
+  paramKeys.forEach(key => {
+    const val = params.get(key);
+    if (val !== null && val !== '' && val !== '0') normalizedParams.set(key, val);
+  });
+  normalizedParams.sort();
+
+  const cacheKey = CACHE_KEYS.DEAL_LIST(normalizedParams.toString());
   const cached   = await redis.get(cacheKey);
   if (cached) return NextResponse.json(cached);
 
   await connectDB();
 
   const query: any = {
-    is_active:         true,
-    discount_percent:  { $gte: min_discount },
-    discounted_price:  { $lte: max_price },
+    is_active:        true,
+    discount_percent: { $gte: min_discount },
+    discounted_price: { $lte: max_price },
   };
-  if (platform)  query.source_platform  = platform;
-  if (category)  query.category         = category;
-  if (pro_only)  query.is_pro_exclusive = true;
+  if (platform) query.source_platform  = platform;
+  if (category) query.category         = category;
+  if (pro_only) query.is_pro_exclusive = true;
 
   // ── FIX-DAY2: Homepage quality gate ────────────────────────────────────────
   // When browsing the homepage feed (no category/platform filter, sorted by
@@ -120,12 +146,15 @@ export async function GET(req: NextRequest) {
     score:    { deal_score: -1 },
   };
 
-  // Fetch a larger pool when diversity cap is active (to have enough per-platform)
+  // ── BUG-04: Fixed homepage pagination ─────────────────────────────────────
+  // Previous code hardcoded fetchOffset=0 for homepage, making all pages
+  // return the same deals. Now each page correctly skips previous batches.
   const fetchLimit  = isHomepageFeed ? limit * 6 : limit;
-  const fetchOffset = isHomepageFeed ? 0 : (page - 1) * limit;
+  const fetchOffset = isHomepageFeed ? (page - 1) * (limit * 6) : (page - 1) * limit;
 
   const [rawDeals, total] = await Promise.all([
     Deal.find(query)
+      .select(FEED_PROJECTION)   // PERF-01: projection — don't fetch description/price_history
       .sort(sortMap[safeSortKey])
       .skip(fetchOffset)
       .limit(fetchLimit)
@@ -142,7 +171,7 @@ export async function GET(req: NextRequest) {
       applyDiversityCap(rawDeals, limit);
     finalDeals = diversified;
     meta = {
-      platforms_in_feed:    activePlatforms,
+      platforms_in_feed:     activePlatforms,
       single_source_warning: singleSourceWarning,
       quality_gate_applied:  true,
       min_score_threshold:   55,

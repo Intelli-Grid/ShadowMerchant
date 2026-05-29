@@ -8,6 +8,7 @@ const redisMock = {
   set:  async (_key: string, _val: unknown, _opts?: unknown) => null,
   keys: async (_pattern: string)                      => [] as string[],
   del:  async (..._keys: string[])                    => 0,
+  ping: async ()                                      => 'PONG',
 };
 
 export const redis: Redis | typeof redisMock = process.env.UPSTASH_REDIS_REST_URL

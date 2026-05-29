@@ -6,14 +6,16 @@
  * - On cache hit: return immediately (no HEAD request)
  * - On cache miss: run HEAD check, store result in Redis
  *
- * This prevents the validate HEAD request from firing on every DealCard click
- * for the same popular deal within a 15-minute window.
+ * Security: Requires a signed-in user (auth guard).
+ * Unauthenticated requests are rejected to prevent
+ * mass deal-deactivation attacks (DoS via stale marking).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import Deal from '@/models/Deal';
 import { redis } from '@/lib/redis';
 import { connectDB } from '@/lib/db';
+import { auth } from '@clerk/nextjs/server';
 
 const CACHE_TTL_SECONDS = 900; // 15 minutes
 
@@ -21,6 +23,13 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // ── Auth guard: signed-in users only ────────────────────────────────────────
+  // Prevents unauthenticated mass-deactivation of deals (DoS attack vector).
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { id } = await params;
 
   try {
@@ -97,4 +106,3 @@ export async function POST(
     );
   }
 }
-

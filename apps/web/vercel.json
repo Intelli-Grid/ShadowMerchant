@@ -30,12 +30,16 @@
     "SENTRY_ORG": "@sentry_org",
     "SENTRY_PROJECT": "@sentry_project",
     "TELEGRAM_BOT_TOKEN": "@telegram_bot_token",
-    "TELEGRAM_CHANNEL_ID": "@telegram_channel_id"
+    "TELEGRAM_CHANNEL_ID": "@telegram_channel_id",
+    "GITHUB_PAT": "@github_pat",
+    "GITHUB_REPO_OWNER": "@github_repo_owner",
+    "GITHUB_REPO_NAME": "@github_repo_name",
+    "WHATSAPP_VERIFY_TOKEN": "@whatsapp_verify_token",
+    "WHATSAPP_APP_SECRET": "@whatsapp_app_secret"
   },
   "crons": [
-    { "path": "/api/cron/refresh-deals",      "schedule": "30 2 * * *"  },
-    { "path": "/api/cron/refresh-deals",      "schedule": "30 16 * * *" },
-    { "path": "/api/cron/scraper-watchdog",   "schedule": "*/15 * * * *" }
+    { "path": "/api/cron/refresh-deals",    "schedule": "0 */4 * * *"  },
+    { "path": "/api/cron/scraper-watchdog", "schedule": "*/15 * * * *" }
   ],
   "headers": [
     {

@@ -39,7 +39,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Pro subscription required' }, { status: 403 });
   }
 
-  const { type, criteria } = await req.json();
+  let type: string | undefined;
+  let criteria: unknown;
+  try {
+    const body = await req.json();
+    type     = body?.type;
+    criteria = body?.criteria;
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+
   if (!type || !criteria) {
     return NextResponse.json({ error: 'type and criteria are required' }, { status: 400 });
   }
@@ -53,7 +62,18 @@ export async function DELETE(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { alert_id } = await req.json();
+  let alert_id: string | undefined;
+  try {
+    const body = await req.json();
+    alert_id = body?.alert_id;
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+
+  if (!alert_id || typeof alert_id !== 'string') {
+    return NextResponse.json({ error: 'alert_id is required' }, { status: 400 });
+  }
+
   await connectDB();
   await Alert.findOneAndUpdate({ _id: alert_id, user_id: userId }, { is_active: false });
   return NextResponse.json({ success: true });

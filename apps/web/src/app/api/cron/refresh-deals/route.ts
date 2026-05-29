@@ -88,25 +88,31 @@ export async function GET(req: NextRequest) {
     let expiredCount = 0;
     if (expiredProUsers.length > 0) {
       const clerk = await clerkClient();
-      await Promise.allSettled(
+      const results = await Promise.allSettled(
         expiredProUsers.map(async (u: any) => {
           // Downgrade in MongoDB
           await User.updateOne(
             { clerk_id: u.clerk_id },
             { subscription_tier: 'free', updated_at: new Date() }
           );
-          // Sync Clerk publicMetadata (safe merge)
-          try {
-            const clerkUser = await clerk.users.getUser(u.clerk_id);
-            const existingMeta = (clerkUser.publicMetadata as Record<string, unknown>) ?? {};
-            await clerk.users.updateUserMetadata(u.clerk_id, {
-              publicMetadata: { ...existingMeta, tier: 'free' },
-            });
-          } catch { /* Clerk sync failure is non-fatal — MongoDB is source of truth */ }
+          // Sync Clerk publicMetadata — no need to getUser first, updateUserMetadata is a safe merge
+          await clerk.users.updateUserMetadata(u.clerk_id, {
+            publicMetadata: { tier: 'free' },
+          });
           console.log(`[cron] Downgraded expired Pro user: ${u.email}`);
           expiredCount++;
         })
       );
+
+      // BUG-06 fix: log any individual failures for observability
+      results.forEach((result, idx) => {
+        if (result.status === 'rejected') {
+          console.error(
+            `[cron/refresh-deals] Failed to downgrade user ${expiredProUsers[idx]?.email}:`,
+            result.reason
+          );
+        }
+      });
     }
 
     const stats = {

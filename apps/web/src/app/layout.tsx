@@ -72,31 +72,29 @@ export default function RootLayout({
             paddingBottom: 'env(safe-area-inset-bottom)',
           }}
         >
-          <Suspense fallback={null}>
-            <PostHogProvider>
-              <WishlistProvider>
-                {/* Captures ?ref= param on any page for referral attribution */}
-                <Suspense fallback={null}>
-                  <ReferralTracker />
-                </Suspense>
-                {/* Applies stored referral code once user logs in */}
-                <ReferralApplier />
-                {/* First-visit splash screen */}
-                <SplashScreen />
-                {/* Atmospheric gold glow behind everything */}
-                <div className="hero-atmosphere" aria-hidden="true" />
-                <Navbar />
-                <main className="flex-1 relative z-10 pb-20 md:pb-0">
-                  {children}
-                </main>
-                <Footer />
-                {/* WhatsApp floating action button — shown on all pages */}
-                <WhatsAppFloat />
-                {/* Mobile bottom navigation — shown only on small screens */}
-                <MobileBottomNav />
-              </WishlistProvider>
-            </PostHogProvider>
-          </Suspense>
+          <PostHogProvider>
+            <WishlistProvider>
+              {/* Captures ?ref= param on any page for referral attribution */}
+              <Suspense fallback={null}>
+                <ReferralTracker />
+              </Suspense>
+              {/* Applies stored referral code once user logs in */}
+              <ReferralApplier />
+              {/* First-visit splash screen */}
+              <SplashScreen />
+              {/* Atmospheric gold glow behind everything */}
+              <div className="hero-atmosphere" aria-hidden="true" />
+              <Navbar />
+              <main className="flex-1 relative z-10 pb-20 md:pb-0">
+                {children}
+              </main>
+              <Footer />
+              {/* WhatsApp floating action button — shown on all pages */}
+              <WhatsAppFloat />
+              {/* Mobile bottom navigation — shown only on small screens */}
+              <MobileBottomNav />
+            </WishlistProvider>
+          </PostHogProvider>
           {/* Razorpay checkout.js — loaded once globally to prevent race conditions */}
           <Script
             src="https://checkout.razorpay.com/v1/checkout.js"

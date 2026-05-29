@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 
+const ALLOWED_MODES = ['full', 'incremental', 'single_platform', 'standard', 'debug'] as const;
+type ScraperMode = typeof ALLOWED_MODES[number];
+
 export async function POST(req: NextRequest) {
   const { sessionClaims } = await auth();
   if ((sessionClaims?.publicMetadata as any)?.role !== 'admin') {
@@ -12,7 +15,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     platform = body.platform;
-    mode = body.mode || 'standard';
+    mode     = body.mode || 'standard';
   } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
   }
@@ -22,9 +25,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Invalid platform. Valid: ${validPlatforms.join(', ')}` }, { status: 400 });
   }
 
-  const githubPAT   = process.env.GITHUB_PAT;
-  const repoOwner   = process.env.GITHUB_REPO_OWNER;
-  const repoName    = process.env.GITHUB_REPO_NAME;
+  // Validate mode against strict allowlist — prevents injection of arbitrary
+  // strings into GitHub Actions workflow inputs.
+  if (!ALLOWED_MODES.includes(mode as ScraperMode)) {
+    return NextResponse.json(
+      { error: `Invalid mode. Allowed: ${ALLOWED_MODES.join(', ')}` },
+      { status: 400 }
+    );
+  }
+
+  const githubPAT  = process.env.GITHUB_PAT;
+  const repoOwner  = process.env.GITHUB_REPO_OWNER;
+  const repoName   = process.env.GITHUB_REPO_NAME;
 
   if (!githubPAT || !repoOwner || !repoName) {
     return NextResponse.json(

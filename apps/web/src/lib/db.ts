@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
-const cached = (global as any).mongoose || { conn: null, promise: null };
+const cached: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null } =
+  (global as any).mongoose || { conn: null, promise: null };
 
 export async function connectDB() {
   const MONGODB_URI = process.env.MONGODB_URI;

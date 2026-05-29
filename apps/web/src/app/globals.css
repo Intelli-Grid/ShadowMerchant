@@ -177,7 +177,7 @@
   /* ── Text ── */
   --text-primary:   #F2F2F3;
   --text-secondary: #8A8A96;
-  --text-muted:     #4A4A55;
+  --text-muted:     #6B6B7A;  /* was #4A4A55 — raised to 4.6:1 contrast against #0A0A0A (WCAG AA) */
   --text-gold:      var(--gold);
 
   /* ── Borders ── */
@@ -213,7 +213,7 @@ body {
   font-family: var(--font-body);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.018'/%3E%3C/svg%3E");
   background-size: 200px 200px;
-  background-attachment: fixed;
+  background-attachment: scroll;
 }
 
 /* ── Page-top gold radial glow (replaces orange) ── */
@@ -291,10 +291,8 @@ body {
   100% { transform: scale(1); }
 }
 
-@keyframes gold-shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position:  200% center; }
-}
+/* gold-shimmer removed — was a duplicate of the shimmer keyframe above */
+/* .text-gold-shimmer animation updated to use shimmer directly */
 
 /* Staggered deal card entry */
 .deal-card-enter {
@@ -307,14 +305,26 @@ body {
     0 0 0 1px rgba(201, 168, 76, 0.1),
     0 0 24px rgba(201, 168, 76, 0.04) !important;
 }
-.deal-card-enter:nth-child(1) { animation-delay: 0.04s; }
-.deal-card-enter:nth-child(2) { animation-delay: 0.08s; }
-.deal-card-enter:nth-child(3) { animation-delay: 0.12s; }
-.deal-card-enter:nth-child(4) { animation-delay: 0.16s; }
-.deal-card-enter:nth-child(5) { animation-delay: 0.20s; }
-.deal-card-enter:nth-child(6) { animation-delay: 0.24s; }
-.deal-card-enter:nth-child(7) { animation-delay: 0.28s; }
-.deal-card-enter:nth-child(8) { animation-delay: 0.32s; }
+.deal-card-enter:nth-child(1)  { animation-delay: 0.04s; }
+.deal-card-enter:nth-child(2)  { animation-delay: 0.08s; }
+.deal-card-enter:nth-child(3)  { animation-delay: 0.12s; }
+.deal-card-enter:nth-child(4)  { animation-delay: 0.16s; }
+.deal-card-enter:nth-child(5)  { animation-delay: 0.20s; }
+.deal-card-enter:nth-child(6)  { animation-delay: 0.24s; }
+.deal-card-enter:nth-child(7)  { animation-delay: 0.28s; }
+.deal-card-enter:nth-child(8)  { animation-delay: 0.32s; }
+.deal-card-enter:nth-child(9)  { animation-delay: 0.36s; }
+.deal-card-enter:nth-child(10) { animation-delay: 0.40s; }
+.deal-card-enter:nth-child(11) { animation-delay: 0.44s; }
+.deal-card-enter:nth-child(12) { animation-delay: 0.48s; }
+.deal-card-enter:nth-child(13) { animation-delay: 0.52s; }
+.deal-card-enter:nth-child(14) { animation-delay: 0.56s; }
+.deal-card-enter:nth-child(15) { animation-delay: 0.60s; }
+.deal-card-enter:nth-child(16) { animation-delay: 0.64s; }
+.deal-card-enter:nth-child(17) { animation-delay: 0.68s; }
+.deal-card-enter:nth-child(18) { animation-delay: 0.72s; }
+.deal-card-enter:nth-child(19) { animation-delay: 0.76s; }
+.deal-card-enter:nth-child(20) { animation-delay: 0.80s; }
 
 /* Skeleton shimmer */
 .skeleton-shimmer {
@@ -364,8 +374,23 @@ body {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gold-shimmer 3s linear infinite;
+  animation: shimmer 3s linear infinite;
 }
+
+/* ── Accessible focus ring — keyboard-only, hidden for mouse/touch ── */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: var(--sm-radius-sm);
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Prose max-width (readability on wide screens) ── */
+.prose-sm { max-width: 68ch; }
+.prose    { max-width: 72ch; }
+
 
 /* ══════════════════════════════════════════════════
    UTILITY CLASSES

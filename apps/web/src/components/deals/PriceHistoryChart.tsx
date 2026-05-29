@@ -161,7 +161,7 @@ export function PriceHistoryChart({ data, platformColor = '#C9A84C', isUserPro =
             }}
             itemStyle={{ color: platformColor, fontWeight: '900', fontSize: '1.2rem', fontFamily: 'var(--font-display)' }}
             labelStyle={{ color: 'var(--text-secondary)', marginBottom: '8px', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}
-            formatter={(value: any) => [`₹${Number(value).toLocaleString('en-IN')}`, 'Drop Price']}
+            formatter={(value: number | string | readonly (number | string)[] | undefined) => [`₹${Number(value || 0).toLocaleString('en-IN')}`, 'Drop Price']}
             cursor={{ stroke: platformColor, strokeWidth: 1, strokeDasharray: '4 4' }}
           />
           
