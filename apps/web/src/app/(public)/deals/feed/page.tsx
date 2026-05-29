@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { HeroDeal } from '@/components/HeroDeal';
 import { BentoGrid } from '@/components/BentoGrid';
 import { PlatformFilter } from '@/components/PlatformFilter';
@@ -109,7 +110,9 @@ export default async function DealFeedPage({ searchParams }: { searchParams: Pro
     <main className="flex-1 w-full flex flex-col items-center pb-20">
       
       {/* Sticky Filter Strip */}
-      <PlatformFilter />
+      <Suspense fallback={<div className="h-[65px] w-full animate-pulse" style={{ background: 'rgba(10,10,11,0.85)', borderBottom: '1px solid var(--sm-border)' }} />}>
+        <PlatformFilter />
+      </Suspense>
 
       {/* Primary Section */}
       {hero ? (
