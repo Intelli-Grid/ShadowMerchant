@@ -2,7 +2,7 @@
 
 import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 
 declare global {
   interface Window {
@@ -48,9 +48,12 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
           `,
         }}
       />
-      <PostHogPageView />
+      {/* PostHogPageView uses useSearchParams() — must be in Suspense to avoid
+          SSG prerender bailout on every static page in the app */}
+      <Suspense fallback={null}>
+        <PostHogPageView />
+      </Suspense>
       {children}
     </>
   );
 }
-
