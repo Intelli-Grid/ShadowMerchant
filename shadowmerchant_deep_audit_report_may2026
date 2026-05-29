@@ -1,0 +1,409 @@
+# ShadowMerchant — Production Deep Audit Report
+
+> **Audit Date:** May 16, 2026  
+> **Codebase:** `apps/web` (Next.js 16.2.1 / React 19 / App Router)  
+> **Deployment:** Vercel (bom1 region) + MongoDB Atlas + Upstash Redis  
+> **Files Analyzed:** ~70 source files across API routes, pages, components, models, and config
+
+---
+
+## Executive Summary
+
+The ShadowMerchant codebase is architecturally sound — clean Next.js App Router structure, proper Clerk auth integration, robust Redis caching with fallbacks, and well-indexed MongoDB schemas. However, the audit uncovered **22 issues** that will cause errors or degraded behavior in live deployment. **5 are build-breaking or crash-level blockers** that must be fixed before any production push.
+
+---
+
+## 🔴 CRITICAL — Build Breakers & Crash-Level (P0)
+
+### C-01: Missing `middleware.ts` — Clerk Auth Is Completely Bypassed
+
+| Field | Detail |
+|-------|--------|
+| **File** | `src/proxy.ts` (exists) vs `middleware.ts` (MISSING) |
+| **Impact** | Auth protection for `/dashboard`, `/wishlist`, `/alerts`, and `/admin` routes is **non-functional** |
+
+**Root Cause:** The Clerk middleware logic exists in `src/proxy.ts`, but Next.js requires the middleware file to be at the project root as `middleware.ts` (or `src/middleware.ts` inside the `src/` directory). The file is named `proxy.ts` — Next.js **will never execute it**. No `middleware.ts` file exists anywhere in the project.
+
+**Result:** 
+- Any unauthenticated user can access `/dashboard`, `/wishlist`, `/alerts` pages
+- Any non-admin user can access `/admin/*` — the admin layout has a server-side check via `sessionClaims`, but the middleware-level redirect never fires, meaning the page partially renders before redirecting
+- Protected API routes that rely on `auth()` still work (they check auth server-side), but the UX is broken — users see flash of content before redirect
+
+**Fix:** Rename `src/proxy.ts` → `src/middleware.ts`
+
+---
+
+### C-02: `.env.production` Contains Stale Placeholder Values — Will Crash Build
+
+| Field | Detail |
+|-------|--------|
+| **File** | `apps/web/.env.production` |
+| **Impact** | If Vercel reads this file, it overrides real env vars with `xxx` placeholders |
+
+**Root Cause:** The `.env.production` file contains entries like:
+```
+NEXT_PUBLIC_APP_URL=https://your-domain.com
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_xxx
+NEXT_PUBLIC_SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
+```
+
+This file also references **Stripe** (`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`) which is NOT used in the codebase — the platform uses **Razorpay**. It references `NEXT_PUBLIC_GA_ID`, `NEXT_PUBLIC_HOTJAR_ID`, `NEXT_PUBLIC_MIXPANEL_TOKEN`, `NEXT_PUBLIC_CLOUDFRONT_DOMAIN` — none of which exist in any source file.
+
+**Risk:** Vercel loads `.env.production` during `NODE_ENV=production` builds. If Vercel env vars are not set to override these, the Algolia client initializes with `APP_ID='xxx'` and will throw on every search request.
+
+**Fix:** Delete `.env.production` entirely (env vars should be managed exclusively via Vercel dashboard). Also delete `.env.local` and `.env` from the repo (they are committed and contain secrets).
+
+---
+
+### C-03: Razorpay `razorpay.ts` Crashes At Module Load Without Env Vars
+
+| Field | Detail |
+|-------|--------|
+| **File** | [src/lib/razorpay.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/lib/razorpay.ts) |
+| **Impact** | Build crash or runtime 500 on any payment-related import |
+
+**Root Cause:** The Razorpay client is instantiated at module scope with non-null assertions:
+```ts
+export const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID!,
+  key_secret: process.env.RAZORPAY_KEY_SECRET!,
+});
+```
+If `RAZORPAY_KEY_ID` or `RAZORPAY_KEY_SECRET` are not set (e.g. preview deployments, build time), the Razorpay SDK throws immediately. Since this module is imported by `create-subscription` and `cancel-subscription` routes, AND those routes are analyzed during Next.js build, this can crash the build.
+
+**Fix:** Wrap in a lazy initializer pattern (similar to how `redis.ts` handles missing env vars).
+
+---
+
+### C-04: Algolia `algolia.ts` Crashes At Module Load Without Env Vars
+
+| Field | Detail |
+|-------|--------|
+| **File** | [src/lib/algolia.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/lib/algolia.ts) |
+| **Impact** | Build crash or runtime 500 on any page that imports the search client |
+
+**Root Cause:** Same pattern as Razorpay:
+```ts
+const APP_ID = process.env.NEXT_PUBLIC_ALGOLIA_APP_ID!;
+const SEARCH_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY!;
+export const searchClient = algoliasearch(APP_ID, SEARCH_KEY);
+```
+If either env var is missing, `algoliasearch(undefined, undefined)` throws. The `algolia.server.ts` file already handles this correctly with a graceful null check — but the client-side module does not.
+
+**Fix:** Add null guards; return a mock client or null when env vars are missing.
+
+---
+
+### C-05: `validate` Route Has Its Own `connectDB()` — Bypasses Connection Pooling
+
+| Field | Detail |
+|-------|--------|
+| **File** | [src/app/api/deals/[id]/validate/route.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/app/api/deals/%5Bid%5D/validate/route.ts) (lines 21-26) |
+| **Impact** | Connection leak, potential MongoDB "topology destroyed" errors under load |
+
+**Root Cause:** The validate route defines its own `connectDB()` function instead of importing from `@/lib/db`:
+```ts
+async function connectDB() {
+  if (mongoose.connection.readyState === 0) {
+    if (!MONGODB_URI) throw new Error('MONGODB_URI not defined');
+    await mongoose.connect(MONGODB_URI);
+  }
+}
+```
+This bypasses the global connection cache, the `dbName: 'shadowmerchant'` setting, and all timeout/pool config from the shared module. Under concurrent requests, this creates orphan connections.
+
+**Fix:** Replace with `import { connectDB } from '@/lib/db';` and delete the local function.
+
+---
+
+## 🟠 HIGH — Runtime Errors & Data Integrity (P1)
+
+### H-01: `tatacliq` In Schema Enum But Missing From `PLATFORM_CONFIG`
+
+| Field | Detail |
+|-------|--------|
+| **Files** | [models/Deal.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/models/Deal.ts#L36) enum, [lib/platforms.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/lib/platforms.ts), [types/index.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/types/index.ts#L6) |
+| **Impact** | TataCliq deals render with fallback config (missing `tier` field → `getPlatform` returns object without `tier`) |
+
+The Deal schema enum includes `'tatacliq'`, the types include `'tatacliq'`, the homepage mentions "TataCliq", and `next.config.ts` has image domains for `img.tatacliq.com` — but `PLATFORM_CONFIG` in `platforms.ts` has no `tatacliq` entry. The `getPlatform()` fallback returns an object **without the `tier` property**, which means `platform.tier === 'value'` checks in DealCard will work (they're just undefined/falsy), but the platform won't have proper colors or branding.
+
+**Fix:** Add a `tatacliq` entry to `PLATFORM_CONFIG`.
+
+---
+
+### H-02: `reactions_cache` Type Mismatch Between Model and TypeScript Interface
+
+| Field | Detail |
+|-------|--------|
+| **Files** | [models/Deal.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/models/Deal.ts#L89-L93) vs [types/index.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/types/index.ts#L45) |
+| **Impact** | TypeScript lies about the data shape; `reactions_cache.love` doesn't exist in DB |
+
+The Mongoose schema defines: `{ fire, meh, expired }`  
+The TypeScript type defines: `{ fire?, love?, meh? }` — note `love` instead of `expired`.
+
+DealCard uses `(deal as any).reactions_cache` to bypass the type system, which masks this bug. But any component relying on the TypeScript `Deal` type for reaction rendering will silently fail to show `expired` counts and show non-existent `love` counts.
+
+**Fix:** Align the TypeScript interface to `{ fire?: number; meh?: number; expired?: number }`.
+
+---
+
+### H-03: `mrp_verified` Enum Mismatch Between Model and TypeScript Interface
+
+| Field | Detail |
+|-------|--------|
+| **Files** | [models/Deal.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/models/Deal.ts#L104) vs [types/index.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/types/index.ts#L47) |
+| **Impact** | TypeScript type check will never match actual DB values |
+
+Schema enum: `['verified', 'shifted', 'unknown']`  
+TypeScript type: `'verified' | 'shifted' | 'unverified'` — note `'unverified'` vs `'unknown'`.
+
+**Fix:** Change TypeScript to `'verified' | 'shifted' | 'unknown'`.
+
+---
+
+### H-04: `PostHogProvider` Duplicated — Two Conflicting Implementations
+
+| Field | Detail |
+|-------|--------|
+| **Files** | [components/PostHogProvider.tsx](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/components/PostHogProvider.tsx) (Script-tag based) vs [providers/AnalyticsProvider.tsx](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/providers/AnalyticsProvider.tsx) (SDK-based) |
+| **Impact** | Dual PostHog initialization = double-counted pageviews, doubled JS payload |
+
+The layout imports `PostHogProvider` from `components/`. But `providers/AnalyticsProvider.tsx` also imports `posthog-js` and `posthog-js/react` — a 40KB+ SDK that's bundled but **never used** (it's not imported in the layout). The `posthog-js` dependency in `package.json` is only consumed by this orphan file.
+
+**Fix:** Delete `providers/AnalyticsProvider.tsx`. Or decide which approach to keep and remove the other.
+
+---
+
+### H-05: Sentry SDK Configured But `NEXT_PUBLIC_SENTRY_DSN` Not In `vercel.json`
+
+| Field | Detail |
+|-------|--------|
+| **Files** | `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, `vercel.json` |
+| **Impact** | Sentry runs with `undefined` DSN → silently disabled OR throws |
+
+The three Sentry config files all reference `process.env.NEXT_PUBLIC_SENTRY_DSN`, but this env var is not listed in `vercel.json`'s `env` block. If not manually set in Vercel dashboard, Sentry initializes with `dsn: undefined` — the Sentry SDK handles this by silently disabling itself, but it still bundles ~50KB of Sentry client code for zero benefit.
+
+**Fix:** Either add `NEXT_PUBLIC_SENTRY_DSN` to `vercel.json` and configure it, or remove the `@sentry/nextjs` dependency and config files.
+
+---
+
+### H-06: `clerkClient` Import Style Differs Between Payment Webhook and Cron Route
+
+| Field | Detail |
+|-------|--------|
+| **Files** | [payments/webhook/route.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/app/api/payments/webhook/route.ts#L5) (top-level import) vs [cron/refresh-deals/route.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/app/api/cron/refresh-deals/route.ts#L34) (dynamic import) |
+| **Impact** | Potential crash in payment webhook route |
+
+The payment webhook does:
+```ts
+import { clerkClient } from '@clerk/nextjs/server';
+// ...
+const clerk = await clerkClient();
+```
+
+But in `@clerk/nextjs` v7, `clerkClient` is an async factory function. The top-level import works, but the webhook route depends on this being resolved at module load time during the Vercel serverless cold start. The cron route correctly uses a dynamic `import()` inside the handler. Both patterns technically work, but the static import forces Clerk SDK initialization on every cold start of the webhook route, even for non-subscription events.
+
+**Fix:** Standardize to dynamic import pattern for consistency and cold-start performance.
+
+---
+
+## 🟡 MEDIUM — Functional Bugs & Data Issues (P2)
+
+### M-01: Homepage `generateMetadata` Calls `getDealDetails` Twice (Double View Count)
+
+| Field | Detail |
+|-------|--------|
+| **File** | [deals/[id]/page.tsx](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/app/%28public%29/deals/%5Bid%5D/page.tsx) |
+| **Impact** | Every deal page load increments `view_count` by 2 |
+
+`generateMetadata()` at line 48 calls `getDealDetails(id)` which does `findByIdAndUpdate($inc: view_count)`. Then the page component at line 86 calls `getDealDetails(id)` again. Next.js de-duplicates `fetch()` calls but NOT direct MongoDB queries. Each page load increments `view_count` by 2.
+
+**Fix:** Split into a read-only metadata fetcher (no `$inc`) and a separate view-tracking call.
+
+---
+
+### M-02: `sitemap.ts` Missing `tatacliq` In PLATFORMS Array
+
+| Field | Detail |
+|-------|--------|
+| **File** | [sitemap.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/app/sitemap.ts#L13) |
+| **Impact** | `/store/tatacliq` page exists but is not indexed by search engines |
+
+`PLATFORMS` array: `['amazon', 'flipkart', 'myntra', 'meesho', 'nykaa', 'croma']` — missing `'tatacliq'`.
+
+**Fix:** Add `'tatacliq'` to the array.
+
+---
+
+### M-03: `deals/feed` Page Has No `min_discount` / `max_price` Filter Application
+
+| Field | Detail |
+|-------|--------|
+| **File** | [deals/page.tsx](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/app/%28public%29/deals/page.tsx#L30-L50) |
+| **Impact** | Filter sidebar shows min_discount and max_price filters but the query ignores them |
+
+The `getDeals()` function reads `searchParams.platform`, `searchParams.category`, `searchParams.days`, and `searchParams.sort` — but does NOT read `searchParams.min_discount` or `searchParams.max_price`. The `FilterSidebar` component likely generates these params, but they're silently ignored.
+
+**Fix:** Add `min_discount` and `max_price` to the query builder.
+
+---
+
+### M-04: Redis Cache Never Invalidated For Deal-Specific Keys
+
+| Field | Detail |
+|-------|--------|
+| **Files** | [cron/refresh-deals/route.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/app/api/cron/refresh-deals/route.ts#L46-L64), [lib/redis.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/lib/redis.ts#L50) |
+| **Impact** | Individual deal cache (`deal:<id>`) and per-filter list caches survive cron refresh |
+
+The refresh cron clears specific known cache keys, but never clears:
+- Individual deal caches: `deal:<id>` (15-min TTL)
+- Arbitrary filter combinations: `deals:<querystring>` (5-min TTL)
+- The feed cache: `deals:feed:<JSON>` (5-min TTL)
+
+The TTLs are short enough that this is unlikely to cause visible issues, but stale data can persist for up to 15 minutes after a scraper run completes.
+
+**Fix:** Add a wildcard key scan or use a versioned cache prefix that increments on each cron run.
+
+---
+
+### M-05: `Wishlist` Creates Users Without `email` Field — Violates Schema `required: true`
+
+| Field | Detail |
+|-------|--------|
+| **File** | [api/wishlist/route.ts](file:///e:/Awesome%20Projects/ShadowMerchant/apps/web/src/app/api/wishlist/route.ts#L28) |
+| **Impact** | Mongoose validation error if user clicks wishlist before Clerk webhook fires |
+
+```ts
+user = await User.create({ clerk_id: userId, subscription_tier: 'free', wishlist: [] });
+```
+The User schema requires `email: { type: String, required: true }` — but this create call doesn't include an email. If a user clicks the wishlist heart before the Clerk webhook creates their DB record, this will throw a Mongoose `ValidationError`.
+
+**Fix:** Either remove `required: true` from email, or fetch the email from Clerk before creating.
+
+---
+
+## 🔵 LOW — Polish, Performance & Tech Debt (P3)
+
+### L-01: `posthog-js` Package Is Bundled But Unused (Orphan Import)
+
+The root layout uses the Script-tag based `PostHogProvider` from `components/`, not the `posthog-js` SDK. The `posthog-js` dependency (~40KB minified) is only imported by the orphan `providers/AnalyticsProvider.tsx`. It inflates the client bundle.
+
+**Fix:** Remove `posthog-js` from `package.json` after deleting the orphan file.
+
+---
+
+### L-02: `deal_score` Not Filtered For `deals/feed` Page (No Quality Gate)
+
+The homepage API route enforces `deal_score >= 55` for unfiltered feeds. But the `deals/page.tsx` SSR query has no score floor — meaning the `/deals/feed` page can display deals with score 0.
+
+**Fix:** Add `deal_score: { $gte: 30 }` minimum to the feed query.
+
+---
+
+### L-03: `not-found.tsx` Links to `/deals` But Route Is `/deals/feed`
+
+The 404 page has a "Browse Live Deals" button linking to `/deals`. The actual paginated feed is at `/deals/feed` (visible in the sitemap). `/deals` is a different page (the deals listing page). Not a bug per se, but the user expectation from the button text doesn't match the destination.
+
+---
+
+### L-04: Public Assets `logo.jpg` (5.4MB) and `logo.png` (2.3MB) Are Excessively Large
+
+The favicon and OG images reference `logo.png` (2.3MB). The `logo.jpg` (5.4MB) doesn't appear to be referenced anywhere. These should be optimized — Vercel's image optimization helps for `<Image>` tags but direct `<link>` and meta tags serve the raw file.
+
+**Fix:** Compress `logo.png` to < 200KB, delete unused `logo.jpg`.
+
+---
+
+### L-05: `env` Files Committed to Git Repository
+
+Multiple `.env` files exist in the `apps/web/` directory:
+- `.env` (2.5KB)
+- `.env.development` (291B)  
+- `.env.local` (7KB)
+- `.env.production` (1.2KB)
+
+These likely contain API keys and secrets. `.env.local` and `.env` are explicitly listed in `.gitignore` patterns in most Next.js projects but may have been force-committed.
+
+**Fix:** Verify `.gitignore` covers all env files. Remove committed secrets and rotate exposed keys.
+
+---
+
+### L-06: Excessive MongoDB Indexes on Deal Schema (26 indexes)
+
+The Deal model has **26 indexes** defined. MongoDB Atlas free/shared tier limits to ~64 indexes per collection, but each index consumes RAM and slows writes. Several indexes overlap:
+- `{ deal_score: -1, is_active: 1 }` (line 131) overlaps with `{ category: 1, is_active: 1, deal_score: -1 }` (line 124) for queries filtered by `is_active + deal_score`
+- `{ is_stale: 1, is_active: 1 }` is rarely queried (only by the Python scheduler)
+
+**Fix:** Audit index usage via MongoDB Atlas Performance Advisor and drop unused indexes.
+
+---
+
+## Architecture Observations (Non-Blocking)
+
+| Observation | Notes |
+|---|---|
+| **No middleware.ts** | Most critical — C-01 above |
+| **No CSP headers** | `next.config.ts` sets HSTS, X-Frame-Options, etc. but no Content-Security-Policy |
+| **No error boundary for API routes** | Individual routes catch errors, but there's no global API error handler |
+| **Dual `package-lock.json` + `pnpm-lock.yaml`** | Workspace uses pnpm but `apps/web/` has a `package-lock.json` (239KB) — sign of `npm install` having been run locally |
+| **`Dockerfile` + `render.yaml` unused** | The scraper infra references Render, but the web app deploys to Vercel. These files are for the Python scraper, not the Next.js app |
+| **40+ `.md` plan files in project root** | Significant doc-debt; consider moving to a `docs/` directory |
+
+---
+
+## Prioritized Fix Plan
+
+### Phase 1 — Build Blockers (Must fix before ANY deploy)
+| # | Issue | Effort | Risk if Skipped |
+|---|-------|--------|-----------------|
+| 1 | **C-01**: Rename `proxy.ts` → `middleware.ts` | 1 min | Auth bypass — anyone can access admin/dashboard |
+| 2 | **C-02**: Delete `.env.production` | 1 min | Build uses placeholder values → crashes |
+| 3 | **C-03**: Lazy-init Razorpay client | 10 min | Payment routes crash on cold start |
+| 4 | **C-04**: Guard Algolia client init | 10 min | Search crashes on cold start |
+| 5 | **C-05**: Fix validate route DB connection | 5 min | Connection leak under load |
+
+### Phase 2 — Runtime Stability (Fix before user traffic)
+| # | Issue | Effort | Risk if Skipped |
+|---|-------|--------|-----------------|
+| 6 | **H-01**: Add `tatacliq` to `PLATFORM_CONFIG` | 5 min | TataCliq deals show broken UI |
+| 7 | **H-02**: Fix `reactions_cache` type mismatch | 2 min | Silent data mismatch |
+| 8 | **H-03**: Fix `mrp_verified` enum mismatch | 2 min | MRP badges never render |
+| 9 | **H-04**: Delete orphan `AnalyticsProvider.tsx` | 1 min | Double pageviews, wasted bundle |
+| 10 | **H-05**: Resolve Sentry DSN configuration | 5 min | 50KB dead code or missing error tracking |
+| 11 | **H-06**: Standardize Clerk import pattern | 5 min | Webhook cold-start perf |
+| 12 | **M-05**: Fix wishlist user creation (missing email) | 10 min | Mongoose ValidationError |
+
+### Phase 3 — Data Correctness (Fix within first week)
+| # | Issue | Effort | Risk if Skipped |
+|---|-------|--------|-----------------|
+| 13 | **M-01**: Fix double `view_count` increment | 15 min | Inflated analytics |
+| 14 | **M-02**: Add tatacliq to sitemap PLATFORMS | 1 min | SEO gap |
+| 15 | **M-03**: Wire filter sidebar params in feed query | 15 min | Filters don't work |
+| 16 | **M-04**: Improve cache invalidation strategy | 20 min | 15-min stale window |
+
+### Phase 4 — Polish (Fix when convenient)
+| # | Issue | Effort |
+|---|-------|--------|
+| 17 | **L-01**: Remove `posthog-js` from deps | 2 min |
+| 18 | **L-02**: Add score floor to feed page | 5 min |
+| 19 | **L-03**: Fix 404 page link destination | 2 min |
+| 20 | **L-04**: Compress public assets | 10 min |
+| 21 | **L-05**: Audit git-committed env files | 15 min |
+| 22 | **L-06**: Audit MongoDB index usage | 30 min |
+
+---
+
+## Total Estimated Effort
+
+| Phase | Issues | Time |
+|-------|--------|------|
+| Phase 1 — Build Blockers | 5 | ~30 min |
+| Phase 2 — Runtime Stability | 7 | ~30 min |
+| Phase 3 — Data Correctness | 4 | ~50 min |
+| Phase 4 — Polish | 6 | ~65 min |
+| **Total** | **22** | **~3 hours** |
+
+---
+
+> [!IMPORTANT]
+> **Phase 1 is non-negotiable.** C-01 (middleware rename) alone is a complete auth bypass that exposes the admin panel to the public internet. C-02 through C-05 will cause build failures or runtime crashes on Vercel.

@@ -1,7 +1,6 @@
-import { Suspense } from 'react';
 import { HeroDeal } from '@/components/HeroDeal';
 import { BentoGrid } from '@/components/BentoGrid';
-import { PlatformFilter } from '@/components/PlatformFilter';
+import { PlatformFilterWrapper } from '@/components/PlatformFilterWrapper';
 import { CategorySwimlane } from '@/components/CategorySwimlane';
 import Link from 'next/link';
 import { connectDB } from '@/lib/db';
@@ -109,10 +108,9 @@ export default async function DealFeedPage({ searchParams }: { searchParams: Pro
   return (
     <main className="flex-1 w-full flex flex-col items-center pb-20">
       
-      {/* Sticky Filter Strip */}
-      <Suspense fallback={<div className="h-[65px] w-full animate-pulse" style={{ background: 'rgba(10,10,11,0.85)', borderBottom: '1px solid var(--sm-border)' }} />}>
-        <PlatformFilter />
-      </Suspense>
+      {/* Sticky Filter Strip — rendered client-side via PlatformFilterWrapper to avoid
+          useSearchParams() SSR prerender bailout on this Server Component page */}
+      <PlatformFilterWrapper />
 
       {/* Primary Section */}
       {hero ? (
