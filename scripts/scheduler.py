@@ -340,8 +340,9 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
                     "rating_count":     int(_f("rating_count", 0) or 0),
                     "is_active":        True,
                     "is_stale":         False,
-                    # Pro gating discontinued: all deals are free to view
-                    "is_pro_exclusive": False,
+                    # Pro gating: score >= 55 AND discount >= 40% → Pro-exclusive (~10-15% of deals)
+                    # Threshold calibrated to sigmoid scorer: max realistic score ≈66 for fashion/cosmetics
+                    "is_pro_exclusive": bool(int(deal_score) >= 55 and disc_pct >= 40),
                     "scraped_at":       datetime.utcnow(),
                     "updated_at":       datetime.utcnow(),
                 }

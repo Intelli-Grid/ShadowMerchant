@@ -198,7 +198,11 @@ def process_deals(raw_deals: list[RawDeal], db) -> dict:
             # New deal — score it, then insert
             deal_doc = build_deal_document(raw)
             deal_doc["deal_score"] = score_deal(raw)
-            deal_doc["is_pro_exclusive"] = False
+            # Pro gating: score >= 55 AND discount >= 40% → Pro-exclusive (~10-15% of deals)
+            # Threshold calibrated to sigmoid scorer: max realistic score ≈66 for fashion/cosmetics
+            _score = int(deal_doc.get("deal_score", 0))
+            _disc  = int(raw.get("discount_percent", 0))
+            deal_doc["is_pro_exclusive"] = bool(_score >= 55 and _disc >= 40)
             result = db.deals.insert_one(deal_doc)
             deal_doc["_id"] = result.inserted_id
             algolia_updates.append(deal_doc)

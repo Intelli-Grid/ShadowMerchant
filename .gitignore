@@ -92,3 +92,8 @@ output/
 *.tmp
 *.bak
 *.orig
+
+# Security additions (JARVIS Phase 0)
+API-keys*.txt
+api_keys.yaml
+*.env.secrets

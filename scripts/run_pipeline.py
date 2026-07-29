@@ -235,8 +235,10 @@ def process_and_save(all_deals: list) -> int:
                     logger.debug(f"Skipping deal — invalid data: title={bool(title)} price={disc_price} url={product_url!r:.60}")
                     continue
 
-                # ── is_pro_exclusive: True if discount >= 40 ──────────────────
-                is_pro_exclusive = False # ShadowMerchant Pro Strategy Redesign: All deals are open
+                # ── is_pro_exclusive: top-tier deals by score AND discount ───────
+                # Pro gating: score >= 55 AND discount >= 40% → Pro-exclusive (~10-15% of deals)
+                # Threshold calibrated to sigmoid scorer: max realistic score ≈66 for fashion/cosmetics
+                is_pro_exclusive = bool(int(deal_score) >= 55 and int(discount_pct) >= 40)
 
                 doc = {
                     "title":            title,

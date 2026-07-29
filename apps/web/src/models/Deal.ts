@@ -110,6 +110,10 @@ const DealSchema = new Schema({
   // UPGRADE-I: Flash deal notification tracker — prevents duplicate Telegram posts
   telegram_notified: { type: Boolean, default: false },
 
+  // n8n Workflow #2: Channel broadcast tracker — prevents duplicate posts to @ShadowMerchantDeals
+  telegram_posted:    { type: Boolean, default: false },
+  telegram_posted_at: { type: Date,    default: null  },
+
   // FIX-W2C: Manual pin mechanism — admin can pin any deal as DoTD or Featured
   // Only one deal can have pinned_as: 'dotd' at a time (enforced by pin-deal API)
   is_pinned:  { type: Boolean, default: false },
@@ -145,5 +149,7 @@ DealSchema.index({ click_count: -1, is_active: 1 });
 DealSchema.index({ last_clicked_at: -1 });
 // FIX-W2C: Fast lookup for pinned DoTD and featured deals
 DealSchema.index({ is_pinned: 1, pinned_as: 1, is_active: 1 });
+// n8n Workflow #2: fast query for unposted high-score deals
+DealSchema.index({ telegram_posted: 1, deal_score: -1, is_active: 1 });
 
 export default mongoose.models.Deal || mongoose.model('Deal', DealSchema);

@@ -424,7 +424,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 <div className="flex flex-wrap gap-2">
                   {deal.alternate_links.map((alt: any) => (
                     <a key={alt.source} href={`/api/go/${deal._id}?alt=${alt.source}`}
-                      target="_blank" rel="noopener noreferrer"
+                      target="_blank" rel="noopener noreferrer sponsored"
                       className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold hover:opacity-80 transition-opacity"
                       style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)', color: 'var(--text-primary)' }}>
                       {PLATFORM_CONFIG[alt.source]?.emoji || '🛒'} {PLATFORM_CONFIG[alt.source]?.name || alt.source}

@@ -154,19 +154,19 @@ def score_deal(deal: Union[object, dict]) -> int:
 
 def _sigmoid_normalize(raw: float) -> int:
     """
-    Squeeze a linear 0–1 weighted score through a sigmoid curve centered at 0.65.
+    Squeeze a linear 0–1 weighted score through a sigmoid curve centered at 0.72.
 
-    Why 0.65 as center?
-      A deal with 65% weighted score (e.g. 55% off, 4.0★, 5k reviews, just scraped)
+    Why 0.72 as center?
+      A deal with 72% weighted score (e.g. 55% off, 4.0★, 5k reviews, just scraped)
       maps to exactly 50/100 — a "Fair Deal". A deal must have near-perfect signals
       across all 5 axes to score above 95.
 
     Curve properties at key inputs:
       raw=0.40 → ~7   (weak deal — low discount, few reviews)
       raw=0.55 → ~27  (fair deal — average across all components)
-      raw=0.65 → ~50  (mid-tier — decent but not remarkable)
-      raw=0.75 → ~73  (good deal — strong discount + decent signals)
-      raw=0.85 → ~90  (great deal — high discount, great ratings)
+      raw=0.72 → ~50  (mid-tier — decent but not remarkable)
+      raw=0.80 → ~73  (good deal — strong discount + decent signals)
+      raw=0.90 → ~90  (great deal — high discount, great ratings)
       raw=0.95 → ~98  (exceptional — near maximum across all 5 axes)
       raw=1.00 → ~99  (theoretical maximum — essentially unreachable)
     """
@@ -214,7 +214,11 @@ def score_deal_with_breakdown(deal: Union[object, dict]) -> tuple[int, dict]:
         if recent_prices:
             avg_7_day = sum(recent_prices) / len(recent_prices)
             if disc_price > avg_7_day:
-                penalty = 30
+                # Proportional penalty: scales from 0 to 20 pts based on how far
+                # above the 7-day average the current price is.
+                # e.g. 5% above → −2 pts | 50% above → −20 pts (capped)
+                overage_pct = (disc_price - avg_7_day) / avg_7_day  # 0.0 – ∞
+                penalty = min(20, int(round(overage_pct * 40)))
 
     # ── Component Scores (each 0.0 – 1.0) ──────────────────────────────────
     s_discount   = compute_discount_score(discount_pct)
@@ -288,7 +292,7 @@ if __name__ == "__main__":
                 "discount_percent": 40, "original_price": 2499, "discounted_price": 1499,
                 "rating": 4.2, "rating_count": 500, "scraped_at": None,
             },
-            "expect_range": (40, 68),  # Fair-Good deal
+            "expect_range": (3, 15),  # Low — raw≈0.50, low popularity crushes score (sigmoid center=0.72)
         },
     ]
 

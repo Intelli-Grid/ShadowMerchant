@@ -100,6 +100,7 @@ jobs:
         env:
           MONGODB_URI:            ${{ secrets.MONGODB_URI }}
           SCRAPERAPI_KEY:         ${{ secrets.SCRAPERAPI_KEY }}
+          SCRAPERAPI_KEYS:        ${{ secrets.SCRAPERAPI_KEYS }}
           MEESHO_AFFILIATE_TAG:   ${{ secrets.MEESHO_AFFILIATE_TAG }}
           ALGOLIA_APP_ID:         ${{ secrets.ALGOLIA_APP_ID }}
           ALGOLIA_ADMIN_KEY:      ${{ secrets.ALGOLIA_ADMIN_KEY }}

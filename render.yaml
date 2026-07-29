@@ -18,3 +18,17 @@ services:
         sync: false          # Set in Render dashboard → Environment
       - key: NEXT_PUBLIC_APP_URL
         value: "https://www.shadowmerchant.online"
+      - key: SCRAPERAPI_KEY
+        sync: false          # REQUIRED for Meesho: get from https://scraperapi.com/dashboard
+      - key: AMAZON_AFFILIATE_TAG
+        sync: false          # Amazon Associates tag — e.g. shadowmerc0a0-21
+      - key: MEESHO_AFFILIATE_TAG
+        sync: false          # Meesho affiliate tag (aid param)
+      - key: NYKAA_AFFILIATE_TAG
+        sync: false          # Nykaa affiliate tag
+      - key: ALGOLIA_APP_ID
+        sync: false          # Algolia app ID for deal sync
+      - key: ALGOLIA_API_KEY
+        sync: false          # Algolia Admin API key (write access)
+      - key: ALGOLIA_INDEX_NAME
+        value: "deals"
