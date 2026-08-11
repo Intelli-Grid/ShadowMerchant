@@ -101,6 +101,36 @@ export default function RootLayout({
             strategy="lazyOnload"
             id="razorpay-checkout-js"
           />
+          {/* OneSignal v16 SDK — push notification delivery */}
+          <Script
+            src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
+            defer
+            id="onesignal-sdk"
+          />
+          <Script id="onesignal-init" strategy="afterInteractive">
+            {`
+              window.OneSignalDeferred = window.OneSignalDeferred || [];
+              OneSignalDeferred.push(async function(OneSignal) {
+                await OneSignal.init({
+                  appId: "${process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID || '946ded21-cea2-42c3-9d6d-e20f20217452'}",
+                  promptOptions: {
+                    slidedown: {
+                      enabled: true,
+                      actionMessage: "Get instant alerts for hot deals before they sell out!",
+                      acceptButtonText: "Yes, notify me!",
+                      cancelButtonText: "No thanks",
+                      delay: { timeDelay: 15, pageViews: 2 }
+                    }
+                  },
+                  welcomeNotification: {
+                    title: "ShadowMerchant 🛒",
+                    message: "You're in! We'll ping you when a deal is genuinely worth it."
+                  },
+                  notifyButton: { enable: false }
+                });
+              });
+            `}
+          </Script>
         </body>
       </html>
     </ClerkProvider>
