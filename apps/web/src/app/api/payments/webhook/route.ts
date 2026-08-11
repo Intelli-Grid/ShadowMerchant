@@ -2,8 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
+import { sendProConfirmationEmail } from '@/lib/email';
 // clerkClient is imported dynamically inside the handler to avoid
 // Clerk SDK initialization overhead on cold starts for non-subscription events.
+
+/**
+ * Fire-and-forget Telegram admin alert.
+ * Uses TELEGRAM_BOT_TOKEN + TELEGRAM_ADMIN_CHAT_ID — already set in Vercel env.
+ * Never throws — webhook must always return 200 even if Telegram is down.
+ */
+async function notifyOwner(text: string): Promise<void> {
+  const token  = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_ADMIN_CHAT_ID;
+  if (!token || !chatId) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ chat_id: chatId, text, parse_mode: 'Markdown' }),
+    });
+  } catch (err) {
+    console.error('[Webhook] Telegram owner alert failed:', err);
+  }
+}
 
 /**
  * Canonical Razorpay webhook handler.
@@ -78,6 +99,7 @@ export async function POST(req: NextRequest) {
     } else {
       console.warn(`[Webhook] ${eventType}: No user found for subscription ${subscriptionId}`);
     }
+    return user ?? null;
   }
 
   switch (eventType) {
@@ -85,12 +107,25 @@ export async function POST(req: NextRequest) {
     // ── Pro activation / renewal ──────────────────────────────────────────────
     case 'subscription.activated':
     case 'subscription.charged': {
-      await syncTier(sub.id, 'pro', {
+      const activatedUser = await syncTier(sub.id, 'pro', {
         subscription_expires_at: sub.current_end
           ? new Date(sub.current_end * 1000)
           : null,
         subscription_cancel_scheduled: false,
       });
+      // Notify Boss in real-time — fire and forget
+      const planLabel = sub.plan_id || 'unknown plan';
+      const amountPaise = payload?.payment?.entity?.amount ?? 0;
+      const amountRupees = (amountPaise / 100).toLocaleString('en-IN');
+      const msg = eventType === 'subscription.activated'
+        ? `💰 *New Pro Subscriber!*\nEmail: ${activatedUser?.email ?? 'unknown'}\nPlan: ${planLabel}\nSub ID: ${sub.id}`
+        : `🔄 *Subscription Renewal*\nEmail: ${activatedUser?.email ?? 'unknown'}\nAmount: ₹${amountRupees}\nSub ID: ${sub.id}`;
+      notifyOwner(msg);
+      // Send Pro confirmation email on first activation only (not renewals)
+      if (eventType === 'subscription.activated' && activatedUser?.email) {
+        sendProConfirmationEmail(activatedUser.email, activatedUser.name?.split(' ')[0], planLabel)
+          .catch(err => console.error('[Webhook] Pro confirmation email failed:', err));
+      }
       break;
     }
 

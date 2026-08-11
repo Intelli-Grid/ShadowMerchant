@@ -1,7 +1,13 @@
 import { MetadataRoute } from 'next';
 import { connectDB } from '@/lib/db';
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online';
+// FIX-SEO-SM-01: Guard against misconfigured NEXT_PUBLIC_APP_URL=http://localhost:3000
+// (current Vercel state). A sitemap full of localhost URLs is invisible to Google.
+// Always fall back to the canonical production domain if the env var is local.
+const _rawUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online';
+const BASE_URL = _rawUrl.startsWith('http://localhost') || _rawUrl.startsWith('https://localhost')
+  ? 'https://www.shadowmerchant.online'
+  : _rawUrl.replace(/\/$/, '');
 
 // All 12 canonical category slugs used by the pipeline
 const CATEGORIES = [
@@ -38,20 +44,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Directly query MongoDB for active deal IDs — avoids self-referential HTTP fetch
   // that can fail during Vercel build if the app isn't live yet.
-  let dealRoutes: MetadataRoute.Sitemap = [];
+  let dealRoutes: MetadataRoute.Sitemap = []
   try {
-    await connectDB();
-    const Deal = (await import('@/models/Deal')).default;
-    const deals = await Deal.find({ is_active: true }, { _id: 1 }).lean();
-    dealRoutes = deals.map((deal: { _id: any }) => ({
-      url: `${BASE_URL}/deals/${String(deal._id)}`,
+    await connectDB()
+    const Deal = (await import('@/models/Deal')).default
+    // SEO-FIX-02: Fetch both slug and _id.
+    // New deals have a slug (keyword-rich URL). Old deals fall back to ObjectId.
+    const deals = await Deal.find({ is_active: true }, { _id: 1, slug: 1 }).lean()
+    dealRoutes = deals.map((deal: { _id: any; slug?: string }) => ({
+      url: `${BASE_URL}/deals/${deal.slug || String(deal._id)}`,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
-      priority: 0.6,
-    }));
+      priority: deal.slug ? 0.7 : 0.5,  // Slug URLs get higher priority signal
+    }))
   } catch (_) {
     // Silently fall back to empty deal routes if DB is unavailable at build time
   }
+
 
   return [...staticRoutes, ...categoryRoutes, ...storeRoutes, ...dealRoutes];
 }

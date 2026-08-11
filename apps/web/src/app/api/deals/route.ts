@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { connectDB } from '@/lib/db';
 import { redis, ratelimit, CACHE_KEYS, CACHE_TTL } from '@/lib/redis';
 import Deal from '@/models/Deal';
+import User from '@/models/User';
 
 // ─── Provider diversity cap ────────────────────────────────────────────────
 // On homepage feeds (no platform/category filter, sorted by score), we enforce
@@ -101,6 +103,22 @@ export async function GET(req: NextRequest) {
   const limit        = Math.min(50, Math.max(1, Number(params.get('limit') || 20)));
   const pro_only     = params.get('pro_only') === 'true';
 
+  // ── Server-side Pro status — NEVER trust client params for this ────────────
+  // Check Clerk session; if authenticated look up MongoDB for the subscription tier.
+  // This gates Pro-exclusive deals from free users at the API layer.
+  let isUserPro = false;
+  try {
+    const { userId } = await auth();
+    if (userId) {
+      await connectDB();
+      const u = await User.findOne({ clerk_id: userId }, { subscription_tier: 1 }).lean();
+      isUserPro = (u as any)?.subscription_tier === 'pro';
+    }
+  } catch {
+    // Auth failure is non-fatal — treat as free user
+    isUserPro = false;
+  }
+
   // ── PERF-03: Normalise cache key — prevent fragmentation from param ordering
   const normalizedParams = new URLSearchParams();
   const paramKeys = ['platform', 'category', 'min_discount', 'max_price', 'sort', 'page', 'limit', 'pro_only'];
@@ -109,8 +127,9 @@ export async function GET(req: NextRequest) {
     if (val !== null && val !== '' && val !== '0') normalizedParams.set(key, val);
   });
   normalizedParams.sort();
-
-  const cacheKey = CACHE_KEYS.DEAL_LIST(normalizedParams.toString());
+  // Scope cache by pro status — pro users must never see a cached free-tier response
+  const cacheScope = isUserPro ? 'pro' : 'free';
+  const cacheKey = `${cacheScope}:${CACHE_KEYS.DEAL_LIST(normalizedParams.toString())}`;
   const cached   = await redis.get(cacheKey);
   if (cached) return NextResponse.json(cached);
 
@@ -124,6 +143,9 @@ export async function GET(req: NextRequest) {
   if (platform) query.source_platform  = platform;
   if (category) query.category         = category;
   if (pro_only) query.is_pro_exclusive = true;
+  // GATE: Free users never see Pro-exclusive deals — enforced server-side.
+  // Pro users see everything; free users get is_pro_exclusive filtered out.
+  if (!isUserPro) query.is_pro_exclusive = { $ne: true };
 
   // ── FIX-DAY2: Homepage quality gate ────────────────────────────────────────
   // When browsing the homepage feed (no category/platform filter, sorted by

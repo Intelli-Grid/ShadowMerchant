@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
+import { sendWelcomeEmail } from '@/lib/email';
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -92,11 +93,18 @@ export async function POST(req: Request) {
               const newProMonths = Math.floor(ref.total_referrals / 5) - ref.pro_months_earned;
               if (newProMonths > 0) ref.pro_months_earned += newProMonths;
               await ref.save();
-              console.log(`Referral applied: ${refCode} → new user ${id}`);
+              console.log(`Referral applied: ${refCode} -> new user ${id}`);
             }
           } catch (refErr) {
             console.error('Referral apply error:', refErr);
           }
+        }
+
+        // Send welcome email — fire and forget (never blocks the 200 response)
+        if (email) {
+          sendWelcomeEmail(email, first_name ?? undefined).catch(err =>
+            console.error('[SM Clerk Webhook] Welcome email failed:', err)
+          );
         }
       }
     } catch (e) {

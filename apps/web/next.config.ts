@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      // /pricing is caught by deals/[id] dynamic route — redirect to the actual pricing page
+      {
+        source: '/pricing',
+        destination: '/pro',
+        permanent: true, // 308 — tells Google the canonical pricing URL is /pro
+      },
+    ];
+  },
   async headers() {
     return [
       {

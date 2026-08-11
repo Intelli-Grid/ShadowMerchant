@@ -8,49 +8,52 @@ import { PriceHistoryChart } from '@/components/deals/PriceHistoryChart';
 import { TargetPriceAlertButton } from '@/components/deals/TargetPriceAlertButton';
 import { DealReactionBar } from '@/components/deals/DealReactionBar';
 import { PLATFORM_CONFIG } from '@/lib/platforms';
-import { ShieldCheck, Clock, ExternalLink, Activity, Sparkles, TrendingDown } from 'lucide-react';
+import { ShieldCheck, Clock, ExternalLink, Activity, Sparkles, TrendingDown, Lock, Crown } from 'lucide-react';
 import { Deal } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { sanitizeHtml } from '@/lib/sanitize';
 
-async function getDealMeta(id: string) {
+/**
+ * Resolves a deal by slug (SEO URL) or ObjectId (legacy URL).
+ * Tries slug first; falls back to findById for existing URLs.
+ */
+async function resolveDeal(idOrSlug: string, opts: { incrementView?: boolean } = {}) {
+  const { connectDB: _db } = await import('@/lib/db');
+  await _db();
+  const Deal = (await import('@/models/Deal')).default;
+  const mongoose = (await import('mongoose')).default;
+
+  const isObjectId = mongoose.Types.ObjectId.isValid(idOrSlug) && idOrSlug.length === 24;
+  const query = isObjectId ? { _id: idOrSlug } : { slug: idOrSlug };
+
+  if (opts.incrementView) {
+    return Deal.findOneAndUpdate(query, { $inc: { view_count: 1 } }, { new: true }).lean();
+  }
+  return Deal.findOne(query).lean();
+}
+
+async function getDealMeta(idOrSlug: string) {
   try {
-    const { connectDB } = await import('@/lib/db');
-    await connectDB();
-    const Deal = (await import('@/models/Deal')).default;
-    // Read-only — no $inc; used by generateMetadata to avoid double view_count
-    const deal = await Deal.findById(id).lean();
-    return deal ? JSON.parse(JSON.stringify(deal)) : null;
+    return JSON.parse(JSON.stringify(await resolveDeal(idOrSlug) ?? null));
   } catch (e) {
     console.error(e);
     return null;
   }
 }
 
-async function getDealDetails(id: string) {
+async function getDealDetails(idOrSlug: string) {
   try {
-    const { connectDB } = await import('@/lib/db');
-    await connectDB();
-    const Deal = (await import('@/models/Deal')).default;
-    // Atomically increment view_count and return the deal
-    const deal = await Deal.findByIdAndUpdate(
-      id,
-      { $inc: { view_count: 1 } },
-      { new: true }
-    ).lean();
+    const deal = await resolveDeal(idOrSlug, { incrementView: true });
     if (!deal) return null;
-    
+
+    const Deal = (await import('@/models/Deal')).default;
     const similar_deals = await Deal.find({
       is_active: true,
-      category: deal.category,
-      _id: { $ne: id }
+      category:  deal.category,
+      _id:       { $ne: deal._id },
     }).sort({ deal_score: -1 }).limit(4).lean();
-    
-    return JSON.parse(JSON.stringify({
-      deal,
-      price_history: deal.price_history || [],
-      similar_deals
-    }));
+
+    return JSON.parse(JSON.stringify({ deal, price_history: deal.price_history || [], similar_deals }));
   } catch (e) {
     console.error(e);
     return null;
@@ -86,7 +89,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       images: [ogImageUrl],
     },
     alternates: {
-      canonical: `/deals/${deal._id}`,
+      canonical: `/deals/${(deal as any).slug || deal._id}`,
     },
   };
 }
@@ -328,14 +331,41 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
               )}
 
               {/* UPGRADE-C: Buy Now or Wait? verdict — above the primary CTA */}
-              <div className="rounded-xl p-4 flex items-start gap-3 mb-4"
-                style={{ background: verdict.bg, border: `1px solid ${verdict.border}` }}>
-                <span className="text-2xl leading-none mt-0.5">{verdict.emoji}</span>
-                <div>
-                  <p className="font-black text-white text-sm tracking-wide">{verdict.verdict}</p>
-                  <p className="text-xs mt-1 leading-snug" style={{ color: 'var(--text-secondary)' }}>{verdict.reason}</p>
+              {isUserPro ? (
+                // ── PRO: Full AI verdict visible ─────────────────────────────────
+                <div className="rounded-xl p-4 flex items-start gap-3 mb-4"
+                  style={{ background: verdict.bg, border: `1px solid ${verdict.border}` }}>
+                  <span className="text-2xl leading-none mt-0.5">{verdict.emoji}</span>
+                  <div>
+                    <p className="font-black text-white text-sm tracking-wide">{verdict.verdict}</p>
+                    <p className="text-xs mt-1 leading-snug" style={{ color: 'var(--text-secondary)' }}>{verdict.reason}</p>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                // ── FREE: Blurred teaser with upgrade CTA ─────────────────────────
+                <div className="relative rounded-xl overflow-hidden mb-4" style={{ border: '1px solid rgba(139,92,246,0.25)' }}>
+                  {/* Blurred fake verdict underneath */}
+                  <div className="p-4 flex items-start gap-3" style={{ background: 'rgba(139,92,246,0.06)', filter: 'blur(4px)', userSelect: 'none' }} aria-hidden="true">
+                    <span className="text-2xl leading-none mt-0.5">🔥</span>
+                    <div>
+                      <p className="font-black text-white text-sm tracking-wide">STRONG BUY</p>
+                      <p className="text-xs mt-1 leading-snug" style={{ color: 'var(--text-secondary)' }}>This deal is near its 30-day low. High chance it rises again soon.</p>
+                    </div>
+                  </div>
+                  {/* Upgrade overlay */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ background: 'rgba(10,10,18,0.85)', backdropFilter: 'blur(2px)' }}>
+                    <Lock className="w-4 h-4" style={{ color: 'var(--sm-accent)' }} />
+                    <p className="text-xs font-bold text-white">AI Verdict — Pro Only</p>
+                    <Link
+                      href="/pro"
+                      className="text-xs font-bold px-4 py-1.5 rounded-full transition-opacity hover:opacity-80"
+                      style={{ background: 'var(--sm-accent)', color: 'white' }}
+                    >
+                      Unlock with Pro
+                    </Link>
+                  </div>
+                </div>
+              )}
 
               <a 
 
@@ -535,6 +565,38 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
           </div>
         </div>
       </div>
+
+      {/* Sticky upgrade banner — shown to free users only, dismissible via CSS :target */}
+      {!isUserPro && (
+        <div
+          className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 py-3"
+          style={{
+            background: 'linear-gradient(90deg, #1a0a2e 0%, #0f0a1e 100%)',
+            borderTop: '1px solid rgba(139,92,246,0.3)',
+            backdropFilter: 'blur(12px)',
+          }}
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <Crown className="w-5 h-5 shrink-0" style={{ color: 'var(--sm-accent)' }} />
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-white leading-tight truncate">
+                Unlock AI Verdict, Price History &amp; Flash Alerts
+              </p>
+              <p className="text-xs leading-tight hidden sm:block" style={{ color: 'var(--text-muted)' }}>
+                ShadowMerchant Pro — know exactly when to buy
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/pro"
+            className="shrink-0 flex items-center gap-1.5 text-sm font-bold px-5 py-2 rounded-full transition-all hover:opacity-90 active:scale-95"
+            style={{ background: 'linear-gradient(135deg, #7c3aed, #4c1d95)', color: 'white' }}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Go Pro
+          </Link>
+        </div>
+      )}
     </main>
   );
 }

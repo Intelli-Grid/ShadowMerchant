@@ -3,6 +3,7 @@ from datetime import datetime
 from processors.deal_scorer import score_deal
 from scrapers.base_scraper import RawDeal
 from utils.algolia import push_deals_to_algolia
+from utils.slug_generator import make_deal_slug, make_unique_slug
 
 # ─── T1-F: Category normalizer ────────────────────────────────────────────────
 # Keyword → correct category overrides.
@@ -146,6 +147,15 @@ def process_deals(raw_deals: list[RawDeal], db) -> dict:
     stats = {"new": 0, "updated": 0, "skipped": 0}
     algolia_updates = []
 
+    # SEO-FIX-02: Pre-load existing slugs to guarantee uniqueness within this run
+    # Only fetch the slug field — minimal memory overhead even for large collections
+    existing_slugs: set[str] = set(
+        d["slug"] for d in db.deals.find({"slug": {"$exists": True}}, {"slug": 1})
+        if d.get("slug")
+    )
+    # Track slugs generated in this batch (not yet in DB) to prevent intra-batch collisions
+    batch_slugs: set[str] = set()
+
     for raw in raw_deals:
         # Skip deals with less than 20% discount
         if raw.discount_percent < 20:
@@ -195,14 +205,28 @@ def process_deals(raw_deals: list[RawDeal], db) -> dict:
             else:
                 stats["skipped"] += 1
         else:
-            # New deal — score it, then insert
+            # New deal — score it, generate slug, then insert
             deal_doc = build_deal_document(raw)
             deal_doc["deal_score"] = score_deal(raw)
+
             # Pro gating: score >= 55 AND discount >= 40% → Pro-exclusive (~10-15% of deals)
-            # Threshold calibrated to sigmoid scorer: max realistic score ≈66 for fashion/cosmetics
             _score = int(deal_doc.get("deal_score", 0))
-            _disc  = int(raw.get("discount_percent", 0))
+            _disc  = int(deal_doc.get("discount_percent", 0))
             deal_doc["is_pro_exclusive"] = bool(_score >= 55 and _disc >= 40)
+
+            # SEO-FIX-02: Assign a unique SEO slug
+            try:
+                base_slug = make_deal_slug(
+                    raw.title,
+                    raw.discount_percent,
+                    raw.platform
+                )
+                slug = make_unique_slug(base_slug, existing_slugs | batch_slugs)
+                deal_doc["slug"] = slug
+                batch_slugs.add(slug)
+            except Exception:
+                pass  # Non-fatal: deal is still inserted, just without a slug
+
             result = db.deals.insert_one(deal_doc)
             deal_doc["_id"] = result.inserted_id
             algolia_updates.append(deal_doc)
