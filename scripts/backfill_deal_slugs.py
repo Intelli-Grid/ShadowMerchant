@@ -1,4 +1,4 @@
-﻿"""
+"""
 backfill_deal_slugs.py
 ======================
 One-time script to generate SEO slugs for all existing deals that have none.
@@ -24,7 +24,7 @@ from pathlib import Path
 # ── Load env from scripts/.env ─────────────────────────────────────────────
 env_path = Path(__file__).parent / ".env"
 if env_path.exists():
-    with open(env_path) as f:
+    with open(env_path, encoding='utf-8', errors='ignore') as f:
         for line in f:
             line = line.strip()
             if line and not line.startswith('#') and '=' in line:
