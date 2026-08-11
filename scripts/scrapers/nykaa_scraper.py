@@ -27,12 +27,12 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base_scraper import BaseScraper, RawDeal
+from utils.scraperapi_pool import get_pool
 
 load_dotenv(dotenv_path=Path(__file__).parent.parent / '.env')
 logger = logging.getLogger(__name__)
 
 AFFILIATE_TAG   = os.getenv("NYKAA_AFFILIATE_TAG", "")
-SCRAPERAPI_KEY  = os.getenv("SCRAPERAPI_KEY", "")
 SCRAPERAPI_BASE = "https://api.scraperapi.com/"
 
 # Single-word/slug queries only — multi-word returns 0 in __PRELOADED_STATE__
@@ -46,7 +46,8 @@ NYKAA_QUERIES = [
     ("lipstick",      "beauty"),
     ("foundation",    "beauty"),
     ("perfume",       "beauty"),
-    ("vitamins",      "health"),
+    ("skincare",      "beauty"),   # replaces dead 'vitamins' query
+    ("supplements",   "health"),   # 'vitamins' returns 0 — 'supplements' works
     ("protein",       "health"),
 ]
 
@@ -54,7 +55,12 @@ NYKAA_QUERIES = [
 class NykaaScraper(BaseScraper):
     def __init__(self):
         super().__init__(platform_name="nykaa")
-        self.scraperapi_key = SCRAPERAPI_KEY
+        self._pool = get_pool()  # shared multi-key ScraperAPI pool
+
+    @property
+    def scraperapi_key(self) -> str:
+        """Always returns the pool's currently active key."""
+        return self._pool.active_key()
 
     # ─────────────────────────────────────────────────────────────
     def _fetch_page(self, query: str) -> str | None:
@@ -69,8 +75,9 @@ class NykaaScraper(BaseScraper):
         if self.scraperapi_key:
             try:
                 import requests as _req
+                active_key = self._pool.active_key()
                 params = {
-                    "api_key":      self.scraperapi_key,
+                    "api_key":      active_key,
                     "url":          url,
                     "country_code": "in",
                     "render":       "false",
@@ -84,6 +91,12 @@ class NykaaScraper(BaseScraper):
                 )
                 if resp.status_code == 200 and has_state:
                     return resp.text
+                elif resp.status_code in (402, 429):
+                    # Key exhausted/rate-limited — rotate and retry once
+                    rotated = self._pool.mark_error(active_key, resp.status_code)
+                    if rotated:
+                        logger.info(f"Nykaa ['{query}']: retrying with rotated key")
+                        return self._fetch_page(query)  # one retry with new key
                 # 401 = key invalid/expired; fall through to direct
             except Exception as e:
                 logger.warning(f"Nykaa ScraperAPI failed for '{query}': {e}")

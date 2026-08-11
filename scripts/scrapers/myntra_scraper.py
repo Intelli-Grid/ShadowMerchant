@@ -13,7 +13,7 @@ The SSR HTML is returned fully-rendered with window.__myx embedded.
 Credit cost: 15 sub-queries × 1 page = 15 credits/run
 (shared ScraperAPI key with Meesho — total ~47 req/run → ~2,820/month)
 
-Requires: SCRAPERAPI_KEY in env
+Requires: SCRAPERAPI_KEYS (comma-separated) or SCRAPERAPI_KEY in env
 """
 import os
 import sys
@@ -26,12 +26,12 @@ from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scrapers.base_scraper import BaseScraper, RawDeal
+from utils.scraperapi_pool import get_pool
 
 load_dotenv(dotenv_path=Path(__file__).parent.parent / '.env')
 logger = logging.getLogger(__name__)
 
 AFFILIATE_TAG    = os.getenv("MYNTRA_AFFILIATE_TAG", "")
-SCRAPERAPI_KEY   = os.getenv("SCRAPERAPI_KEY", "")
 SCRAPERAPI_BASE  = "https://api.scraperapi.com/"
 
 # Confirmed-working Myntra URL paths (tested 2026-04-21)
@@ -59,7 +59,12 @@ MYNTRA_QUERIES = [
 class MyntraScraper(BaseScraper):
     def __init__(self):
         super().__init__(platform_name="myntra")
-        self.scraperapi_key = SCRAPERAPI_KEY
+        self._pool = get_pool()  # shared multi-key ScraperAPI pool
+
+    @property
+    def scraperapi_key(self) -> str:
+        """Always returns the pool's currently active key."""
+        return self._pool.active_key()
 
     # ─────────────────────────────────────────────────────────────
     def _fetch_via_scraperapi(self, path: str) -> str | None:
@@ -71,8 +76,11 @@ class MyntraScraper(BaseScraper):
         """
         import requests as _req
         target_url = f"https://www.myntra.com/{path}?sort=popularity_desc"
+        active_key = self._pool.active_key()
+        if not active_key:
+            return None
         params = {
-            "api_key":      self.scraperapi_key,
+            "api_key":      active_key,
             "url":          target_url,
             "country_code": "in",
             "render":       "false",
@@ -88,6 +96,12 @@ class MyntraScraper(BaseScraper):
                 return resp.text
             elif resp.status_code == 200:
                 logger.warning(f"Myntra [{path}]: page returned but no __myx")
+            elif resp.status_code in (402, 429):
+                # Key exhausted/rate-limited — rotate to next key automatically
+                rotated = self._pool.mark_error(active_key, resp.status_code)
+                if rotated:
+                    logger.info(f"Myntra [{path}]: retrying with rotated key")
+                    return self._fetch_via_scraperapi(path)  # one retry with new key
             return None
         except Exception as e:
             logger.warning(f"Myntra [{path}] ScraperAPI fetch failed: {e}")

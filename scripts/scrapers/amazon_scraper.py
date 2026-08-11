@@ -129,8 +129,13 @@ class AmazonScraper(BaseScraper):
         deals = []
 
         async with async_playwright() as p:
+            # On Windows local machine: headless=False bypasses Amazon's bot detection.
+            # A brief Chromium window will appear — this is normal and closes automatically.
+            # On Linux/Render: must use headless=True (no display server).
+            _headless = sys.platform != "win32"
+            logger.info(f"Amazon: launching Chromium (headless={_headless})")
             browser = await p.chromium.launch(
-                headless=True,
+                headless=_headless,
                 args=[
                     "--no-sandbox",
                     "--disable-blink-features=AutomationControlled",
@@ -156,7 +161,11 @@ class AmazonScraper(BaseScraper):
                     "Upgrade-Insecure-Requests": "1",
                 },
             )
-            semaphore = asyncio.Semaphore(3)  # 3 parallel pages max
+            # Windows: limit to 1 concurrent page to avoid OOM when running alongside other scrapers.
+            # Linux/Render: 3 parallel pages is fine (higher RAM limit).
+            _max_concurrent = 1 if sys.platform == "win32" else 3
+            semaphore = asyncio.Semaphore(_max_concurrent)
+            logger.info(f"Amazon: Semaphore({_max_concurrent}) ({'Windows low-RAM mode' if sys.platform == 'win32' else 'Linux mode'})")
 
             async def _scrape_one_category(cat_slug, url, context, stealth_async, semaphore):
                 """Scrape a single Amazon category page."""
@@ -166,7 +175,7 @@ class AmazonScraper(BaseScraper):
                     try:
                         cat_page = await context.new_page()
                         await stealth_async(cat_page)
-                        await cat_page.goto(url, wait_until="domcontentloaded", timeout=25000)
+                        await cat_page.goto(url, wait_until="domcontentloaded", timeout=30000)
                         await cat_page.wait_for_timeout(1500)
                         cards = await cat_page.query_selector_all(
                             "div[data-component-type='s-search-result'][data-asin]"
@@ -245,6 +254,10 @@ class AmazonScraper(BaseScraper):
                 for cat_slug, url in category_urls
             ]
             results = await asyncio.gather(*tasks, return_exceptions=True)
+            for i, result in enumerate(results):
+                if isinstance(result, Exception):
+                    cat_slug = category_urls[i][0] if i < len(category_urls) else "unknown"
+                    logger.error(f"Amazon [{cat_slug}]: gather exception: {result}")
             deals = [d for result in results if isinstance(result, list) for d in result]
 
             await browser.close()

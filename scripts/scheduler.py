@@ -34,6 +34,14 @@ os.chdir(Path(__file__).parent)
 from dotenv import load_dotenv
 load_dotenv()
 
+# ── Windows UTF-8 fix (must happen BEFORE basicConfig) ──────────
+# Windows terminal defaults to cp1252 which can't encode emoji (▶ ✅ 🔴 etc.)
+# Reconfigure stdout/stderr to UTF-8 so log messages with emoji don't crash.
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+
 # ── Logging ─────────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
@@ -42,11 +50,8 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout),
     ],
 )
-if sys.platform == "win32":
-    import io
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 logger = logging.getLogger("scheduler")
+
 
 # ── Sentry Error Tracking ────────────────────────────────────
 try:
@@ -121,6 +126,18 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
     scraper_stats = {}
     scraper_times = {}
 
+    # Per-scraper timeouts (seconds).
+    # Amazon uses Playwright with Semaphore(1) → visits 12 pages sequentially → ~110s on Windows.
+    # All others are HTTP-based and finish well within 90s.
+    SCRAPER_TIMEOUTS: dict[str, int] = {
+        "amazon":   180,   # Playwright, 12 categories, sequential on Windows
+        "meesho":   90,
+        "myntra":   90,
+        "nykaa":    90,
+        "flipkart": 60,
+        "croma":    60,
+    }
+
     for name in to_run:
         if name not in SCRAPER_MAP:
             continue
@@ -131,15 +148,15 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             cls = getattr(mod, class_name)
             scraper = cls()
 
-            # FIX-DAY1: Hard 90-second timeout per scraper using ThreadPoolExecutor.
-            # Prevents a single hanging scraper from blocking the entire pipeline.
+            # Per-scraper timeout — Amazon needs more time due to Playwright + Semaphore(1).
             import concurrent.futures
+            _timeout = SCRAPER_TIMEOUTS.get(name, 90)
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as _executor:
                 _future = _executor.submit(scraper.scrape_deals)
                 try:
-                    deals = _future.result(timeout=90)
+                    deals = _future.result(timeout=_timeout)
                 except concurrent.futures.TimeoutError:
-                    logger.error(f"  [TIMEOUT] {name}: exceeded 90s — skipping")
+                    logger.error(f"  [TIMEOUT] {name}: exceeded {_timeout}s — skipping")
                     _future.cancel()
                     deals = []
                     # Write a timeout health record so the watchdog/UI can see it
@@ -169,17 +186,24 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             # ── Dead-scraper alert: was working before, now 0 ───────
             baseline = _BASELINE_COUNTS.get(name, 0)
             if len(deals) == 0 and baseline > 0:
-                try:
-                    from social.telegram_poster import post_admin_alert
-                    asyncio.run(post_admin_alert(
-                        f"🔴 *{name.upper()} SCRAPER DEAD*\n"
-                        f"Expected ~{baseline} deals, got 0.\n"
-                        f"Possible causes: ScraperAPI key invalid/exhausted, "
-                        f"{name} blocked datacenter IP, or {name} API changed.\n"
-                        f"Action: check ScraperAPI dashboard + GitHub Actions logs."
-                    ))
-                except Exception:
-                    pass
+                # Don't alert for Flipkart if credentials aren't configured —
+                # that's a known setup gap, not a live failure.
+                _flipkart_no_creds = (
+                    name == "flipkart" and
+                    not (os.getenv("FLIPKART_AFFILIATE_ID") and os.getenv("FLIPKART_AFFILIATE_TOKEN"))
+                )
+                if not _flipkart_no_creds:
+                    try:
+                        from social.telegram_poster import post_admin_alert
+                        asyncio.run(post_admin_alert(
+                            f"🔴 *{name.upper()} SCRAPER DEAD*\n"
+                            f"Expected ~{baseline} deals, got 0.\n"
+                            f"Possible causes: IP blocked by {name}, "
+                            f"ScraperAPI key exhausted, or {name} page structure changed.\n"
+                            f"Action: run manually with --scrapers {name} to debug."
+                        ))
+                    except Exception:
+                        pass
 
         except Exception as e:
             logger.error(f"  [FAIL] {name}: {e}")
