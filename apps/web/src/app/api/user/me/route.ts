@@ -1,23 +1,31 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
+import { ratelimit } from '@/lib/redis';
 
 /**
  * GET /api/user/me
  *
  * Returns the current authenticated user's subscription tier and status.
- * Used by RazorpayButton to poll for Pro activation after payment checkout — 
+ * Used by RazorpayButton to poll for Pro activation after payment checkout —
  * the Razorpay webhook (subscription.activated) arrives ~1-3s after checkout
  * completes, so the client polls this endpoint until subscription_tier === 'pro'
  * before redirecting to the dashboard.
  *
- * HIGH-04: Created to support payment verification polling.
+ * Rate limited: 60 req/min per user — allows the polling loop (1 req/sec × 30s)
+ * while capping abuse from tight loops or automated scripts.
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Rate limit: 60/min per user — covers the payment polling loop (1 req/s × 30s max)
+  const { success } = await ratelimit.limit(`me:${userId}`);
+  if (!success) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }
 
   await connectDB();

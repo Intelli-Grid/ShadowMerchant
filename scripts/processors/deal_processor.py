@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from processors.deal_scorer import score_deal
 from scrapers.base_scraper import RawDeal
 from utils.algolia import push_deals_to_algolia
@@ -98,14 +98,14 @@ def build_deal_document(raw: RawDeal) -> dict:
         "is_available": True,
         "deal_hash": raw.deal_hash,
         "price_history": [{
-            "date": datetime.utcnow(),
+            "date": datetime.now(timezone.utc),
             "price": raw.discounted_price
         }],
-        "published_at": datetime.utcnow(),
-        "scraped_at": datetime.utcnow(),
+        "published_at": datetime.now(timezone.utc),
+        "scraped_at": datetime.now(timezone.utc),
         "expires_at": raw.expires_at,
-        "created_at": datetime.utcnow(),
-        "updated_at": datetime.utcnow(),
+        "created_at": datetime.now(timezone.utc),
+        "updated_at": datetime.now(timezone.utc),
         # UPGRADE-G: MRP clarity defaults — scorer will update these after history builds
         "mrp_verified": "unknown",
         "mrp_note": None,
@@ -172,7 +172,7 @@ def process_deals(raw_deals: list[RawDeal], db) -> dict:
             if existing.get("discounted_price") != raw.discounted_price:
                 # Build new price_history with the new point appended
                 new_history = list(existing.get("price_history", [])) + [{
-                    "date": datetime.utcnow(),
+                    "date": datetime.now(timezone.utc),
                     "price": raw.discounted_price
                 }]
                 # UPGRADE-G: Recalculate MRP clarity on every price update
@@ -187,10 +187,10 @@ def process_deals(raw_deals: list[RawDeal], db) -> dict:
                             "category": raw.category,
                             "mrp_verified": mrp_result["verdict"],
                             "mrp_note": mrp_result["note"],
-                            "updated_at": datetime.utcnow()
+                            "updated_at": datetime.now(timezone.utc)
                         },
                         "$push": {"price_history": {
-                            "date": datetime.utcnow(),
+                            "date": datetime.now(timezone.utc),
                             "price": raw.discounted_price
                         }}
                     }

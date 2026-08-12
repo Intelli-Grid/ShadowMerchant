@@ -99,8 +99,11 @@ export async function GET(req: NextRequest) {
   const min_discount = Number(params.get('min_discount') || 0);
   const max_price    = Number(params.get('max_price') || 999999);
   const sort         = params.get('sort') || 'score';
-  const page         = Math.max(1, Number(params.get('page') || 1));
-  const limit        = Math.min(50, Math.max(1, Number(params.get('limit') || 20)));
+  // Cap page at 200 — page=9999999 causes MongoDB to skip=499M rows (full scan DoS)
+  const rawPage      = Number(params.get('page') || 1);
+  const page         = Math.min(200, Math.max(1, isNaN(rawPage) ? 1 : rawPage));
+  const rawLimit     = Number(params.get('limit') || 20);
+  const limit        = Math.min(50, Math.max(1, isNaN(rawLimit) ? 20 : rawLimit));
   const pro_only     = params.get('pro_only') === 'true';
 
   // ── Server-side Pro status — NEVER trust client params for this ────────────

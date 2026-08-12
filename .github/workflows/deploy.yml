@@ -1,52 +1,18 @@
 name: Deploy to Production
 
+# NOTE: Vercel auto-deploys the web app on every push to master via Git integration.
+# This file is kept as a placeholder for future separate services (e.g., a background API).
+# The deploy-api job was removed — apps/api does not exist in this repo.
+# If a Render-hosted API service is added in the future, restore that job here.
+
 on:
   push:
-    branches: [main, master]
+    branches: [master]
 
+# No jobs currently — deployments are handled by Vercel and GitHub Actions scrape.yml
 jobs:
-  deploy-web:
+  placeholder:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20.x"
-      - name: Install dependencies
-        run: |
-          cd apps/web
-          npm install
-      - name: Build
-        run: |
-          cd apps/web
-          npm run build
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: apps/web
+      - run: echo "Web deployment handled by Vercel Git integration. No manual deploy needed."
 
-  deploy-api:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20.x"
-      - name: Install dependencies
-        run: |
-          cd apps/api
-          npm install
-      - name: Build
-        run: |
-          cd apps/api
-          npm run build
-      - name: Deploy to Render
-        uses: johnbeynon/render-deploy-action@v0.0.8
-        with:
-          service-id: ${{ secrets.RENDER_SERVICE_ID }}
-          api-key: ${{ secrets.RENDER_API_KEY }}

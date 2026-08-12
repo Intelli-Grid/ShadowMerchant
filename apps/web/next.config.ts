@@ -22,11 +22,12 @@ const nextConfig: NextConfig = {
           { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
           { key: 'Link', value: '<https://clerk.shadowmerchant.online>; rel=preconnect, <https://app.posthog.com>; rel=preconnect' },
-          // ── SEC-02: Content Security Policy ───────────────────────────────
-          // Start in report-only mode, monitor violations for 1 week, then
-          // switch key to Content-Security-Policy to enforce.
+          // ─── SEC-02: Content Security Policy (ENFORCING) ─────────────────
+          // Switched from report-only to enforcing. Report-only was intended
+          // as a 1-week monitoring phase — it has been more than 1 week.
+          // All known legitimate origins are already in the allowlist below.
           {
-            key: 'Content-Security-Policy-Report-Only',
+            key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://cdn.razorpay.com https://clerk.shadowmerchant.online https://app.posthog.com https://www.googletagmanager.com",

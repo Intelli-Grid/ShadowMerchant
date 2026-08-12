@@ -31,6 +31,8 @@
     "SENTRY_PROJECT": "@sentry_project",
     "TELEGRAM_BOT_TOKEN": "@telegram_bot_token",
     "TELEGRAM_CHANNEL_ID": "@telegram_channel_id",
+    "TELEGRAM_ADMIN_CHAT_ID": "@telegram_admin_chat_id",
+    "TELEGRAM_BOT_SECRET": "@telegram_bot_secret",
     "GITHUB_PAT": "@github_pat",
     "GITHUB_REPO_OWNER": "@github_repo_owner",
     "GITHUB_REPO_NAME": "@github_repo_name",
@@ -40,8 +42,7 @@
     "BREVO_API_KEY": "@brevo_api_key",
     "BREVO_SENDER_EMAIL": "@brevo_sender_email",
     "BREVO_SENDER_NAME": "@brevo_sender_name",
-    "ADMIN_SECRET": "@admin_secret",
-    "TELEGRAM_ADMIN_CHAT_ID": "@telegram_admin_chat_id"
+    "ADMIN_SECRET": "@admin_secret"
   },
   "crons": [
     { "path": "/api/cron/refresh-deals",    "schedule": "0 */4 * * *"  },

@@ -58,10 +58,38 @@ GREEN           = (34, 197, 94)
 RED             = (239, 68, 68)
 DARK_CARD       = (19, 19, 26)       # #13131A
 
-# Font — use system font on Windows
-FONT_PATH = Path("C:/Windows/Fonts/seguisb.ttf")   # Segoe UI Semibold
-FONT_BOLD = Path("C:/Windows/Fonts/seguibl.ttf")   # Segoe UI Black
-FONT_REG  = Path("C:/Windows/Fonts/segoeui.ttf")   # Segoe UI
+# ─── Font Resolution — cross-platform (Windows dev + Linux CI/server) ────────
+# Windows fonts are tried first; falls back to common Linux system fonts.
+# Pillow default is the final fallback so the script never crashes on font load.
+def _find_font(*candidates: str) -> Path | None:
+    for p in candidates:
+        path = Path(p)
+        if path.exists():
+            return path
+    return None
+
+FONT_PATH = _find_font(
+    "C:/Windows/Fonts/seguisb.ttf",          # Windows: Segoe UI Semibold
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",   # Ubuntu/Debian
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+    "/usr/share/fonts/truetype/ubuntu/Ubuntu-B.ttf",
+    "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf",  # Arch
+)
+FONT_BOLD = _find_font(
+    "C:/Windows/Fonts/seguibl.ttf",          # Windows: Segoe UI Black
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+    "/usr/share/fonts/truetype/ubuntu/Ubuntu-BI.ttf",
+)
+FONT_REG = _find_font(
+    "C:/Windows/Fonts/segoeui.ttf",          # Windows: Segoe UI Regular
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+    "/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf",
+)
+
+if not FONT_PATH:
+    log.warning("No system font found — Pillow default font will be used (reduced quality)")
 
 TTS_VOICE = "en-IN-NeerjaNeural"  # Indian English, female, clear
 

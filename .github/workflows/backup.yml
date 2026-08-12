@@ -2,56 +2,67 @@ name: Database Backup
 
 on:
   schedule:
-    # Run daily at 2 AM UTC
+    # Daily at 2:00 AM UTC (7:30 AM IST)
     - cron: "0 2 * * *"
   workflow_dispatch:
     inputs:
       backup_tag:
-        description: "Custom tag for the backup"
+        description: "Custom tag for the backup (e.g. pre-deploy)"
         required: false
         default: "manual"
-
-env:
-  NODE_VERSION: 18
 
 jobs:
   backup:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
-
-      - name: Install dependencies
+      - name: Install MongoDB Database Tools (mongodump)
         run: |
-          npm ci
-          cd packages/database
-          npm ci
+          wget -q https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.9.5.tgz
+          tar -xzf mongodb-database-tools-ubuntu2204-x86_64-100.9.5.tgz
+          sudo mv mongodb-database-tools-*/bin/* /usr/local/bin/
+          mongodump --version
 
-      - name: Run database backup
-        run: |
-          cd packages/database
-          npm run backup:prod
+      - name: Run mongodump
         env:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        run: |
+          BACKUP_TAG="${{ github.event.inputs.backup_tag || 'scheduled' }}"
+          DATE=$(date +%Y%m%d_%H%M%S)
+          FILENAME="shadowmerchant_${DATE}_${BACKUP_TAG}.tar.gz"
+          echo "FILENAME=$FILENAME" >> $GITHUB_ENV
+          mongodump --uri="$MONGODB_URI" --db=shadowmerchant --out=/tmp/backup/
+          tar -czf /tmp/$FILENAME -C /tmp/backup .
+          echo "Backup created: $FILENAME ($(du -sh /tmp/$FILENAME | cut -f1))"
+
+      - name: Upload to S3
+        env:
+          AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          BACKUP_TAG: ${{ github.event.inputs.backup_tag || 'scheduled' }}
-          BACKUP_RETENTION_DAYS: 30
+          AWS_DEFAULT_REGION:    ${{ secrets.AWS_REGION }}
+        run: |
+          aws s3 cp /tmp/$FILENAME s3://${{ secrets.AWS_S3_BUCKET }}/backups/$FILENAME \
+            --storage-class STANDARD_IA
+          echo "Uploaded to s3://${{ secrets.AWS_S3_BUCKET }}/backups/$FILENAME"
+          # Remove backups older than 30 days
+          aws s3 ls s3://${{ secrets.AWS_S3_BUCKET }}/backups/ | \
+            awk '{print $4}' | \
+            while read key; do
+              date_str=$(echo "$key" | grep -oP '\d{8}')
+              if [ ! -z "$date_str" ]; then
+                file_date=$(date -d "$date_str" +%s 2>/dev/null || echo 0)
+                cutoff=$(date -d "30 days ago" +%s)
+                if [ "$file_date" -lt "$cutoff" ]; then
+                  aws s3 rm s3://${{ secrets.AWS_S3_BUCKET }}/backups/$key
+                  echo "Deleted old backup: $key"
+                fi
+              fi
+            done
 
       - name: Notify on failure
         if: failure()
-        uses: slackapi/slack-github-action@v1.25.0
-        with:
-          payload: |
-            {
-              "text": "⚠️ Database backup failed!\nRepo: ${{ github.repository }}\nWorkflow: ${{ github.workflow }}\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_ADMIN_CHAT_ID }}" \
+            -d "text=🔴 DB BACKUP FAILED%0AWorkflow: ${{ github.workflow }}%0ARun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -d "parse_mode=HTML" || true
