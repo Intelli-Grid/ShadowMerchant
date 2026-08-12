@@ -1,9 +1,22 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { DealCard } from '@/components/deals/DealCard';
 import { LoadMoreDeals } from '@/components/deals/LoadMoreDeals';
 import { FilterSidebar } from '@/components/deals/FilterSidebar';
 import { Deal } from '@/types';
 import { redis, CACHE_TTL } from '@/lib/redis';
+
+export const metadata: Metadata = {
+  title: 'Best Deals Today — Amazon, Flipkart, Myntra, Nykaa | ShadowMerchant',
+  description: 'Browse 500+ verified deals from Amazon, Flipkart, Myntra, Nykaa and more. Every deal comes with a Shadow Score — so you know if it\'s actually a good price.',
+  openGraph: {
+    title: 'Best Deals Today | ShadowMerchant',
+    description: 'Verified deals from India\'s top platforms. Filter by category, platform, and discount. Free & Pro plans available.',
+    url: 'https://www.shadowmerchant.online/deals',
+    type: 'website',
+  },
+  alternates: { canonical: 'https://www.shadowmerchant.online/deals' },
+};
 
 // B1: ISR — render at most every 3 min from Vercel edge (Redis handles data layer)
 export const revalidate = 180;

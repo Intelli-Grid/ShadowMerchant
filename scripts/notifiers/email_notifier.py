@@ -55,10 +55,8 @@ def build_html_email(deals: list) -> str:
             <table width="100%" cellpadding="0" cellspacing="0" style="background:#13131A;border-radius:12px;border:1px solid #2A2A35;">
                 {deal_rows}
             </table>
-            <p style="text-align:center;color:#6B7280;font-size:11px;margin-top:24px;">
                 You're receiving this because you subscribed to ShadowMerchant deal alerts.<br/>
-                <a href="https://shadowmerchant.in/unsubscribe" style="color:#FF6B00;">Unsubscribe</a> | 
-                <a href="https://shadowmerchant.in" style="color:#FF6B00;">View all deals</a>
+                <a href="https://shadowmerchant.online" style="color:#FF6B00;">View all deals</a>
             </p>
         </div>
     </body>
@@ -85,9 +83,9 @@ def send_digest():
     api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
 
     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-        sender={"name": "ShadowMerchant Deals", "email": "deals@shadowmerchant.in"},
-        reply_to={"email": "noreply@shadowmerchant.in"},
-        to=[{"email": "subscribers@shadowmerchant.in"}],  # Replace with list management
+        sender={"name": "ShadowMerchant Deals", "email": "deals@shadowmerchant.online"},
+        reply_to={"email": "support@shadowmerchant.online"},
+        to=[{"email": "subscribers@shadowmerchant.online"}],  # Replace with actual list management
         subject=f"🔥 Today's Top Deals — {date.today().strftime('%B %d')}",
         html_content=build_html_email(deals)
     )

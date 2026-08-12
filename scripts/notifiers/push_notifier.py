@@ -36,7 +36,7 @@ def send_push(deal: dict, segment: str = "All") -> bool:
     price   = deal.get("discounted_price", 0)
     pct     = deal.get("discount_percent", 0)
     deal_id = str(deal.get("_id", ""))
-    url     = f"{os.getenv('NEXT_PUBLIC_APP_URL', 'https://shadowmerchant.in')}/deals/{deal_id}"
+    url     = f"{os.getenv('NEXT_PUBLIC_APP_URL', 'https://shadowmerchant.online')}/deals/{deal_id}"
 
     payload = {
         "app_id": app_id,
@@ -45,7 +45,7 @@ def send_push(deal: dict, segment: str = "All") -> bool:
         "contents": {"en": f"{title[:50]}... — ₹{price:,.0f}"},
         "url": url,
         "web_push_topic": "deal_alert",
-        "chrome_web_icon": f"{os.getenv('NEXT_PUBLIC_APP_URL', 'https://shadowmerchant.in')}/logo.png",
+        "chrome_web_icon": f"{os.getenv('NEXT_PUBLIC_APP_URL', 'https://shadowmerchant.online')}/logo.png",
     }
 
     headers = {

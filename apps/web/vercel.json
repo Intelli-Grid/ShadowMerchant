@@ -35,7 +35,9 @@
     "GITHUB_REPO_OWNER": "@github_repo_owner",
     "GITHUB_REPO_NAME": "@github_repo_name",
     "WHATSAPP_VERIFY_TOKEN": "@whatsapp_verify_token",
-    "WHATSAPP_APP_SECRET": "@whatsapp_app_secret"
+    "WHATSAPP_APP_SECRET": "@whatsapp_app_secret",
+    "NEXT_PUBLIC_ONESIGNAL_APP_ID": "@next_public_onesignal_app_id",
+    "BREVO_API_KEY": "@brevo_api_key"
   },
   "crons": [
     { "path": "/api/cron/refresh-deals",    "schedule": "0 */4 * * *"  },

@@ -1,9 +1,22 @@
+import type { Metadata } from 'next';
 import { connectDB } from '@/lib/db';
 import Deal from '@/models/Deal';
 import Link from 'next/link';
 import Image from 'next/image';
 import { BackInStockForm } from '@/components/ui/BackInStockForm';
 import { TargetPriceAlertButton } from '@/components/deals/TargetPriceAlertButton';
+
+export const metadata: Metadata = {
+  title: 'Missed Deals & Recently Expired Sales | ShadowMerchant',
+  description: 'Deals that recently ended or sold out. Set a back-in-stock alert to get notified the moment they return at a low price.',
+  openGraph: {
+    title: 'Missed Deals | ShadowMerchant',
+    description: 'Track expired deals and get alerted when they come back.',
+    url: 'https://www.shadowmerchant.online/missed-deals',
+    type: 'website',
+  },
+  alternates: { canonical: 'https://www.shadowmerchant.online/missed-deals' },
+};
 
 export const revalidate = 3600; // Revalidate every hour
 
