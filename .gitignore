@@ -97,3 +97,9 @@ output/
 API-keys*.txt
 api_keys.yaml
 *.env.secrets
+
+# ---------- Local-only growth tools (not for server deployment) ----------
+# These require local FFmpeg, system fonts, edge-tts — not suitable for CI/CD
+scripts/growth/video_generator.py
+scripts/growth/image_post_generator.py
+scripts/growth/output/
