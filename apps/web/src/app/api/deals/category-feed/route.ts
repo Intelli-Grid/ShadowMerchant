@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
+import { redis, ratelimit } from '@/lib/redis';
 import Deal from '@/models/Deal';
 
 const CATEGORIES = [
@@ -25,7 +26,16 @@ function roundRobinInterleave<T>(groups: Record<string, T[]>): T[] {
   return result;
 }
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  // Rate limit: 20/min per IP — runs 4 DB queries per call
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim()
+    ?? request.headers.get('x-real-ip')
+    ?? 'anon';
+  const { success } = await ratelimit.limit(`cat-feed:${ip}`);
+  if (!success) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const platformFilter = searchParams.get('platform'); // optional

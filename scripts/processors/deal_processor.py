@@ -189,9 +189,17 @@ def process_deals(raw_deals: list[RawDeal], db) -> dict:
                             "mrp_note": mrp_result["note"],
                             "updated_at": datetime.now(timezone.utc)
                         },
+                        # $slice: -90 keeps the 90 most-recent price points.
+                        # Without this, documents grow unboundedly — a deal scraped
+                        # 6x/day for 1 year accumulates 2,190 entries (~110KB).
+                        # 90 points covers 15 days of 6-times-daily scraping —
+                        # sufficient for the price chart and MRP clarity checks.
                         "$push": {"price_history": {
-                            "date": datetime.now(timezone.utc),
-                            "price": raw.discounted_price
+                            "$each": [{
+                                "date": datetime.now(timezone.utc),
+                                "price": raw.discounted_price
+                            }],
+                            "$slice": -90
                         }}
                     }
                 )

@@ -13,11 +13,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import Deal from '@/models/Deal';
-import { redis } from '@/lib/redis';
+import { redis, ratelimit } from '@/lib/redis';
 import { connectDB } from '@/lib/db';
 import { auth } from '@clerk/nextjs/server';
 
 const CACHE_TTL_SECONDS = 900; // 15 minutes
+const OBJECT_ID_REGEX = /^[a-f\d]{24}$/i;
 
 export async function POST(
   req: NextRequest,
@@ -30,7 +31,18 @@ export async function POST(
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Rate limit: 10/min per user — each call makes an outbound HTTP request (5s timeout)
+  const { success: rlOk } = await ratelimit.limit(`validate:${userId}`);
+  if (!rlOk) {
+    return NextResponse.json({ success: false, error: 'Too many requests' }, { status: 429 });
+  }
+
   const { id } = await params;
+
+  // ObjectId format guard — prevents Mongoose CastError → 500
+  if (!OBJECT_ID_REGEX.test(id)) {
+    return NextResponse.json({ success: false, error: 'Invalid deal ID' }, { status: 400 });
+  }
 
   try {
     // ── Redis cache check ──────────────────────────────────────────────────

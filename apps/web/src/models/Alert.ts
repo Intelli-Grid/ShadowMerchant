@@ -22,9 +22,11 @@ const AlertSchema = new Schema({
     target_price:  Number,   // User's desired price threshold (₹)
     current_price: Number,   // Price at time of alert creation (for context)
   },
-  is_active:        { type: Boolean, default: true },
-  triggered_at:     { type: Date },          // set when alert fires
-  last_triggered_at: Date,
+  is_active:         { type: Boolean, default: true },
+  triggered_at:      { type: Date },          // set when alert first fires
+  last_triggered_at: { type: Date },
+  times_triggered:   { type: Number, default: 0 },  // how many times this alert has fired
+  times_notified:    { type: Number, default: 0 },  // how many notifications were sent
 }, { timestamps: { createdAt: 'created_at' } });
 
 AlertSchema.index({ user_id: 1, is_active: 1 });
