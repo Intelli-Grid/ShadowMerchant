@@ -106,7 +106,13 @@ def compute_popularity_score(rating_count: int) -> float:
     """
     Popularity component — weight 20%.
     Uses review count as a proxy. Normalized to 10,000 reviews = 1.0.
+    
+    If rating_count is 0 (missing data — common for Nykaa, Meesho, Myntra),
+    returns 0.3 (neutral) rather than 0 to avoid unfairly penalizing
+    platforms that don't expose review counts in their API.
     """
+    if not rating_count or int(rating_count) == 0:
+        return 0.3   # neutral: data unavailable, don't penalise
     return min(float(int(rating_count)) / 10_000.0, 1.0)
 
 
@@ -114,7 +120,12 @@ def compute_rating_score(rating: float) -> float:
     """
     Rating component — weight 15%.
     Normalized: rating / 5.0.
+    
+    If rating is 0 (missing data), returns 0.3 (neutral) to avoid
+    penalising platforms that don't expose ratings (Meesho, Myntra, etc.).
     """
+    if not rating or float(rating) == 0.0:
+        return 0.3   # neutral: data unavailable, don't penalise
     return min(float(rating) / 5.0, 1.0)
 
 

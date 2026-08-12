@@ -574,7 +574,7 @@ def get_post_type_for_time() -> dict:
 
 async def _send_message(bot, text: str, keyboard=None, image_url: str = None):
 
-    from telegram.constants import ParseMode
+    from telegram import ParseMode
 
     try:
 
@@ -786,7 +786,7 @@ async def post_admin_alert(message: str):
 
     from telegram import Bot
 
-    from telegram.constants import ParseMode
+    from telegram import ParseMode
 
 
 
@@ -828,7 +828,7 @@ async def post_pipeline_report(stats: dict):
 
     from telegram import Bot
 
-    from telegram.constants import ParseMode
+    from telegram import ParseMode
 
 
 
@@ -928,7 +928,7 @@ async def notify_user_alert(telegram_chat_id: str, deal: dict, alert_type: str, 
 
     from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 
-    from telegram.constants import ParseMode
+    from telegram import ParseMode
 
 
 
@@ -1052,7 +1052,7 @@ def run_interactive_bot():
 
     )
 
-    from telegram.constants import ParseMode
+    from telegram import ParseMode
 
 
 
@@ -1847,7 +1847,7 @@ def run_interactive_bot():
 
     async def admin_run(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-        from telegram.constants import ParseMode
+        from telegram import ParseMode
 
         
 
@@ -1919,7 +1919,7 @@ def run_interactive_bot():
 
         from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-        from telegram.constants import ParseMode
+        from telegram import ParseMode
 
         query = update.callback_query
 
@@ -2053,7 +2053,7 @@ def run_interactive_bot():
 
     async def _start_pipeline_run(update, context, scrapers: list[str], query=None):
 
-        from telegram.constants import ParseMode
+        from telegram import ParseMode
 
 
 
