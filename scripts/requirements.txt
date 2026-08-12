@@ -17,3 +17,6 @@ algoliasearch==4.2.0
 pytrends==4.9.2
 Flask==3.0.3
 curl_cffi==0.7.4
+# ── Growth / Video pipeline ──
+edge-tts==6.1.12
+moviepy==2.0.0

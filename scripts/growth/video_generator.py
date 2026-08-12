@@ -111,7 +111,11 @@ def load_deal_by_id(deal_id: str) -> dict:
 
 def load_top_deal() -> dict:
     from utils.db import get_db
-    db = get_db()
+    try:
+        db = get_db()
+    except Exception as e:
+        log.error(f"DB connection failed in load_top_deal: {e}")
+        return None
     cutoff = datetime.now(timezone.utc) - timedelta(hours=12)
     return db.deals.find_one(
         {"is_active": True, "deal_score": {"$gte": 60}, "scraped_at": {"$gte": cutoff}},
@@ -299,7 +303,8 @@ def render_deal_card(deal: dict, output_path: Path) -> bool:
     draw.text((60, footer_y + 80), "shadowmerchant.online", font=font_medium, fill=GRAY)
     draw.text((60, footer_y + 130), "Link in bio", font=font_small, fill=WHITE)
 
-    img.save(str(output_path), "PNG", quality=95)
+    # compress_level=6: balanced PNG compression (0=none, 9=max). 'quality' is JPEG-only.
+    img.save(str(output_path), "PNG", compress_level=6)
     log.info(f"Deal card saved: {output_path.name}")
     return True
 
@@ -311,7 +316,7 @@ def render_deal_card(deal: dict, output_path: Path) -> bool:
 def compose_video(image_path: Path, audio_path: Path, output_path: Path) -> bool:
     """Combine image + audio into a 9:16 MP4 video."""
     try:
-        from moviepy import AudioFileClip, ImageClip, CompositeVideoClip
+        from moviepy import AudioFileClip, ImageClip
     except ImportError:
         log.error("moviepy not installed: pip install moviepy")
         return False
@@ -425,7 +430,7 @@ async def main():
     log.info(f"Generating Short for: {deal.get('title','')[:60]}")
 
     # ── Generate files ─────────────────────────────────────
-    ts = datetime.now().strftime("%Y%m%d_%H%M")
+    ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M")
     audio_path = OUTPUT_DIR / f"audio_{ts}.mp3"
     image_path = OUTPUT_DIR / f"card_{ts}.png"
     video_path = OUTPUT_DIR / f"short_{ts}.mp4"
@@ -448,7 +453,7 @@ async def main():
         log.error("Video composition failed. Check moviepy + ffmpeg installation.")
         return
 
-    # ── Clean up temp files ────────────────────────────────
+    # ── Clean up intermediate temp files (keep final video) ───────────────
     audio_path.unlink(missing_ok=True)
     image_path.unlink(missing_ok=True)
 
@@ -458,7 +463,9 @@ async def main():
     print(f"Script: {script}")
     print(f"{'='*50}\n")
 
-    # ── Send to admin ──────────────────────────────────────
+    # ── Send to admin Telegram for review ──────────────────────────────────
+    # Video file is still on disk — admin send happens AFTER cleanup so
+    # the intermediate files don't waste space, but the final video is intact.
     if not args.no_send:
         await notify_admin_video_ready(deal, video_path, script)
 
