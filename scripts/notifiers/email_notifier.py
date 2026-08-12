@@ -1,7 +1,7 @@
 import os
 import logging
-import sib_api_v3_sdk
-from sib_api_v3_sdk.rest import ApiException
+import brevo
+from brevo.rest import ApiException
 from pathlib import Path
 from dotenv import load_dotenv
 from datetime import date
@@ -69,8 +69,10 @@ def send_digest():
         logging.error("BREVO_API_KEY not set.")
         return
 
-    db = get_db()
-    if db is None:
+    try:
+        db = get_db()
+    except Exception as e:
+        logging.error(f"DB connection failed, skipping email digest: {e}")
         return
 
     deals = get_top_deals(db)
@@ -78,15 +80,19 @@ def send_digest():
         logging.info("No deals to send in digest.")
         return
 
-    configuration = sib_api_v3_sdk.Configuration()
-    configuration.api_key['api-key'] = api_key
-    api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+    # brevo-python >= 3.0 — module name is 'brevo' (old 'sib_api_v3_sdk' is sunset)
+    sender_email = os.getenv("BREVO_SENDER_EMAIL", "deals@shadowmerchant.online")
+    sender_name  = os.getenv("BREVO_SENDER_NAME", "ShadowMerchant Deals")
 
-    send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-        sender={"name": "ShadowMerchant Deals", "email": "deals@shadowmerchant.online"},
+    configuration = brevo.Configuration()
+    configuration.api_key['api-key'] = api_key
+    api_instance = brevo.TransactionalEmailsApi(brevo.ApiClient(configuration))
+
+    send_smtp_email = brevo.SendSmtpEmail(
+        sender={"name": sender_name, "email": sender_email},
         reply_to={"email": "support@shadowmerchant.online"},
         to=[{"email": "subscribers@shadowmerchant.online"}],  # Replace with actual list management
-        subject=f"🔥 Today's Top Deals — {date.today().strftime('%B %d')}",
+        subject=f"\U0001f525 Today's Top Deals \u2014 {date.today().strftime('%B %d')}",
         html_content=build_html_email(deals)
     )
 

@@ -62,6 +62,15 @@ export async function GET(
       }).catch(() => {}); // Swallow errors — analytics must never break redirects
     }
 
+    // ── Affiliate URL scheme guard — never redirect to non-HTTPS URLs ──────────
+    // All legitimate affiliate URLs (Amazon, Flipkart, Myntra, etc.) use HTTPS.
+    // This prevents a compromised or malformed DB entry from causing a redirect
+    // to http://, data:, javascript:, or any other dangerous scheme.
+    if (!deal.affiliate_url.startsWith('https://')) {
+      console.error(`[/api/go] Blocked unsafe affiliate_url for deal ${id}: ${deal.affiliate_url.slice(0, 60)}`);
+      return NextResponse.json({ error: 'Invalid affiliate URL' }, { status: 502 });
+    }
+
     // Permanent redirect to the affiliate URL
     return NextResponse.redirect(deal.affiliate_url, { status: 302 });
   } catch (err) {

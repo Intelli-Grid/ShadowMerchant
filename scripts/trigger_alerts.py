@@ -16,7 +16,7 @@ Usage:
 import os
 import sys
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -33,9 +33,10 @@ async def dispatch_alerts(run_start: datetime):
     - Pro-only types: keyword, brand, category, price_drop
     - All users:      target_price (the core retention mechanism)
     """
-    db = get_db()
-    if db is None:
-        logger.error("No DB connection for alert dispatch.")
+    try:
+        db = get_db()
+    except Exception as e:
+        logger.error(f"No DB connection for alert dispatch: {e}")
         return
 
     # Find deals from this pipeline run — include image_url for Telegram photo cards
@@ -127,14 +128,19 @@ async def dispatch_alerts(run_start: datetime):
                 except Exception as e:
                     logger.error(f"WhatsApp target price alert failed for {uid}: {e}")
 
-            # Deactivate the alert — it has fired
+            # Deactivate the alert — it has fired; $inc times_triggered so
+            # churn-message AI can see this user actively used alerts.
+            now = datetime.now(timezone.utc)
             db.alerts.update_one(
                 {"_id": alert["_id"]},
-                {"$set": {
-                    "is_active": False,
-                    "triggered_at": datetime.utcnow(),
-                    "last_triggered_at": datetime.utcnow(),
-                }}
+                {
+                    "$set": {
+                        "is_active": False,
+                        "triggered_at": now,
+                        "last_triggered_at": now,
+                    },
+                    "$inc": {"times_triggered": 1},
+                }
             )
 
         except Exception as e:
@@ -234,11 +240,14 @@ async def dispatch_alerts(run_start: datetime):
                 except Exception as e:
                     logger.error(f"WhatsApp alert failed for {user_id}: {e}")
 
-            # Update last_triggered_at on matched alerts
+            # Update last_triggered_at and increment times_triggered on matched alerts
             for alert, _ in user_matches:
                 db.alerts.update_one(
                     {"_id": alert["_id"]},
-                    {"$set": {"last_triggered_at": datetime.utcnow()}}
+                    {
+                        "$set": {"last_triggered_at": datetime.now(timezone.utc)},
+                        "$inc": {"times_triggered": 1},
+                    }
                 )
 
         except Exception as e:
@@ -250,4 +259,4 @@ async def dispatch_alerts(run_start: datetime):
 if __name__ == "__main__":
     import asyncio
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-    asyncio.run(dispatch_alerts(datetime.utcnow()))
+    asyncio.run(dispatch_alerts(datetime.now(timezone.utc)))
