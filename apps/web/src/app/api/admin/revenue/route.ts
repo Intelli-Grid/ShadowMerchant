@@ -22,6 +22,8 @@ export async function GET(req: NextRequest) {
     cancelledSubUsers,
     newProLast30d,
     churnRiskUsers,
+    monthlyPlanUsers,
+    annualPlanUsers,
   ] = await Promise.all([
     User.countDocuments({}),
     User.countDocuments({ subscription_tier: 'pro' }),
@@ -44,12 +46,18 @@ export async function GET(req: NextRequest) {
     )
       .lean()
       .limit(20),
+    User.countDocuments({ subscription_tier: 'pro', subscription_status: 'active', subscription_plan: 'monthly' }),
+    User.countDocuments({ subscription_tier: 'pro', subscription_status: 'active', subscription_plan: 'annual' }),
   ]);
 
-  // Estimate MRR — all active Pro users × monthly equivalent
-  // We can't distinguish monthly vs annual from current schema (no subscription_plan field)
-  // so we use a conservative estimate of ₹99/mo per active sub
-  const estimatedMRR = activeSubUsers * MONTHLY_PLAN_PRICE;
+  // Accurate MRR: monthly subs × ₹99 + annual subs × (₹799/12)
+  // Users with no plan recorded (legacy) are assumed monthly
+  const unknownPlanUsers = activeSubUsers - monthlyPlanUsers - annualPlanUsers;
+  const estimatedMRR = Math.round(
+    (monthlyPlanUsers + unknownPlanUsers) * MONTHLY_PLAN_PRICE +
+    annualPlanUsers * (ANNUAL_PLAN_PRICE / 12)
+  );
+
 
   // Subscription health breakdown
   const subscriptionBreakdown = {
@@ -73,7 +81,8 @@ export async function GET(req: NextRequest) {
     revenue: {
       estimatedMRR,
       estimatedARR: estimatedMRR * 12,
-      note: 'MRR estimated at ₹99/active sub. Connect Razorpay API for exact figures.',
+      planBreakdown: { monthly: monthlyPlanUsers, annual: annualPlanUsers, unknown: unknownPlanUsers },
+      note: `MRR = (${monthlyPlanUsers + unknownPlanUsers} monthly × ₹99) + (${annualPlanUsers} annual × ₹66.58/mo)`,
     },
     churnRisk: {
       count: churnRiskUsers.length,

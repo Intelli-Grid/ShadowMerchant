@@ -67,18 +67,17 @@ def get_db():
 def get_best_deal_today(db, min_discount: int = 30):
     """Pick today's best deal — highest score + discount, not posted as DOTD recently.
     
-    No hard score floor: the scorer output varies widely by platform.
-    Instead we rank by score desc, discount desc, and require min 30% discount.
-    Falls back to any active deal if nothing meets the discount threshold.
+    State is stored in MongoDB `growth_state` collection (key=dotd) so it
+    survives machine reboots and works from any environment with DB access.
     """
-    state_file = ROOT / "growth" / ".dotd_state.json"
+    # Load recent DOTD IDs from MongoDB instead of local JSON file
     recent_ids = set()
-    if state_file.exists():
-        try:
-            data = json.loads(state_file.read_text())
-            recent_ids = set(data.get("recent_ids", []))
-        except Exception:
-            pass
+    try:
+        state_doc = db.growth_state.find_one({"_id": "dotd"})
+        if state_doc:
+            recent_ids = set(state_doc.get("recent_ids", []))
+    except Exception as e:
+        log.warning(f"Could not load DOTD state from MongoDB: {e}")
 
     # Try: deals with 30%+ discount, scraped in last 36h
     cutoff = datetime.now(timezone.utc) - timedelta(hours=36)
@@ -133,27 +132,30 @@ def get_fake_sale_deals(db, limit: int = 3):
     return deals
 
 
-def mark_dotd(deal_id: str):
-    state_file = ROOT / "growth" / ".dotd_state.json"
-    data = {"recent_ids": [], "last_updated": ""}
-    if state_file.exists():
-        try:
-            data = json.loads(state_file.read_text())
-        except Exception:
-            pass
-    ids = data.get("recent_ids", [])
-    ids.append(str(deal_id))
-    ids = ids[-20:]  # keep last 20
-    data["recent_ids"] = ids
-    data["last_updated"] = datetime.now(timezone.utc).isoformat()
-    state_file.write_text(json.dumps(data, indent=2))
+def mark_dotd(deal_id: str, db=None):
+    """Record a deal ID as used for DOTD in MongoDB (persists across reboots)."""
+    if db is None:
+        return
+    try:
+        state_doc = db.growth_state.find_one({"_id": "dotd"}) or {"recent_ids": []}
+        ids = state_doc.get("recent_ids", [])
+        ids.append(str(deal_id))
+        ids = ids[-20:]  # keep last 20
+        db.growth_state.update_one(
+            {"_id": "dotd"},
+            {"$set": {"recent_ids": ids, "last_updated": datetime.now(timezone.utc).isoformat()}},
+            upsert=True
+        )
+        log.info(f"DOTD state saved to MongoDB: {len(ids)} recent IDs tracked")
+    except Exception as e:
+        log.error(f"Failed to save DOTD state to MongoDB: {e}")
 
 
 # ─────────────────────────────────────────────────────────────
 # TELEGRAM — DEAL OF THE DAY  (automatic, no review)
 # ─────────────────────────────────────────────────────────────
 
-async def post_deal_of_day(deal: dict, dry_run: bool = False):
+async def post_deal_of_day(deal: dict, db=None, dry_run: bool = False):
     """Post premium-formatted Deal of the Day to channel."""
     try:
         import telegram
@@ -198,7 +200,7 @@ async def post_deal_of_day(deal: dict, dry_run: bool = False):
     bot = telegram.Bot(token=BOT_TOKEN)
     try:
         await bot.send_message(chat_id=CHANNEL_ID, text=msg)
-        mark_dotd(deal["_id"])
+        mark_dotd(deal["_id"], db=db)
         log.info(f"Deal of Day posted: {title[:40]}")
         return True
     except Exception as e:
@@ -832,7 +834,7 @@ async def run(args):
 
     # ── 2. Telegram channel: Deal of the Day ───────────
     if args.dotd or args.all:
-        await post_deal_of_day(deal, dry_run=dry)
+        await post_deal_of_day(deal, db=db, dry_run=dry)
 
     # ── 3. Sunday: Weekly Expose post ──────────────────
     if (is_sunday or args.expose) and args.all:

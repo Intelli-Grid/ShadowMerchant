@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import DealModel from '@/models/Deal';
+import { ratelimit } from '@/lib/redis';
 
 const VELOCITY_THRESHOLD = 30;          // clicks within ~1h to trigger alert
 const NOTIFY_GAP_MS = 2 * 60 * 60 * 1000; // min 2h between repeated alerts
@@ -19,6 +20,17 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Rate limit: 10 clicks per minute per IP prevents bot-inflated trending scores
+  const ip =
+    req.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+    req.headers.get('x-real-ip') ??
+    'anon';
+  const { success } = await ratelimit.limit(`click:${ip}`);
+  if (!success) {
+    // Return 200 silently — don't alert the bot it's being blocked
+    return NextResponse.json({ ok: true });
+  }
+
   try {
     const { id } = await params;
     await connectDB();
@@ -44,7 +56,7 @@ export async function POST(
       // Update last_velocity_check timestamp to prevent repeated notifications
       await DealModel.findByIdAndUpdate(id, { last_velocity_check: new Date() });
 
-      // Fire Telegram alert non-blocking (best-effort)
+          // Fire Telegram alert non-blocking (best-effort)
       triggerVelocityAlert(deal).catch(() => {});
     }
 
@@ -60,6 +72,8 @@ async function triggerVelocityAlert(deal: any) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const channelId = process.env.TELEGRAM_CHANNEL_ID || '@ShadowMerchantDeals';
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online';
+  const dealPath = deal.slug || String(deal._id);
+  const dealUrl  = `${appUrl}/deals/${dealPath}`;
 
   if (!botToken) return;
 
@@ -69,7 +83,8 @@ async function triggerVelocityAlert(deal: any) {
     `💰 ₹${Number(deal.discounted_price).toLocaleString('en-IN')} — ${Math.round(deal.discount_percent ?? 0)}% OFF\n` +
     `📊 Shadow Score: ${deal.deal_score}/100\n` +
     `👥 Multiple shoppers viewing this right now\n\n` +
-    `👉 [View Deal](${appUrl}/deals/${deal._id})`;
+    `👉 [View Deal](${dealUrl})`;
+
 
   const payload = {
     chat_id: channelId,

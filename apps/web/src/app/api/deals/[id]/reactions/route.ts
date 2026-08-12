@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { connectDB } from '@/lib/db';
 import DealReaction from '@/models/DealReaction';
+import { ratelimit } from '@/lib/redis';
+
 
 /**
  * GET /api/deals/[id]/reactions
@@ -48,6 +50,12 @@ export async function POST(
 ) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Rate limit: 10 reaction writes per minute per user — prevents automated spam
+  const { success } = await ratelimit.limit(`reaction:${userId}`);
+  if (!success) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
 
   const { id: deal_id } = await params;
   const { reaction } = await req.json();

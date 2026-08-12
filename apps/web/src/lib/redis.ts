@@ -13,7 +13,14 @@ const redisMock = {
 
 export const redis: Redis | typeof redisMock = process.env.UPSTASH_REDIS_REST_URL
   ? new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN || '' })
-  : redisMock;
+  : (() => {
+      // CRITICAL: rate limiting and caching are disabled. Set UPSTASH_REDIS_REST_URL in Vercel env.
+      if (typeof window === 'undefined') {
+        console.error('[SM Redis] UPSTASH_REDIS_REST_URL not set — rate limiting DISABLED, no cache. All requests pass through to MongoDB.');
+      }
+      return redisMock;
+    })();
+
 
 // ─── Rate Limiters ──────────────────────────────────────────────────────────
 // Used by public API routes to prevent catalog scraping and DDoS.

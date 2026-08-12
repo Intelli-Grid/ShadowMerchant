@@ -107,19 +107,27 @@ export async function POST(req: NextRequest) {
     // ── Pro activation / renewal ──────────────────────────────────────────────
     case 'subscription.activated':
     case 'subscription.charged': {
+      // Determine plan type from Razorpay plan_id
+      const monthlyPlanId = process.env.RAZORPAY_MONTHLY_PLAN_ID;
+      const annualPlanId  = process.env.RAZORPAY_ANNUAL_PLAN_ID;
+      const detectedPlan: 'monthly' | 'annual' | null =
+        sub.plan_id === monthlyPlanId ? 'monthly' :
+        sub.plan_id === annualPlanId  ? 'annual'  : null;
+
       const activatedUser = await syncTier(sub.id, 'pro', {
         subscription_expires_at: sub.current_end
           ? new Date(sub.current_end * 1000)
           : null,
         subscription_cancel_scheduled: false,
+        ...(detectedPlan ? { subscription_plan: detectedPlan } : {}),
       });
       // Notify Boss in real-time — fire and forget
-      const planLabel = sub.plan_id || 'unknown plan';
+      const planLabel = detectedPlan ?? sub.plan_id ?? 'unknown plan';
       const amountPaise = payload?.payment?.entity?.amount ?? 0;
       const amountRupees = (amountPaise / 100).toLocaleString('en-IN');
       const msg = eventType === 'subscription.activated'
         ? `💰 *New Pro Subscriber!*\nEmail: ${activatedUser?.email ?? 'unknown'}\nPlan: ${planLabel}\nSub ID: ${sub.id}`
-        : `🔄 *Subscription Renewal*\nEmail: ${activatedUser?.email ?? 'unknown'}\nAmount: ₹${amountRupees}\nSub ID: ${sub.id}`;
+        : `🔄 *Subscription Renewal*\nEmail: ${activatedUser?.email ?? 'unknown'}\nAmount: ₹${amountRupees}\nPlan: ${planLabel}\nSub ID: ${sub.id}`;
       notifyOwner(msg);
       // Send Pro confirmation email on first activation only (not renewals)
       if (eventType === 'subscription.activated' && activatedUser?.email) {

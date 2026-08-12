@@ -115,16 +115,27 @@ export async function GET(req: NextRequest) {
       });
     }
 
+    // ── 5. Reset hourly click velocity counters ──────────────────────────────
+    // click_count_1h tracks clicks in a rolling window to surface "Trending Now" alerts.
+    // Without periodic resets it only accumulates — every deal eventually crosses
+    // the velocity threshold. This zeroes it out on the cron schedule (every 4h).
+    const velocityReset = await Deal.updateMany(
+      { click_count_1h: { $gt: 0 } },
+      { $set: { click_count_1h: 0 } }
+    );
+
     const stats = {
       stale_deactivated:        staleResult.modifiedCount,
       cache_keys_cleared:       keysToDelete.length,
       isr_revalidated:          ['/', '/deals', '/deals/feed'],
       expired_subs_downgraded:  expiredCount,
+      velocity_counters_reset:  velocityReset.modifiedCount,
       timestamp:                new Date().toISOString(),
     };
 
     console.log('[cron/refresh-deals]', stats);
     return NextResponse.json({ success: true, ...stats });
+
 
   } catch (error: any) {
     console.error('[cron/refresh-deals] error:', error);
