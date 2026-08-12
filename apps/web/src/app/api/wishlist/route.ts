@@ -44,5 +44,9 @@ export async function POST(req: NextRequest) {
     { new: true }
   );
 
+  if (!updatedUser) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
   return NextResponse.json({ wishlist: updatedUser.wishlist, action });
 }
