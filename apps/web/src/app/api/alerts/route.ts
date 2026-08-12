@@ -53,6 +53,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'type and criteria are required' }, { status: 400 });
   }
 
+  // Cap: 20 active alerts per Pro user — prevents scheduler query explosion at scale
+  const ALERT_CAP = 20;
+  const activeCount = await Alert.countDocuments({ user_id: userId, is_active: true });
+  if (activeCount >= ALERT_CAP) {
+    return NextResponse.json(
+      { error: `Alert limit reached (${ALERT_CAP} max). Delete an existing alert to create a new one.` },
+      { status: 429 }
+    );
+  }
+
   const alert = await Alert.create({ user_id: userId, type, criteria });
   return NextResponse.json({ alert }, { status: 201 });
 }

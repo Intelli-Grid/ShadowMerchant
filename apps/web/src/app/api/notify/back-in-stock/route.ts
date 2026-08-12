@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ratelimit } from '@/lib/redis';
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const BREVO_LIST_ID = parseInt(process.env.BREVO_BACK_IN_STOCK_LIST_ID || '2', 10);
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 5 submissions per minute per IP — prevents email list pollution
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'anon';
+  const { success } = await ratelimit.limit(`bis:${ip}`);
+  if (!success) {
+    return NextResponse.json({ success: false, error: 'Too many requests' }, { status: 429 });
+  }
+
   try {
+
     const { email, dealId, dealTitle } = await req.json();
 
     if (!email || !email.includes('@')) {

@@ -4,7 +4,7 @@ import { createHmac, timingSafeEqual } from 'crypto';
 /**
  * WhatsApp Business webhook verification (GET) and message handler (POST).
  * Register this URL in Meta Developer Console:
- *   Webhook URL: https://shadowmerchant.in/api/whatsapp/webhook
+ *   Webhook URL: https://shadowmerchant.online/api/whatsapp/webhook
  *   Verify Token: matches WHATSAPP_VERIFY_TOKEN env var
  *
  * Security: POST handler verifies Meta's X-Hub-Signature-256 HMAC signature
@@ -84,10 +84,23 @@ export async function POST(req: NextRequest) {
 
       console.log(`[WhatsApp] Message from ${from}: ${text}`);
 
-      // Handle STOP unsubscribe
+      // Handle STOP unsubscribe — WhatsApp Business Policy compliance
+      // Meta can suspend the account if STOP messages are not honoured immediately
       if (text === 'stop') {
-        // In production: update user record to disable whatsapp notifications
-        console.log(`[WhatsApp] Unsubscribe request from ${from}`);
+        console.log(`[WhatsApp] STOP received from ${from} — removing from notifications`);
+        try {
+          const { connectDB } = await import('@/lib/db');
+          const User = (await import('@/models/User')).default;
+          await connectDB();
+          // Clear the WhatsApp channel so the notifier skips this user
+          await User.findOneAndUpdate(
+            { 'notification_channels.whatsapp': from },
+            { $unset: { 'notification_channels.whatsapp': '' } }
+          );
+          console.log(`[WhatsApp] Unsubscribed ${from} from notifications`);
+        } catch (err) {
+          console.error(`[WhatsApp] Failed to unsubscribe ${from}:`, err);
+        }
       }
     }
   }

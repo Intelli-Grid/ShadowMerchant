@@ -37,7 +37,11 @@
     "WHATSAPP_VERIFY_TOKEN": "@whatsapp_verify_token",
     "WHATSAPP_APP_SECRET": "@whatsapp_app_secret",
     "NEXT_PUBLIC_ONESIGNAL_APP_ID": "@next_public_onesignal_app_id",
-    "BREVO_API_KEY": "@brevo_api_key"
+    "BREVO_API_KEY": "@brevo_api_key",
+    "BREVO_SENDER_EMAIL": "@brevo_sender_email",
+    "BREVO_SENDER_NAME": "@brevo_sender_name",
+    "ADMIN_SECRET": "@admin_secret",
+    "TELEGRAM_ADMIN_CHAT_ID": "@telegram_admin_chat_id"
   },
   "crons": [
     { "path": "/api/cron/refresh-deals",    "schedule": "0 */4 * * *"  },

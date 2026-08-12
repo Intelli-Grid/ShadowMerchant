@@ -3,10 +3,17 @@ import { auth } from '@clerk/nextjs/server';
 import { razorpay, PLAN_IDS } from '@/lib/razorpay';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
+import { ratelimit } from '@/lib/redis';
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Rate limit: 3 per minute per user — prevents double-click duplicate Razorpay subscriptions
+  const { success } = await ratelimit.limit(`sub:${userId}`);
+  if (!success) {
+    return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
+  }
 
   const { plan = 'monthly' } = await req.json();
   const planId = plan === 'annual' ? PLAN_IDS.PRO_ANNUAL : PLAN_IDS.PRO_MONTHLY;

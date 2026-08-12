@@ -8,6 +8,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/lib/db';
 import mongoose, { Schema } from 'mongoose';
+import { ratelimit } from '@/lib/redis';
+
 
 // Inline model — no separate file needed for a simple collection
 const WaitlistSchema = new Schema(
@@ -24,6 +26,13 @@ const Waitlist =
   mongoose.models.Waitlist || mongoose.model('Waitlist', WaitlistSchema);
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 5 waitlist signups per minute per IP — prevents bulk fake signups
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'anon';
+  const { success } = await ratelimit.limit(`waitlist:${ip}`);
+  if (!success) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   try {
     const body = await req.json();
     const email = (body?.email || '').trim().toLowerCase();

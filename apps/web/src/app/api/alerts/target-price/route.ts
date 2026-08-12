@@ -79,6 +79,21 @@ export async function POST(req: NextRequest) {
     { $set: { is_active: false } }
   );
 
+  // Cap: 10 active target-price alerts per user (applies to all tiers)
+  // Prevents scheduler performance degradation from unbounded alert creation
+  const TARGET_ALERT_CAP = 10;
+  const activeTargetCount = await Alert.countDocuments({
+    user_id: userId,
+    type: 'target_price',
+    is_active: true,
+  });
+  if (activeTargetCount >= TARGET_ALERT_CAP) {
+    return NextResponse.json(
+      { error: `Target price alert limit reached (${TARGET_ALERT_CAP} max). Remove an existing alert first.` },
+      { status: 429 }
+    );
+  }
+
   const alert = await Alert.create({
     user_id: userId,
     type: 'target_price',
