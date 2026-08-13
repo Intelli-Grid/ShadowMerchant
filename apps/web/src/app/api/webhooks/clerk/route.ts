@@ -60,6 +60,11 @@ export async function POST(req: Request) {
     try {
       await connectDB();
       
+      // Extract UTM attribution from Clerk unsafeMetadata (written by sign-up page)
+      const signupSource   = (unsafe_metadata?.utm_source   as string | undefined) ?? 'direct';
+      const utmMedium      = (unsafe_metadata?.utm_medium   as string | undefined);
+      const utmCampaign    = (unsafe_metadata?.utm_campaign as string | undefined);
+
       await User.findOneAndUpdate(
         { clerk_id: id },
         {
@@ -72,7 +77,8 @@ export async function POST(req: Request) {
             clerk_id: id,
             subscription_tier: 'free',
             created_at: new Date(),
-            wishlist: []
+            wishlist: [],
+            signup_source: signupSource,  // attribution — utm_source or 'direct'
           }
         },
         { upsert: true, new: true }
@@ -105,6 +111,31 @@ export async function POST(req: Request) {
           sendWelcomeEmail(email, first_name ?? undefined).catch(err =>
             console.error('[SM Clerk Webhook] Welcome email failed:', err)
           );
+        }
+
+        // ── PostHog: user_signed_up event with channel attribution ──────────────────
+        // Same REST-API pattern as go/[id]/route.ts — no npm PostHog package needed.
+        // This is THE event for Week 1 attribution: PostHog breakdown by
+        // signup_source shows which channel drove sign-ups.
+        const phKey  = process.env.POSTHOG_PROJECT_API_KEY;
+        const phHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com';
+        if (phKey) {
+          fetch(`${phHost}/capture/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              api_key: phKey,
+              event: 'user_signed_up',
+              distinct_id: id,   // Clerk user ID — consistent with client-side identify() calls
+              properties: {
+                signup_source: signupSource,
+                utm_medium:    utmMedium   ?? null,
+                utm_campaign:  utmCampaign ?? null,
+                email,
+              },
+              timestamp: new Date().toISOString(),
+            }),
+          }).catch(() => {});  // fire-and-forget, never block the 200 response
         }
       }
     } catch (e) {

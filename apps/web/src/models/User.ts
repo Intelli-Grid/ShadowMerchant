@@ -34,6 +34,8 @@ const UserSchema = new Schema({
   referral_code:  { type: String, sparse: true },
   referral_count: { type: Number, default: 0 },
   referred_by:    { type: String },   // referral_code of the person who referred this user
+  // Attribution — which channel drove this sign-up (from UTM params at sign-up)
+  signup_source:  { type: String },   // e.g. 'instagram', 'telegram', 'reddit', 'direct'
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
 
 // ─── Indexes ─────────────────────────────────────────────────────────────────

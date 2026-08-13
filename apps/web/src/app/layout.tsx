@@ -13,6 +13,7 @@ import { ReferralTracker } from '@/components/ReferralTracker';
 import { ReferralApplier } from '@/components/ReferralApplier';
 import { WhatsAppFloat } from '@/components/WhatsAppFloat';
 import { Suspense } from 'react';
+import { UtmCapture } from '@/components/UtmCapture';
 
 const syne = Syne({
   subsets: ['latin'],
@@ -74,6 +75,8 @@ export default function RootLayout({
         >
           <PostHogProvider>
             <WishlistProvider>
+              {/* First-touch UTM attribution — captures ?utm_source on any landing page */}
+              <UtmCapture />
               {/* Captures ?ref= param on any page for referral attribution */}
               <Suspense fallback={null}>
                 <ReferralTracker />

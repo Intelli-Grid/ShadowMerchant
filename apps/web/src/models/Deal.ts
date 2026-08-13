@@ -156,5 +156,7 @@ DealSchema.index({ last_clicked_at: -1 });
 DealSchema.index({ is_pinned: 1, pinned_as: 1, is_active: 1 });
 // n8n Workflow #2: fast query for unposted high-score deals
 DealSchema.index({ telegram_posted: 1, deal_score: -1, is_active: 1 });
+// PSEO: brand pages — /deals/brand/[brand] queries this index
+DealSchema.index({ brand: 1, is_active: 1, deal_score: -1 });
 
 export default mongoose.models.Deal || mongoose.model('Deal', DealSchema);
