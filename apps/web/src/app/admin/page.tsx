@@ -82,6 +82,35 @@ async function getMissionControlData() {
     },
   ]);
 
+  // Affiliate click analytics (total clicks on active deals)
+  const clickAnalytics = await Deal.aggregate([
+    { $match: { is_active: true, click_count: { $gt: 0 } } },
+    {
+      $group: {
+        _id: '$source_platform',
+        totalClicks: { $sum: '$click_count' },
+        dealCount:   { $sum: 1 },
+      },
+    },
+    { $sort: { totalClicks: -1 } },
+  ]);
+
+  // Top 10 clicked deals today
+  const topClickedDeals = await Deal.find({ is_active: true, click_count: { $gt: 0 } })
+    .sort({ click_count: -1 })
+    .limit(10)
+    .select('title source_platform click_count discounted_price deal_score discount_percent')
+    .lean();
+
+  // Signup source breakdown (requires UTM attribution to be active)
+  const signupSourceBreakdown = await User.aggregate([
+    { $group: { _id: { $ifNull: ['$signup_source', 'direct'] }, count: { $sum: 1 } } },
+    { $sort: { count: -1 } },
+    { $limit: 10 },
+  ]);
+
+  const totalClicks = clickAnalytics.reduce((s: number, p: any) => s + p.totalClicks, 0);
+
   return {
     deals: {
       total: totalDeals,
@@ -95,6 +124,8 @@ async function getMissionControlData() {
     alerts: { total: totalAlerts, active: activeAlerts, firedLast7d: alertsFiredLast7d },
     scraper: { lastLog: lastScrapeLog, recentLogs: recentScrapeLogs },
     cache: { dbSize: typeof redisDbSize === 'number' ? redisDbSize : 0 },
+    clicks: { byPlatform: clickAnalytics, topDeals: topClickedDeals, total: totalClicks },
+    acquisition: { signupSources: signupSourceBreakdown },
     generatedAt: now.toISOString(),
   };
 }
@@ -110,9 +141,14 @@ export default async function AdminDashboard() {
 
   // System health signals
   const scraperLastLog = data.scraper.lastLog as any;
+  // Tightened from 26h → 8h: 26h is two full pipeline runs, far too forgiving
   const scraperHealthy = scraperLastLog
-    ? Date.now() - new Date(scraperLastLog.started_at).getTime() < 26 * 3600 * 1000
+    ? Date.now() - new Date(scraperLastLog.started_at).getTime() < 8 * 3600 * 1000
     : false;
+  // Critical: > 14h since last done log = likely missed a run
+  const scraperCritical = scraperLastLog
+    ? Date.now() - new Date(scraperLastLog.started_at).getTime() > 14 * 3600 * 1000 || scraperLastLog.status === 'failed'
+    : true;
   const cacheHealthy = data.cache.dbSize > 0;
   const dataHealthy = data.deals.last24h > 0;
 
@@ -124,6 +160,28 @@ export default async function AdminDashboard() {
 
   return (
     <div className="space-y-8 pb-12">
+      {/* ── Scraper Failure Banner ─────────────────────────────────────────── */}
+      {scraperCritical && (
+        <div
+          className="flex items-start gap-3 px-5 py-4 rounded-xl"
+          style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)' }}
+        >
+          <span className="text-red-400 text-lg mt-0.5">⚠️</span>
+          <div>
+            <p className="text-sm font-bold text-red-400">
+              {scraperLastLog?.status === 'failed'
+                ? 'Scraper run FAILED'
+                : `No scraper activity in ${scraperLastLog ? Math.round((Date.now() - new Date(scraperLastLog.started_at).getTime()) / 3600000) : '?'}h`}
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+              Deal inventory may be stale. Check GitHub Actions → scrape.yml and verify the pipeline is running.
+              {scraperLastLog?.error_message && (
+                <span className="block mt-1 text-red-300/70 font-mono">{scraperLastLog.error_message.slice(0, 120)}</span>
+              )}
+            </p>
+          </div>
+        </div>
+      )}
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between">
         <div>
@@ -272,6 +330,157 @@ export default async function AdminDashboard() {
           )}
         </AdminCard>
       </div>
+
+      {/* ── Click Analytics ───────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Affiliate Clicks by Platform */}
+        <AdminCard>
+          <SectionHeader
+            title="Affiliate Clicks — All Time"
+            sub={`${data.clicks.total.toLocaleString('en-IN')} total tracked clicks`}
+          />
+          {data.clicks.byPlatform.length > 0 ? (
+            <div className="flex flex-col gap-2.5">
+              {data.clicks.byPlatform.map((p: any) => {
+                const pct = data.clicks.total > 0 ? Math.round((p.totalClicks / data.clicks.total) * 100) : 0;
+                return (
+                  <div key={p._id} className="flex items-center gap-3">
+                    <span
+                      className="text-xs font-bold capitalize w-16 shrink-0"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
+                      {p._id}
+                    </span>
+                    <div
+                      className="flex-1 h-2 rounded-full overflow-hidden"
+                      style={{ background: 'var(--bg-raised)' }}
+                    >
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{ width: `${pct}%`, background: 'var(--gold)' }}
+                      />
+                    </div>
+                    <span
+                      className="text-xs font-bold w-10 text-right shrink-0"
+                      style={{ color: 'var(--gold)' }}
+                    >
+                      {p.totalClicks.toLocaleString()}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+              No click data yet. Clicks track when users hit /api/go/[id].
+            </p>
+          )}
+        </AdminCard>
+
+        {/* Acquisition — Signup Source Breakdown */}
+        <AdminCard>
+          <SectionHeader
+            title="Acquisition — Signup Sources"
+            sub="requires PostHog + UTM attribution active"
+          />
+          {data.acquisition.signupSources.length > 0 ? (
+            <div className="flex flex-col gap-2.5">
+              {data.acquisition.signupSources.map((s: any) => {
+                const pct = data.users.total > 0
+                  ? Math.round((s.count / data.users.total) * 100)
+                  : 0;
+                return (
+                  <div key={s._id} className="flex items-center gap-3">
+                    <span
+                      className="text-xs font-bold w-20 shrink-0 truncate"
+                      style={{ color: 'var(--text-secondary)' }}
+                    >
+                      {s._id || 'direct'}
+                    </span>
+                    <div
+                      className="flex-1 h-2 rounded-full overflow-hidden"
+                      style={{ background: 'var(--bg-raised)' }}
+                    >
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{ width: `${pct}%`, background: '#60A5FA' }}
+                      />
+                    </div>
+                    <span
+                      className="text-xs font-bold w-6 text-right shrink-0"
+                      style={{ color: '#60A5FA' }}
+                    >
+                      {s.count}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+              No source data. Set POSTHOG env vars + UTM params will populate this.
+            </p>
+          )}
+        </AdminCard>
+      </div>
+
+      {/* ── Top Clicked Deals ─────────────────────────────────────────────── */}
+      {data.clicks.topDeals.length > 0 && (
+        <AdminCard>
+          <SectionHeader title="Top Clicked Deals" sub="highest affiliate traffic — all time" />
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr style={{ color: 'var(--text-muted)' }}>
+                  <th className="text-left pb-2 font-bold uppercase tracking-wider pr-4">Deal</th>
+                  <th className="text-left pb-2 font-bold uppercase tracking-wider pr-4">Platform</th>
+                  <th className="text-left pb-2 font-bold uppercase tracking-wider pr-4">Score</th>
+                  <th className="text-left pb-2 font-bold uppercase tracking-wider pr-4">Price</th>
+                  <th className="text-right pb-2 font-bold uppercase tracking-wider">Clicks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.clicks.topDeals.map((d: any, i: number) => (
+                  <tr
+                    key={String(d._id)}
+                    className="border-t"
+                    style={{ borderColor: 'var(--sm-border)' }}
+                  >
+                    <td className="py-2 pr-4 max-w-[220px]">
+                      <span
+                        className="block truncate font-medium"
+                        style={{ color: 'var(--text-primary)' }}
+                        title={d.title}
+                      >
+                        {i + 1}. {d.title}
+                      </span>
+                    </td>
+                    <td className="py-2 pr-4 capitalize" style={{ color: 'var(--text-secondary)' }}>
+                      {d.source_platform}
+                    </td>
+                    <td className="py-2 pr-4">
+                      <span
+                        className="font-bold"
+                        style={{
+                          color: d.deal_score >= 80 ? '#22c55e' : d.deal_score >= 60 ? '#f59e0b' : '#ef4444',
+                        }}
+                      >
+                        {Math.round(d.deal_score ?? 0)}
+                      </span>
+                    </td>
+                    <td className="py-2 pr-4" style={{ color: 'var(--text-secondary)' }}>
+                      ₹{d.discounted_price?.toLocaleString('en-IN')}
+                    </td>
+                    <td className="py-2 text-right font-bold" style={{ color: 'var(--gold)' }}>
+                      {d.click_count?.toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </AdminCard>
+      )}
 
       {/* ── AI Brain Query Panel ────────────────────────────────────────── */}
       <Suspense fallback={<div />}>

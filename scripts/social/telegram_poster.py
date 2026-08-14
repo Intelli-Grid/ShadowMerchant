@@ -60,6 +60,19 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.db import get_db
 
+# ── python-telegram-bot v20+ compatibility shim ──────────────────────────────
+# ParseMode moved from `telegram` to `telegram.constants` in v20.
+# Patch it back into the telegram module so all existing `from telegram import
+# ParseMode` calls work without touching each one individually.
+try:
+    import telegram as _tg_module
+    from telegram.constants import ParseMode as _ParseMode
+    if not hasattr(_tg_module, 'ParseMode'):
+        _tg_module.ParseMode = _ParseMode
+except Exception:
+    pass  # Silently skip if telegram isn't installed (e.g. missing deps)
+# ─────────────────────────────────────────────────────────────────────────────
+
 
 
 logging.basicConfig(

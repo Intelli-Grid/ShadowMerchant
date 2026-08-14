@@ -398,6 +398,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                   currentPrice={deal.discounted_price}
                   productTitle={deal.title}
                   platform={deal.source_platform}
+                  isPro={isUserPro}
                 />
               </div>
 
@@ -498,21 +499,30 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 </span>
                 {(() => {
                   const breakdown = deal.score_breakdown;
+                  // All 5 components with their documented weights
                   const bars = breakdown ? [
-                    { label: 'Discount',  value: breakdown.discount_score },
-                    { label: 'Rating',    value: breakdown.rating_score },
-                    { label: 'Freshness', value: breakdown.freshness_score },
+                    { label: 'Discount',    value: breakdown.discount_score,   weight: 35, raw: `${Math.round(deal.discount_percent ?? 0)}% off` },
+                    { label: 'Price Drop',  value: breakdown.price_drop_score, weight: 20, raw: breakdown.price_drop_score != null ? `₹${Math.round((deal.original_price - deal.discounted_price)).toLocaleString('en-IN')} saved` : null },
+                    { label: 'Popularity', value: breakdown.popularity_score,  weight: 20, raw: deal.rating_count ? `${deal.rating_count.toLocaleString()} ratings` : null },
+                    { label: 'Rating',     value: breakdown.rating_score,      weight: 15, raw: deal.rating ? `★ ${deal.rating.toFixed(1)}` : null },
+                    { label: 'Freshness',  value: breakdown.freshness_score,   weight: 10, raw: null },
                   ] : [
-                    { label: 'Discount', value: Math.min(100, deal.discount_percent ?? 0) },
-                    { label: 'Trust',   value: Math.round((deal.rating ?? 0) / 5 * 100) },
-                    { label: 'Velocity', value: deal.is_trending ? 90 : 40 },
+                    { label: 'Discount',    value: Math.min(100, deal.discount_percent ?? 0), weight: 35, raw: `${Math.round(deal.discount_percent ?? 0)}% off` },
+                    { label: 'Price Drop',  value: Math.min(100, Math.round(((deal.original_price - deal.discounted_price) / deal.original_price) * 100)), weight: 20, raw: null },
+                    { label: 'Popularity', value: Math.min(100, Math.round(((deal.rating_count ?? 0) / 5000) * 100)), weight: 20, raw: deal.rating_count ? `${deal.rating_count.toLocaleString()} ratings` : null },
+                    { label: 'Rating',     value: Math.round(((deal.rating ?? 0) / 5) * 100), weight: 15, raw: deal.rating ? `★ ${deal.rating.toFixed(1)}` : null },
+                    { label: 'Freshness',  value: deal.is_trending ? 90 : 40, weight: 10, raw: null },
                   ];
-                  return bars.map(({ label, value }) => (
+                  return bars.map(({ label, value, weight, raw }) => (
                     <div key={label} className="flex items-center gap-2">
-                      <span className="text-[10px] w-12 shrink-0" style={{ color: 'var(--text-muted)' }}>{label}</span>
-                      <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--bg-raised)' }}>
-                        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${value}%`, background: scoreConfig.color }} />
+                      <div className="flex items-center gap-1 w-20 shrink-0">
+                        <span className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{label}</span>
+                        <span className="text-[9px] font-bold opacity-50" style={{ color: 'var(--text-muted)' }}>{weight}%</span>
                       </div>
+                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-raised)' }}>
+                        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${value ?? 0}%`, background: scoreConfig.color }} />
+                      </div>
+                      {raw && <span className="text-[9px] w-16 text-right shrink-0" style={{ color: 'var(--text-muted)' }}>{raw}</span>}
                     </div>
                   ));
                 })()}

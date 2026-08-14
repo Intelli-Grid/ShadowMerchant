@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import { Bell, BellOff, CheckCircle2, Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { Bell, BellOff, CheckCircle2, Loader2, Crown } from 'lucide-react';
 
 interface TargetPriceAlertButtonProps {
   dealId: string;
   currentPrice: number;
   productTitle: string;
   platform: string;
+  isPro?: boolean;      // passed from server component — avoids a client-side fetch
   buttonLabel?: string; // UPGRADE-J: optional custom label for contextual CTAs
 }
 
@@ -20,6 +22,7 @@ export function TargetPriceAlertButton({
   currentPrice,
   productTitle,
   platform,
+  isPro = false,
   buttonLabel,
 }: TargetPriceAlertButtonProps) {
   const { isSignedIn } = useAuth();
@@ -128,6 +131,39 @@ export function TargetPriceAlertButton({
         <Bell className="w-4 h-4" />
         Sign in to get price drop alerts
       </button>
+    );
+  }
+
+  // ── Signed in but not Pro ─────────────────────────────────────
+  // Show an explicit upgrade callout instead of a silent 403.
+  if (!isPro) {
+    return (
+      <div
+        className="w-full rounded-xl p-4 flex flex-col gap-3"
+        style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.2)' }}
+      >
+        <div className="flex items-start gap-3">
+          <Crown className="w-4 h-4 mt-0.5 shrink-0" style={{ color: 'var(--sm-accent)' }} />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-white leading-tight">
+              Get notified when this price drops
+            </p>
+            <p className="text-[11px] mt-1 leading-snug" style={{ color: 'var(--text-secondary)' }}>
+              Set a target price and we'll alert you via Telegram or email the moment this deal
+              hits your number. Pro feature — ₹99/month or ₹799/year.
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/pro"
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-bold transition-all hover:opacity-90 active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #7c3aed, #4c1d95)', color: 'white' }}
+          aria-label="Upgrade to Pro to set price alerts"
+        >
+          <Crown className="w-4 h-4" />
+          Unlock Price Alerts — Go Pro
+        </Link>
+      </div>
     );
   }
 
