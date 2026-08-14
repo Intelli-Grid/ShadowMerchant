@@ -103,3 +103,7 @@ api_keys.yaml
 scripts/growth/video_generator.py
 scripts/growth/image_post_generator.py
 scripts/growth/output/
+
+# ---------- Graphify knowledge graph (local analysis cache) ----------
+# Regenerated on demand with `graphify update .` — not needed in repo
+graphify-out/

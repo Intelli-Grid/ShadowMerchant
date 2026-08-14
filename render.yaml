@@ -1,34 +1,22 @@
+# =============================================================================
+# ShadowMerchant — Render Configuration
+# =============================================================================
+# NOTE: Scrapers do NOT run on Render.
+# All scraping runs locally on a Windows machine via Windows Task Scheduler.
+# Render is used ONLY for the Flask health-check endpoint so uptime monitors
+# (e.g. UptimeRobot) can confirm the backend is responsive.
+#
+# To disable this service entirely, simply delete this file or pause the
+# service in the Render dashboard. It will not affect scraping or the website.
+# =============================================================================
+
 services:
   - type: web
-    name: shadowmerchant-scraper
-    env: docker
-    dockerContext: .
-    dockerfilePath: ./Dockerfile
-    plan: starter # Starter plan required for Chrome/Playwright memory
+    name: shadowmerchant-healthcheck
+    env: python
+    buildCommand: pip install flask
+    startCommand: python -c "from flask import Flask; app = Flask(__name__); app.route('/health')(lambda: ({'status':'ok'}, 200)); app.run(host='0.0.0.0', port=10000)"
+    plan: free
     envVars:
-      - key: MONGODB_URI
-        sync: false          # Set in Render dashboard → Environment
       - key: PYTHONUNBUFFERED
         value: "1"
-      - key: TELEGRAM_BOT_TOKEN
-        sync: false          # Set in Render dashboard → Environment
-      - key: TELEGRAM_CHANNEL_ID
-        value: "@ShadowMerchantDeals"
-      - key: TELEGRAM_ADMIN_CHAT_ID
-        sync: false          # Set in Render dashboard → Environment
-      - key: NEXT_PUBLIC_APP_URL
-        value: "https://www.shadowmerchant.online"
-      - key: SCRAPERAPI_KEY
-        sync: false          # REQUIRED for Meesho: get from https://scraperapi.com/dashboard
-      - key: AMAZON_AFFILIATE_TAG
-        sync: false          # Amazon Associates tag — e.g. shadowmerc0a0-21
-      - key: MEESHO_AFFILIATE_TAG
-        sync: false          # Meesho affiliate tag (aid param)
-      - key: NYKAA_AFFILIATE_TAG
-        sync: false          # Nykaa affiliate tag
-      - key: ALGOLIA_APP_ID
-        sync: false          # Algolia app ID for deal sync
-      - key: ALGOLIA_API_KEY
-        sync: false          # Algolia Admin API key (write access)
-      - key: ALGOLIA_INDEX_NAME
-        value: "deals"
