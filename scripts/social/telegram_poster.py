@@ -2970,4 +2970,5 @@ if __name__ == "__main__":
 
     else:
 
-        asyncio.run(broadcast_top_deals(limit=3))
+        asyncio.run(broadcast_smart())
+
