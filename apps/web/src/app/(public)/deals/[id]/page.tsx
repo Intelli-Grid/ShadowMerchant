@@ -8,7 +8,7 @@ import { PriceHistoryChart } from '@/components/deals/PriceHistoryChart';
 import { TargetPriceAlertButton } from '@/components/deals/TargetPriceAlertButton';
 import { DealReactionBar } from '@/components/deals/DealReactionBar';
 import { PLATFORM_CONFIG } from '@/lib/platforms';
-import { ShieldCheck, Clock, ExternalLink, Activity, Sparkles, TrendingDown, Lock, Crown } from 'lucide-react';
+import { ShieldCheck, Clock, ExternalLink, Activity, Sparkles, TrendingDown, Crown } from 'lucide-react';
 import { Deal } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { sanitizeHtml } from '@/lib/sanitize';
@@ -330,42 +330,51 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 </p>
               )}
 
-              {/* UPGRADE-C: Buy Now or Wait? verdict — above the primary CTA */}
-              {isUserPro ? (
-                // ── PRO: Full AI verdict visible ─────────────────────────────────
-                <div className="rounded-xl p-4 flex items-start gap-3 mb-4"
-                  style={{ background: verdict.bg, border: `1px solid ${verdict.border}` }}>
-                  <span className="text-2xl leading-none mt-0.5">{verdict.emoji}</span>
-                  <div>
-                    <p className="font-black text-white text-sm tracking-wide">{verdict.verdict}</p>
-                    <p className="text-xs mt-1 leading-snug" style={{ color: 'var(--text-secondary)' }}>{verdict.reason}</p>
-                  </div>
+              {/* Verdict — visible to ALL users (trust must be free) */}
+              <div className="rounded-xl p-4 flex items-start gap-3 mb-3"
+                style={{ background: verdict.bg, border: `1px solid ${verdict.border}` }}>
+                <span className="text-2xl leading-none mt-0.5">{verdict.emoji}</span>
+                <div>
+                  <p className="font-black text-white text-sm tracking-wide">{verdict.verdict}</p>
+                  <p className="text-xs mt-1 leading-snug" style={{ color: 'var(--text-secondary)' }}>{verdict.reason}</p>
                 </div>
-              ) : (
-                // ── FREE: Blurred teaser with upgrade CTA ─────────────────────────
-                <div className="relative rounded-xl overflow-hidden mb-4" style={{ border: '1px solid rgba(139,92,246,0.25)' }}>
-                  {/* Blurred fake verdict underneath */}
-                  <div className="p-4 flex items-start gap-3" style={{ background: 'rgba(139,92,246,0.06)', filter: 'blur(4px)', userSelect: 'none' }} aria-hidden="true">
-                    <span className="text-2xl leading-none mt-0.5">🔥</span>
-                    <div>
-                      <p className="font-black text-white text-sm tracking-wide">STRONG BUY</p>
-                      <p className="text-xs mt-1 leading-snug" style={{ color: 'var(--text-secondary)' }}>This deal is near its 30-day low. High chance it rises again soon.</p>
+              </div>
+
+              {/* Why this deal? — price history stats visible to all users */}
+              {price_history && price_history.length >= 3 && (() => {
+                const prices = (price_history as { price: number; date: string }[]).map(p => p.price);
+                const minPrice = Math.min(...prices);
+                const avgPrice = Math.round(prices.reduce((a, b) => a + b, 0) / prices.length);
+                const savingVsAvg = avgPrice - deal.discounted_price;
+                const pctBelowAvg = Math.round((savingVsAvg / avgPrice) * 100);
+                return (
+                  <div className="rounded-xl p-4 mb-3" style={{ background: 'var(--bg-surface)', border: '1px solid var(--sm-border)' }}>
+                    <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>Why this deal?</p>
+                    <div className="grid grid-cols-3 gap-3 text-center">
+                      <div>
+                        <p className="text-xs font-black text-white">₹{avgPrice.toLocaleString('en-IN')}</p>
+                        <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>30-day avg</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-black text-white">₹{minPrice.toLocaleString('en-IN')}</p>
+                        <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>Lowest seen</p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-black" style={{ color: savingVsAvg > 0 ? '#22c55e' : '#94a3b8' }}>
+                          {savingVsAvg > 0 ? `-${pctBelowAvg}%` : 'At avg'}
+                        </p>
+                        <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>vs avg</p>
+                      </div>
                     </div>
+                    {savingVsAvg > 0 && (
+                      <p className="text-[11px] mt-3 leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                        Current price is <strong className="text-white">{pctBelowAvg}% below</strong> its 30-day average (₹{avgPrice.toLocaleString('en-IN')}).
+                        {deal.discounted_price <= minPrice * 1.05 && ' Near the lowest price we\'ve tracked.'}
+                      </p>
+                    )}
                   </div>
-                  {/* Upgrade overlay */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2" style={{ background: 'rgba(10,10,18,0.85)', backdropFilter: 'blur(2px)' }}>
-                    <Lock className="w-4 h-4" style={{ color: 'var(--sm-accent)' }} />
-                    <p className="text-xs font-bold text-white">AI Verdict — Pro Only</p>
-                    <Link
-                      href="/pro"
-                      className="text-xs font-bold px-4 py-1.5 rounded-full transition-opacity hover:opacity-80"
-                      style={{ background: 'var(--sm-accent)', color: 'white' }}
-                    >
-                      Unlock with Pro
-                    </Link>
-                  </div>
-                </div>
-              )}
+                );
+              })()}
 
               <a 
 
@@ -385,10 +394,9 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
 
               </a>
 
-              {/* UPGRADE-D: Delivery charge disclaimer */}
+              {/* Affiliate disclosure — required by Amazon Associates program */}
               <p className="text-[11px] text-center mt-2 leading-snug" style={{ color: 'var(--text-muted)' }}>
-                💡 Price shown may exclude delivery charges (₹0–₹100 based on your location &amp; order value).
-                Always verify the final price on {platform.name} before completing your order.
+                <strong className="opacity-60">Affiliate disclosure:</strong> ShadowMerchant earns a commission on purchases. Price may exclude delivery. Always verify on {platform.name}.
               </p>
 
               {/* Target Price Alert — the retention mechanism */}
