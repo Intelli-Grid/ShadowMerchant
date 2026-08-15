@@ -84,8 +84,22 @@ export default async function MissedDealsPage() {
                 boxShadow: '0 8px 24px rgba(201,168,76,0.25)',
               }}
             >
-              Join Telegram Channel →
+              Join Telegram →
             </a>
+            <a
+              href="https://whatsapp.com/channel/0029Vb7dimp1XquQpiaSWQ1N"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 font-bold rounded-xl transition shadow-xl whitespace-nowrap"
+              style={{
+                background: '#25D366',
+                color: '#0A0A0A',
+                boxShadow: '0 8px 24px rgba(37,211,102,0.20)',
+              }}
+            >
+              Join WhatsApp →
+            </a>
+
           </div>
         </div>
 

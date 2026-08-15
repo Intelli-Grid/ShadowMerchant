@@ -525,11 +525,15 @@ def build_weekly_digest_html(deals: list) -> str:
       </a>
     </div>
 
-    <!-- Telegram CTA -->
+    <!-- Social CTAs -->
     <div style="text-align:center;margin-top:16px;">
       <a href="https://t.me/ShadowMerchantDeals"
-         style="color:#6b7280;font-size:12px;text-decoration:none;">
-        Join our Telegram channel for daily deal alerts &rarr;
+         style="color:#6b7280;font-size:12px;text-decoration:none;margin-right:16px;">
+        Telegram daily deal alerts &rarr;
+      </a>
+      <a href="https://whatsapp.com/channel/0029Vb7dimp1XquQpiaSWQ1N"
+         style="color:#25D366;font-size:12px;text-decoration:none;">
+        WhatsApp Channel &rarr;
       </a>
     </div>
 

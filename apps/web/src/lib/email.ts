@@ -99,7 +99,7 @@ export async function sendWelcomeEmail(email: string, firstName?: string): Promi
       <ol style="color:#94a3b8;font-size:14px;line-height:2;padding-left:20px;margin:0;">
         <li>Browse <a href="${APP_URL}/deals" style="color:#8b5cf6;">today's top deals</a> — scored 0-100 for quality</li>
         <li>Set alerts for categories you care about in <a href="${APP_URL}/dashboard/alerts" style="color:#8b5cf6;">Alert Settings</a></li>
-        <li>Join our <a href="https://t.me/ShadowMerchantDeals" style="color:#8b5cf6;">Telegram channel</a> for instant flash deal alerts</li>
+        <li>Join our <a href="https://t.me/ShadowMerchantDeals" style="color:#8b5cf6;">Telegram channel</a> or <a href="https://whatsapp.com/channel/0029Vb7dimp1XquQpiaSWQ1N" style="color:#25D366;">WhatsApp channel</a> for instant flash deal alerts</li>
       </ol>
     </div>
     <div style="background:#111827;border-radius:12px;padding:16px;margin-bottom:24px;">
