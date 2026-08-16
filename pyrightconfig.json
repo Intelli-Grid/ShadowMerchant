@@ -1,0 +1,8 @@
+{
+  "include": [
+    "scripts"
+  ],
+  "reportGeneralTypeIssues": "none",
+  "reportAttributeAccessIssue": "none",
+  "reportOptionalOperand": "none"
+}
