@@ -6,27 +6,25 @@ import { FilterSidebar } from '@/components/deals/FilterSidebar';
 import { Deal } from '@/types';
 import { redis, CACHE_TTL } from '@/lib/redis';
 
-export const metadata: Metadata = {
-  title: 'Best Deals Today — Amazon, Flipkart, Myntra, Nykaa | ShadowMerchant',
-  description: 'Browse 500+ verified deals from Amazon, Flipkart, Myntra, Nykaa and more. Every deal comes with a Shadow Score — so you know if it\'s actually a good price.',
-  openGraph: {
-    title: 'Best Deals Today | ShadowMerchant',
-    description: 'Verified deals from India\'s top platforms. Filter by category, platform, and discount. Free & Pro plans available.',
-    url: 'https://www.shadowmerchant.online/deals',
-    type: 'website',
-  },
-  alternates: { canonical: 'https://www.shadowmerchant.online/deals' },
-};
-
 // B1: ISR — render at most every 3 min from Vercel edge (Redis handles data layer)
 export const revalidate = 180;
 
 export async function generateMetadata({ searchParams }: any) {
   const p = await searchParams;
-  const hasFilters = p.category || p.platform || (p.sort && p.sort !== 'score');
+  const hasFilters = p?.category || p?.platform || (p?.sort && p?.sort !== 'score');
+  const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online').replace(/\/$/, '');
+
   return {
-    title: 'Deal Feed — ShadowMerchant',
+    title: 'Best Deals Today — Amazon, Flipkart, Myntra, Nykaa | ShadowMerchant',
+    description: 'Browse 500+ verified deals from Amazon, Flipkart, Myntra, Nykaa and more. Every deal comes with a Shadow Score — so you know if it\'s actually a good price.',
     robots: hasFilters ? 'noindex, follow' : 'index, follow',
+    openGraph: {
+      title: 'Best Deals Today | ShadowMerchant',
+      description: 'Verified deals from India\'s top platforms. Filter by category, platform, and discount. Free & Pro plans available.',
+      url: `${APP_URL}/deals`,
+      type: 'website',
+    },
+    alternates: { canonical: `${APP_URL}/deals` },
   };
 }
 
