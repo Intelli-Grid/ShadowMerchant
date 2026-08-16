@@ -111,6 +111,13 @@ const DealSchema = new Schema({
   mrp_verified: { type: String, enum: ['verified', 'shifted', 'unknown'], default: 'unknown' },
   mrp_note: { type: String },   // e.g. "Near 30-day low" or "Listed MRP ~40% above observed historical prices"
 
+  // REBUILT PLAN: Auditable evidence fields
+  observation_count:   { type: Number, default: 1 },
+  valid_days_count:    { type: Number, default: 1 },
+  observed_median_price: { type: Number },
+  seller_name:         { type: String },
+  price_condition:     { type: String, default: 'Listed Price' },
+
   // UPGRADE-J: Stock signal — independent of is_active (which only flips after 72h)
   is_available: { type: Boolean, default: true },
 

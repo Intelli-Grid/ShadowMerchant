@@ -367,6 +367,24 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
               ℹ️ MRP shifted recently
             </span>
           )}
+
+          {/* REBUILT PLAN: Auditable evidence tracking badge */}
+          {(deal as any).observation_count && (deal as any).observation_count >= 30 ? (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit mt-0.5"
+              style={{ background: 'rgba(59,130,246,0.1)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.2)' }}>
+              📊 30-Day Range: {formatPrice((deal as any).observed_min_price || deal.discounted_price)}–{formatPrice((deal as any).observed_max_price || deal.original_price)}
+            </span>
+          ) : (deal as any).observation_count && (deal as any).observation_count >= 7 ? (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit mt-0.5"
+              style={{ background: 'rgba(147,51,234,0.1)', color: '#c084fc', border: '1px solid rgba(147,51,234,0.2)' }}>
+              📊 Tracked Record ({(deal as any).valid_days_count || (deal as any).observation_count} days)
+            </span>
+          ) : (
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit mt-0.5"
+              style={{ background: 'rgba(100,116,139,0.1)', color: '#94a3b8', border: '1px solid rgba(100,116,139,0.2)' }}>
+              🆕 New Tracking ({(deal as any).observation_count || 1} obs)
+            </span>
+          )}
         </div>
 
         {/* UPGRADE-J: Unavailability notice — shown when is_available is false */}

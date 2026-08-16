@@ -341,35 +341,20 @@ def format_deal_compact(deal: dict) -> str:
 
 
 def format_flash_deal(deal: dict) -> str:
-
     title = deal.get("title", "")[:70]
-
     orig = deal.get("original_price", 0)
-
     disc = deal.get("discounted_price", 0)
-
     pct = deal.get("discount_percent", 0)
-
     platform = deal.get("source_platform", "").capitalize()
-
     deal_id = str(deal.get("_id", ""))
-
+    deal_slug = deal.get("slug") or deal_id
     score = deal.get("deal_score", 0)
-
     rating = deal.get("rating", 0)
-
     rating_c = deal.get("rating_count", 0)
-
     is_trending = deal.get("is_trending", False)
 
-    
-
-    saved = orig - disc
-
     rating_str = f"⭐ Rating: {rating:.1f}/5 ({rating_c:,}+ reviews)" if rating > 0 else "⭐ Rating: Not available"
-
     trending_str = "\n🔥 TRENDING — Grabbed multiple times today" if is_trending else ""
-
     history_str = "\n📉 Algorithm confirms: Historical LOW price" if score > 85 else "\n📉 Algorithm confirms: Good price drop"
 
     
@@ -378,30 +363,19 @@ def format_flash_deal(deal: dict) -> str:
 
     
 
+    history_str = "\n📉 Observed Status: Near 30-day recorded low" if score > 85 else "\n📉 Observed Status: Favorable relative price drop"
+
     return (
-
-        f"🔴 [SCORE: {score}/100] {'HISTORICAL LOW' if score > 85 else 'PRICE DROP'}\n\n"
-
+        f"📊 [OBSERVED PRICE RECORD | RANKING SCORE: {score}/100]\n\n"
         f"🛍️ *{title}*\n"
-
-        f"💰 ~~₹{orig:,.0f}~~ → *₹{disc:,.0f}* — *{pct}% OFF*\n"
-
+        f"💰 Listed Price: *₹{disc:,.0f}* (strikethrough: ~~₹{orig:,.0f}~~ · *{pct}% OFF*)\n"
         f"{rating_str}\n"
-
-        f"🏪 {platform}\n"
-
+        f"🏪 Platform: {platform}\n"
         f"{trending_str}{history_str}\n\n"
-
-        f"⏰ Limited stock. Act fast.\n\n"
-
-        f"👉 [Grab This Deal]({APP_URL}/api/go/{deal_id}{utm})\n"
-
-        f"🔔 [Get Alerts for Your Keywords]({APP_URL}{utm})\n\n"
-
+        f"👉 [View Tracked Evidence & Buy]({APP_URL}/api/go/{deal_id}{utm})\n"
+        f"📊 [Price History Graph]({APP_URL}/deals/{deal_slug})\n\n"
         f"───────────────────\n"
-
-        f"📢 Share to save a friend ₹{saved:,.0f} today"
-
+        f"📢 Ad Disclosure: We may earn an affiliate commission at no extra cost to you."
     )
 
 
@@ -816,7 +790,7 @@ async def broadcast_deal_of_day():
 
     if ok:
         mark_deals_as_posted(db, [str(deal["_id"])], channel_id="dotd")
-        logger.info(f"broadcast_deal_of_day: posted '{deal.get('title','')[:60)}' (score={deal.get('deal_score',0)})")
+        logger.info(f"broadcast_deal_of_day: posted '{deal.get('title','')[:60]}' (score={deal.get('deal_score',0)})")
     else:
         logger.error("broadcast_deal_of_day: send failed")
 

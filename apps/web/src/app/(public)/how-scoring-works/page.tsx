@@ -74,7 +74,7 @@ export default function HowScoringWorksPage() {
             How the Shadow Score Works
           </h1>
           <p className="text-base leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            Every deal on ShadowMerchant has a score from 0–100. Here is exactly how it&apos;s calculated — and why commission rates have nothing to do with it.
+            Every deal on ShadowMerchant has a Deal Ranking Score from 0–100. Here is exactly how it&apos;s calculated — and why commission rates have nothing to do with it.
           </p>
         </div>
 
@@ -87,13 +87,16 @@ export default function HowScoringWorksPage() {
           }}
         >
           <p className="text-sm font-bold text-blue-400 mb-1.5">
-            🛡️ Our Conflict of Interest, Disclosed Upfront
+            🛡️ Our Conflict of Interest & Evidence Limits Disclosed Upfront
           </p>
           <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
             ShadowMerchant earns a small affiliate commission when you buy through our links. This is how we keep the service free.
           </p>
           <p className="text-sm leading-relaxed mt-2" style={{ color: 'var(--text-secondary)' }}>
-            <strong className="text-white">Commission rates are not an input to our scoring formula.</strong> The score is calculated from price history, discount depth, and product ratings — data that exists before any commission relationship is considered. A product with a higher commission rate does not score higher. A product with zero commission can score 100/100.
+            <strong className="text-white">Commission rates are not an input to our scoring formula.</strong> The score is calculated from observed price history, discount depth, and product ratings — data that exists before any commission relationship is considered.
+          </p>
+          <p className="text-sm leading-relaxed mt-2 text-amber-300/90 font-medium">
+            ⚠️ <strong>Evidence Limitation:</strong> A high ranking score indicates a favorable relative price drop and product rating based on observed scraper data; it does not constitute legal proof of original manufacturer MRP or merchant pricing intent.
           </p>
         </div>
 

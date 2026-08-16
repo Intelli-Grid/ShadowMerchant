@@ -55,13 +55,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // PSEO-01: Exposed verdict pages — static config, always in sitemap
-  const exposedRoutes: MetadataRoute.Sitemap = EXPOSED_SLUGS.map((slug) => ({
-    url: `${BASE_URL}/exposed/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8, // High — targets high-intent "is [sale] real?" queries
-  }));
+  // Phase 0 Quality Gate: Exclude /exposed/* routes until empirical sale research is complete
+  const exposedRoutes: MetadataRoute.Sitemap = [];
 
   // Directly query MongoDB for active deal IDs — avoids self-referential HTTP fetch
   // that can fail during Vercel build if the app isn't live yet.

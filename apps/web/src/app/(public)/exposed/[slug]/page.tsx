@@ -126,6 +126,7 @@ export async function generateMetadata({
   return {
     title: `${event.title} — Real or Fake? | ShadowMerchant`,
     description: `Is ${event.title} real? We tracked 30-day price history to expose fake discounts and verify genuine deals. Shadow Score data tells the truth.`,
+    robots: { index: false, follow: true },
     alternates: { canonical: `${APP_URL}/exposed/${slug}` },
     openGraph: {
       title: `${event.title} — Verified by Price History`,
