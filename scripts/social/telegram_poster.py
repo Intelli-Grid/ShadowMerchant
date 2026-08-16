@@ -1,3 +1,4 @@
+# pyright: reportGeneralTypeIssues=false, reportAttributeAccessIssue=false
 """
 
 ShadowMerchant — Telegram System
