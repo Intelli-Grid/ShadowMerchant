@@ -150,3 +150,84 @@ export async function sendProConfirmationEmail(
   `)
   return sendEmail(email, name, 'ShadowMerchant Pro is Active', html)
 }
+
+/**
+ * ARCH-01: Deal alert email — called from trigger_alerts.py (Python → Next.js API)
+ * when a Pro user has no Telegram/WhatsApp linked but has an active alert that matched.
+ *
+ * Also used as a FALLBACK for all alert types: even if Telegram was sent, a Pro user
+ * with email opted-in also gets the email.
+ *
+ * @param email   - recipient email address
+ * @param firstName - user's first name (optional)
+ * @param deal    - the matching deal object
+ * @param alertType - human-readable type label for the email subject
+ */
+export async function sendDealAlertEmail(
+  email: string,
+  firstName: string | undefined,
+  deal: {
+    title: string
+    discounted_price: number
+    original_price?: number
+    discount_percent?: number
+    deal_score?: number
+    source_platform?: string
+    slug?: string
+    _id?: string
+  },
+  alertType: string = 'price alert'
+): Promise<boolean> {
+  const name       = firstName?.trim() || 'there'
+  const dealUrl    = `${APP_URL}/api/go/${deal._id ?? deal.slug}?utm_source=email&utm_medium=alert&utm_campaign=deal_alert`
+  const detailUrl  = `${APP_URL}/deals/${deal.slug ?? deal._id}`
+  const savings    = deal.original_price && deal.original_price > deal.discounted_price
+    ? `₹${(deal.original_price - deal.discounted_price).toLocaleString('en-IN')}`
+    : null
+  const scoreColor = (deal.deal_score ?? 0) >= 80 ? '#22c55e' : (deal.deal_score ?? 0) >= 60 ? '#f59e0b' : '#94a3b8'
+  const scoreLabel = (deal.deal_score ?? 0) >= 80 ? 'Great Deal' : (deal.deal_score ?? 0) >= 60 ? 'Good Deal' : 'Fair Deal'
+  const platform   = deal.source_platform
+    ? deal.source_platform.charAt(0).toUpperCase() + deal.source_platform.slice(1)
+    : 'Store'
+
+  const html = wrap(`
+    <h2 style="color:#f1f5f9;font-size:20px;margin:0 0 6px;">🔔 Your ${alertType} matched!</h2>
+    <p style="color:#64748b;font-size:14px;margin:0 0 24px;">Hi ${name}, a deal you set an alert for just hit your target.</p>
+
+    <div style="background:#111827;border-radius:14px;padding:20px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.06);">
+      <div style="font-size:15px;font-weight:600;color:#e2e8f0;line-height:1.5;margin-bottom:16px;">${deal.title}</div>
+
+      <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+        <span style="font-size:28px;font-weight:800;color:#f1f5f9;">₹${deal.discounted_price.toLocaleString('en-IN')}</span>
+        ${deal.original_price ? `<span style="font-size:16px;color:#475569;text-decoration:line-through;">₹${deal.original_price.toLocaleString('en-IN')}</span>` : ''}
+        ${deal.discount_percent ? `<span style="background:rgba(34,197,94,0.1);color:#22c55e;padding:3px 10px;border-radius:20px;font-size:13px;font-weight:600;">${Math.round(deal.discount_percent)}% OFF</span>` : ''}
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+        ${deal.deal_score != null ? `<span style="background:rgba(0,0,0,0.3);border:1px solid ${scoreColor}33;color:${scoreColor};padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">Shadow Score: ${deal.deal_score}/100 · ${scoreLabel}</span>` : ''}
+        ${savings ? `<span style="background:rgba(109,40,217,0.1);color:#c4b5fd;padding:4px 12px;border-radius:20px;font-size:12px;">You save ${savings}</span>` : ''}
+        <span style="background:rgba(255,255,255,0.05);color:#64748b;padding:4px 12px;border-radius:20px;font-size:12px;">on ${platform}</span>
+      </div>
+
+      <a href="${dealUrl}"
+         style="display:block;background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;text-align:center;padding:14px 24px;border-radius:10px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:10px;">
+        🛒 Grab This Deal Now
+      </a>
+      <a href="${detailUrl}"
+         style="display:block;background:rgba(255,255,255,0.04);color:#8b5cf6;text-align:center;padding:10px 24px;border-radius:10px;font-size:13px;text-decoration:none;border:1px solid rgba(139,92,246,0.2);">
+        📊 View Price History &amp; Score Breakdown
+      </a>
+    </div>
+
+    <p style="color:#475569;font-size:12px;line-height:1.6;margin:0;">
+      This alert was triggered because a deal matched your <strong style="color:#64748b;">${alertType}</strong> criteria.
+      Manage your alerts in <a href="${APP_URL}/dashboard/alerts" style="color:#8b5cf6;">Alert Settings</a>.
+      To get instant notifications via Telegram or WhatsApp, link your account in
+      <a href="${APP_URL}/dashboard/settings" style="color:#8b5cf6;">Notification Settings</a>.
+    </p>
+  `)
+
+  const subject = `🔔 Alert: ${deal.title.slice(0, 60)}${deal.title.length > 60 ? '…' : ''} — ₹${deal.discounted_price.toLocaleString('en-IN')} on ${platform}`
+  return sendEmail(email, name, subject, html)
+}
+

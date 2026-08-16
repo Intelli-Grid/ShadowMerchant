@@ -260,10 +260,17 @@ def _savings(deal: dict) -> str:
 
 
 def format_deal_personal(deal: dict) -> str:
+    # BUG-08: Use slug for human-readable URLs; SEC-05: Use /api/go/ tracked
+    # redirect so personal alert clicks are counted in click_count analytics.
+    title    = deal.get("title", "Unknown Deal")[:70]
+    disc     = deal.get("discounted_price", 0)
+    pct      = deal.get("discount_percent", 0)
+    platform = deal.get("source_platform", "").capitalize()
+    deal_slug = deal.get("slug") or str(deal.get("_id", ""))
+    deal_id   = str(deal.get("_id", ""))
+    utm = "?utm_source=telegram&utm_medium=alert&utm_campaign=personal_alert"
 
-    title, disc, pct, platform, deal_id = deal.get("title", "Unknown Deal")[:70], deal.get("discounted_price", 0), deal.get("discount_percent", 0), deal.get("source_platform", "").capitalize(), str(deal.get("_id", ""))
-
-    return (f"🔔 *Your Deal Alert Matched!*\n\n📦 {title}\n\n💰 *₹{disc:,.0f}* — {pct}% OFF on {platform}\n\n👉 [View Deal]({APP_URL}/deals/{deal_id})")
+    return (f"🔔 *Your Deal Alert Matched!*\n\n📦 {title}\n\n💰 *₹{disc:,.0f}* — {pct}% OFF on {platform}\n\n👉 [View Deal]({APP_URL}/api/go/{deal_id}{utm})\n📊 [Price History]({APP_URL}/deals/{deal_slug})")
 
 
 
@@ -322,10 +329,14 @@ def format_pipeline_report(stats: dict) -> str:
 
 
 def format_deal_compact(deal: dict) -> str:
+    # BUG-08: Use slug for readable channel URLs
+    title    = deal.get("title", "")[:55]
+    disc     = deal.get("discounted_price", 0)
+    pct      = deal.get("discount_percent", 0)
+    platform = deal.get("source_platform", "").capitalize()
+    deal_slug = deal.get("slug") or str(deal.get("_id", ""))
 
-    title, disc, pct, platform, deal_id = deal.get("title", "")[:55], deal.get("discounted_price", 0), deal.get("discount_percent", 0), deal.get("source_platform", "").capitalize(), str(deal.get("_id", ""))
-
-    return f"• [{title}...]({APP_URL}/deals/{deal_id}) — *₹{disc:,.0f}* ({pct}% OFF) · {platform}"
+    return f"• [{title}...]({APP_URL}/deals/{deal_slug}) — *₹{disc:,.0f}* ({pct}% OFF) · {platform}"
 
 
 
@@ -396,21 +407,29 @@ def format_flash_deal(deal: dict) -> str:
 
 
 def format_deal_of_the_day(deal: dict) -> str:
-
-    title, orig, disc, pct, rating, rating_c, platform, category, deal_id, score, saved = deal.get("title", "")[:80], deal.get("original_price", 0), deal.get("discounted_price", 0), deal.get("discount_percent", 0), deal.get("rating", 0), deal.get("rating_count", 0), deal.get("source_platform", "").capitalize(), deal.get("category", "").capitalize(), str(deal.get("_id", "")), deal.get("deal_score", 0), _savings(deal)
-
+    # BUG-08: Use slug for /deals/ page links
+    title     = deal.get("title", "")[:80]
+    orig      = deal.get("original_price", 0)
+    disc      = deal.get("discounted_price", 0)
+    pct       = deal.get("discount_percent", 0)
+    rating    = deal.get("rating", 0)
+    rating_c  = deal.get("rating_count", 0)
+    platform  = deal.get("source_platform", "").capitalize()
+    category  = deal.get("category", "").capitalize()
+    deal_id   = str(deal.get("_id", ""))
+    deal_slug = deal.get("slug") or deal_id
+    score     = deal.get("deal_score", 0)
+    saved     = _savings(deal)
     rating_str = f"⭐ {rating:.1f} ({rating_c:,} ratings)" if rating > 0 else ""
 
-    return (f"🌟 *DEAL OF THE DAY* 🌟\n━━━━━━━━━━━━━━━━━━━━━\n\n*{title}*\n\n💰 ~~₹{orig:,.0f}~~ → *₹{disc:,.0f}*\n🔥 *{pct}% OFF*" + (f" · You save {saved}" if saved else "") + "\n\n" + (f"{rating_str}\n" if rating_str else "") + f"🏪 {platform}  ·  📂 {category}\n🤖 AI Deal Score: *{score}/100*\n\n💡 _Why this is a great deal:_ Our AI detected this is at its lowest price in recent history.\n\n👉 [Buy Now on {platform}]({APP_URL}/api/go/{deal_id})\n📊 [See Full Price History]({APP_URL}/deals/{deal_id})")
+    return (f"🌟 *DEAL OF THE DAY* 🌟\n━━━━━━━━━━━━━━━━━━━━━\n\n*{title}*\n\n💰 ~~₹{orig:,.0f}~~ → *₹{disc:,.0f}*\n🔥 *{pct}% OFF*" + (f" · You save {saved}" if saved else "") + "\n\n" + (f"{rating_str}\n" if rating_str else "") + f"🏪 {platform}  ·  📂 {category}\n🤖 AI Deal Score: *{score}/100*\n\n💡 _Why this is a great deal:_ Our AI detected this is at its lowest price in recent history.\n\n👉 [Buy Now on {platform}]({APP_URL}/api/go/{deal_id})\n📊 [See Full Price History]({APP_URL}/deals/{deal_slug})")
 
 
 
 def format_category_digest(deals: list, category: str, emoji: str) -> str:
-
     header = f"{emoji} *Best {category.capitalize()} Deals Right Now*\n━━━━━━━━━━━━━━━━━━━━━\nAI-curated from Amazon, Flipkart & more\n\n"
-
-    lines = [f"{i}\\. [{d.get('title', '')[:50]}...]({APP_URL}/deals/{str(d.get('_id', ''))})\n   *₹{d.get('discounted_price', 0):,.0f}* — {d.get('discount_percent', 0)}% OFF · {d.get('source_platform', '').capitalize()}" for i, d in enumerate(deals[:5], 1)]
-
+    # BUG-08: Use slug in category digest links for SEO-friendly URLs
+    lines = [f"{i}\\. [{d.get('title', '')[:50]}...]({APP_URL}/deals/{d.get('slug') or str(d.get('_id', ''))})\n   *₹{d.get('discounted_price', 0):,.0f}* — {d.get('discount_percent', 0)}% OFF · {d.get('source_platform', '').capitalize()}" for i, d in enumerate(deals[:5], 1)]
     return header + "\n\n".join(lines) + f"\n\n🔔 Never miss a deal → [Set Alert]({APP_URL}/alerts)\n👀 [See All {category.capitalize()} Deals]({APP_URL}/category/{category})"
 
 
@@ -587,7 +606,7 @@ def get_post_type_for_time() -> dict:
 
 async def _send_message(bot, text: str, keyboard=None, image_url: str = None):
 
-    from telegram import ParseMode
+    """Send a message or photo to CHANNEL_ID. Compatible with python-telegram-bot v21+."""
 
     try:
 
@@ -595,43 +614,74 @@ async def _send_message(bot, text: str, keyboard=None, image_url: str = None):
 
             try:
 
-                await bot.send_photo(chat_id=CHANNEL_ID, photo=image_url, caption=text[:1024], parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard)
+                await bot.send_photo(
+                    chat_id=CHANNEL_ID,
+                    photo=image_url,
+                    caption=text[:1024],
+                    parse_mode="Markdown",
+                    reply_markup=keyboard,
+                )
 
                 return True
 
             except Exception as e:
 
-                if "parse" in str(e).lower() or "entity" in str(e).lower():
+                err = str(e).lower()
+
+                if "parse" in err or "entity" in err or "can't parse" in err:
 
                     try:
 
-                        await bot.send_photo(chat_id=CHANNEL_ID, photo=image_url, caption=text[:1024], reply_markup=keyboard)
+                        await bot.send_photo(
+                            chat_id=CHANNEL_ID,
+                            photo=image_url,
+                            caption=text[:1024],
+                            reply_markup=keyboard,
+                        )
 
                         return True
 
-                    except Exception: pass
+                    except Exception:
+                        pass
 
                 logger.error(f"Send photo failed: {e}")
 
-        await bot.send_message(chat_id=CHANNEL_ID, text=text, parse_mode=ParseMode.MARKDOWN, reply_markup=keyboard, disable_web_page_preview=False)
+        await bot.send_message(
+            chat_id=CHANNEL_ID,
+            text=text,
+            parse_mode="Markdown",
+            reply_markup=keyboard,
+            disable_web_page_preview=False,
+        )
 
         return True
 
     except Exception as e:
 
-        if "parse" in str(e).lower() or "entity" in str(e).lower():
+        err = str(e).lower()
+
+        if "parse" in err or "entity" in err or "can't parse" in err:
 
             try:
 
-                await bot.send_message(chat_id=CHANNEL_ID, text=text, reply_markup=keyboard, disable_web_page_preview=False)
+                await bot.send_message(
+                    chat_id=CHANNEL_ID,
+                    text=text,
+                    reply_markup=keyboard,
+                    disable_web_page_preview=False,
+                )
 
                 return True
 
-            except Exception: pass
+            except Exception:
+                pass
 
         logger.error(f"Send message failed: {e}")
 
         return False
+
+
+
 
 
 
@@ -745,19 +795,30 @@ async def broadcast_deal_of_day():
 
     from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 
-    db, bot = get_db(), Bot(token=BOT_TOKEN)
+    db = get_db()
 
     deals = get_fresh_deals(db, limit=1, min_score=70, exclude_ids=get_recently_posted_ids(db, hours=48))
 
-    if not deals: return
+    if not deals:
+        logger.info("broadcast_deal_of_day: no qualifying deals (score>=70, not posted in 48h)")
+        return
 
     deal = deals[0]
 
-    kb = InlineKeyboardMarkup([[InlineKeyboardButton("🛒 Buy Now", url=f"{APP_URL}/api/go/{deal['_id']}"), InlineKeyboardButton("📊 Price History", url=f"{APP_URL}/deals/{deal['_id']}")]])
+    kb = InlineKeyboardMarkup([[
+        InlineKeyboardButton("🛒 Buy Now",      url=f"{APP_URL}/api/go/{deal['_id']}"),
+        InlineKeyboardButton("📊 Price History", url=f"{APP_URL}/deals/{deal['_id']}"),
+    ]])
 
-    await _send_message(bot, format_deal_of_the_day(deal), keyboard=kb, image_url=deal.get("image_url", ""))
+    # v21+: Bot must be used as async context manager outside Application
+    async with Bot(token=BOT_TOKEN) as bot:
+        ok = await _send_message(bot, format_deal_of_the_day(deal), keyboard=kb, image_url=deal.get("image_url", ""))
 
-    mark_deals_as_posted(db, [str(deal["_id"])], channel_id="dotd")
+    if ok:
+        mark_deals_as_posted(db, [str(deal["_id"])], channel_id="dotd")
+        logger.info(f"broadcast_deal_of_day: posted '{deal.get('title','')[:60)}' (score={deal.get('deal_score',0)})")
+    else:
+        logger.error("broadcast_deal_of_day: send failed")
 
 
 
@@ -2282,7 +2343,7 @@ def run_interactive_bot():
 
                             {"affiliate_url": url},
 
-                            {"$set": doc, "$push": {"price_history": {"$each": [{"date": datetime.utcnow(), "price": disc}], "$slice": -30}},
+                            {"$set": doc, "$push": {"price_history": {"$each": [{"date": datetime.utcnow(), "price": disc}], "$slice": -90}},
 
                              "$setOnInsert": {"created_at": datetime.utcnow(), "deal_id": str(uuid.uuid4())}},
 
@@ -2868,7 +2929,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="ShadowMerchant Telegram System")
 
-    parser.add_argument("--broadcast",      action="store_true", help="Post top deals to channel")
+    parser.add_argument("--broadcast",      action="store_true", help="Smart broadcast — picks post type by time of day")
+
+    parser.add_argument("--dotd",           action="store_true", help="Post single best Deal of the Day (score>=70, not posted in 48h)")
 
     parser.add_argument("--setup-db",       action="store_true", help="Create DB indexes")
 
@@ -2942,7 +3005,11 @@ if __name__ == "__main__":
 
     elif args.broadcast:
 
-        asyncio.run(broadcast_top_deals(limit=args.limit))
+        asyncio.run(broadcast_smart())
+
+    elif args.dotd:
+
+        asyncio.run(broadcast_deal_of_day())
 
     elif args.bot:
 

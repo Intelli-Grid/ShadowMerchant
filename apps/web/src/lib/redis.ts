@@ -52,6 +52,23 @@ export const ratelimitSearch: Ratelimit | typeof ratelimitMock =
       })
     : ratelimitMock;
 
+/**
+ * Fail-open wrapper for Upstash rate limiting.
+ * If Upstash is unreachable or throws a network error, fails open (success=true)
+ * with a warning log so Redis outages do not break payment/user routes.
+ */
+export async function safeRateLimit(
+  limiter: { limit: (id: string) => Promise<{ success: boolean }> },
+  id: string
+): Promise<{ success: boolean }> {
+  try {
+    return await limiter.limit(id);
+  } catch (err) {
+    console.warn(`[Redis RateLimit] Failed to evaluate limit for ${id}, failing open:`, err);
+    return { success: true };
+  }
+}
+
 export const CACHE_KEYS = {
   TRENDING_DEALS: 'deals:trending',
   CATEGORIES: 'categories:all',

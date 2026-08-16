@@ -120,7 +120,7 @@ if deals:
                 {"affiliate_url": product_url},
                 {
                     "$set": doc,
-                    "$push": {"price_history": {"$each": [{"date": datetime.utcnow(), "price": disc_price}], "$slice": -30}},
+                    "$push": {"price_history": {"$each": [{"date": datetime.utcnow(), "price": disc_price}], "$slice": -90}},  # BUG-01: 30 days
                     "$setOnInsert": {"created_at": datetime.utcnow(), "published_at": datetime.utcnow(), "deal_id": str(uuid.uuid4())},
                 },
                 upsert=True,

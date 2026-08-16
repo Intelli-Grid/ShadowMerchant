@@ -23,9 +23,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Error occurred -- no svix headers' }, { status: 400 });
   }
 
-  // Get the body
-  const payload = await req.json();
-  const body = JSON.stringify(payload);
+  // SEC-03: Read raw text first (Svix canonical pattern).
+  // Using req.json() + JSON.stringify() risks key reordering which would fail
+  // signature verification silently. req.text() preserves the exact byte sequence.
+  const body = await req.text();
+  const payload = JSON.parse(body);
 
   // Create a new Svix instance with your secret.
   const wh = new Webhook(WEBHOOK_SECRET);
@@ -147,7 +149,16 @@ export async function POST(req: Request) {
   if (eventType === 'user.deleted') {
     try {
       await connectDB();
-      await User.findOneAndDelete({ clerk_id: id });
+      // BUG-02: Cascade-delete all user-owned documents to prevent orphaned
+      // alerts from inflating Mission Control stats and trigger_alerts.py query time.
+      const Alert = (await import('@/models/Alert')).default;
+      const DealReaction = (await import('@/models/DealReaction')).default;
+      await Promise.allSettled([
+        User.findOneAndDelete({ clerk_id: id }),
+        Alert.deleteMany({ user_id: id }),
+        DealReaction.deleteMany({ user_id: id }),
+      ]);
+      console.log(`[SM Clerk Webhook] User ${id} and all owned documents deleted from MongoDB.`);
     } catch (e) {
       console.error('Error deleting user from MongoDB:', e);
     }

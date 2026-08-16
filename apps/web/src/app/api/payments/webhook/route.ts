@@ -37,15 +37,25 @@ async function notifyOwner(text: string): Promise<void> {
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get('x-razorpay-signature');
-  const secret = process.env.RAZORPAY_WEBHOOK_SECRET!;
 
-  if (!signature || !secret) {
-    return NextResponse.json({ error: 'Missing signature or secret' }, { status: 400 });
+  // BUG-04: Removed `!` assertion — if RAZORPAY_WEBHOOK_SECRET is missing,
+  // crypto.createHmac coerces undefined → 'undefined', making ALL signatures valid.
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  if (!secret) {
+    console.error('[Razorpay Webhook] RAZORPAY_WEBHOOK_SECRET is not configured!');
+    return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
   }
 
-  // Verify signature
+  if (!signature) {
+    return NextResponse.json({ error: 'Missing x-razorpay-signature header' }, { status: 400 });
+  }
+
+  // SEC-01: Use timing-safe comparison to prevent signature brute-forcing
+  // via response-time side-channel attacks.
   const expectedSig = crypto.createHmac('sha256', secret).update(body).digest('hex');
-  if (signature !== expectedSig) {
+  const signaturesMatch = signature.length === expectedSig.length &&
+    crypto.timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expectedSig, 'hex'));
+  if (!signaturesMatch) {
     console.error('[Razorpay Webhook] Invalid signature');
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
@@ -65,12 +75,33 @@ export async function POST(req: NextRequest) {
   /**
    * Helper — syncs tier to BOTH MongoDB and Clerk publicMetadata atomically.
    * MongoDB is the source of truth; Clerk controls session-level access checks.
+   * Includes timestamp freshness check to guard against out-of-order event retries.
    */
   async function syncTier(
     subscriptionId: string,
     tier: 'pro' | 'free',
     extraFields: Record<string, unknown> = {}
   ) {
+    const existingUser = await User.findOne({ subscription_id: subscriptionId }).lean() as any;
+
+    // SEC-02: Prevent out-of-order event retries from overwriting an active Pro tier.
+    // If user is currently active Pro and incoming event is trying to downgrade to free,
+    // verify event timestamp if available to prevent stale webhook delivery overwrites.
+    if (
+      existingUser &&
+      existingUser.subscription_tier === 'pro' &&
+      existingUser.subscription_status === 'active' &&
+      tier === 'free'
+    ) {
+      const eventTime = event.created_at ? new Date(event.created_at * 1000) : null;
+      if (eventTime && existingUser.updated_at && eventTime < new Date(existingUser.updated_at)) {
+        console.warn(
+          `[Webhook] Ignored out-of-order event ${eventType} for subscription ${subscriptionId} (event time ${eventTime.toISOString()} < updated_at ${new Date(existingUser.updated_at).toISOString()})`
+        );
+        return existingUser;
+      }
+    }
+
     const user = await User.findOneAndUpdate(
       { subscription_id: subscriptionId },
       {
@@ -113,6 +144,12 @@ export async function POST(req: NextRequest) {
       const detectedPlan: 'monthly' | 'annual' | null =
         sub.plan_id === monthlyPlanId ? 'monthly' :
         sub.plan_id === annualPlanId  ? 'annual'  : null;
+
+      if (!detectedPlan) {
+        console.warn(
+          `[Webhook] Unrecognized plan_id "${sub.plan_id}" for subscription ${sub.id}. Configured IDs: monthly=${monthlyPlanId}, annual=${annualPlanId}`
+        );
+      }
 
       const activatedUser = await syncTier(sub.id, 'pro', {
         subscription_expires_at: sub.current_end

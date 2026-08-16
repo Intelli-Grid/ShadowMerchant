@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
-import { ratelimit } from '@/lib/redis';
+import { ratelimit, safeRateLimit } from '@/lib/redis';
 
 /**
  * GET /api/user/me
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Rate limit: 60/min per user — covers the payment polling loop (1 req/s × 30s max)
-  const { success } = await ratelimit.limit(`me:${userId}`);
+  const { success } = await safeRateLimit(ratelimit, `me:${userId}`);
   if (!success) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }

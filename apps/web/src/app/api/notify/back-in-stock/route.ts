@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ratelimit } from '@/lib/redis';
+import { ratelimit, safeRateLimit } from '@/lib/redis';
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
 const BREVO_LIST_ID = parseInt(process.env.BREVO_BACK_IN_STOCK_LIST_ID || '2', 10);
 
 export async function POST(req: NextRequest) {
-  // Rate limit: 5 submissions per minute per IP — prevents email list pollution
+  // Rate limit: 5 submissions per minute per IP — prevents email list pollution (fails open if Redis is down)
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'anon';
-  const { success } = await ratelimit.limit(`bis:${ip}`);
+  const { success } = await safeRateLimit(ratelimit, `bis:${ip}`);
   if (!success) {
     return NextResponse.json({ success: false, error: 'Too many requests' }, { status: 429 });
   }

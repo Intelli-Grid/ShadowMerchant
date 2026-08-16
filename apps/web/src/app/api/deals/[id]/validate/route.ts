@@ -65,6 +65,26 @@ export async function POST(
     }
 
     // ── HEAD check on affiliate URL ────────────────────────────────────────
+    // BUG-05: SSRF guard — only allow HEAD checks against known affiliate domains.
+    // Without this, a tampered DB entry could trigger a fetch to internal cloud
+    // metadata endpoints (e.g. 169.254.169.254) via redirect-follow.
+    const ALLOWED_AFFILIATE_DOMAINS = [
+      'amazon.in', 'flipkart.com', 'myntra.com', 'meesho.com',
+      'nykaa.com', 'croma.com', 'tatacliq.com', 'amzn.to',
+      'dl.flipkart.com', 'fkrt.it',
+    ];
+    try {
+      const parsedUrl = new URL(deal.affiliate_url);
+      const hostname = parsedUrl.hostname.toLowerCase();
+      const isAllowed = ALLOWED_AFFILIATE_DOMAINS.some(d => hostname === d || hostname.endsWith('.' + d));
+      if (!isAllowed) {
+        console.warn(`[ValidateDeal] Blocked SSRF attempt for domain: ${hostname}`);
+        return NextResponse.json({ success: false, error: 'Invalid affiliate domain' }, { status: 400 });
+      }
+    } catch {
+      return NextResponse.json({ success: false, error: 'Malformed affiliate URL' }, { status: 400 });
+    }
+
     let urlReachable = true;
     try {
       const controller = new AbortController();

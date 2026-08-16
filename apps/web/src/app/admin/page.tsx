@@ -5,6 +5,12 @@ import User from '@/models/User';
 import Alert from '@/models/Alert';
 import ScrapeLog from '@/models/ScrapeLog';
 import { redis } from '@/lib/redis';
+
+// PERF-03: Cache the RSC render for 60 seconds.
+// The admin page runs 12 parallel DB queries + 3 aggregation pipelines on every load.
+// At 1-min cache, a burst of admin page refreshes won't hammer MongoDB.
+export const revalidate = 60;
+
 import {
   KPICard,
   StatusPill,

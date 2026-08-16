@@ -73,7 +73,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const Deal = (await import('@/models/Deal')).default;
 
     // Deal pages — SEO-FIX-02: slug-first, ObjectId fallback
-    const deals = await Deal.find({ is_active: true }, { _id: 1, slug: 1 }).lean();
+    // PERF-01: .limit(10000) prevents full-catalog scans as deal count grows.
+    // Sorted by recency so the most relevant deals appear first in the sitemap.
+    const deals = await Deal.find({ is_active: true }, { _id: 1, slug: 1, updated_at: 1 })
+      .sort({ updated_at: -1 })
+      .limit(10000)
+      .lean();
     dealRoutes = deals.map((deal: { _id: any; slug?: string }) => ({
       url: `${BASE_URL}/deals/${deal.slug || String(deal._id)}`,
       lastModified: new Date(),

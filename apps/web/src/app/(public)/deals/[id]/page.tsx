@@ -421,7 +421,8 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                 href={`https://wa.me/?text=${encodeURIComponent(
                   `🔥 Our team curated this deal for you!\n\n${deal.title}\n` +
                   `₹${deal.discounted_price.toLocaleString('en-IN')} (${Math.round(deal.discount_percent ?? 0)}% OFF)\n\n` +
-                  `👉 Grab it here: ${process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online'}/deals/${deal._id}\n`
+                  // BUG-03: Use SEO slug URL so viral shares spread indexable links, not ObjectIds
+                  `👉 Grab it here: ${process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online'}/deals/${(deal as any).slug || deal._id}\n`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -517,7 +518,8 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
                   ] : [
                     { label: 'Discount',    value: Math.min(100, deal.discount_percent ?? 0), weight: 35, raw: `${Math.round(deal.discount_percent ?? 0)}% off` },
                     { label: 'Price Drop',  value: Math.min(100, Math.round(((deal.original_price - deal.discounted_price) / deal.original_price) * 100)), weight: 20, raw: null },
-                    { label: 'Popularity', value: Math.min(100, Math.round(((deal.rating_count ?? 0) / 5000) * 100)), weight: 20, raw: deal.rating_count ? `${deal.rating_count.toLocaleString()} ratings` : null },
+                    // BUG-11: cap matches deal_scorer.py — was /5000 (2× too large), now /10000
+                    { label: 'Popularity', value: Math.min(100, Math.round(((deal.rating_count ?? 0) / 10000) * 100)), weight: 20, raw: deal.rating_count ? `${deal.rating_count.toLocaleString()} ratings` : null },
                     { label: 'Rating',     value: Math.round(((deal.rating ?? 0) / 5) * 100), weight: 15, raw: deal.rating ? `★ ${deal.rating.toFixed(1)}` : null },
                     { label: 'Freshness',  value: deal.is_trending ? 90 : 40, weight: 10, raw: null },
                   ];

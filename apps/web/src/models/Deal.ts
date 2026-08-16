@@ -1,8 +1,12 @@
 import mongoose, { Schema } from 'mongoose';
 
 const PriceHistorySchema = new Schema({
-  date: { type: Date, required: true },
-  price: { type: Number, required: true }
+  date:  { type: Date,   required: true },
+  price: { type: Number, required: true },
+  // ARCH-03: Store historical MRP alongside discounted price.
+  // Enables check_mrp_clarity() to detect MRP inflation (sellers raising MRP
+  // before applying a discount to fake a larger percentage off).
+  mrp:   { type: Number },
 }, { _id: false });
 
 const ScoreBreakdownSchema = new Schema({

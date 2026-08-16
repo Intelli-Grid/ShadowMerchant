@@ -247,14 +247,22 @@ def score_deal_with_breakdown(deal: Union[object, dict]) -> tuple[int, dict]:
         + s_freshness  * 0.10
     )
 
+    # BUG-07: Apply penalty BEFORE sigmoid normalization (not after).
+    # Post-sigmoid subtraction created non-linear distortions (a 20pt deduction
+    # on a mid-range deal was proportionally far larger than intended).
+    # Scaling penalty to the linear range (÷100) and subtracting pre-sigmoid
+    # means the same overage_pct produces a consistent, proportional score drop.
+    #
+    # The ×40 multiplier was chosen so:
+    #   5% above 7-day avg  → penalty=2pts → linear deduction = 0.020
+    #   25% above 7-day avg → penalty=10pts → linear deduction = 0.100
+    #   50%+ above 7-day avg → penalty=20pts (cap) → linear deduction = 0.200
+    weighted = max(0.0, weighted - (penalty / 100.0))
+
     # Sigmoid normalization — makes high scores exponentially harder to achieve.
-    # Replaces the old linear scale + flat bonus/penalty approach.
     final_score = _sigmoid_normalize(weighted)
-    
-    # Apply penalty for price higher than 7-day average
-    final_score -= penalty
-    
     final_score = max(0, min(100, int(final_score)))  # safety clamp
+
 
     breakdown = {
         "discount_score":   round(s_discount, 4),

@@ -269,7 +269,7 @@ def process_and_save(all_deals: list) -> int:
                         "$push": {
                             "price_history": {
                                 "$each": [{"date": datetime.utcnow(), "price": disc_price}],
-                                "$slice": -30,
+                                "$slice": -90,  # BUG-01: 30 days at 3 scrapes/day
                             }
                         },
                         "$setOnInsert": {

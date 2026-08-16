@@ -11,9 +11,8 @@ Usage:
     python scripts/scheduler.py
 
 Schedule (IST):
-    - 06:00  Morning run  (daily deals, fresh inventory)
-    - 13:00  Afternoon run (flash sales, lunchtime deals)
-    - 21:00  Night run    (end-of-day clearance deals)
+    - 07:00  Morning run  (daily deals, fresh inventory)
+    - 21:00  Evening run  (end-of-day clearance & flash deals)
 
 The scheduler also exposes a health-check endpoint on port 8765
 so Vercel/external monitors can ping it.
@@ -377,8 +376,12 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
                         "$set": doc,
                         "$push": {
                             "price_history": {
-                                "$each": [{"date": datetime.utcnow(), "price": disc_price}],
-                                "$slice": -30,
+                                # ARCH-03: Store mrp alongside price so check_mrp_clarity()
+                                # can detect MRP inflation across scrape runs.
+                                "$each": [{"date": datetime.utcnow(), "price": disc_price, "mrp": orig_price}],
+                                # BUG-01: -30 = only 10 days at 3 scrapes/day.
+                                # -90 = 30 days of history (matches "30-day avg" UI label).
+                                "$slice": -90,
                             }
                         },
                         "$setOnInsert": {
@@ -668,7 +671,7 @@ def start_scheduler():
         sys.exit(1)
 
     logger.info("⏰ ShadowMerchant Scheduler starting...")
-    logger.info("   Run times (IST): 06:00, 13:00, 21:00")
+    logger.info("   Run times (IST): 07:00, 21:00")
 
     def job():
         logger.info("🔔 Scheduled pipeline triggered")
@@ -684,8 +687,8 @@ def start_scheduler():
         except Exception as e:
             logger.error(f"Email digest: {e}")
 
-    schedule.every().day.at("01:00").do(job)   # 06:30 IST
-    schedule.every().day.at("15:00").do(job)   # 20:30 IST
+    schedule.every().day.at("01:30").do(job)   # 07:00 IST
+    schedule.every().day.at("15:30").do(job)   # 21:00 IST
     schedule.every().day.at("04:00").do(email_job)  # 09:30 IST
     
     # ── SOCIAL GROWTH MASTERGUIDE SCHEDULE (IST converted to UTC) ──

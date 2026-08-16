@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
-import { ratelimit } from '@/lib/redis';
+import { ratelimit, safeRateLimit } from '@/lib/redis';
 
 export async function GET(
   req: NextRequest,
@@ -13,9 +13,9 @@ export async function GET(
     return NextResponse.json({ error: 'Invalid deal ID' }, { status: 400 });
   }
 
-  // Rate limit: prevent automated affiliate click inflation (30 req/min per IP)
+  // Rate limit: prevent automated affiliate click inflation (30 req/min per IP, fails open if Redis is down)
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? 'anon';
-  const { success } = await ratelimit.limit(`go:${ip}`);
+  const { success } = await safeRateLimit(ratelimit, `go:${ip}`);
   if (!success) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
   }

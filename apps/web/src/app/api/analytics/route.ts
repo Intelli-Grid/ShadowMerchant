@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { connectDB } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
-  // Simple owner-only guard via secret header or env
-  const secret = req.headers.get('x-admin-secret');
-  if (secret !== process.env.ADMIN_SECRET) {
+  // SEC-02: Timing-safe admin secret comparison — prevents signature brute-forcing
+  // via response-time side-channel attacks.
+  const adminSecret = process.env.ADMIN_SECRET;
+  const providedSecret = req.headers.get('x-admin-secret');
+  if (
+    !adminSecret ||
+    !providedSecret ||
+    providedSecret.length !== adminSecret.length ||
+    !crypto.timingSafeEqual(Buffer.from(providedSecret), Buffer.from(adminSecret))
+  ) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

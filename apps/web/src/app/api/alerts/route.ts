@@ -84,6 +84,12 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'alert_id is required' }, { status: 400 });
   }
 
+  // BUG-06: Validate ObjectId format before querying — prevents Mongoose CastError → 500
+  const OBJECT_ID_REGEX = /^[a-f\d]{24}$/i;
+  if (!OBJECT_ID_REGEX.test(alert_id)) {
+    return NextResponse.json({ error: 'Invalid alert ID format' }, { status: 400 });
+  }
+
   await connectDB();
   await Alert.findOneAndUpdate({ _id: alert_id, user_id: userId }, { is_active: false });
   return NextResponse.json({ success: true });

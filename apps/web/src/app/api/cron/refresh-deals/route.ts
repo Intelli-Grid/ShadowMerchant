@@ -53,16 +53,24 @@ export async function GET(req: NextRequest) {
     ];
     await Promise.allSettled(keysToDelete.map((k) => redis.del(k)));
 
-    // Wildcard scan: flush all per-deal, per-filter, and feed caches so stale
-    // data doesn't survive past a scraper refresh cycle.
+    // BUG-09: Use SCAN (cursor-based) instead of KEYS (blocking O(N) full scan).
+    // At current scale <500 keys this is fine either way, but SCAN is safe at any key count.
+    // Deal TTL is already 300–900s, so natural expiry handles most cases;
+    // this explicit flush ensures stale data is gone immediately after a scraper run.
     const patterns = ['deals:*', 'deal:*', 'deal_live:*'];
     for (const pattern of patterns) {
       try {
-        const matched = await redis.keys(pattern);
-        if (matched.length > 0) {
-          await Promise.allSettled(matched.map((k: string) => redis.del(k)));
-        }
-      } catch { /* keys() may not be supported on mock — safe to skip */ }
+        let cursor = 0;
+        do {
+          const [nextCursor, keys] = await (redis as any).scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+          cursor = parseInt(nextCursor, 10);
+          if (keys.length > 0) {
+            await Promise.allSettled(keys.map((k: string) => redis.del(k)));
+          }
+        } while (cursor !== 0);
+      } catch {
+        // SCAN may not be supported on redis mock in dev — safe to skip
+      }
     }
 
     // ── 3. Revalidate ISR pages ──────────────────────────────────────────────
