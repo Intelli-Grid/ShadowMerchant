@@ -267,8 +267,16 @@ class AmazonScraper(BaseScraper):
 
     def _parse_price(self, text: str) -> float:
         try:
-            cleaned = "".join(c for c in text if c.isdigit() or c == ".")
-            return float(cleaned) if cleaned else 0.0
+            import re
+            if not text:
+                return 0.0
+            # Match first standard Indian/international currency pattern e.g. ₹1,990 or 1,990.00
+            m = re.search(r"(?:₹|RS|INR)?\s*([\d]{1,3}(?:,[\d]{2,3})*(?:\.\d{1,2})?)", text, re.IGNORECASE)
+            if m:
+                raw_num = m.group(1).replace(",", "")
+                val = float(raw_num)
+                return val if val > 0 else 0.0
+            return 0.0
         except Exception:
             return 0.0
 
