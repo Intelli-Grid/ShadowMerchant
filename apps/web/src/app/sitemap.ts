@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { connectDB } from '@/lib/db';
-import laptopData from '../../../../scripts/reports/laptop_reports_data.json';
+import laptopData from '@/data/laptop_reports_data.json';
 
 // FIX-SEO-SM-01: Guard against misconfigured NEXT_PUBLIC_APP_URL=http://localhost:3000
 // (current Vercel state). A sitemap full of localhost URLs is invisible to Google.

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import laptopData from '../../../../../../scripts/reports/laptop_reports_data.json';
+import laptopData from '@/data/laptop_reports_data.json';
 
 export const metadata: Metadata = {
   title: 'Laptop Decision Reports (2026) | ShadowMerchant',

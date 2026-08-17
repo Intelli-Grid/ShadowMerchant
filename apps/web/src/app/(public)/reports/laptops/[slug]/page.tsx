@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import laptopData from '../../../../../../../scripts/reports/laptop_reports_data.json';
+import laptopData from '@/data/laptop_reports_data.json';
 
 interface ReportPageProps {
   params: Promise<{ slug: string }>;
