@@ -85,6 +85,8 @@ test_*.mjs
 *.csv
 *.json.bak
 data/
+!apps/web/src/data/
+!apps/web/src/data/*.json
 exports/
 output/
 
