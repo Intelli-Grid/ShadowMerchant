@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { connectDB } from '@/lib/db';
+import laptopData from '../../../../scripts/reports/laptop_reports_data.json';
 
 // FIX-SEO-SM-01: Guard against misconfigured NEXT_PUBLIC_APP_URL=http://localhost:3000
 // (current Vercel state). A sitemap full of localhost URLs is invisible to Google.
@@ -42,6 +43,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/guides/laptop-variant-guide`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE_URL}/guides/price-tracking-explained`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE_URL}/guides/bank-discounts-and-coupons`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${BASE_URL}/reports/laptops`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
     { url: `${BASE_URL}/privacy`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
     { url: `${BASE_URL}/terms`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
   ];
@@ -108,11 +110,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Silently fall back — DB unavailable at build time is expected on first deploy
   }
 
+  const laptopReportRoutes: MetadataRoute.Sitemap = laptopData.map((report) => ({
+    url: `${BASE_URL}/reports/laptops/${report.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.7,
+  }));
+
   return [
     ...staticRoutes,
     ...categoryRoutes,
     ...storeRoutes,
     ...exposedRoutes,
+    ...laptopReportRoutes,
     ...brandRoutes,
     ...dealRoutes,
   ];
