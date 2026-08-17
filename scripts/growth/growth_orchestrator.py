@@ -213,18 +213,9 @@ async def post_deal_of_day(deal: dict, db=None, dry_run: bool = False):
 # ─────────────────────────────────────────────────────────────
 
 async def post_weekly_expose(db, dry_run: bool = False):
-    """Post 'fake sale exposed' content every Sunday."""
-    try:
-        import telegram
-    except ImportError:
-        return False
-
-    fake_deals = get_fake_sale_deals(db)
-    if not fake_deals:
-        log.info("No fake deals found for expose post.")
-        return False
-
-    lines = ["FAKE SALE EXPOSED - This Week's Misleading Amazon Prices\n"]
+    """Disabled per evidence quality gate: do not auto-publish accusatory 'fake sale' posts."""
+    log.info("Automated weekly expose posts are disabled per evidence quality gate.")
+    return False
     for d in fake_deals:
         title   = d.get("title", "")[:50]
         cur     = d.get("discounted_price") or d.get("current_price", 0)

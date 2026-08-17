@@ -295,18 +295,18 @@ export default async function Home() {
         </h1>
 
         <p className="text-sm md:text-base max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-          We cross-check every deal&apos;s price history before surfacing it.
-          Transparent pricing. Real savings. 8 platforms, one honest feed.
+          Track observed prices, price history, and stock status across Indian online stores.
+          Transparent pricing. 8 platforms, one honest feed.
         </p>
 
         {/* UPGRADE-A: Static trust proof-points */}
         <div className="flex items-center justify-center gap-2 sm:gap-6 text-[10px] sm:text-xs font-semibold mt-4 mb-6 flex-wrap"
           style={{ color: 'var(--text-muted)' }}>
-          <span>✓ Price vs 30-day history — verified</span>
+          <span>✓ Observed price tracking & history</span>
           <span className="hidden sm:inline">·</span>
           <span>✓ Amazon · Flipkart · Myntra · Meesho · Nykaa · Croma · TataCliq</span>
           <span className="hidden sm:inline">·</span>
-          <span>✓ Shadow Score: ranked by real saving</span>
+          <span>✓ Shadow Score: ranked by relative savings</span>
         </div>
 
 

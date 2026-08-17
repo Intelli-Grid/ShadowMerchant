@@ -156,29 +156,29 @@ def build_post(deal: dict, subreddit: str) -> dict:
     rules = SUBREDDIT_RULES.get(subreddit, {})
     allow_links = rules.get("allow_links", True)
 
-    # Title format
-    title = f"[{platform}] {title_raw} — INR {cur:,.0f} ({disc}% off, 30-day low verified)"
+    # Title format — evidence-based, zero unbacked claims
+    obs_cnt = deal.get("observation_count", 1)
+    title = f"[{platform}] {title_raw} — INR {cur:,.0f} ({disc}% off, observed price record)"
 
     # Body — text format (works for both text and link posts)
     body = (
-        f"**Price history check:**\n\n"
+        f"**Observed price record:**\n\n"
         f"| Field | Value |\n"
         f"|---|---|\n"
-        f"| Current price | INR {cur:,.0f} |\n"
-        f"| Listed 'original' | INR {orig:,.0f} |\n"
-        f"| 30-day verified low | INR {cur:,.0f} |\n"
-        f"| Shadow Score | {score}/100 |\n\n"
-        f"This is a genuine discount — checked against 30-day price history. "
-        f"The original price is real, not an inflated anchor.\n\n"
+        f"| Current observed price | INR {cur:,.0f} |\n"
+        f"| Strikethrough reference | INR {orig:,.0f} |\n"
+        f"| Tracked observations | {obs_cnt} snapshot(s) |\n"
+        f"| Deal Ranking Score | {score}/100 |\n\n"
+        f"This price observation was recorded for {platform}. "
+        f"Please verify exact seller and final checkout terms on store before purchasing.\n\n"
     )
 
     if allow_links:
-        body += f"**Direct link:** {aff_url} *(affiliate — I earn a small commission if you buy)*\n\n"
+        body += f"**Direct link:** {aff_url} *(affiliate — I may earn a commission if you buy)*\n\n"
 
     body += (
         f"---\n"
-        f"*I cross-check every deal against 30-day price data before posting. "
-        f"Most Amazon 'sales' use inflated anchor prices — this one passed the check.*"
+        f"*Observed pricing tracked via ShadowMerchant data pipeline.*"
     )
 
     # Text-only variant for subreddits that don't allow links

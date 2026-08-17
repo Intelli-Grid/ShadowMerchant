@@ -456,16 +456,16 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           {validating ? 'Checking...' : 'Get Deal →'}
           <ExternalLink className="h-3.5 w-3.5 opacity-80" />
         </a>
-        {/* Affiliate transparency disclosure — min 11px per QA checklist */}
-        <p className="text-[11px] text-center mt-2" style={{ color: 'var(--text-muted)' }}>
-          We earn a commission.{' '}
+        {/* Affiliate transparency & merchant price disclaimer */}
+        <p className="text-[10px] text-center mt-2 leading-tight" style={{ color: 'var(--text-muted)' }}>
+          Ad: We earn a commission. Prices & availability subject to change on store.{' '}
           <a
             href="/how-scoring-works"
             onClick={(e) => e.stopPropagation()}
             className="underline underline-offset-2 hover:opacity-80 transition-opacity"
             style={{ color: 'var(--text-muted)' }}
           >
-            Scoring is independent →
+            Scoring info →
           </a>
         </p>
 
