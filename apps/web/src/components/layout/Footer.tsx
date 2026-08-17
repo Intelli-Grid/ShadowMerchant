@@ -141,8 +141,10 @@ export function Footer() {
               {[
                 { label: 'Pro Membership', href: '/pro' },
                 { label: 'Buyer Guides', href: '/guides' },
+                { label: 'Laptop Reports', href: '/reports/laptops' },
+                { label: 'Smartphone Reports', href: '/reports/smartphones' },
+                { label: 'Monitor Reports', href: '/reports/monitors' },
                 { label: 'Dashboard', href: '/dashboard' },
-                { label: 'Deal Alerts', href: '/alerts' },
                 { label: 'Privacy Policy', href: '/privacy' },
                 { label: 'Terms of Service', href: '/terms' },
               ].map((link) => (
