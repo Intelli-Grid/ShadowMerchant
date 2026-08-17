@@ -10,7 +10,7 @@ import os
 import sys
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -60,7 +60,7 @@ def generate_social_content():
             f"💡 *Analysis:* {reason}\n\n"
             f"🔗 *Full Decision Report:* {report_link}\n"
             f"🛒 *Store Direct:* [Check on {platform}]({url})\n\n"
-            f"⚠️ _Product prices accurate as of {datetime.utcnow().strftime('%d %b %Y')}. We earn affiliate commissions on store links._"
+            f"⚠️ _Product prices accurate as of {datetime.now(timezone.utc).strftime('%d %b %Y')}. We earn affiliate commissions on store links._"
         )
 
         # 2. WhatsApp Channel Format
@@ -97,7 +97,7 @@ def generate_social_content():
     json_out.write_text(json.dumps(social_payloads, indent=2), encoding="utf-8")
 
     md_out = OUTPUT_DIR / "telegram_channel_queue.md"
-    md_content = f"# ShadowMerchant — Ready Telegram Channel Queue ({datetime.utcnow().strftime('%Y-%m-%d')})\n\n"
+    md_content = f"# ShadowMerchant — Ready Telegram Channel Queue ({datetime.now(timezone.utc).strftime('%Y-%m-%d')})\n\n"
     md_content += "\n\n---\n\n".join(telegram_queue)
     md_out.write_text(md_content, encoding="utf-8")
 
