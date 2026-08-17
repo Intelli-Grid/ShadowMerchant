@@ -120,15 +120,15 @@ export function HeroDeal({ deal }: HeroDealProps) {
                   </span>
                 </div>
                 {/* C1: Star rating below price */}
-                {(deal.rating || deal.rating_count) && (
+                {deal.rating_count && deal.rating_count > 0 ? (
                   <div className="flex items-center gap-1.5 mt-2" style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>
                     <span style={{ color: '#F59E0B' }}>★</span>
                     <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
                       {deal.rating?.toFixed(1) ?? 'N/A'}
                     </span>
-                    <span>({deal.rating_count?.toLocaleString('en-IN') ?? 0} reviews)</span>
+                    <span>({deal.rating_count.toLocaleString('en-IN')} reviews)</span>
                   </div>
-                )}
+                ) : null}
               </div>
 
               <div className="w-[1px] h-[60px] hidden md:block" style={{ background: 'var(--sm-border)' }} />

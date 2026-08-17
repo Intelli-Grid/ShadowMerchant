@@ -118,8 +118,7 @@ export function CategorySwimlane({ title, emoji, categorySlug, deals, totalDeals
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex overflow-x-auto gap-4 md:gap-5 pb-6 pt-2 snap-x snap-mandatory no-scrollbar w-full sm:px-6 lg:px-8 max-w-[1400px] mx-auto"
-          style={{ paddingLeft: 'clamp(16px, 4vw, 32px)', paddingRight: 'clamp(16px, 4vw, 32px)' }}
+          className="flex overflow-x-auto gap-4 md:gap-6 pb-6 pt-2 snap-x snap-mandatory no-scrollbar w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         >
           {deals.map((deal) => (
             <div key={deal._id} className="snap-start shrink-0 flex-none" style={{ width: 'min(280px, 85vw)' }}>
