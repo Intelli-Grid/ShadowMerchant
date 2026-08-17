@@ -140,6 +140,7 @@ export function Footer() {
             <ul className="space-y-3">
               {[
                 { label: 'Pro Membership', href: '/pro' },
+                { label: 'Buyer Guides', href: '/guides' },
                 { label: 'Dashboard', href: '/dashboard' },
                 { label: 'Deal Alerts', href: '/alerts' },
                 { label: 'Privacy Policy', href: '/privacy' },
