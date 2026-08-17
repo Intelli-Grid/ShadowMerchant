@@ -56,10 +56,10 @@ export function ShadowScoreGauge({
   // Background track arc (full 180°)
   const trackPath = `M ${start.x} ${start.y} A ${r} ${r} 0 0 1 ${end.x} ${end.y}`;
 
-  // Fill arc (proportional to score)
+  // Fill arc (proportional to score — always minor arc in a 180° semi-circle)
   const fillAngle = startAngle + (clamped / 100) * 180;
   const fill = toXY(fillAngle);
-  const largeArcFlag = clamped > 50 ? 1 : 0;
+  const largeArcFlag = 0;
   const fillPath = `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 1 ${fill.x} ${fill.y}`;
 
   // Viewbox: only top half + a small bottom margin for the label
