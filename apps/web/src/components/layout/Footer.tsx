@@ -144,6 +144,7 @@ export function Footer() {
                 { label: 'Laptop Reports', href: '/reports/laptops' },
                 { label: 'Smartphone Reports', href: '/reports/smartphones' },
                 { label: 'Monitor Reports', href: '/reports/monitors' },
+                { label: 'Audio Reports', href: '/reports/audio' },
                 { label: 'Dashboard', href: '/dashboard' },
                 { label: 'Privacy Policy', href: '/privacy' },
                 { label: 'Terms of Service', href: '/terms' },

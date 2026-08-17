@@ -3,6 +3,7 @@ import { connectDB } from '@/lib/db';
 import laptopData from '@/data/laptop_reports_data.json';
 import phoneData from '@/data/smartphone_reports_data.json';
 import monitorData from '@/data/monitor_reports_data.json';
+import audioData from '@/data/audio_reports_data.json';
 
 // FIX-SEO-SM-01: Guard against misconfigured NEXT_PUBLIC_APP_URL=http://localhost:3000
 // (current Vercel state). A sitemap full of localhost URLs is invisible to Google.
@@ -48,6 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/reports/laptops`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
     { url: `${BASE_URL}/reports/smartphones`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
     { url: `${BASE_URL}/reports/monitors`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
+    { url: `${BASE_URL}/reports/audio`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
     { url: `${BASE_URL}/privacy`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
     { url: `${BASE_URL}/terms`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
   ];
@@ -135,6 +137,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const audioReportRoutes: MetadataRoute.Sitemap = audioData.map((report) => ({
+    url: `${BASE_URL}/reports/audio/${report.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.7,
+  }));
+
   return [
     ...staticRoutes,
     ...categoryRoutes,
@@ -143,6 +152,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...laptopReportRoutes,
     ...phoneReportRoutes,
     ...monitorReportRoutes,
+    ...audioReportRoutes,
     ...brandRoutes,
     ...dealRoutes,
   ];
