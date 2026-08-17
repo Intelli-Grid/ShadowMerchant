@@ -62,14 +62,52 @@ export async function GET(req: NextRequest) {
         .limit(20)
         .lean();
 
+      const laptopData = (await import('@/data/laptop_reports_data.json')).default;
+      const phoneData = (await import('@/data/smartphone_reports_data.json')).default;
+      const monitorData = (await import('@/data/monitor_reports_data.json')).default;
+      const audioData = (await import('@/data/audio_reports_data.json')).default;
+      const watchData = (await import('@/data/smartwatch_reports_data.json')).default;
+      const applianceData = (await import('@/data/appliance_reports_data.json')).default;
+      const consoleData = (await import('@/data/console_reports_data.json')).default;
+
+      const qLower = query.toLowerCase();
+      const reportHits: any[] = [];
+
+      const searchReports = (items: any[], category: string) => {
+        items.forEach((item) => {
+          if (item.title.toLowerCase().includes(qLower)) {
+            reportHits.push({
+              _id: `report-${category}-${item.id}`,
+              title: `[Report] ${item.title}`,
+              source_platform: item.platform,
+              original_price: item.original_price,
+              discounted_price: item.current_price,
+              discount_percent: Math.round(((item.original_price - item.current_price) / item.original_price) * 100),
+              affiliate_url: `/reports/${category}/${item.slug}`,
+              is_report: true,
+              deal_score: 95,
+              category,
+            });
+          }
+        });
+      };
+
+      searchReports(laptopData, 'laptops');
+      searchReports(phoneData, 'smartphones');
+      searchReports(monitorData, 'monitors');
+      searchReports(audioData, 'audio');
+      searchReports(watchData, 'smartwatches');
+      searchReports(applianceData, 'appliances');
+      searchReports(consoleData, 'consoles');
+
       return NextResponse.json({
-        hits: JSON.parse(JSON.stringify(deals)),
-        nbHits: deals.length,
+        hits: [...reportHits.slice(0, 10), ...JSON.parse(JSON.stringify(deals)).slice(0, 10)],
+        nbHits: reportHits.length + deals.length,
         query,
-        source: 'mongodb_fallback',
+        source: 'mongodb_reports_fallback',
       });
     } catch (dbErr) {
-      console.error('[Search] MongoDB fallback also failed:', dbErr);
+      console.error('[Search] Fallback failed:', dbErr);
       return NextResponse.json({ hits: [], nbHits: 0, error: 'Search unavailable' });
     }
   }

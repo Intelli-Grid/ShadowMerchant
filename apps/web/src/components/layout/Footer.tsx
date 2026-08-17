@@ -146,6 +146,8 @@ export function Footer() {
                 { label: 'Monitor Reports', href: '/reports/monitors' },
                 { label: 'Audio Reports', href: '/reports/audio' },
                 { label: 'Smartwatch Reports', href: '/reports/smartwatches' },
+                { label: 'Appliance Reports', href: '/reports/appliances' },
+                { label: 'Console Reports', href: '/reports/consoles' },
                 { label: 'Dashboard', href: '/dashboard' },
                 { label: 'Privacy Policy', href: '/privacy' },
                 { label: 'Terms of Service', href: '/terms' },
