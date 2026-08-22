@@ -216,6 +216,14 @@ class AmazonScraper(BaseScraper):
                                 disc_price = self._parse_price(await price_el.inner_text())
                                 orig_price = self._parse_price(await orig_el.inner_text()) if orig_el else disc_price
 
+                                # Fix Amazon DOM 100x paise artifact (e.g. disc=2663.76, orig=266376.0)
+                                if disc_price > 0 and orig_price > disc_price * 10:
+                                    if abs(orig_price - disc_price * 100) / (disc_price * 100) < 0.05:
+                                        orig_price = disc_price
+                                    elif orig_price / disc_price > 4:
+                                        # Clamp extreme seller MRPs (>75% discount) to max 50% discount
+                                        orig_price = min(orig_price, disc_price * 2.0)
+
                                 image = ""
                                 if img_el:
                                     image = await img_el.get_attribute("src") or ""

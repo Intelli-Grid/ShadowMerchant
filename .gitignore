@@ -81,7 +81,7 @@ scripts/check_*.py
 test_*.py
 test_*.mjs
 
-# ---------- Data / Exports ----------
+# ---------- Data / Exports / Content Engine (Local Only) ----------
 *.csv
 *.json.bak
 data/
@@ -89,6 +89,7 @@ data/
 !apps/web/src/data/*.json
 exports/
 output/
+scripts/content_engine/
 
 # ---------- Misc ----------
 *.tmp

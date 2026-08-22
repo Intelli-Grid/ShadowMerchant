@@ -27,25 +27,37 @@ async function getTrendingDeals(): Promise<{ deals: Deal[]; isStale: boolean }> 
     const DealModel = (await import('@/models/Deal')).default;
     const cutoff48h = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
-    // Primary: trending deals scraped within last 48 hours (live)
-    let deals = await DealModel.find({ is_active: true, is_trending: true, scraped_at: { $gte: cutoff48h } })
+    // Primary: trending deals scraped within last 48 hours (live, discount <= 80%)
+    let deals = await DealModel.find({
+      is_active: true,
+      is_trending: true,
+      scraped_at: { $gte: cutoff48h },
+      discount_percent: { $lte: 80 },
+    })
       .sort({ deal_score: -1 })
       .limit(8)
       .lean();
     let isStale = false;
 
-    // Fallback A: any trending deals regardless of age
+    // Fallback A: any trending deals with valid discount
     if (!deals || deals.length === 0) {
-      deals = await DealModel.find({ is_active: true, is_trending: true })
+      deals = await DealModel.find({
+        is_active: true,
+        is_trending: true,
+        discount_percent: { $lte: 80 },
+      })
         .sort({ deal_score: -1 })
         .limit(8)
         .lean();
       isStale = true;
     }
 
-    // Fallback B: highest-scored active deals (scraper hasn't run at all)
+    // Fallback B: highest-scored active deals with valid discount
     if (!deals || deals.length === 0) {
-      deals = await DealModel.find({ is_active: true })
+      deals = await DealModel.find({
+        is_active: true,
+        discount_percent: { $lte: 80 },
+      })
         .sort({ deal_score: -1, rating: -1 })
         .limit(8)
         .lean();
@@ -62,7 +74,6 @@ async function getTrendingDeals(): Promise<{ deals: Deal[]; isStale: boolean }> 
 }
 
 async function getNewDealsToday(): Promise<{ deals: Deal[]; isStale: boolean }> {
-  // BUG-08: Cache this to avoid MongoDB query on every homepage request
   const cached = await redis.get<{ deals: Deal[]; isStale: boolean }>('deals:new_today');
   if (cached) return cached;
 
@@ -72,25 +83,36 @@ async function getNewDealsToday(): Promise<{ deals: Deal[]; isStale: boolean }> 
     const cutoff24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const cutoff48h = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
-    // Primary: deals scraped in last 24 hours (truly new today)
-    let deals = await DealModel.find({ is_active: true, scraped_at: { $gte: cutoff24h } })
+    // Primary: deals scraped in last 24 hours with discount <= 80%
+    let deals = await DealModel.find({
+      is_active: true,
+      scraped_at: { $gte: cutoff24h },
+      discount_percent: { $lte: 80 },
+    })
       .sort({ deal_score: -1 })
       .limit(8)
       .lean();
     let isStale = false;
 
-    // Fallback A: deals scraped within 48 hours
+    // Fallback A: deals scraped within 48 hours with discount <= 80%
     if (!deals || deals.length === 0) {
-      deals = await DealModel.find({ is_active: true, scraped_at: { $gte: cutoff48h } })
+      deals = await DealModel.find({
+        is_active: true,
+        scraped_at: { $gte: cutoff48h },
+        discount_percent: { $lte: 80 },
+      })
         .sort({ deal_score: -1 })
         .limit(8)
         .lean();
       isStale = deals.length > 0;
     }
 
-    // Fallback B: newest active deals regardless of age (scraper stale)
+    // Fallback B: newest active deals with discount <= 80%
     if (!deals || deals.length === 0) {
-      deals = await DealModel.find({ is_active: true })
+      deals = await DealModel.find({
+        is_active: true,
+        discount_percent: { $lte: 80 },
+      })
         .sort({ created_at: -1, deal_score: -1 })
         .limit(8)
         .lean();
@@ -98,7 +120,6 @@ async function getNewDealsToday(): Promise<{ deals: Deal[]; isStale: boolean }> 
     }
 
     const result = { deals: JSON.parse(JSON.stringify(deals)), isStale };
-    // Cache for 15 min — cron job clears this key after each pipeline run
     await redis.set('deals:new_today', result, { ex: 900 });
     return result;
   } catch (e) {
@@ -106,7 +127,6 @@ async function getNewDealsToday(): Promise<{ deals: Deal[]; isStale: boolean }> 
     return { deals: [], isStale: false };
   }
 }
-
 
 async function getHeroDeal(): Promise<Deal | null> {
   const cached = await redis.get<Deal>('deals:hero');
@@ -116,23 +136,27 @@ async function getHeroDeal(): Promise<Deal | null> {
     const DealModel = (await import('@/models/Deal')).default;
     const cutoff48h = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
-    // Primary: top 5 trending deals scraped within last 48 hours
+    // Primary: top 5 trending deals scraped within last 48 hours (discount <= 80%)
     let candidates = await DealModel.find({
       is_active: true,
       is_trending: true,
       scraped_at: { $gte: cutoff48h },
-      deal_score: { $gte: 60 },                    // Hero must be Good Deal or better
-      discount_percent: { $lte: 85 },              // No suspect discounts as Hero
-      image_url: { $exists: true, $ne: '' },        // Hero must have an image
-      title: { $regex: '.{20,}' },                 // Hero must have a proper title
+      deal_score: { $gte: 60 },
+      discount_percent: { $lte: 80 },
+      image_url: { $exists: true, $ne: '' },
+      title: { $regex: '.{20,}' },
     })
       .sort({ deal_score: -1 })
       .limit(5)
       .lean();
 
-    // Fallback: any active trending deal regardless of age
+    // Fallback: any active trending deal with discount <= 80%
     if (!candidates || candidates.length === 0) {
-      candidates = await DealModel.find({ is_active: true, is_trending: true })
+      candidates = await DealModel.find({
+        is_active: true,
+        is_trending: true,
+        discount_percent: { $lte: 80 },
+      })
         .sort({ deal_score: -1 })
         .limit(5)
         .lean();
@@ -167,8 +191,9 @@ async function getCategoryDeals(category: string, limit = 8) {
         $match: {
           is_active: true,
           category,
-          deal_score: { $gte: 45 },       // UPGRADE-F: raised from 30 — removes low-quality deals
-          title: { $regex: '.{15,}' },    // Exclude garbage/short titles
+          deal_score: { $gte: 45 },
+          discount_percent: { $lte: 80 },
+          title: { $regex: '.{15,}' },
         },
       },
       { $sort: { deal_score: -1 } },

@@ -98,6 +98,13 @@ APP_URL        = os.getenv("NEXT_PUBLIC_APP_URL", "https://www.shadowmerchant.on
 
 BOT_USERNAME   = "Shadow_Merchant_Bot"
 
+import inspect
+
+async def _call_tg(res):
+    if inspect.isawaitable(res):
+        return await res
+    return res
+
 
 
 
@@ -588,69 +595,51 @@ async def _send_message(bot, text: str, keyboard=None, image_url: str = None):
         if image_url:
 
             try:
-
-                await bot.send_photo(
+                await _call_tg(bot.send_photo(
                     chat_id=CHANNEL_ID,
                     photo=image_url,
                     caption=text[:1024],
                     parse_mode="Markdown",
                     reply_markup=keyboard,
-                )
-
+                ))
                 return True
-
             except Exception as e:
-
                 err = str(e).lower()
-
                 if "parse" in err or "entity" in err or "can't parse" in err:
-
                     try:
-
-                        await bot.send_photo(
+                        await _call_tg(bot.send_photo(
                             chat_id=CHANNEL_ID,
                             photo=image_url,
                             caption=text[:1024],
                             reply_markup=keyboard,
-                        )
-
+                        ))
                         return True
-
                     except Exception:
                         pass
-
                 logger.error(f"Send photo failed: {e}")
 
-        await bot.send_message(
+        await _call_tg(bot.send_message(
             chat_id=CHANNEL_ID,
             text=text,
             parse_mode="Markdown",
             reply_markup=keyboard,
             disable_web_page_preview=False,
-        )
-
+        ))
         return True
 
     except Exception as e:
-
         err = str(e).lower()
-
         if "parse" in err or "entity" in err or "can't parse" in err:
-
             try:
-
-                await bot.send_message(
+                await _call_tg(bot.send_message(
                     chat_id=CHANNEL_ID,
                     text=text,
                     reply_markup=keyboard,
                     disable_web_page_preview=False,
-                )
-
+                ))
                 return True
-
             except Exception:
                 pass
-
         logger.error(f"Send message failed: {e}")
 
         return False
@@ -839,64 +828,42 @@ async def post_admin_alert(message: str):
 
 
 
+    import inspect
     bot = Bot(token=BOT_TOKEN)
 
     try:
-
-        await bot.send_message(
-
+        res = bot.send_message(
             chat_id=ADMIN_CHAT_ID,
-
             text=f"🚨 *ShadowMerchant Alert*\n\n{message}",
-
             parse_mode=ParseMode.MARKDOWN
-
         )
-
+        if inspect.isawaitable(res):
+            await res
         logger.info("Admin alert sent.")
-
     except Exception as e:
-
         logger.error(f"Admin alert failed: {e}")
 
 
-
-
-
 async def post_pipeline_report(stats: dict):
-
     """Send a pipeline completion report to admin's private chat."""
-
     if not BOT_TOKEN or not ADMIN_CHAT_ID:
-
         logger.warning("Pipeline report skipped — BOT_TOKEN or ADMIN_CHAT_ID not set.")
-
         return
 
-
-
+    import inspect
     from telegram import Bot
-
     from telegram import ParseMode
 
-
-
     bot = Bot(token=BOT_TOKEN)
-
     msg = format_pipeline_report(stats)
-
     try:
-
-        await bot.send_message(
-
+        res = bot.send_message(
             chat_id=ADMIN_CHAT_ID, text=msg, parse_mode=ParseMode.MARKDOWN
-
         )
-
+        if inspect.isawaitable(res):
+            await res
         logger.info("Pipeline report sent to admin.")
-
     except Exception as e:
-
         logger.error(f"Pipeline report failed: {e}")
 
 

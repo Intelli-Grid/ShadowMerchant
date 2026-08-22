@@ -259,6 +259,10 @@ def score_deal_with_breakdown(deal: Union[object, dict]) -> tuple[int, dict]:
     #   50%+ above 7-day avg → penalty=20pts (cap) → linear deduction = 0.200
     weighted = max(0.0, weighted - (penalty / 100.0))
 
+    # ── TRUST SYSTEM PENALTY: Heavily penalize suspect >80% discounts ──
+    if discount_pct >= 80 or (disc_price > 0 and original_price > disc_price * 5):
+        weighted = max(0.0, weighted - 0.45)  # Drops final score below 30
+
     # Sigmoid normalization — makes high scores exponentially harder to achieve.
     final_score = _sigmoid_normalize(weighted)
     final_score = max(0, min(100, int(final_score)))  # safety clamp

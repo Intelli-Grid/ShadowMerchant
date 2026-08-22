@@ -32,6 +32,9 @@ os.chdir(Path(__file__).parent)
 
 from dotenv import load_dotenv
 load_dotenv()
+web_env = Path(__file__).parent.parent / 'apps' / 'web' / '.env.local'
+if web_env.exists():
+    load_dotenv(web_env)
 
 # ── Windows UTF-8 fix (must happen BEFORE basicConfig) ──────────
 # Windows terminal defaults to cp1252 which can't encode emoji (▶ ✅ 🔴 etc.)
@@ -613,6 +616,31 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
             logger.info("[ALGOLIA] Sync complete")
         except Exception as e:
             logger.error(f"[ALGOLIA] {e}")
+
+        # ── Flush Upstash Redis Cache & Trigger Vercel Revalidation ──
+        try:
+            r_url = os.getenv("UPSTASH_REDIS_REST_URL", "")
+            r_token = os.getenv("UPSTASH_REDIS_REST_TOKEN", "")
+            if r_url and r_token:
+                import requests
+                r_res = requests.post(f"{r_url.rstrip('/')}/FLUSHALL", headers={"Authorization": f"Bearer {r_token}"}, timeout=10)
+                logger.info(f"[REDIS] Cache flushed: {r_res.status_code}")
+        except Exception as e:
+            logger.warning(f"[REDIS] Cache flush note: {e}")
+
+        try:
+            app_url = os.getenv("NEXT_PUBLIC_APP_URL", "https://www.shadowmerchant.online")
+            cron_secret = os.getenv("CRON_SECRET", "")
+            if app_url and cron_secret:
+                import requests
+                c_res = requests.get(
+                    f"{app_url.rstrip('/')}/api/cron/refresh-deals",
+                    headers={"Authorization": f"Bearer {cron_secret}"},
+                    timeout=15
+                )
+                logger.info(f"[VERCEL] Revalidate triggered: {c_res.status_code}")
+        except Exception as e:
+            logger.warning(f"[VERCEL] Revalidate trigger note: {e}")
         
         try:
             from social.telegram_poster import broadcast_smart, post_pipeline_report, post_hot_deals
@@ -641,10 +669,16 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
         try:
             from trigger_alerts import dispatch_alerts
             asyncio.run(dispatch_alerts(start))
+            logger.info("[ALERTS] Dispatched price alerts successfully")
         except Exception as e:
-            logger.error(f"[ALERTS] {e}")
+            logger.error(f"[ALERTS] Error dispatching price alerts: {e}")
 
-        client.close()
+        try:
+            from content_engine.pipeline import run_content_generation_pipeline
+            run_content_generation_pipeline(deal_limit=3)
+            logger.info("[CONTENT ENGINE] Generated daily promo assets (.mp3, .png, .mp4)")
+        except Exception as e:
+            logger.warning(f"[CONTENT ENGINE] Promo generation note: {e}")
 
     except Exception as e:
         logger.error(f"MongoDB error: {e}")

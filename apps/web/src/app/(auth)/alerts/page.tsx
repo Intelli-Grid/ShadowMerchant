@@ -53,6 +53,25 @@ const inputStyle: React.CSSProperties = {
   flex: 1,
 };
 
+function AlertMockCard({ type, value, status }: { type: string, value: string, status: string }) {
+  return (
+    <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'var(--bg-raised)', border: '1px solid var(--sm-border)' }}>
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded shrink-0 flex items-center justify-center" style={{ background: 'var(--gold-dim)' }}>
+          <Bell className="w-4 h-4" style={{ color: 'var(--gold)' }} />
+        </div>
+        <div className="text-left leading-tight">
+          <p className="text-sm font-semibold text-white">{type}</p>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{value}</p>
+        </div>
+      </div>
+      <span className="text-[10px] font-bold tracking-wide uppercase px-2 py-1 rounded-full" style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80' }}>
+        {status}
+      </span>
+    </div>
+  );
+}
+
 export default function AlertsPage() {
   const [activeTab, setActiveTab] = useState<'pro' | 'price'>('price');
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -133,25 +152,6 @@ export default function AlertsPage() {
       <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--gold)' }} />
     </div>
   );
-
-  function AlertMockCard({ type, value, status }: { type: string, value: string, status: string }) {
-    return (
-      <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'var(--bg-raised)', border: '1px solid var(--sm-border)' }}>
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded shrink-0 flex items-center justify-center" style={{ background: 'var(--gold-dim)' }}>
-            <Bell className="w-4 h-4" style={{ color: 'var(--gold)' }} />
-          </div>
-          <div className="text-left leading-tight">
-            <p className="text-sm font-semibold text-white">{type}</p>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{value}</p>
-          </div>
-        </div>
-        <span className="text-[10px] font-bold tracking-wide uppercase px-2 py-1 rounded-full" style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80' }}>
-          {status}
-        </span>
-      </div>
-    );
-  }
 
   // Pro gate
   if (!isPro) return (
