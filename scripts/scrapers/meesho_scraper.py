@@ -248,7 +248,7 @@ class MeeshoScraper(BaseScraper):
 
         proxies = None
         if self.scraperapi_key:
-            proxy_url = f"http://scraperapi:{self.scraperapi_key}@proxy-server.scraperapi.com:8001"
+            proxy_url = f"http://scraperapi.premium=true:{self.scraperapi_key}@proxy-server.scraperapi.com:8001"
             proxies = {
                 "http":  proxy_url,
                 "https": proxy_url,
