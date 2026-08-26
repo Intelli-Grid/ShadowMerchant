@@ -16,7 +16,13 @@ from category_map import CATEGORY_MAP
 load_dotenv()
 logger = logging.getLogger(__name__)
 
-AFFILIATE_TAG = os.getenv("AMAZON_AFFILIATE_TAG", "shadowmerc0a0-21")
+AFFILIATE_TAG = os.getenv("AMAZON_AFFILIATE_TAG")
+if not AFFILIATE_TAG:
+    logger.critical(
+        "[Amazon] AMAZON_AFFILIATE_TAG not in .env — "
+        "falling back to shadowmerc0a0-21. Set the env var explicitly."
+    )
+    AFFILIATE_TAG = "shadowmerc0a0-21"
 
 # ── FIX-DAY3B: User-Agent rotation ─────────────────────────────────────────
 # Rotate across Chrome/Firefox/Safari UAs to avoid fingerprint-based blocking.
@@ -255,6 +261,7 @@ class AmazonScraper(BaseScraper):
                     finally:
                         if cat_page:
                             await cat_page.close()
+                    logger.info(f"[Amazon][{cat_slug}] {len(cat_deals)} deals found")
                     return cat_deals
 
             tasks = [
@@ -270,7 +277,10 @@ class AmazonScraper(BaseScraper):
 
             await browser.close()
 
-        logger.info(f"Amazon: {len(deals)} deals total")
+        logger.info(
+            f"[Amazon] Run complete — {len(deals)} deals "
+            f"across {len(category_urls)} categories"
+        )
         return deals
 
     def _parse_price(self, text: str) -> float:

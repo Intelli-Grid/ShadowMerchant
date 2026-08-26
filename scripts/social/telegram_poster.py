@@ -193,7 +193,7 @@ def get_fresh_deals(db, limit: int = 10, category: str = None,
 
     exclude_ids = exclude_ids or get_recently_posted_ids(db)
 
-    query = {"is_active": True}
+    query = {"is_active": True, "discount_percent": {"$gte": 20}}
 
     if category: query["category"] = category
 
@@ -346,8 +346,6 @@ def format_deal_compact(deal: dict) -> str:
 
     return f"• [{title}...]({APP_URL}/deals/{deal_slug}) — *₹{disc:,.0f}* ({pct}% OFF) · {platform}"
 
-
-
 def format_flash_deal(deal: dict) -> str:
     title = deal.get("title", "")[:70]
     orig = deal.get("original_price", 0)
@@ -360,18 +358,18 @@ def format_flash_deal(deal: dict) -> str:
     rating = deal.get("rating", 0)
     rating_c = deal.get("rating_count", 0)
     is_trending = deal.get("is_trending", False)
+    obs_count = deal.get("observation_count", 0)
 
     rating_str = f"⭐ Rating: {rating:.1f}/5 ({rating_c:,}+ reviews)" if rating > 0 else "⭐ Rating: Not available"
     trending_str = "\n🔥 TRENDING — Grabbed multiple times today" if is_trending else ""
-    history_str = "\n📉 Algorithm confirms: Historical LOW price" if score > 85 else "\n📉 Algorithm confirms: Good price drop"
-
-    
+    if obs_count >= 7:
+        history_str = f"\n📉 Lowest in {obs_count} days (we tracked it)"
+    elif score > 85:
+        history_str = "\n📉 Observed Status: Near recorded low price"
+    else:
+        history_str = "\n📉 Observed Status: Favorable relative price drop"
 
     utm = "?utm_source=telegram&utm_medium=channel&utm_campaign=deal_post"
-
-    
-
-    history_str = "\n📉 Observed Status: Near 30-day recorded low" if score > 85 else "\n📉 Observed Status: Favorable relative price drop"
 
     return (
         f"📊 [OBSERVED PRICE RECORD | RANKING SCORE: {score}/100]\n\n"
@@ -386,35 +384,16 @@ def format_flash_deal(deal: dict) -> str:
         f"📢 Ad Disclosure: We may earn an affiliate commission at no extra cost to you."
     )
 
-
-
-def format_deal_of_the_day(deal: dict) -> str:
-    # BUG-08: Use slug for /deals/ page links
-    title     = deal.get("title", "")[:80]
-    orig      = deal.get("original_price", 0)
-    disc      = deal.get("discounted_price", 0)
-    pct       = deal.get("discount_percent", 0)
-    rating    = deal.get("rating", 0)
-    rating_c  = deal.get("rating_count", 0)
-    platform  = deal.get("source_platform", "").capitalize()
-    category  = deal.get("category", "").capitalize()
-    deal_id   = str(deal.get("_id", ""))
-    deal_slug = deal.get("slug") or deal_id
-    score     = deal.get("deal_score", 0)
-    saved     = _savings(deal)
-    rating_str = f"⭐ {rating:.1f} ({rating_c:,} ratings)" if rating > 0 else ""
-
-    return (f"🌟 *DEAL OF THE DAY* 🌟\n━━━━━━━━━━━━━━━━━━━━━\n\n*{title}*\n\n💰 ~~₹{orig:,.0f}~~ → *₹{disc:,.0f}*\n🔥 *{pct}% OFF*" + (f" · You save {saved}" if saved else "") + "\n\n" + (f"{rating_str}\n" if rating_str else "") + f"🏪 {platform}  ·  📂 {category}\n🤖 AI Deal Score: *{score}/100*\n\n💡 _Why this is a great deal:_ Our AI detected this is at its lowest price in recent history.\n\n👉 [Buy Now on {platform}]({APP_URL}/api/go/{deal_id})\n📊 [See Full Price History]({APP_URL}/deals/{deal_slug})")
-
-
-
 def format_category_digest(deals: list, category: str, emoji: str) -> str:
     header = f"{emoji} *Best {category.capitalize()} Deals Right Now*\n━━━━━━━━━━━━━━━━━━━━━\nAI-curated from Amazon, Flipkart & more\n\n"
     # BUG-08: Use slug in category digest links for SEO-friendly URLs
     lines = [f"{i}\\. [{d.get('title', '')[:50]}...]({APP_URL}/deals/{d.get('slug') or str(d.get('_id', ''))})\n   *₹{d.get('discounted_price', 0):,.0f}* — {d.get('discount_percent', 0)}% OFF · {d.get('source_platform', '').capitalize()}" for i, d in enumerate(deals[:5], 1)]
-    return header + "\n\n".join(lines) + f"\n\n🔔 Never miss a deal → [Set Alert]({APP_URL}/alerts)\n👀 [See All {category.capitalize()} Deals]({APP_URL}/category/{category})"
-
-
+    return (
+        header + "\n\n".join(lines)
+        + f"\n\n🔔 Never miss a deal → [Set Alert]({APP_URL}/alerts)"
+        + f"\n👀 [See All {category.capitalize()} Deals]({APP_URL}/category/{category})"
+        + "\n\n_(affiliate — we earn a small commission)_"
+    )
 
 def format_morning_brief(deals: list, total_active: int) -> str:
 
@@ -422,7 +401,13 @@ def format_morning_brief(deals: list, total_active: int) -> str:
 
     header = f"☀️ *{'Good morning' if now_ist.hour < 12 else 'Good evening'}! ShadowMerchant Daily Brief*\n📅 {now_ist.strftime('%A, %d %B %Y')}\n━━━━━━━━━━━━━━━━━━━━━\n\n🔥 *{total_active:,} active deals* across 6 platforms\n\n*Today's Top Picks:*\n\n"
 
-    return header + "\n".join([format_deal_compact(d) for d in deals[:5]]) + f"\n\n💡 Pro tip: Set alerts for your favourite brands.\n🌐 [Browse All Deals]({APP_URL}/deals/feed)"
+    return (
+        header
+        + "\n".join([format_deal_compact(d) for d in deals[:5]])
+        + f"\n\n💡 Pro tip: Set alerts for your favourite brands."
+        + f"\n🌐 [Browse All Deals]({APP_URL}/deals/feed)"
+        + "\n\n_(affiliate — we earn a small commission)_"
+    )
 
 
 
@@ -430,7 +415,13 @@ def format_platform_spotlight(deals: list, platform: str, platform_emoji: str) -
 
     header = f"{platform_emoji} *Best {platform.capitalize()} Deals Today*\n━━━━━━━━━━━━━━━━━━━━━\n\n"
 
-    return header + "\n".join([format_deal_compact(d) for d in deals[:5]]) + f"\n\n👉 [See All {platform.capitalize()} Deals]({APP_URL}/store/{platform.lower()})\n🔔 [Set {platform.capitalize()} Alert]({APP_URL}/alerts)"
+    return (
+        header
+        + "\n".join([format_deal_compact(d) for d in deals[:5]])
+        + f"\n\n👉 [See All {platform.capitalize()} Deals]({APP_URL}/store/{platform.lower()})"
+        + f"\n🔔 [Set {platform.capitalize()} Alert]({APP_URL}/alerts)"
+        + "\n\n_(affiliate — we earn a small commission)_"
+    )
 
 
 

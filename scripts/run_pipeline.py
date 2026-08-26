@@ -14,7 +14,9 @@ import json
 import uuid
 import logging
 import argparse
-from datetime import datetime
+import requests
+import pymongo
+from datetime import datetime, timezone
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -27,6 +29,92 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s — %(message)s",
 )
 logger = logging.getLogger("pipeline")
+
+
+# ═══════════════════════════════════════════════════════════
+# SCRAPE LOG — writes a structured record to MongoDB after
+# each scraper run so we can track health over time.
+# ═══════════════════════════════════════════════════════════
+
+def log_scraper_run(db, platform: str, deals_found: int, deals_saved: int, errors: list):
+    """Write a structured run record to MongoDB scrapelogs after each scraper finishes."""
+    try:
+        db.scrapelogs.insert_one({
+            "platform":    platform,
+            "run_at":      datetime.now(timezone.utc),
+            "deals_found": deals_found,
+            "deals_saved": deals_saved,
+            "errors":      errors[:10],  # cap at 10 entries
+            "status":      "success" if not errors else "partial",
+        })
+        # Ensure index exists (safe to call repeatedly):
+        db.scrapelogs.create_index(
+            [("platform", pymongo.ASCENDING), ("run_at", pymongo.DESCENDING)],
+            background=True
+        )
+    except Exception as e:
+        logger.warning(f"[ScrapeLog] Failed to write log for {platform}: {e}")
+
+
+def check_and_alert_zero_deals(db, platform: str, notify_fn=None):
+    """
+    Alert if a scraper has returned 0 deals for 3 consecutive runs.
+    Pass notify_fn=send_telegram_alert (or similar) to fire the alert.
+    """
+    try:
+        recent = list(db.scrapelogs.find(
+            {"platform": platform},
+            sort=[("run_at", pymongo.DESCENDING)],
+            limit=3
+        ))
+        if len(recent) == 3 and all(r.get("deals_found", 0) == 0 for r in recent):
+            msg = (
+                f"⚠️ [{platform.upper()}] 0 deals for 3 consecutive runs — "
+                "scraper may be broken"
+            )
+            logger.critical(msg)
+            if notify_fn:
+                notify_fn(msg)
+    except Exception as e:
+        logger.warning(f"[ScrapeLog] Zero-deal alert check failed for {platform}: {e}")
+
+
+# ═══════════════════════════════════════════════════════════
+# CACHE REFRESH — flushes Redis deal cache and revalidates
+# ISR pages after each pipeline run.
+# ═══════════════════════════════════════════════════════════
+
+def trigger_cache_refresh():
+    """
+    Calls the Vercel cron endpoint to flush Redis deal cache and revalidate ISR pages.
+    Uses GET + Authorization: Bearer CRON_SECRET
+    (matches apps/web/src/app/api/cron/refresh-deals/route.ts).
+    Fails silently — a cache miss is recoverable, a broken pipeline run is not.
+    """
+    cron_secret = os.getenv("CRON_SECRET")
+    app_url     = os.getenv("NEXT_PUBLIC_APP_URL", "https://www.shadowmerchant.online")
+
+    if not cron_secret:
+        logger.warning(
+            "[Cache] CRON_SECRET not in .env — skipping cache refresh. "
+            "Users will see stale deals for up to 30 minutes."
+        )
+        return
+
+    try:
+        r = requests.get(
+            f"{app_url}/api/cron/refresh-deals",
+            headers={"Authorization": f"Bearer {cron_secret}"},
+            timeout=15
+        )
+        stale = r.json().get("stale_deactivated", "?") if r.headers.get("content-type", "").startswith("application/json") else "?"
+        logger.info(
+            f"[Cache] Refresh triggered — HTTP {r.status_code} — "
+            f"{stale} stale deals deactivated"
+        )
+    except Exception as e:
+        logger.warning(f"[Cache] Refresh failed (non-fatal): {e}")
+
 
 # ── Canonical category taxonomy (must match CategoryBrowser.tsx) ──────────
 # Maps raw scraped strings → canonical slugs. Case-insensitive prefix matching.
@@ -181,9 +269,43 @@ def run_scraper(name: str) -> list:
         logger.info(f"▶ Running {name} scraper...")
         deals = scraper.scrape_deals()
         logger.info(f"  ✅ {name}: {len(deals)} deals")
+
+        # REQ 4: CueLinks affiliate URL conversion for supported platforms
+        # Activates automatically when CUELINKS_SID is set in .env
+        try:
+            from utils.cuelinks import convert_to_affiliate, CUELINKS_PLATFORMS
+            if name in CUELINKS_PLATFORMS:
+                for deal in deals:
+                    raw_url = getattr(deal, 'product_url', None) or (deal.get('product_url') if isinstance(deal, dict) else None)
+                    if raw_url:
+                        converted = convert_to_affiliate(raw_url, name)
+                        if isinstance(deal, dict):
+                            deal['product_url'] = converted
+                        else:
+                            deal.product_url = converted
+        except Exception as e:
+            logger.debug(f"[CueLinks] Skipped for {name}: {e}")
+
+        # REQ 7: Log this run to MongoDB scrapelogs
+        try:
+            _mongo_client = pymongo.MongoClient(os.getenv("MONGODB_URI"), serverSelectionTimeoutMS=5000)
+            _db = _mongo_client.shadowmerchant
+            log_scraper_run(_db, name, len(deals), 0, [])  # saved count updated in process_and_save
+            check_and_alert_zero_deals(_db, name)
+            _mongo_client.close()
+        except Exception as e:
+            logger.warning(f"[ScrapeLog] Could not write run log for {name}: {e}")
+
         return deals
     except Exception as e:
         logger.error(f"  ❌ {name} scraper failed: {e}")
+        # Log failed run too
+        try:
+            _mongo_client = pymongo.MongoClient(os.getenv("MONGODB_URI"), serverSelectionTimeoutMS=5000)
+            log_scraper_run(_mongo_client.shadowmerchant, name, 0, 0, [str(e)])
+            _mongo_client.close()
+        except Exception:
+            pass
         return []
 
 
@@ -336,7 +458,7 @@ def main():
             raw = d if isinstance(d, dict) else d.__dict__
             print(f"  {raw.get('title', '')[:60]} | ₹{raw.get('discounted_price', 0)} | {raw.get('discount_percent', 0)}% off")
 
-    elapsed = (datetime.utcnow() - start).seconds
+    elapsed = (datetime.now(timezone.utc).replace(tzinfo=None) - start).seconds
     logger.info(f"✅ Pipeline complete — {saved} deals saved in {elapsed}s")
 
     # Run Algolia sync so manual pipeline execution stays consistent with the chron scheduler
@@ -349,6 +471,9 @@ def main():
             logger.info("✅ Algolia sync complete")
         except Exception as e:
             logger.error(f"❌ Algolia sync failed: {e}")
+
+    # REQ 8: Flush Redis deal cache + revalidate ISR pages
+    trigger_cache_refresh()
 
 if __name__ == "__main__":
     main()

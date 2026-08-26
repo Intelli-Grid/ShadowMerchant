@@ -74,7 +74,7 @@ BASE_HEADERS = {
     ),
 }
 
-DEFAULT_DISCOUNT_FACTOR = 1.35   # Assume 35% discount when no MRP is shown
+
 
 
 class MeeshoScraper(BaseScraper):
@@ -376,10 +376,13 @@ class MeeshoScraper(BaseScraper):
                 or catalog.get("min_catalog_price")
                 or 0
             )
-            orig_price = float(
-                catalog.get("max_catalog_price")
-                or disc_price * DEFAULT_DISCOUNT_FACTOR
-            )
+            # If Meesho doesn't return an MRP (max_catalog_price), skip this product.
+            # Do NOT fabricate a price — it corrupts the deal scorer and misleads users.
+            orig_price_raw = catalog.get("max_catalog_price")
+            if not orig_price_raw or float(orig_price_raw) <= 0:
+                logger.debug(f"[Meesho] Skipping — no MRP in response: {title[:50]}")
+                return None
+            orig_price = float(orig_price_raw)
 
             if disc_price <= 0 or orig_price <= disc_price:
                 return None

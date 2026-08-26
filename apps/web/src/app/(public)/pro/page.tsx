@@ -6,11 +6,11 @@ import Image from 'next/image';
 import { RazorpayButton } from '@/components/pro/RazorpayButton';
 
 export const metadata: Metadata = {
-  title: 'ShadowMerchant Pro — Price Alerts, 30-Day History & Flash Sale Alerts',
-  description: 'Upgrade to Pro for ₹99/month. Get target price alerts, 30-day price history, flash sale notifications and unlimited wishlist tracking across Amazon, Flipkart, Myntra and more.',
+  title: 'ShadowMerchant Pro — Price Alerts, Observed Price History & Flash Sale Alerts',
+  description: 'Upgrade to Pro for ₹99/month. Get target price alerts, observed price history, flash sale notifications and unlimited wishlist tracking across Amazon, Flipkart, Myntra and more.',
   openGraph: {
     title: 'ShadowMerchant Pro | India\'s Smartest Deal Tracker',
-    description: 'Target price alerts + 30-day price history + flash sale alerts. Upgrade for ₹99/month and never overpay again.',
+    description: 'Target price alerts + observed price history + flash sale alerts. Upgrade for ₹99/month and never overpay again.',
     url: 'https://www.shadowmerchant.online/pro',
     type: 'website',
   },
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 
 const PRO_FEATURES = [
   '🔔 Target Price Alerts — set your price, we watch until it drops',
-  '📊 Know if today’s price is actually a good price (30-day history)',
+  '📊 Know if today’s price is actually a good price (observed price history)',
   '⚡ Flash sale alerts before deals sell out (up to 10 rules)',
   '💛 Track any product — unlimited wishlist',
   '📬 Priority support',
