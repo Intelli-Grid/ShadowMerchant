@@ -81,7 +81,11 @@ class NykaaScraper(BaseScraper):
                     "url":          url,
                     "country_code": "in",
                     "render":       "false",
-                    "keep_headers": "true",
+                    # FIX-NYKAA-001: Removed keep_headers=true — it forwarded all
+                    # upstream Nykaa response headers (100+) to Python's requests
+                    # library, which has a hard 100-header limit. This caused
+                    # 'got more than 100 headers' exceptions on every ScraperAPI
+                    # call for Nykaa, forcing unnecessary fallback to direct mode.
                 }
                 resp = _req.get(SCRAPERAPI_BASE, params=params, timeout=30)
                 has_state = "__PRELOADED_STATE__" in resp.text

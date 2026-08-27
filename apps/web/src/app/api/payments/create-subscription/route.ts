@@ -49,14 +49,22 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // RACE-FIX: Embed clerk_id in Razorpay subscription notes.
+    // Razorpay webhooks (subscription.activated) can arrive BEFORE the
+    // findOneAndUpdate below completes, leaving no subscription_id on the
+    // User document for the webhook to look up. By embedding clerk_id in
+    // notes, the webhook handler can always find the user via notes.clerk_id
+    // as a fallback — eliminating the race condition.
     const subscription = await razorpay.subscriptions.create({
       plan_id: planId,
       total_count: plan === 'annual' ? 1 : 12,
       quantity: 1,
       customer_notify: 1,
+      notes: { clerk_id: userId },
     } as any);
 
-    // Store the subscription ID on the user record so the webhook can find this user
+    // Store the subscription ID on the user record (primary lookup path in webhook).
+    // The notes.clerk_id above is the fallback if this write hasn't happened yet.
     await User.findOneAndUpdate(
       { clerk_id: userId },
       { subscription_id: subscription.id },

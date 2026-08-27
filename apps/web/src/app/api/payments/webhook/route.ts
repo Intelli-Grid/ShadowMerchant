@@ -82,7 +82,25 @@ export async function POST(req: NextRequest) {
     tier: 'pro' | 'free',
     extraFields: Record<string, unknown> = {}
   ) {
-    const existingUser = await User.findOne({ subscription_id: subscriptionId }).lean() as any;
+    // PRIMARY lookup: by subscription_id (set by create-subscription route).
+    // FALLBACK lookup: by notes.clerk_id embedded at subscription creation time.
+    // This fallback exists to handle the race window where Razorpay delivers
+    // subscription.activated BEFORE the create-subscription route has written
+    // subscription_id to MongoDB. Without this fallback, the user pays but
+    // never receives Pro access until Razorpay retries 15 minutes later.
+    let existingUser = await User.findOne({ subscription_id: subscriptionId }).lean() as any;
+    if (!existingUser && sub?.notes?.clerk_id) {
+      existingUser = await User.findOne({ clerk_id: sub.notes.clerk_id }).lean() as any;
+      if (existingUser) {
+        // Back-fill the subscription_id now that we have it, so future events
+        // use the primary path.
+        await User.updateOne(
+          { clerk_id: sub.notes.clerk_id },
+          { subscription_id: subscriptionId }
+        );
+        console.log(`[Webhook] Race-condition fallback: found user by notes.clerk_id=${sub.notes.clerk_id}, back-filled subscription_id`);
+      }
+    }
 
     // SEC-02: Prevent out-of-order event retries from overwriting an active Pro tier.
     // If user is currently active Pro and incoming event is trying to downgrade to free,
@@ -102,8 +120,22 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Use $or query to handle both the normal path (subscription_id is set)
+    // and the race-condition fallback path (subscription_id not yet set, but
+    // clerk_id is known via Razorpay notes). Without this, the fallback lookup
+    // above finds the user but this update still fails to match.
+    const updateQuery: Record<string, unknown> = { subscription_id: subscriptionId };
+    if (!existingUser?.subscription_id && sub?.notes?.clerk_id) {
+      Object.assign(updateQuery, { $or: [
+        { subscription_id: subscriptionId },
+        { clerk_id: sub.notes.clerk_id },
+      ]});
+      // Remove top-level subscription_id from query when using $or
+      delete updateQuery.subscription_id;
+    }
+
     const user = await User.findOneAndUpdate(
-      { subscription_id: subscriptionId },
+      updateQuery,
       {
         subscription_tier: tier,
         subscription_status: sub.status,
