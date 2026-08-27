@@ -36,24 +36,50 @@ logger = logging.getLogger("pipeline")
 # each scraper run so we can track health over time.
 # ═══════════════════════════════════════════════════════════
 
-def log_scraper_run(db, platform: str, deals_found: int, deals_saved: int, errors: list):
-    """Write a structured run record to MongoDB scrapelogs after each scraper finishes."""
+def log_scraper_run(
+    db,
+    platform: str,
+    deals_found: int,
+    deals_saved: int,
+    errors: list,
+    elapsed_seconds: int = 0,
+) -> str | None:
+    """Write a structured run record to MongoDB scrapelogs after each scraper finishes.
+    Returns the inserted document's _id (str) so the caller can back-fill deals_saved.
+    """
     try:
-        db.scrapelogs.insert_one({
-            "platform":    platform,
-            "run_at":      datetime.now(timezone.utc),
-            "deals_found": deals_found,
-            "deals_saved": deals_saved,
-            "errors":      errors[:10],  # cap at 10 entries
-            "status":      "success" if not errors else "partial",
+        result = db.scrapelogs.insert_one({
+            "platform":        platform,
+            "run_at":          datetime.now(timezone.utc),
+            "deals_found":     deals_found,
+            "deals_saved":     deals_saved,
+            "elapsed_seconds": elapsed_seconds,
+            "errors":          errors[:10],  # cap at 10 entries
+            "status":          "success" if not errors else ("failure" if deals_found == 0 else "partial"),
         })
         # Ensure index exists (safe to call repeatedly):
         db.scrapelogs.create_index(
             [("platform", pymongo.ASCENDING), ("run_at", pymongo.DESCENDING)],
             background=True
         )
+        return str(result.inserted_id)
     except Exception as e:
         logger.warning(f"[ScrapeLog] Failed to write log for {platform}: {e}")
+        return None
+
+
+def update_scrape_log_saved(db, log_id: str, deals_saved: int) -> None:
+    """Back-fill the deals_saved count after process_and_save() completes."""
+    if not log_id:
+        return
+    try:
+        import bson
+        db.scrapelogs.update_one(
+            {"_id": bson.ObjectId(log_id)},
+            {"$set": {"deals_saved": deals_saved}}
+        )
+    except Exception as e:
+        logger.debug(f"[ScrapeLog] Could not back-fill deals_saved for {log_id}: {e}")
 
 
 def check_and_alert_zero_deals(db, platform: str, notify_fn=None):
@@ -258,16 +284,19 @@ def load_targets() -> list[str]:
 
 def run_scraper(name: str) -> list:
     import importlib
+    import time as _time
     if name not in SCRAPER_MAP:
         logger.warning(f"Unknown scraper: {name}")
         return []
     module_path, class_name = SCRAPER_MAP[name]
+    sc_start = _time.monotonic()
     try:
         mod = importlib.import_module(module_path)
         cls = getattr(mod, class_name)
         scraper = cls()
         logger.info(f"▶ Running {name} scraper...")
         deals = scraper.scrape_deals()
+        elapsed = int(_time.monotonic() - sc_start)
         logger.info(f"  ✅ {name}: {len(deals)} deals")
 
         # REQ 4: CueLinks affiliate URL conversion for supported platforms
@@ -286,11 +315,13 @@ def run_scraper(name: str) -> list:
         except Exception as e:
             logger.debug(f"[CueLinks] Skipped for {name}: {e}")
 
-        # REQ 7: Log this run to MongoDB scrapelogs
+        # REQ 7: Log this run to MongoDB scrapelogs with elapsed time.
+        # deals_saved is 0 here — back-filled by process_and_save() per-scraper.
+        # We store the log_id so we can update deals_saved after the save step.
         try:
             _mongo_client = pymongo.MongoClient(os.getenv("MONGODB_URI"), serverSelectionTimeoutMS=5000)
             _db = _mongo_client.shadowmerchant
-            log_scraper_run(_db, name, len(deals), 0, [])  # saved count updated in process_and_save
+            log_scraper_run(_db, name, len(deals), 0, [], elapsed)
             check_and_alert_zero_deals(_db, name)
             _mongo_client.close()
         except Exception as e:
@@ -298,11 +329,12 @@ def run_scraper(name: str) -> list:
 
         return deals
     except Exception as e:
+        elapsed = int(_time.monotonic() - sc_start)
         logger.error(f"  ❌ {name} scraper failed: {e}")
         # Log failed run too
         try:
             _mongo_client = pymongo.MongoClient(os.getenv("MONGODB_URI"), serverSelectionTimeoutMS=5000)
-            log_scraper_run(_mongo_client.shadowmerchant, name, 0, 0, [str(e)])
+            log_scraper_run(_mongo_client.shadowmerchant, name, 0, 0, [str(e)], elapsed)
             _mongo_client.close()
         except Exception:
             pass
