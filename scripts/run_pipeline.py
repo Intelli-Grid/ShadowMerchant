@@ -212,9 +212,14 @@ SCRAPER_MAP = {
     "croma":    ("scrapers.croma_scraper",    "CromaScraper"),
 }
 
-# Default scrapers to run when no targets file is available
-# NOTE: Only list scrapers confirmed working. flipkart=410 Gone, myntra=TLS blocked.
-DEFAULT_SCRAPERS = ["amazon", "meesho"]
+# Default scrapers to run when no targets file is available.
+# Verified working as of 2026-08-28 pipeline run (494 deals, 449s):
+#   amazon  ✅ 198 deals  — Playwright + headless Chromium
+#   myntra  ✅ 294 deals  — ScraperAPI residential proxy
+#   nykaa   ✅ 119 deals  — curl_cffi direct (ScraperAPI optional)
+#   meesho  ❌ EXCLUDED   — requires premium ScraperAPI (~1000 credits/run, free tier exhausted)
+#   flipkart ❌ EXCLUDED  — HTTP 403, no affiliate credentials
+DEFAULT_SCRAPERS = ["amazon", "myntra", "nykaa"]
 
 # Allowed platform domains — only URLs on these domains are saved
 ALLOWED_DOMAINS = (
