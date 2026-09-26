@@ -41,7 +41,7 @@ export function Footer() {
               </span>
             </div>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-              India&apos;s #1 AI-powered deal aggregator. We find the best discounts across Amazon, Flipkart, Myntra &amp; more — automatically.
+              Independent price tracker for Indian online stores. Algorithmic deal scoring across Amazon, Myntra &amp; Nykaa.
             </p>
             <div className="flex items-center gap-4 mt-6">
               <a href="https://t.me/ShadowMerchantDeals" target="_blank" rel="noopener noreferrer" className="transition-colors" style={{ color: 'var(--text-muted)' }}
@@ -107,14 +107,12 @@ export function Footer() {
               className="font-bold text-sm uppercase tracking-wider mb-4"
               style={{ color: 'var(--gold)', fontFamily: 'var(--font-display)', letterSpacing: '0.1em' }}
             >
-              Stores
+              Active Stores
             </h4>
             <ul className="space-y-3">
               {[
                 { label: 'Amazon India', href: '/store/amazon' },
-                { label: 'Flipkart', href: '/store/flipkart' },
                 { label: 'Myntra', href: '/store/myntra' },
-                { label: 'Meesho', href: '/store/meesho' },
                 { label: 'Nykaa', href: '/store/nykaa' },
               ].map((link) => (
                 <li key={link.href}>

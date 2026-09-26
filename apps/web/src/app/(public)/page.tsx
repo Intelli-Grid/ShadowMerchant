@@ -136,7 +136,19 @@ async function getHeroDeal(): Promise<Deal | null> {
     const DealModel = (await import('@/models/Deal')).default;
     const cutoff48h = new Date(Date.now() - 48 * 60 * 60 * 1000);
 
-    // Primary: top 5 trending deals scraped within last 48 hours (discount <= 80%)
+    // Priority 0: Admin-pinned Deal of the Day (manual override)
+    const pinned = await DealModel.findOne({
+      is_pinned: true,
+      pinned_as: 'dotd',
+      is_active: true,
+    }).lean();
+    if (pinned) {
+      const result = JSON.parse(JSON.stringify(pinned));
+      await redis.set('deals:hero', result, { ex: 900 });
+      return result;
+    }
+
+    // Primary: top 5 trending deals scraped within last 48 hours (score >= 60, discount <= 80%)
     let candidates = await DealModel.find({
       is_active: true,
       is_trending: true,
@@ -150,11 +162,12 @@ async function getHeroDeal(): Promise<Deal | null> {
       .limit(5)
       .lean();
 
-    // Fallback: any active trending deal with discount <= 80%
+    // Fallback: any active trending deal with score >= 55 (still a reasonable deal)
     if (!candidates || candidates.length === 0) {
       candidates = await DealModel.find({
         is_active: true,
         is_trending: true,
+        deal_score: { $gte: 55 },
         discount_percent: { $lte: 80 },
       })
         .sort({ deal_score: -1 })
@@ -321,7 +334,7 @@ export default async function Home() {
 
         <p className="text-sm md:text-base max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           Track observed prices, price history, and stock status across Indian online stores.
-          Transparent pricing. 8 platforms, one honest feed.
+          Amazon, Myntra &amp; Nykaa — algorithmically scored, no human bias.
         </p>
 
         {/* UPGRADE-A: Static trust proof-points */}
@@ -329,16 +342,16 @@ export default async function Home() {
           style={{ color: 'var(--text-muted)' }}>
           <span>✓ Observed price tracking & history</span>
           <span className="hidden sm:inline">·</span>
-          <span>✓ Amazon · Flipkart · Myntra · Meesho · Nykaa · Croma · TataCliq</span>
+          <span>✓ Amazon · Myntra · Nykaa</span>
           <span className="hidden sm:inline">·</span>
           <span>✓ Shadow Score: ranked by relative savings</span>
         </div>
 
 
 
-        {/* Platform trust badges */}
+        {/* Platform trust badges — active scrapers only */}
         <div className="flex items-center justify-center gap-2 flex-wrap mb-6 hover:opacity-100 transition-opacity">
-          {['📦 Amazon', '🛒 Flipkart', '👗 Myntra', '🛍️ Meesho', '💄 Nykaa', '🖥️ Croma', '🏷️ TataCliq'].map(p => (
+          {['📦 Amazon', '👗 Myntra', '💄 Nykaa'].map(p => (
             <span key={p} className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
               style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)', border: '1px solid var(--sm-border)' }}>
               {p}

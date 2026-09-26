@@ -7,10 +7,10 @@ import { RazorpayButton } from '@/components/pro/RazorpayButton';
 
 export const metadata: Metadata = {
   title: 'ShadowMerchant Pro — Price Alerts, Observed Price History & Flash Sale Alerts',
-  description: 'Upgrade to Pro for ₹99/month. Get target price alerts, observed price history, flash sale notifications and unlimited wishlist tracking across Amazon, Flipkart, Myntra and more.',
+  description: 'Upgrade to ShadowMerchant Pro for ₹199/month. Get target price alerts, observed price history, flash sale notifications and wishlist tracking across Amazon, Flipkart, Myntra and more.',
   openGraph: {
     title: 'ShadowMerchant Pro | India\'s Smartest Deal Tracker',
-    description: 'Target price alerts + observed price history + flash sale alerts. Upgrade for ₹99/month and never overpay again.',
+    description: 'Target price alerts + observed price history + flash sale alerts. Upgrade for ₹199/month and never overpay again.',
     url: 'https://www.shadowmerchant.online/pro',
     type: 'website',
   },
@@ -22,7 +22,7 @@ const PRO_FEATURES = [
   '🔔 Target Price Alerts — set your price, we watch until it drops',
   '📊 Know if today’s price is actually a good price (observed price history)',
   '⚡ Flash sale alerts before deals sell out (up to 10 rules)',
-  '💛 Track any product — unlimited wishlist',
+  '💛 Wishlist tracking — up to 200 products',
   '📬 Priority support',
 ];
 
@@ -140,19 +140,15 @@ export default function ProPage() {
           </div>
 
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-white mb-1">Deal Scout</h2>
+            <h2 className="text-xl font-bold text-white mb-1">ShadowMerchant Pro</h2>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>For buyers who want to buy at the right time</p>
           </div>
 
           <div className="mb-8">
-            <span className="text-4xl font-black text-white price-display">₹99</span>
+            <span className="text-4xl font-black text-white price-display">₹199</span>
             <span className="ml-2" style={{ color: 'var(--text-muted)' }}>/ month</span>
-            <p className="text-sm font-bold mt-1" style={{ color: 'var(--score-high)' }}>
-              Save 33% with annual plan (₹799/year)
-            </p>
             <p className="text-xs mt-2" style={{ color: 'var(--text-secondary)' }}>
-              Less than one cup of Starbucks.<br/>
-              Less than one month of Netflix.<br/>
+              Billed monthly. Cancel anytime.
             </p>
           </div>
 
@@ -175,10 +171,10 @@ export default function ProPage() {
           >
             <div>
               <p className="text-sm font-black" style={{ color: 'var(--gold)' }}>
-                Save 33% · Annual Plan
+                Annual Plan
               </p>
               <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                ₹799/year · Just ₹66/month
+                ₹799/year
               </p>
             </div>
             <RazorpayButton plan="annual" className="!py-2 !px-5 text-sm" />
@@ -190,23 +186,29 @@ export default function ProPage() {
         </div>
       </div>
 
-      {/* Social Proof / Live Stats */}
+      {/* Value Proposition */}
       <div className="mb-16 rounded-2xl p-8" style={{ background: 'var(--gold-glow)', border: '1px solid var(--gold-border)' }}>
-        <h2 className="text-2xl font-bold text-white mb-8 section-heading text-center justify-center border-none" style={{ fontFamily: 'var(--font-display)' }}>
-          Join the Intelligence Layer
+        <h2 className="text-2xl font-bold text-white mb-6 section-heading text-center justify-center border-none" style={{ fontFamily: 'var(--font-display)' }}>
+          The Intelligence Layer
         </h2>
-        <div className="flex flex-wrap justify-center gap-8 md:gap-16">
-          <div className="text-center">
-            <p className="text-4xl font-black mb-1 price-display" style={{ color: 'var(--gold)' }}>12,400+</p>
-            <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Active Deals</p>
+        <div className="flex flex-col gap-4 max-w-xl mx-auto">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">📉</span>
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              <strong className="text-white">Stop guessing if it's a real deal.</strong> We track observed prices over time so you can see if today's discount is genuine — or just a padded MRP.
+            </p>
           </div>
-          <div className="text-center">
-            <p className="text-4xl font-black mb-1 price-display" style={{ color: 'var(--gold)' }}>₹1.8Cr</p>
-            <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Savings Tracked</p>
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">🔔</span>
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              <strong className="text-white">Set your price. Walk away.</strong> Pro monitors your target products 3× daily and alerts you the moment the price drops to your number.
+            </p>
           </div>
-          <div className="text-center">
-            <p className="text-4xl font-black mb-1 price-display" style={{ color: 'var(--gold)' }}>8+</p>
-            <p className="text-sm font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Platforms Tracked</p>
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">⚡</span>
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              <strong className="text-white">Never miss a flash sale.</strong> Lightning deals sell out in minutes. Get alerted before they're gone.
+            </p>
           </div>
         </div>
       </div>
@@ -224,7 +226,7 @@ export default function ProPage() {
         </h2>
         <div className="space-y-6">
           {[
-            { q: 'What is the difference between Free and Pro?', a: 'Free gives you full access to all deals, categories, and direct store links. Pro gives you the intelligence layer: 30-day pricing history charts, background price-drop alerts, and unlimited wishlists to ensure you never miss a lightning deal.' },
+            { q: 'What is the difference between Free and Pro?', a: 'Free gives you full access to all deals, categories, and direct store links, plus up to 5 wishlist saves. Pro gives you the intelligence layer: 30-day pricing history charts, background price-drop alerts, and up to 200 wishlist saves so you can track an entire shopping list.' },
             { q: 'Are deals locked anymore?', a: "No! All deals, links, and content are now 100% free and open. Pro gives you the intelligence layer—pricing history, custom deal alerts, and drop notifications—so you know *when* to buy." },
             { q: 'How does billing work?', a: 'We use Razorpay for secure Indian payments. You can pay via UPI, credit/debit card, or net banking. You\'re billed monthly or annually depending on your choice.' },
             { q: 'Can I cancel anytime?', a: 'Yes, absolutely. You can cancel your subscription from your Dashboard at any time. Your Pro benefits remain active until the end of the current billing period.' },
@@ -250,7 +252,7 @@ export default function ProPage() {
           Not ready to commit? That&apos;s totally fine.
         </p>
         <p className="text-sm mb-5" style={{ color: 'rgba(255,255,255,0.5)' }}>
-          Get our daily deal digest on WhatsApp for free — deals scored by AI, delivered to your phone.
+          Get our daily deal digest on WhatsApp for free — algorithmically scored deals, delivered to your phone.
         </p>
         <a
           href="https://whatsapp.com/channel/0029Vb7dimp1XquQpiaSWQ1N"

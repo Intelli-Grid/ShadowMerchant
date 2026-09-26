@@ -3,8 +3,32 @@ import crypto from 'crypto';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 import { sendProConfirmationEmail } from '@/lib/email';
+import { redis } from '@/lib/redis';
 // clerkClient is imported dynamically inside the handler to avoid
 // Clerk SDK initialization overhead on cold starts for non-subscription events.
+
+/**
+ * Fire-and-forget PostHog server-side event via REST.
+ * Uses POSTHOG_PROJECT_API_KEY env var — safe to absent (no-op if missing).
+ * Never throws — webhook must always return 200.
+ */
+function phServerCapture(event: string, distinctId: string, props: Record<string, unknown>): void {
+  const phKey = process.env.POSTHOG_PROJECT_API_KEY;
+  if (!phKey) return;
+  const phHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com';
+  fetch(`${phHost}/capture/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      api_key: phKey,
+      event,
+      distinct_id: distinctId,
+      properties: props,
+      timestamp: new Date().toISOString(),
+    }),
+  }).catch(() => {}); // Swallow — analytics must never break webhook delivery
+}
+
 
 /**
  * Fire-and-forget Telegram admin alert.
@@ -71,6 +95,28 @@ export async function POST(req: NextRequest) {
   await connectDB();
   const { clerkClient } = await import('@clerk/nextjs/server');
   const clerk = await clerkClient();
+
+  // IDEMPOTENCY: Razorpay retries webhooks up to 8 times over 24 hours on failures.
+  // Guard against duplicate processing using a Redis key keyed on the unique
+  // event ID. TTL = 25 hours (slightly longer than Razorpay's 24-hour retry window).
+  // Falls through silently if Redis is unavailable so no webhook is ever lost.
+  const eventId: string | undefined = (event as any).id;
+  if (eventId) {
+    const idempotencyKey = `webhook:rz:${eventId}`;
+    try {
+      const alreadyProcessed = await redis.get(idempotencyKey);
+      if (alreadyProcessed) {
+        console.log(`[Webhook] Duplicate event ignored: ${eventId} (${eventType})`);
+        return NextResponse.json({ received: true, duplicate: true });
+      }
+      // Mark as processed. TTL = 90000s (25h) to outlast Razorpay's 24h retry window.
+      await (redis as any).set(idempotencyKey, '1', { ex: 90000 });
+    } catch (redisErr) {
+      // Redis unavailable — log and continue. Prefer processing over losing a webhook.
+      console.warn('[Webhook] Redis idempotency check failed (continuing):', redisErr);
+    }
+  }
+
 
   /**
    * Helper — syncs tier to BOTH MongoDB and Clerk publicMetadata atomically.
@@ -153,12 +199,35 @@ export async function POST(req: NextRequest) {
       try {
         const clerkUser = await clerk.users.getUser(user.clerk_id);
         existingMeta = (clerkUser.publicMetadata as Record<string, unknown>) ?? {};
-      } catch { /* if fetch fails, proceed with empty base — tier will still be set */ }
+      } catch (clerkFetchErr) {
+        // SECURITY: Do NOT proceed with empty existingMeta — that would overwrite
+        // ALL existing metadata (including role=admin) with just { tier }.
+        // MongoDB is already updated. Clerk sync is inconsistent but recoverable.
+        // Operator can re-sync via POST /api/admin/sync-clerk-tier.
+        console.error(
+          `[Webhook] Failed to fetch Clerk metadata for ${user.clerk_id} — ` +
+          `SKIPPING Clerk update to preserve existing metadata (admin role safe). ` +
+          `MongoDB tier=${tier} is set. Clerk may be stale — requires manual reconciliation.`,
+          clerkFetchErr
+        );
+        return user ?? null;
+      }
 
-      await clerk.users.updateUserMetadata(user.clerk_id, {
-        publicMetadata: { ...existingMeta, tier },
-      });
-      console.log(`[Webhook] ${eventType}: User ${user.email} → tier=${tier}, status=${sub.status}`);
+      try {
+        await clerk.users.updateUserMetadata(user.clerk_id, {
+          publicMetadata: { ...existingMeta, tier },
+        });
+        console.log(`[Webhook] ${eventType}: User ${user.email} → tier=${tier}, status=${sub.status}`);
+      } catch (clerkUpdateErr) {
+        // Clerk write failed — MongoDB is already set to tier=${tier} and is authoritative.
+        // Do NOT re-throw: subscription_started must fire on MongoDB success, not Clerk success.
+        // Clerk state is recoverable via POST /api/admin/sync-clerk-tier?apply=true.
+        console.error(
+          `[Webhook] Clerk metadata write failed for ${user.clerk_id} — ` +
+          `MongoDB tier=${tier} is set. Clerk may be stale — use sync-clerk-tier to repair.`,
+          clerkUpdateErr
+        );
+      }
     } else {
       console.warn(`[Webhook] ${eventType}: No user found for subscription ${subscriptionId}`);
     }
@@ -190,6 +259,23 @@ export async function POST(req: NextRequest) {
         subscription_cancel_scheduled: false,
         ...(detectedPlan ? { subscription_plan: detectedPlan } : {}),
       });
+
+      // subscription_started fires on MongoDB success alone.
+      // Clerk sync failure must NOT suppress this event: MongoDB is the authoritative
+      // billing state; Clerk is synchronization/authorization state and is recoverable.
+      // Idempotency (Redis guard above) prevents duplicate events on webhook retries.
+      if (eventType === 'subscription.activated' && activatedUser) {
+        phServerCapture(
+          'subscription_started',
+          activatedUser.clerk_id ?? sub.id, // clerk_id preferred; sub.id as fallback
+          {
+            subscription_id: sub.id,
+            plan: detectedPlan ?? 'unknown',
+            email: activatedUser.email ?? '',
+          }
+        );
+      }
+
       // Notify Boss in real-time — fire and forget
       const planLabel = detectedPlan ?? sub.plan_id ?? 'unknown plan';
       const amountPaise = payload?.payment?.entity?.amount ?? 0;

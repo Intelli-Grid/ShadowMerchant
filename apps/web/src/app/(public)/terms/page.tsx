@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Terms of Service | ShadowMerchant',
-  description: 'Terms of Service for ShadowMerchant — AI-powered deal aggregation platform.',
+  description: 'Terms of Service for ShadowMerchant — price tracking and algorithmic deal scoring platform.',
   robots: 'index, follow',
 };
 
@@ -24,8 +24,8 @@ export default function TermsPage() {
         <section>
           <h2 className="text-xl font-bold text-white mb-3">2. About the Service</h2>
           <p>
-            ShadowMerchant is an AI-powered deal aggregation platform that collects and ranks deals from
-            third-party e-commerce platforms including Amazon India, Flipkart, Meesho, Myntra, Nykaa, and Croma.
+            ShadowMerchant is a price tracking and algorithmic deal scoring platform that collects and ranks deals from
+            third-party e-commerce platforms including Amazon India, Myntra, and Nykaa.
             We are an independent service and are not affiliated with, endorsed by, or sponsored by any of these platforms.
           </p>
           <p className="mt-3">
@@ -46,7 +46,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-xl font-bold text-white mb-3">4. Pro Subscription</h2>
           <ul className="list-disc list-inside space-y-2 text-gray-400">
-            <li>Pro plans (Monthly ₹99/mo or Annual ₹799/yr) are processed via Razorpay and auto-renew unless cancelled.</li>
+            <li>Pro plans (Monthly ₹199/mo or Annual ₹799/yr) are processed via Razorpay and auto-renew unless cancelled.</li>
             <li>You may cancel your subscription at any time via your Dashboard. Access continues until the end of the current billing period.</li>
             <li>Refunds are not provided for partially used subscription periods, except where required by applicable law.</li>
             <li>We reserve the right to modify Pro plan pricing with 30 days&apos; notice to subscribers.</li>

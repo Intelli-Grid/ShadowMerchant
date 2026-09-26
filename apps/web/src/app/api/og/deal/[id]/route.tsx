@@ -159,7 +159,7 @@ export async function GET(
           alignItems: 'center',
         }}>
           <span style={{ color: '#444', fontSize: 16 }}>shadowmerchant.online</span>
-          <span style={{ color: '#444', fontSize: 16 }}>Curated by ShadowMerchant team</span>
+          <span style={{ color: '#444', fontSize: 16 }}>shadowmerchant.online — price intelligence</span>
         </div>
       </div>
     ),

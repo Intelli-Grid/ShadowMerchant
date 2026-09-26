@@ -12,8 +12,9 @@ import { MobileMenu } from './MobileMenu';
 const NAV_LINKS = [
   { label: 'Top Deals', href: '/deals' },
   { label: 'Categories', href: '/deals/feed' },
+  { label: 'Reports', href: '/reports/smartphones' },
+  { label: 'Guides', href: '/guides' },
   { label: 'Missed Deals', href: '/missed-deals' },
-  { label: '🔥 Submit Deal', href: '/submit-deal' },
 ];
 
 export function Navbar() {
@@ -225,7 +226,7 @@ export function Navbar() {
                       (e.currentTarget as HTMLElement).style.boxShadow = 'none';
                     }}
                   >
-                    ⚡ Deal Scout · ₹99/mo
+                    ⚡ Pro · ₹199/mo
                   </button>
                 </SignInButton>
               </>

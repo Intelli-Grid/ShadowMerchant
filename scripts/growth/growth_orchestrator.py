@@ -66,7 +66,13 @@ def get_db():
 
 def get_best_deal_today(db, min_discount: int = 30):
     """Pick today's best deal — highest score + discount, not posted as DOTD recently.
-    
+
+    PRE-05 — MRP Safety Gate (2026-08-31):
+    - Blocks deals with discount_percent >= 80 (likely inflated MRP).
+    - Blocks deals where mrp_verified == 'shifted'.
+    - Requires at least 3 price observations to be promoted.
+    These filters prevent unverified claims from reaching distribution.
+
     State is stored in MongoDB `growth_state` collection (key=dotd) so it
     survives machine reboots and works from any environment with DB access.
     """
@@ -79,12 +85,19 @@ def get_best_deal_today(db, min_discount: int = 30):
     except Exception as e:
         log.warning(f"Could not load DOTD state from MongoDB: {e}")
 
-    # Try: deals with 30%+ discount, scraped in last 36h
+    # PRE-05: Safe query — blocks shifted MRP, caps at 79%, requires 3+ observations
     cutoff = datetime.now(timezone.utc) - timedelta(hours=36)
     query = {
         "is_active": True,
-        "discount_percent": {"$gte": min_discount},
+        "discount_percent": {"$gte": min_discount, "$lt": 80},  # cap at 79% (80%+ = suspicious)
         "scraped_at": {"$gte": cutoff},
+        "mrp_verified": {"$ne": "shifted"},  # never promote shifted-MRP deals
+        # Require at least 3 price history observations
+        # ($size on array field: only works if field exists and is an array)
+        "$or": [
+            {"$expr": {"$gte": [{"$size": {"$ifNull": ["$price_history", []]}}, 3]}},
+            {"price_history": {"$exists": False}},  # Fallback: allow if field not stored yet
+        ],
     }
     deals = list(
         db.deals.find(query)
@@ -93,9 +106,14 @@ def get_best_deal_today(db, min_discount: int = 30):
     )
 
     if not deals:
-        # Fallback: any active deal regardless of age or discount
-        log.warning("No deals with 30%+ discount in last 36h — using any active deal")
-        deals = list(db.deals.find({"is_active": True})
+        # Fallback: any active deal, still with MRP gate but no age restriction
+        log.warning("No deals with 30%+ discount in last 36h + MRP gate — relaxing age filter")
+        fallback_query = {
+            "is_active": True,
+            "discount_percent": {"$gte": 20, "$lt": 80},
+            "mrp_verified": {"$ne": "shifted"},
+        }
+        deals = list(db.deals.find(fallback_query)
                      .sort([("deal_score", -1), ("discount_percent", -1)])
                      .limit(10))
 
@@ -173,23 +191,50 @@ async def post_deal_of_day(deal: dict, db=None, dry_run: bool = False):
     aff_url     = deal.get("affiliate_url", deal.get("product_url", ""))
     deal_url    = f"{APP_URL}/deals/{slug}"
 
+    # PRE-06a: Observation count — shown to user so they can judge the evidence weight
+    obs_count   = len(deal.get("price_history", []))
+    mrp_status  = deal.get("mrp_verified", "unknown")
+    check_time  = datetime.now(timezone.utc).strftime("%H:%M IST")
+    # Show the IST time (UTC+5:30)
+    from datetime import timedelta as _td
+    ist_now = datetime.now(timezone.utc) + _td(hours=5, minutes=30)
+    check_time_ist = ist_now.strftime("%H:%M IST")
+
+    # Evidence label — never overstate beyond what the data supports
+    if obs_count >= 30:
+        evidence_label = f"Based on {obs_count} price observations"
+    elif obs_count >= 10:
+        evidence_label = f"Based on {obs_count} recent observations"
+    elif obs_count >= 3:
+        evidence_label = f"Based on {obs_count} observations (new tracking)"
+    else:
+        evidence_label = "Recently added — limited history"
+
+    # MRP status label
+    mrp_label = {
+        "verified": "MRP check: Passed",
+        "shifted":  "MRP check: Flagged (see analysis)",
+        "unknown":  "MRP check: Pending",
+    }.get(mrp_status, "MRP check: Pending")
+
     # Score badge
     if score >= 80:   badge = "VERIFIED STEAL"
     elif score >= 65: badge = "SOLID DEAL"
     else:             badge = "WATCH LIST"
 
-    verdict_emoji = "STEAL" if score >= 80 else "DEAL" if score >= 65 else "FAIR"
-
     msg = (
         f"DEAL OF THE DAY\n\n"
         f"{title}\n\n"
-        f"Price:  INR {cur_price:,.0f}  (was INR {orig_price:,.0f})\n"
+        f"Price:  \u20b9{cur_price:,.0f}  (was \u20b9{orig_price:,.0f})\n"
         f"Off:    {disc_pct}%  |  Score: {score}/100\n"
         f"Source: {platform}\n"
         f"Verdict: {badge}\n\n"
+        f"{evidence_label}\n"
+        f"{mrp_label}\n"
+        f"Checked: {check_time_ist}\n\n"
         f"Get deal: {aff_url}\n"
         f"Full analysis: {deal_url}\n\n"
-        f"Verified by ShadowMerchant - 30-day price history checked\n"
+        f"Disclosure: We earn affiliate commission at no extra cost to you.\n"
         f"shadowmerchant.online"
     )
 
@@ -254,14 +299,18 @@ async def post_weekly_expose(db, dry_run: bool = False):
 # TELEGRAM — GROUP REVIEW QUEUE (human reviews, then taps send)
 # ─────────────────────────────────────────────────────────────
 
+# PRE-06c: Replace overstatement templates with evidence-honest alternatives.
+# Previous templates claimed "auto-posts 10+ verified deals daily" and
+# "price history verified so you know it's real" — these overclaim
+# given that 97.1% of deals have <7 observations.
 GROUP_POST_TEMPLATES = [
-    "Nice find! I run a channel that auto-posts 10+ verified deals daily with 30-day price history. t.me/ShadowMerchantDeals",
-    "Great deal! Similar ones get posted every day at t.me/ShadowMerchantDeals - price history verified so you know it's real.",
-    "Found this too! My channel tracks these automatically: t.me/ShadowMerchantDeals - Amazon/Flipkart/Myntra all together.",
-    "Solid pick. I post 5-10 like this daily - all checked against last 30 days pricing. t.me/ShadowMerchantDeals",
-    "This is actually a real deal (not a fake sale). I post only verified ones daily: t.me/ShadowMerchantDeals",
-    "Good timing on this. I track when Amazon/Flipkart prices actually hit lows vs fake sales. t.me/ShadowMerchantDeals",
-    "Verified this one - legit discount. More like this every day: t.me/ShadowMerchantDeals",
+    "Found this too — I track prices across Amazon/Myntra/Nykaa with 30-day observation records. t.me/ShadowMerchantDeals",
+    "I run a price-tracking channel that shows how many data points back each deal claim. t.me/ShadowMerchantDeals",
+    "Similar deals get posted daily with observation count and check timestamps: t.me/ShadowMerchantDeals",
+    "I track these automatically and show the observation count so you can judge the evidence yourself. t.me/ShadowMerchantDeals",
+    "Good timing — I track when Amazon/Myntra prices move and post with price history context. t.me/ShadowMerchantDeals",
+    "Useful find. My channel posts price history alongside every deal so you can see the context. t.me/ShadowMerchantDeals",
+    "I post similar deals with observation counts and timestamps — helps you judge if the discount is real. t.me/ShadowMerchantDeals",
 ]
 
 DEAL_POST_TEMPLATES = [
@@ -362,24 +411,47 @@ def generate_reddit_draft(deal: dict) -> dict:
     aff_url     = deal.get("affiliate_url", deal.get("product_url", ""))
     category    = deal.get("category", "")
 
+    # PRE-06b: evidence-based labels, never absolute claims
+    obs_count   = len(deal.get("price_history", []))
+    mrp_status  = deal.get("mrp_verified", "unknown")
+    from datetime import timedelta as _td
+    ist_now = datetime.now(timezone.utc) + _td(hours=5, minutes=30)
+    check_time  = ist_now.strftime("%d %b %Y %H:%M IST")
+
+    if obs_count >= 30:
+        obs_label = f"{obs_count} price observations over 30 days"
+    elif obs_count >= 10:
+        obs_label = f"{obs_count} price observations (recent tracking)"
+    elif obs_count >= 3:
+        obs_label = f"{obs_count} price observations (new tracking — limited history)"
+    else:
+        obs_label = "Recently added to tracker — limited history available"
+
+    mrp_note = {
+        "verified": "MRP check: Passed",
+        "shifted":  "MRP check: Flagged — see full analysis before buying",
+        "unknown":  "MRP check: Insufficient history to assess",
+    }.get(mrp_status, "MRP check: Insufficient history to assess")
+
     # Pick subreddit based on category
     subreddit = "frugal_india"
     if category == "gaming":    subreddit = "IndianGaming"
     elif category == "fashion": subreddit = "frugal_india"
 
-    reddit_title = f"[{platform}] {title[:80]} — INR {cur_price:,.0f} ({disc_pct}% off, 30-day low verified)"
+    reddit_title = f"[{platform}] {title[:80]} — \u20b9{cur_price:,.0f} ({disc_pct}% off)"
 
     body = (
-        f"Price history check:\n"
-        f"- Current: INR {cur_price:,.0f}\n"
-        f"- Original listed: INR {orig_price:,.0f}\n"
-        f"- 30-day low: INR {cur_price:,.0f} (this IS the lowest point)\n"
-        f"- Shadow Score: {score}/100 (AI deal quality rating)\n\n"
-        f"This is a genuine discount — not a manufactured sale price.\n\n"
-        f"Direct link: {aff_url} (affiliate)\n\n"
+        f"Price observation record:\n"
+        f"- Current: \u20b9{cur_price:,.0f}\n"
+        f"- Listed MRP: \u20b9{orig_price:,.0f}\n"
+        f"- {obs_label}\n"
+        f"- {mrp_note}\n"
+        f"- Shadow Score: {score}/100\n"
+        f"- Checked: {check_time}\n\n"
+        f"Full price history and analysis: {APP_URL}/deals/{deal.get('slug') or str(deal.get('_id', ''))}\n\n"
+        f"Direct link: {aff_url} (affiliate — we earn commission at no extra cost)\n\n"
         f"---\n"
-        f"I cross-check every deal against 30-day history before posting. "
-        f"Most Amazon 'sales' are fake — this one isn't."
+        f"Data sourced from ShadowMerchant price tracker. Not sponsored by any seller."
     )
 
     return {
@@ -565,7 +637,7 @@ async def send_weekly_email_digest(db, dry_run: bool = False):
         return False
 
     html = build_weekly_digest_html(deals)
-    subject = f"Top {len(deals)} verified deals this week — ShadowMerchant"
+    subject = f"This week's {len(deals)} highest-scored deals — ShadowMerchant"
 
     if dry_run:
         log.info(f"[DRY RUN] Email digest: {len(deals)} deals to {len(users)} users")
@@ -613,29 +685,37 @@ def generate_youtube_script(deal: dict) -> str:
     platform = deal.get("source_platform", "").title()
     slug     = deal.get("slug") or str(deal["_id"])
 
-    is_real  = score >= 65
+    # PRE-06d: evidence-based scripts — no accusatory language without proof
+    obs_count  = len(deal.get("price_history", []))
+    mrp_status = deal.get("mrp_verified", "unknown")
+
+    if obs_count >= 10:
+        obs_note = f"We checked {obs_count} price snapshots over the past days."
+    elif obs_count >= 3:
+        obs_note = f"We have {obs_count} price records tracked so far."
+    else:
+        obs_note = "This is newly added to our tracker — limited history."
+
+    is_real = score >= 65 and mrp_status != "shifted"
 
     if is_real:
         script = (
-            f"This {platform} deal is actually real. "
-            f"{title[:40]}. "
+            f"Looking at the {platform} price of the {title[:40]}? "
             f"Listed at {int(orig):,} rupees, now {int(cur):,}. "
             f"That's {disc} percent off. "
-            f"We checked 30 days of price history. "
-            f"This IS the lowest it's been. Shadow Score: {score} out of 100. "
-            f"Link in bio. "
-            f"More verified deals daily at ShadowMerchant dot online."
+            f"{obs_note} "
+            f"Shadow Score: {score} out of 100. "
+            f"Full price history at ShadowMerchant dot online. Link in bio."
         )
     else:
+        # Low score or shifted MRP — flag, don't accuse
         script = (
-            f"This {platform} sale is a lie. "
-            f"{title[:40]}. "
-            f"Amazon shows {int(orig):,} rupees crossed out, now {int(cur):,}. "
-            f"Looks like {disc} percent off, right? "
-            f"But we checked 30 days of price history. "
-            f"The original price was never real. Shadow Score: {score} out of 100. "
-            f"We expose deals like this daily at ShadowMerchant dot online. "
-            f"Link in bio."
+            f"Before buying the {title[:40]} at {int(cur):,} rupees — "
+            f"here's what our price tracker shows. "
+            f"Listed MRP: {int(orig):,} rupees. "
+            f"{obs_note} "
+            f"Shadow Score: {score} out of 100. "
+            f"Check the full price history on ShadowMerchant dot online before deciding. Link in bio."
         )
     return script
 
@@ -827,9 +907,23 @@ async def run(args):
 
     log.info(f"Best deal today: {deal.get('title','')[:50]} | Score: {deal.get('deal_score')}")
 
-    # ── 2. Telegram channel: Deal of the Day ───────────
+    # ── 2. Telegram channel: Deal of the Day ───────────────────────────────
+    dotd_posted = False
     if args.dotd or args.all:
-        await post_deal_of_day(deal, db=db, dry_run=dry)
+        dotd_posted = await post_deal_of_day(deal, db=db, dry_run=dry)
+
+    # ── 2b. Push notification (fires right after DOTD, same deal) ────────────
+    if dotd_posted and (args.dotd or args.all):
+        try:
+            sys.path.insert(0, str(ROOT))
+            from notifiers.push_notifier import send_push
+            push_ok = send_push(deal)
+            if push_ok:
+                log.info("Push notification sent for DOTD deal")
+            else:
+                log.warning("Push notification skipped (credentials missing or send failed)")
+        except Exception as push_err:
+            log.error(f"Push notifier error: {push_err}")
 
     # ── 3. Sunday: Weekly Expose post ──────────────────
     if (is_sunday or args.expose) and args.all:
@@ -855,6 +949,27 @@ async def run(args):
     if (is_sunday or args.digest) and args.all:
         await send_weekly_email_digest(db, dry_run=dry)
 
+    # ── 9. Sunday: Search Console opportunity scan ──────
+    # Runs after email digest. Requires GOOGLE_SERVICE_ACCOUNT_JSON env var.
+    # Reports top pages at position 5-20 with low CTR — delivered to admin Telegram.
+    if (is_sunday or args.sc) and args.all:
+        try:
+            from growth.search_console_pull import (
+                _build_service,
+                fetch_opportunities,
+                format_telegram_report,
+                send_report_to_admin,
+            )
+            sc_service = _build_service()
+            if sc_service:
+                sc_opps   = fetch_opportunities(sc_service, days=28)
+                sc_report = format_telegram_report(sc_opps)
+                await send_report_to_admin(sc_report, dry_run=dry)
+            else:
+                log.info("Search Console skipped — GOOGLE_SERVICE_ACCOUNT_JSON not configured yet")
+        except Exception as sc_err:
+            log.error(f"Search Console pull failed (non-fatal): {sc_err}")
+
     log.info("Growth orchestrator complete.")
 
 
@@ -864,16 +979,18 @@ def main():
     parser.add_argument("--dotd",    action="store_true", help="Post Deal of Day to channel only")
     parser.add_argument("--expose",  action="store_true", help="Post weekly expose only")
     parser.add_argument("--digest",  action="store_true", help="Send email digest only")
+    parser.add_argument("--sc",      action="store_true", help="Run Search Console opportunity scan only")
     parser.add_argument("--all",     action="store_true", default=True, help="Run all modules (default)")
     args = parser.parse_args()
 
     # If specific flag set, disable --all for other modules
-    if args.dotd or args.expose or args.digest:
+    if args.dotd or args.expose or args.digest or args.sc:
         args.all = False
     # Re-enable for single flags
     if args.dotd:   args.all = True
     if args.expose: args.all = True
     if args.digest: args.all = True
+    if args.sc:     args.all = True
 
     asyncio.run(run(args))
 

@@ -80,8 +80,8 @@ export function PriceHistoryChart({ data, platformColor = '#C9A84C', isUserPro =
           <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--gold-dim)' }}>
             <Sparkles className="w-6 h-6" style={{ color: 'var(--gold)' }} />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-display)' }}>Pro Feature</h3>
-          <p className="text-sm text-gray-400 mb-6">See exactly when this product hit its lowest price. Pro members get full 30-day pricing intel on every deal.</p>
+          <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-display)' }}>Price History Chart</h3>
+          <p className="text-sm text-gray-400 mb-6">Pro members can see the full observed price trend for this product — so you know if today's price is actually good.</p>
           <Link href="/pro" className="px-8 py-3 rounded-xl font-bold w-full text-center hover:scale-105 active:scale-95 transition-all" style={{ background: 'var(--gold)', color: '#0A0A0A' }}>
             Unlock Price History →
           </Link>

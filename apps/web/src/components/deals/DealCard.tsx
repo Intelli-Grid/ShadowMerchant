@@ -11,7 +11,7 @@ import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { getPlatform } from '@/lib/platforms';
 import { useWishlist } from '@/context/WishlistContext';
 import { formatDistanceToNow } from 'date-fns';
-import { ShadowScoreGauge } from '@/components/ui/ShadowScoreGauge';
+
 
 interface DealCardProps {
   deal: Deal;
@@ -255,47 +255,10 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
         </button>
       </div>
 
-      {/* ── CONTENT SECTION ── */}
+      {/* ── CONTENT SECTION ── Hierarchy: Title → Price → Score → Evidence → CTA */}
       <div className={cn('flex flex-col flex-1 p-3 sm:p-3.5 min-w-0', sizeClasses[size])}>
 
-        {/* Score — Semi-circle gauge with mobile tap explainer (UPGRADE-E+K) */}
-        <div className="mb-2.5" ref={scoreBarRef}>
-          <div className="flex items-center gap-3">
-            <ShadowScoreGauge score={score} size={72} strokeWidth={7} showLabel={false} aria-label={`Shadow Score: ${score} out of 100`} />
-            <div className="flex flex-col min-w-0">
-              <div className="flex items-center gap-1">
-                <span className="text-[10px] font-bold" style={{ color: scoreColor }}>
-                  {scoreLabel}
-                </span>
-                <button
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setScoreExpanded(v => !v); }}
-                  className="text-[9px] font-bold px-1 rounded leading-none"
-                  style={{ color: 'var(--text-muted)', background: 'var(--bg-raised)' }}
-                  aria-label="What is the Shadow Score?"
-                >
-                  ?
-                </button>
-              </div>
-              <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>
-                Score {score}/100
-              </span>
-            </div>
-          </div>
-          {scoreExpanded && (
-            <div className="mt-2 p-2.5 rounded-lg text-[10px] leading-snug"
-              style={{ background: 'var(--bg-raised)', border: '1px solid var(--sm-border)', color: 'var(--text-secondary)' }}>
-              <p className="font-bold text-white mb-1">What is the Shadow Score?</p>
-              <p>A 0–100 score: absolute ₹ saving (30%), discount % (20%), price tier (20%), 30-day history (20%), reviews (5%), freshness (5%).</p>
-              <p className="mt-1">It is <strong className="text-white">not</strong> influenced by affiliate commission rates.</p>
-              <a href="/how-scoring-works" onClick={(e) => e.stopPropagation()}
-                className="underline underline-offset-2 block mt-1" style={{ color: 'var(--gold)' }}>
-                Full methodology →
-              </a>
-            </div>
-          )}
-        </div>
-
-        {/* UPGRADE-F: Value-tier label — only shown for Meesho (tier: 'value') */}
+        {/* Value-tier label — only shown for value-tier platforms */}
         {platform.tier === 'value' && platform.trustLabel && (
           <span className="text-[8px] font-semibold px-1.5 py-0.5 rounded mb-1 inline-block"
             style={{ background: 'rgba(148,163,184,0.1)', color: 'var(--text-muted)', border: '1px solid rgba(148,163,184,0.15)' }}>
@@ -303,7 +266,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           </span>
         )}
 
-        {/* Title — clicking navigates to deal detail page */}
+        {/* 1. TITLE — clicking navigates to deal detail page */}
         <Link
           href={`/deals/${deal._id}`}
           className="line-clamp-2 font-bold leading-tight mb-2 hover:text-[var(--gold)] transition-colors"
@@ -313,21 +276,8 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           {deal.title}
         </Link>
 
-        {/* Rating */}
-        {(deal.rating || deal.rating_count) ? (
-          <div className="flex items-center gap-1 mb-2" style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>
-            <span style={{ color: '#F59E0B' }}>★</span>
-            <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
-              {deal.rating?.toFixed(1) ?? 'N/A'}
-            </span>
-            <span>({deal.rating_count?.toLocaleString('en-IN') ?? 0})</span>
-          </div>
-        ) : (
-          <div className="mb-2" style={{ height: '16px' }} />
-        )}
-
-        {/* Pricing */}
-        <div className="flex flex-col mt-auto mb-3 gap-0.5">
+        {/* 2. PRICING — primary, dominant */}
+        <div className="flex flex-col mb-2.5 gap-0.5">
           <div className="flex items-center gap-2">
             <span
               className="font-extrabold price-display tracking-tighter"
@@ -353,41 +303,97 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
               M.R.P: <span className="line-through">{formatPrice(deal.original_price)}</span>
             </span>
           )}
-          {/* UPGRADE-G: MRP clarity badges */}
+        </div>
+
+        {/* 3. SCORE — compact inline below price (supporting context, not dominant) */}
+        <div className="mb-2" ref={scoreBarRef}>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold" style={{ color: scoreColor }}>
+              {scoreLabel}
+            </span>
+            <span className="text-[9px]" style={{ color: 'var(--text-muted)' }}>
+              {score}/100
+            </span>
+            {/* Accessible tooltip button — min 44×44px interaction area */}
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setScoreExpanded(v => !v); }}
+              className="flex items-center justify-center rounded-full text-[9px] font-bold"
+              style={{
+                minWidth: '44px', minHeight: '44px',
+                color: 'var(--text-muted)',
+                background: 'transparent',
+                marginLeft: '-8px',
+                padding: '0 12px',
+              }}
+              aria-label="What is the Shadow Score?"
+              aria-expanded={scoreExpanded}
+            >
+              <span className="px-1 rounded" style={{ background: 'var(--bg-raised)' }}>?</span>
+            </button>
+          </div>
+          {scoreExpanded && (
+            <div className="mt-1 p-2.5 rounded-lg text-[10px] leading-snug"
+              style={{ background: 'var(--bg-raised)', border: '1px solid var(--sm-border)', color: 'var(--text-secondary)' }}>
+              <p className="font-bold text-white mb-1">What is the Shadow Score?</p>
+              <p>A 0–100 score: discount % (35%), absolute ₹ saving (20%), popularity/review count (20%), star rating (15%), freshness (10%).</p>
+              <p className="mt-1">It is <strong className="text-white">not</strong> influenced by affiliate commission rates.</p>
+              <a href="/how-scoring-works" onClick={(e) => e.stopPropagation()}
+                className="underline underline-offset-2 block mt-1" style={{ color: 'var(--gold)' }}>
+                Full methodology →
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* 4. EVIDENCE — MRP clarity and observation tracking */}
+        <div className="flex flex-col mb-2 gap-0.5">
+          {/* MRP clarity badges */}
           {(deal as any).mrp_verified === 'verified' && (
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit mt-0.5"
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit"
               style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}>
               ✓ Price Consistent
             </span>
           )}
           {(deal as any).mrp_verified === 'shifted' && (
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit mt-0.5"
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit"
               title={(deal as any).mrp_note}
               style={{ background: 'rgba(245,158,11,0.1)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.2)' }}>
               ℹ️ MRP shifted recently
             </span>
           )}
-
-          {/* REBUILT PLAN: Auditable evidence tracking badge */}
+          {/* Observation evidence badge */}
           {(deal as any).observation_count && (deal as any).observation_count >= 30 ? (
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit mt-0.5"
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit"
               style={{ background: 'rgba(59,130,246,0.1)', color: '#60a5fa', border: '1px solid rgba(59,130,246,0.2)' }}>
               📊 30-Day Range: {formatPrice((deal as any).observed_min_price || deal.discounted_price)}–{formatPrice((deal as any).observed_max_price || deal.original_price)}
             </span>
           ) : (deal as any).observation_count && (deal as any).observation_count >= 7 ? (
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit mt-0.5"
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit"
               style={{ background: 'rgba(147,51,234,0.1)', color: '#c084fc', border: '1px solid rgba(147,51,234,0.2)' }}>
-              📊 Tracked Record ({(deal as any).valid_days_count || (deal as any).observation_count} days)
+              📊 Tracked ({(deal as any).valid_days_count || (deal as any).observation_count} days)
             </span>
           ) : (
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit mt-0.5"
+            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded flex items-center gap-0.5 w-fit"
               style={{ background: 'rgba(100,116,139,0.1)', color: '#94a3b8', border: '1px solid rgba(100,116,139,0.2)' }}>
-              🆕 New Tracking ({(deal as any).observation_count || 1} obs)
+              🆕 New ({(deal as any).observation_count || 1} obs)
             </span>
           )}
         </div>
 
-        {/* UPGRADE-J: Unavailability notice — shown when is_available is false */}
+        {/* Rating */}
+        {(deal.rating || deal.rating_count) ? (
+          <div className="flex items-center gap-1 mb-2" style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>
+            <span style={{ color: '#F59E0B' }}>★</span>
+            <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
+              {deal.rating?.toFixed(1) ?? 'N/A'}
+            </span>
+            <span>({deal.rating_count?.toLocaleString('en-IN') ?? 0})</span>
+          </div>
+        ) : (
+          <div className="mb-2" style={{ height: '16px' }} />
+        )}
+
+        {/* Unavailability notice */}
         {(deal as any).is_available === false && (
           <div className="rounded-lg px-3 py-2 text-center text-xs font-bold mb-2"
             style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)' }}>
@@ -395,7 +401,7 @@ export function DealCard({ deal, size = 'md', className }: DealCardProps) {
           </div>
         )}
 
-        {/* UPGRADE-B: Color-coded freshness badge above CTA */}
+        {/* Freshness badge */}
         {(() => {
           const sig = getFreshnessSignal(deal.scraped_at, (deal as any).deal_type);
           if (!sig) return null;

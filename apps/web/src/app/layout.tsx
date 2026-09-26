@@ -32,14 +32,14 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online'),
   title: 'ShadowMerchant | India\'s Best Deal Discovery Platform',
-  description: 'Our team hunts and verifies the best deals from Amazon, Flipkart, Myntra & more — scored, ranked and updated constantly. Save big, shop smart.',
+  description: 'Track prices, price history and deal scores from Amazon, Myntra & Nykaa — algorithmically scored, ranked and updated. Save big, shop smart.',
   icons: {
     icon: '/favicon.png',
     apple: '/logo.png',
   },
   openGraph: {
     title: 'ShadowMerchant — Best Deals Curated for India',
-    description: 'Discover top-scored deals from Amazon, Flipkart, Myntra & more — verified and updated by the ShadowMerchant team.',
+    description: 'Discover top-scored deals from Amazon, Myntra & Nykaa — algorithmically scored and updated twice daily.',
     images: [{ url: '/og-default.png', width: 1200, height: 630, alt: 'ShadowMerchant — Best Deals in India' }],
     type: 'website',
     locale: 'en_IN',

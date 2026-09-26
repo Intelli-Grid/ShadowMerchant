@@ -94,24 +94,40 @@ function SearchPageInner() {
       {!loading && query.length >= 2 && results.length === 0 && (
         <div className="py-20 text-center">
           <span className="text-5xl mb-4 block">🔍</span>
-          <h2 className="text-xl font-bold text-white mb-2">No results found</h2>
-          <p className="text-gray-500">Try a different search term or browse all deals.</p>
+          <h2 className="text-xl font-bold text-white mb-2">No results found for &ldquo;{query}&rdquo;</h2>
+          <p className="text-gray-500 mb-4">Try a brand, category, or product name — or browse all deals.</p>
+          <div className="flex items-center justify-center gap-2 flex-wrap text-xs" style={{ color: 'var(--text-muted)' }}>
+            <span>Covers:</span>
+            <span className="px-2 py-0.5 rounded" style={{ background: 'var(--bg-raised)' }}>Amazon</span>
+            <span className="px-2 py-0.5 rounded" style={{ background: 'var(--bg-raised)' }}>Myntra</span>
+            <span className="px-2 py-0.5 rounded" style={{ background: 'var(--bg-raised)' }}>Nykaa</span>
+          </div>
         </div>
       )}
 
       {query.length < 2 && (() => {
-        const TRENDING_SEARCHES = [
+        const POPULAR_SEARCHES = [
           'boAt earphones', 'iPhone 15', 'Nike shoes', 'saree',
           'OnePlus', 'Lakme lipstick', 'gaming chair', 'mixer grinder'
         ];
         return (
-          <div className="py-10">
-            <p className="text-sm font-semibold mb-4 text-center"
-              style={{ color: 'var(--text-muted)' }}>
-              🔥 Trending Searches
+          <div className="py-10 max-w-2xl mx-auto">
+            {/* Scope context */}
+            <div className="flex items-center justify-center gap-2 flex-wrap mb-5 text-xs" style={{ color: 'var(--text-muted)' }}>
+              <span>Searching deals from:</span>
+              {['Amazon', 'Myntra', 'Nykaa'].map(s => (
+                <span key={s} className="px-2.5 py-1 rounded-full font-semibold"
+                  style={{ background: 'var(--bg-raised)', border: '1px solid var(--sm-border)', color: 'var(--text-secondary)' }}>
+                  {s}
+                </span>
+              ))}
+            </div>
+            <p className="text-sm font-semibold mb-3 text-center" style={{ color: 'var(--text-muted)' }}>
+              Popular Searches
+              <span className="ml-2 text-[10px] font-normal opacity-60">(curated suggestions)</span>
             </p>
             <div className="flex flex-wrap gap-2 justify-center">
-              {TRENDING_SEARCHES.map(term => (
+              {POPULAR_SEARCHES.map(term => (
                 <button key={term}
                   onClick={() => setQuery(term)}
                   className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors cursor-pointer"

@@ -13,6 +13,11 @@ import { Deal } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
 import { sanitizeHtml } from '@/lib/sanitize';
 
+// force-dynamic: auth() reads headers at request-time.
+// Without this, Next.js may attempt static pre-rendering which has no
+// request context, causing a 500 on Vercel (confirmed production issue).
+export const dynamic = 'force-dynamic';
+
 /**
  * Resolves a deal by slug (SEO URL) or ObjectId (legacy URL).
  * Tries slug first; falls back to findById for existing URLs.
@@ -75,17 +80,17 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   
   return {
     title: `${pct}% OFF: ${deal.title.slice(0, 60)} | ShadowMerchant`,
-    description: `Our team found ${deal.title} for just ₹${deal.discounted_price.toLocaleString('en-IN')} (was ₹${deal.original_price.toLocaleString('en-IN')}). ${pct}% off — verified deal on ${platform}.`,
+    description: `${deal.title} — ₹${deal.discounted_price.toLocaleString('en-IN')} (was ₹${deal.original_price.toLocaleString('en-IN')}). ${pct}% off on ${platform}. Price history, Shadow Score & buy/wait verdict on ShadowMerchant.`,
     openGraph: {
       title: `${pct}% OFF — ${deal.title.slice(0, 60)}`,
-      description: `Get it for ₹${deal.discounted_price.toLocaleString('en-IN')} on ${platform}. Curated by ShadowMerchant.`,
+      description: `₹${deal.discounted_price.toLocaleString('en-IN')} on ${platform}. Price tracked by ShadowMerchant.`,
       images: [{ url: ogImageUrl, width: 1200, height: 630, alt: deal.title }],
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
       title: `${pct}% OFF — ${deal.title.slice(0, 60)}`,
-      description: `₹${deal.discounted_price.toLocaleString('en-IN')} on ${platform}. Verified by ShadowMerchant.`,
+      description: `₹${deal.discounted_price.toLocaleString('en-IN')} on ${platform}. Price tracked & scored by ShadowMerchant.`,
       images: [ogImageUrl],
     },
     alternates: {
@@ -297,7 +302,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
               </div>
               <div className="h-4 w-px bg-gray-800"></div>
               <div className="flex items-center gap-1.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
-                <ShieldCheck className="w-4 h-4 text-blue-400" /> Inspected by ShadowMerchant
+                <ShieldCheck className="w-4 h-4 text-blue-400" /> Tracked & scored algorithmically
               </div>
             </div>
 
@@ -386,11 +391,13 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
 
                 className="w-full mt-4 md:w-auto lg:w-80 md:mt-2 flex items-center justify-center gap-2 h-14 md:h-14 rounded-full font-bold text-base md:text-lg transition-transform hover:opacity-90 active:scale-95 shadow-lg md:shadow-none"
 
-                style={{ background: '#FFD814', color: '#0F1111', border: '1px solid #FCD200' }}
+                style={{ background: 'var(--gold)', color: '#0A0A0A' }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 24px rgba(201,168,76,0.4)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
 
               >
 
-                Buy on {platform.name} <ExternalLink className="w-4 h-4" />
+                Get Deal on {platform.name} <ExternalLink className="w-4 h-4" />
 
               </a>
 
@@ -419,7 +426,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
             <div className="flex items-center gap-4 mb-8">
               <a 
                 href={`https://wa.me/?text=${encodeURIComponent(
-                  `🔥 Our team curated this deal for you!\n\n${deal.title}\n` +
+                  `🔥 ${Math.round(deal.discount_percent ?? 0)}% OFF — ${deal.title}\n` +
                   `₹${deal.discounted_price.toLocaleString('en-IN')} (${Math.round(deal.discount_percent ?? 0)}% OFF)\n\n` +
                   // BUG-03: Use SEO slug URL so viral shares spread indexable links, not ObjectIds
                   `👉 Grab it here: ${process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online'}/deals/${(deal as any).slug || deal._id}\n`
@@ -550,7 +557,14 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
           {/* Left Side: Graph */}
           <div className="lg:col-span-8 w-full flex flex-col gap-10">
             <div>
-              <h2 className="text-2xl font-black mb-6" style={{ fontFamily: 'var(--font-display)', color: 'white' }}>Pricing Intel</h2>
+              <h2 className="text-2xl font-black mb-6" style={{ fontFamily: 'var(--font-display)', color: 'white' }}>
+                Price History
+                {price_history && price_history.length > 0 && (
+                  <span className="ml-3 text-sm font-normal" style={{ color: 'var(--text-muted)' }}>
+                    — {price_history.length} observation{price_history.length !== 1 ? 's' : ''}
+                  </span>
+                )}
+              </h2>
               <PriceHistoryChart data={price_history || []} platformColor={platform.bg} isUserPro={isUserPro} />
             </div>
             
@@ -600,10 +614,10 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
             <Crown className="w-5 h-5 shrink-0" style={{ color: 'var(--sm-accent)' }} />
             <div className="min-w-0">
               <p className="text-sm font-bold text-white leading-tight truncate">
-                Unlock AI Verdict, Price History &amp; Flash Alerts
+                Unlock Price History, Target Alerts &amp; Flash Notifications
               </p>
               <p className="text-xs leading-tight hidden sm:block" style={{ color: 'var(--text-muted)' }}>
-                ShadowMerchant Pro — know exactly when to buy
+                ShadowMerchant Pro — buy at the right price, at the right time
               </p>
             </div>
           </div>

@@ -8,48 +8,45 @@ export const metadata: Metadata = {
   alternates: { canonical: '/how-scoring-works' },
 };
 
+/**
+ * These weights are derived directly from deal_scorer.py v2.1 (scripts/processors/deal_scorer.py).
+ * Do not edit the descriptions here without also verifying against the Python scorer source.
+ */
 const SCORE_COMPONENTS = [
   {
-    weight: '30%',
-    label: 'Absolute Savings (₹)',
-    icon: '💰',
-    description:
-      'The raw rupee amount you save. A ₹3,000 saving on a ₹5,000 phone matters more than the same percentage off a ₹100 item. Capped at ₹10,000 to prevent outliers from dominating.',
-  },
-  {
-    weight: '20%',
+    weight: '35%',
     label: 'Discount Percentage',
     icon: '📉',
     description:
-      'The percentage off the original MRP. Weighted alongside absolute savings so both cheap-but-deep-discounted items and expensive-with-moderate-discount items can rank well.',
+      'The percentage off the listed MRP, normalized against a 70% ceiling. A 70%+ discount scores the maximum on this component. This is the single largest factor — deep discounts are rewarded most.',
   },
   {
     weight: '20%',
-    label: 'Price Tier',
-    icon: '🏷️',
+    label: 'Absolute Price Drop (₹)',
+    icon: '💰',
     description:
-      'Higher-ticket items (₹15,000+) receive a higher tier score because the absolute financial decision is more significant. A 20% off ₹20,000 laptop deserves more visibility than 20% off a ₹300 accessory.',
+      'The raw rupee amount you save, normalized against ₹3,000. A deal saving ₹3,000 or more scores the maximum on this component. This rewards large-ticket deals where the absolute saving matters, even when the percentage is moderate.',
   },
   {
     weight: '20%',
-    label: 'AI Deal Score',
-    icon: '🤖',
-    description:
-      '30-day price history analysis. We track the actual selling price of each product over the past month. If today\'s price is genuinely below the 30-day average, this component scores high. If the platform inflated the MRP before discounting, this score stays low.',
-  },
-  {
-    weight: '5%',
-    label: 'Social Proof',
+    label: 'Popularity (Review Count)',
     icon: '⭐',
     description:
-      'Product rating × log of review count. A 4.5-star product with 10,000 reviews scores higher than a 4.8-star product with 12 reviews. We trust volume alongside quality.',
+      'The number of customer reviews, normalized against 10,000. A product with 10,000+ reviews scores the maximum. Products with no review count available (common on Myntra, Nykaa, Meesho which do not expose this data) receive a neutral 0.3 score rather than being unfairly penalised.',
   },
   {
-    weight: '5%',
+    weight: '15%',
+    label: 'Product Rating',
+    icon: '🏅',
+    description:
+      'The star rating out of 5.0. A perfect 5-star product scores the maximum. Products with no rating data available receive a neutral 0.3 score rather than being penalised for missing platform data.',
+  },
+  {
+    weight: '10%',
     label: 'Freshness',
     icon: '⏱️',
     description:
-      'Deals decay over 36 hours. A deal scraped 1 hour ago scores higher than the same deal scraped 30 hours ago, all else being equal. This prevents stale inventory from cluttering the top.',
+      'Deals decay linearly over 7 days (168 hours). A deal scraped right now scores 1.0 on this component; a 7-day-old deal scores 0. This prevents stale inventory from dominating the feed.',
   },
 ];
 
@@ -158,7 +155,29 @@ export default function HowScoringWorksPage() {
           ))}
         </div>
 
-        {/* Platform fairness note */}
+        {/* Normalization and penalties note */}
+        <div
+          className="rounded-2xl p-5 border mb-6"
+          style={{ background: 'rgba(99,102,241,0.07)', borderColor: 'rgba(99,102,241,0.2)' }}
+        >
+          <p className="text-sm font-bold text-indigo-400 mb-1.5">
+            📊 Scoring Adjustments
+          </p>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+            The five components are combined in a weighted sum, then passed through a sigmoid
+            normalization. This means the displayed 0–100 score does not change linearly with
+            the underlying weighted sum — it becomes progressively harder to reach very high
+            scores, making 95+ rare even for strong deals.
+          </p>
+          <p className="text-sm leading-relaxed mt-2" style={{ color: 'var(--text-secondary)' }}>
+            Two additional penalties can reduce a score <strong className="text-white">before</strong> normalization:
+          </p>
+          <ul className="text-sm mt-2 space-y-1 list-disc list-inside" style={{ color: 'var(--text-secondary)' }}>
+            <li><strong className="text-white">Price above 7-day average:</strong> If the current price is higher than the 7-day observed average, up to −20 points is deducted proportionally.</li>
+            <li><strong className="text-white">Suspicious discount:</strong> Discounts ≥80% or prices below 1/5th of the original trigger a trust penalty (heavy deduction), because such extreme discounts are typically signs of inflated MRP.</li>
+          </ul>
+        </div>
+
         <div
           className="rounded-2xl p-5 border"
           style={{
@@ -167,10 +186,13 @@ export default function HowScoringWorksPage() {
           }}
         >
           <p className="text-sm font-bold mb-1.5" style={{ color: 'var(--gold)' }}>
-            🌐 Platform Fairness
+            🌐 Currently Active Platforms
           </p>
           <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-            Products from Amazon, Flipkart, Myntra, Meesho, and Nykaa are scored using the same formula. No platform receives preferential treatment. Platforms with historically inflated MRP (like Meesho) have a platform-aware MRP cap applied before scoring, so a 75% discount on a 2.5× inflated MRP is treated honestly.
+            Products from <strong className="text-white">Amazon, Myntra, and Nykaa</strong> are
+            scored using the same formula. No platform receives preferential treatment in scoring.
+            Platforms that do not expose review counts or ratings receive neutral scores on those
+            components rather than being penalised for missing data.
           </p>
         </div>
 
