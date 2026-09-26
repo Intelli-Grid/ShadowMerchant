@@ -180,13 +180,14 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: `You are the AI business analyst for ShadowMerchant, India's AI-powered deal aggregator.
+          content: `You are the business analyst AI for ShadowMerchant, an independent price-tracking platform for Indian online shopping.
 You have access to real-time platform data. Answer the founder's questions directly, specifically, and with actionable insight.
 
 Platform context:
-- ShadowMerchant aggregates deals from Amazon, Flipkart, Meesho, Myntra, Nykaa, Croma, TataCliq
+- ShadowMerchant tracks observed prices from Amazon India, Myntra & Nykaa (3 active scrapers as of Sep 2026)
+- Historical data from Flipkart, Meesho, Croma, TataCliq also exists in the DB but those scrapers are inactive
 - The Shadow Score (0–100) rates deal quality: 80+ = great, 60–79 = good, 40–59 = fair, <40 = low
-- Pro tier = ₹99/month — Pro users get price alerts + full price history
+- Pro tier = ₹199/month or ₹1,799/year — Pro users get price alerts + full price history
 - Scrapers run via GitHub Actions (Python pipeline)
 - Redis caches trending deals & categories
 

@@ -1,21 +1,21 @@
 export function HowItWorks() {
   const steps = [
     {
-      emoji: '🤖',
-      title: 'AI Monitors 8 Stores',
-      description: 'Our scrapers run 3× daily across Amazon, Flipkart, Myntra, Meesho, Nykaa, Croma, TataCliq & more — tracking hundreds of categories automatically.',
+      emoji: '📡',
+      title: 'Monitors 3 Active Stores',
+      description: 'Our scrapers run 3× daily across Amazon India, Myntra & Nykaa — tracking hundreds of product categories and capturing observed prices automatically.',
       color: '#818CF8',
     },
     {
       emoji: '📊',
       title: 'Every Deal is Scored',
-      description: 'Each deal is scored 0–100 using discount depth, brand reputation, customer ratings, and price history — not just the biggest sale sticker.',
+      description: 'Each deal is scored 0–100 using discount depth, customer ratings, price history, and observed price trends — not just the biggest sale sticker.',
       color: 'var(--gold)',
     },
     {
       emoji: '🎯',
-      title: 'You See Only the Best',
-      description: 'We surface the highest-scored deals, ranked by true value — so you never waste time scrolling through mediocre offers.',
+      title: 'You See the Evidence',
+      description: 'We surface the highest-scored deals, ranked by observed value — so you can compare today\'s price against actual price history instead of relying on retailer discount claims.',
       color: 'var(--score-high)',
     },
   ];
@@ -30,7 +30,7 @@ export function HowItWorks() {
           className="text-xs font-bold uppercase tracking-[0.15em] mb-3 block"
           style={{ color: 'var(--gold)' }}
         >
-          Powered by AI
+          How It Works
         </span>
         <h2
           className="text-2xl md:text-3xl font-black text-white"
@@ -39,7 +39,7 @@ export function HowItWorks() {
           How ShadowMerchant Works
         </h2>
         <p className="mt-3 text-sm max-w-lg mx-auto" style={{ color: 'var(--text-muted)' }}>
-          No human curation. No sponsored placements. Just AI finding you the best deals automatically.
+          Independent price tracking. Algorithmic scoring. No sponsored placements.
         </p>
       </div>
 

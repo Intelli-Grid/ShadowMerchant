@@ -6,11 +6,11 @@ import Image from 'next/image';
 import { RazorpayButton } from '@/components/pro/RazorpayButton';
 
 export const metadata: Metadata = {
-  title: 'ShadowMerchant Pro — Price Alerts, Observed Price History & Flash Sale Alerts',
-  description: 'Upgrade to ShadowMerchant Pro for ₹199/month. Get target price alerts, observed price history, flash sale notifications and wishlist tracking across Amazon, Flipkart, Myntra and more.',
+  title: 'ShadowMerchant Pro — Target Price Alerts & Price History',
+  description: 'Upgrade to ShadowMerchant Pro for ₹199/month. Get target price alerts, observed price history, and wishlist tracking across Amazon, Myntra & Nykaa.',
   openGraph: {
-    title: 'ShadowMerchant Pro | India\'s Smartest Deal Tracker',
-    description: 'Target price alerts + observed price history + flash sale alerts. Upgrade for ₹199/month and never overpay again.',
+    title: 'ShadowMerchant Pro — Price Alerts & History',
+    description: 'Set your price. We watch it. Get alerted the moment it drops — ₹199/month or ₹1,799/year.',
     url: 'https://www.shadowmerchant.online/pro',
     type: 'website',
   },
@@ -174,7 +174,7 @@ export default function ProPage() {
                 Annual Plan
               </p>
               <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                ₹799/year
+                ₹1,799/year
               </p>
             </div>
             <RazorpayButton plan="annual" className="!py-2 !px-5 text-sm" />
@@ -228,7 +228,7 @@ export default function ProPage() {
           {[
             { q: 'What is the difference between Free and Pro?', a: 'Free gives you full access to all deals, categories, and direct store links, plus up to 5 wishlist saves. Pro gives you the intelligence layer: 30-day pricing history charts, background price-drop alerts, and up to 200 wishlist saves so you can track an entire shopping list.' },
             { q: 'Are deals locked anymore?', a: "No! All deals, links, and content are now 100% free and open. Pro gives you the intelligence layer—pricing history, custom deal alerts, and drop notifications—so you know *when* to buy." },
-            { q: 'How does billing work?', a: 'We use Razorpay for secure Indian payments. You can pay via UPI, credit/debit card, or net banking. You\'re billed monthly or annually depending on your choice.' },
+            { q: 'How does billing work?', a: 'We use Razorpay for secure Indian payments. You can pay via UPI, credit/debit card, or net banking. Monthly plan is ₹199/month; Annual plan is ₹1,799/year (billed once). You can cancel your monthly plan anytime from your Dashboard.' },
             { q: 'Can I cancel anytime?', a: 'Yes, absolutely. You can cancel your subscription from your Dashboard at any time. Your Pro benefits remain active until the end of the current billing period.' },
             { q: 'Do deals expire?', a: "Yes! Flash and lightning deals are time-limited by the platforms themselves. We timestamp all deals when scraped, but we can't guarantee a price is still live when you click." },
           ].map(({ q, a }) => (

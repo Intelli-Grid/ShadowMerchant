@@ -45,7 +45,7 @@ export function HeroSearchBar() {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder="Search deals across Amazon, Flipkart & more..."
+          placeholder="Search deals across Amazon, Myntra & Nykaa..."
           className="flex-1 bg-transparent border-none focus:outline-none text-sm sm:text-base"
           style={{
             color: 'var(--text-primary)',

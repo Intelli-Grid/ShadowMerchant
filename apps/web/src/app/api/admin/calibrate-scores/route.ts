@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: 'system',
-          content: `You are the Shadow Score calibration engine for ShadowMerchant, India's AI-powered deal aggregator.
+          content: `You are the Shadow Score calibration engine for ShadowMerchant, an independent price-tracking platform for Indian online shopping.
 
 The Shadow Score (0–100) is calculated as:
 - Discount depth:              35% weight (discount_percent / 70, capped at 1.0)

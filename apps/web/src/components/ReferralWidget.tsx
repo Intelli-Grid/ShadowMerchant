@@ -31,7 +31,7 @@ export function ReferralWidget() {
 
   const shareViaWhatsApp = () => {
     if (!info) return;
-    const text = `🔥 I use ShadowMerchant to find the best deals from Amazon, Flipkart & more!\n\nSign up free using my link and start saving:\n${info.referral_link}`;
+    const text = `💰 I use ShadowMerchant to track prices and spot real deals across Amazon, Myntra & Nykaa!\n\nSign up free using my link:\n${info.referral_link}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 

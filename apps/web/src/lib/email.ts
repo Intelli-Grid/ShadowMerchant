@@ -90,9 +90,8 @@ export async function sendWelcomeEmail(email: string, firstName?: string): Promi
   const html = wrap(`
     <h2 style="color:#f1f5f9;font-size:22px;margin:0 0 8px;">Welcome, ${name}! </h2>
     <p style="color:#94a3b8;font-size:15px;line-height:1.6;margin:0 0 24px;">
-      You're on ShadowMerchant. We find the best deals on Amazon, Flipkart, Meesho, 
-      Myntra and Nykaa — scored by our algorithm so you never have to guess whether 
-      a discount is actually real.
+      You're on ShadowMerchant. We track observed prices from Amazon, Myntra & Nykaa —
+      scored algorithmically so you can tell whether today's discount is a real deal or an inflated MRP.
     </p>
     <div style="background:rgba(109,40,217,0.08);border:1px solid rgba(109,40,217,0.2);border-radius:12px;padding:20px;margin-bottom:24px;">
       <div style="font-size:14px;font-weight:600;color:#c4b5fd;margin-bottom:12px;">3 things to do right now:</div>

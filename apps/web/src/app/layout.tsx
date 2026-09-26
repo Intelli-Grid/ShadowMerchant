@@ -31,24 +31,24 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online'),
-  title: 'ShadowMerchant | India\'s Best Deal Discovery Platform',
-  description: 'Track prices, price history and deal scores from Amazon, Myntra & Nykaa — algorithmically scored, ranked and updated. Save big, shop smart.',
+  title: 'ShadowMerchant — Independent Price Tracking for Indian Online Shopping',
+  description: 'Track observed prices, price history and deal scores from Amazon, Myntra & Nykaa — algorithmically scored, ranked and updated. Check if today\'s sale price is actually a good deal.',
   icons: {
     icon: '/favicon.png',
     apple: '/logo.png',
   },
   openGraph: {
-    title: 'ShadowMerchant — Best Deals Curated for India',
-    description: 'Discover top-scored deals from Amazon, Myntra & Nykaa — algorithmically scored and updated twice daily.',
-    images: [{ url: '/og-default.png', width: 1200, height: 630, alt: 'ShadowMerchant — Best Deals in India' }],
+    title: 'ShadowMerchant — Price Tracking for Indian Shoppers',
+    description: 'Discover algorithmically scored deals from Amazon, Myntra & Nykaa — updated twice daily. Compare today\'s price against observed price history.',
+    images: [{ url: '/og-default.png', width: 1200, height: 630, alt: 'ShadowMerchant — Price Tracking for Indian Shoppers' }],
     type: 'website',
     locale: 'en_IN',
     siteName: 'ShadowMerchant',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ShadowMerchant — Best Deals Curated for India',
-    description: 'Discover top-scored deals from Amazon, Flipkart, Myntra & more — verified and updated by the ShadowMerchant team.',
+    title: 'ShadowMerchant — Price Tracking for Indian Shoppers',
+    description: 'Algorithmically scored deals from Amazon, Myntra & Nykaa — with observed price history so you can tell if a sale is real.',
     images: ['/logo.png'],
   },
   other: {

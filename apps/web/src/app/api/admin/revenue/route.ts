@@ -3,8 +3,11 @@ import { auth } from '@clerk/nextjs/server';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
 
-const MONTHLY_PLAN_PRICE = 99;    // ₹99/month
-const ANNUAL_PLAN_PRICE  = 799;   // ₹799/year → ₹66.58/mo effective
+// ₹199/month is the current published price for new subscriptions.
+// NOTE: The only existing ₹99 subscription is the owner's test account, not a real customer.
+// After the owner cancels their test sub, all active subscriptions will be at ₹199.
+const MONTHLY_PLAN_PRICE = 199;   // ₹199/month (new subscriptions)
+const ANNUAL_PLAN_PRICE  = 1799; // ₹1,799/year → ₹149.92/mo effective
 
 export async function GET(req: NextRequest) {
   const { sessionClaims } = await auth();
@@ -50,8 +53,8 @@ export async function GET(req: NextRequest) {
     User.countDocuments({ subscription_tier: 'pro', subscription_status: 'active', subscription_plan: 'annual' }),
   ]);
 
-  // Accurate MRR: monthly subs × ₹99 + annual subs × (₹799/12)
-  // Users with no plan recorded (legacy) are assumed monthly
+  // MRR: monthly subs × ₹199 + annual subs × (₹1,799/12)
+  // Users with no plan recorded (legacy/owner test) are assumed monthly at ₹199 — approximate
   const unknownPlanUsers = activeSubUsers - monthlyPlanUsers - annualPlanUsers;
   const estimatedMRR = Math.round(
     (monthlyPlanUsers + unknownPlanUsers) * MONTHLY_PLAN_PRICE +
@@ -82,7 +85,7 @@ export async function GET(req: NextRequest) {
       estimatedMRR,
       estimatedARR: estimatedMRR * 12,
       planBreakdown: { monthly: monthlyPlanUsers, annual: annualPlanUsers, unknown: unknownPlanUsers },
-      note: `MRR = (${monthlyPlanUsers + unknownPlanUsers} monthly × ₹99) + (${annualPlanUsers} annual × ₹66.58/mo)`,
+      note: `MRR = (${monthlyPlanUsers + unknownPlanUsers} monthly × ₹199) + (${annualPlanUsers} annual × ₹149.92/mo) — approx during plan transition`,
     },
     churnRisk: {
       count: churnRiskUsers.length,

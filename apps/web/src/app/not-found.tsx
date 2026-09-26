@@ -53,7 +53,7 @@ export default function NotFound() {
       </div>
 
       <p className="text-gray-600 text-sm mt-10">
-        Deals are refreshed every 6 hours from Amazon, Flipkart, Meesho &amp; more.
+        Deals are refreshed every 6 hours from Amazon, Myntra &amp; Nykaa.
       </p>
     </main>
   );

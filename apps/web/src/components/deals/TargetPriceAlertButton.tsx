@@ -150,7 +150,7 @@ export function TargetPriceAlertButton({
             </p>
             <p className="text-[11px] mt-1 leading-snug" style={{ color: 'var(--text-secondary)' }}>
               Set a target price and we'll alert you via Telegram or email the moment this deal
-              hits your number. Pro feature — ₹99/month or ₹799/year.
+              hits your number. Pro feature — ₹199/month or ₹1,799/year.
             </p>
           </div>
         </div>

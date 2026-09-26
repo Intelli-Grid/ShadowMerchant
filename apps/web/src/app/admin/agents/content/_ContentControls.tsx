@@ -124,7 +124,7 @@ export function ScoreCalibrator() {
 
   return (
     <AdminCard>
-      <SectionHeader title="Shadow Score Calibrator" sub="AI-powered score health analysis" />
+      <SectionHeader title="Shadow Score Calibrator" sub="Algorithmic score health analysis" />
       <ActionButton onClick={calibrate} loading={loading}>
         ⚡ Analyse Score Health
       </ActionButton>

@@ -18,7 +18,7 @@ interface RazorpayButtonProps {
 }
 
 export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayButtonProps) {
-  const defaultLabel = plan === 'annual' ? 'Get Annual Plan — ₹799/yr' : 'Upgrade to Pro — ₹99/mo';
+  const defaultLabel = plan === 'annual' ? 'Get Annual Plan — ₹1,799/yr' : 'Upgrade to Pro — ₹199/mo';
   const displayLabel = label ?? defaultLabel;
   const [loading, setLoading] = useState(false);
   const [errorToast, setErrorToast] = useState<string | null>(null);
@@ -28,6 +28,16 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
   const showError = (msg: string) => {
     setErrorToast(msg);
     setTimeout(() => setErrorToast(null), 5000);
+  };
+
+  // Helper: fire PostHog event without blocking the payment flow.
+  // Uses window.posthog set by PostHogProvider — fails silently if not loaded.
+  const phCapture = (event: string, props?: Record<string, unknown>) => {
+    try {
+      if (typeof window !== 'undefined' && (window as any).posthog?.capture) {
+        (window as any).posthog.capture(event, { plan, ...props });
+      }
+    } catch { /* never throw from analytics */ }
   };
 
   const handleUpgrade = async () => {
@@ -42,12 +52,18 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
 
       if (!res.ok) {
         const err = await res.json();
+        phCapture('subscription_failed', { reason: err.error || 'create_subscription_failed' });
         showError(err.error || 'Failed to start subscription. Please try again.');
         setLoading(false);
         return;
       }
 
       const { subscription_id } = await res.json();
+
+      // Analytics: subscription_created fires here — Razorpay subscription object
+      // exists server-side. This does NOT mean the user is Pro yet; that requires
+      // the webhook (subscription.activated) to fire and be processed.
+      phCapture('subscription_created', { subscription_id });
 
       // 2 — Wait for Razorpay (loaded globally in layout.tsx via next/script)
       // Poll instead of relying on load event — handles already-loaded case correctly.
@@ -67,6 +83,7 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
       });
 
         // 3 — Open Razorpay checkout modal
+      phCapture('checkout_opened', { subscription_id });
       const rzp = new window.Razorpay({
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         subscription_id,
@@ -75,6 +92,11 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
         image: '/logo.png',
         theme: { color: '#C9A84C' },
         handler: async () => {
+          // checkout_payment_submitted: user completed the Razorpay checkout UI
+          // and submitted payment details. This is user INTENT only — the subscription
+          // is not yet active. subscription_started fires from the server-side webhook
+          // after subscription.activated is received and DB is updated.
+          phCapture('checkout_payment_submitted', { subscription_id });
           // HIGH-04 fix: poll for Pro status before redirecting.
           // Razorpay's handler fires when the *checkout UI* completes, but the
           // webhook (subscription.activated) arrives ~1-3 seconds later and is
@@ -106,6 +128,7 @@ export function RazorpayButton({ plan = 'monthly', label, className }: RazorpayB
       rzp.open();
     } catch (err: any) {
       console.error('[RazorpayButton]', err);
+      phCapture('subscription_failed', { reason: err.message || 'unknown_error' });
       showError(err.message || 'Something went wrong. Please try again.');
       setLoading(false);
     }
