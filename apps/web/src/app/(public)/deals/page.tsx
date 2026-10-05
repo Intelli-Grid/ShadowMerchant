@@ -15,8 +15,8 @@ export async function generateMetadata({ searchParams }: any) {
   const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.shadowmerchant.online').replace(/\/$/, '');
 
   return {
-    title: 'Best Deals Today — Amazon, Flipkart, Myntra, Nykaa | ShadowMerchant',
-    description: 'Browse 500+ verified deals from Amazon, Flipkart, Myntra, Nykaa and more. Every deal comes with a Shadow Score — so you know if it\'s actually a good price.',
+    title: 'Best Deals Today — Amazon, Myntra, Nykaa | ShadowMerchant',
+    description: 'Browse verified deals from Amazon, Myntra & Nykaa. Every deal comes with a Shadow Score — so you know if it\'s actually a good price.',
     robots: hasFilters ? 'noindex, follow' : 'index, follow',
     openGraph: {
       title: 'Best Deals Today | ShadowMerchant',
