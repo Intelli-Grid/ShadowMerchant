@@ -32,7 +32,7 @@ export function UpgradeCTA() {
         className="font-extrabold px-6 py-2.5 rounded-lg text-sm transition-all whitespace-nowrap flex-shrink-0 hover:scale-105 active:scale-95"
         style={{ background: 'var(--gold)', color: '#0A0A0A' }}
       >
-        Unlock for ₹299/mo →
+        Upgrade to Pro — ₹199/mo →
       </Link>
     </div>
   );

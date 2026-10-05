@@ -14,14 +14,14 @@ interface UpgradeModalProps {
 export function UpgradeModal({ 
   isOpen, 
   onClose,
-  title = "Unlock Deal Scout Pro",
+  title = "Unlock ShadowMerchant Pro",
   description = "Set your target price on any product. We watch it 3x daily and alert you the moment it drops."
 }: UpgradeModalProps) {
   const features = [
     "🔔 Target Price Alerts — buy at the right time",
     "📊 Know if today's price is actually good (30-day history)",
     "⚡ Flash sale alerts before they sell out",
-    "💛 Unlimited wishlist — track anything",
+    "💛 Wishlist tracking — up to 200 products",
   ];
 
   return (

@@ -29,8 +29,17 @@ export async function POST(req: NextRequest) {
   }
 
   if (action === 'add') {
-    if (user.subscription_tier !== 'pro' && user.wishlist.length >= 5) {
+    // WISHLIST-01: Enforce limits at the API layer.
+    // $addToSet bypasses Mongoose model validators, so we must check here.
+    // Free limit: 5 items. Pro limit: 200 items (matches User model validator + UI copy).
+    const FREE_LIMIT = 5;
+    const PRO_LIMIT  = 200;
+    const currentCount = user.wishlist.length;
+    if (user.subscription_tier !== 'pro' && currentCount >= FREE_LIMIT) {
       return NextResponse.json({ error: 'WISHLIST_LIMIT' }, { status: 403 });
+    }
+    if (user.subscription_tier === 'pro' && currentCount >= PRO_LIMIT) {
+      return NextResponse.json({ error: 'WISHLIST_LIMIT_PRO' }, { status: 403 });
     }
   }
 

@@ -42,7 +42,9 @@
     "BREVO_API_KEY": "@brevo_api_key",
     "BREVO_SENDER_EMAIL": "@brevo_sender_email",
     "BREVO_SENDER_NAME": "@brevo_sender_name",
-    "ADMIN_SECRET": "@admin_secret"
+    "ADMIN_SECRET": "@admin_secret",
+    "GROQ_API_KEY": "@groq_api_key",
+    "INTERNAL_API_SECRET": "@internal_api_secret"
   },
   "crons": [
     { "path": "/api/cron/refresh-deals",    "schedule": "0 */4 * * *"  },

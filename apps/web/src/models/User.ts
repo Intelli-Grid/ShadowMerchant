@@ -31,7 +31,8 @@ const UserSchema = new Schema({
     telegram:   String,   // Telegram chat_id — linked via bot /start deep link
   },
   // Referral system — code is generated on first request, queried by code lookup
-  referral_code:  { type: String, sparse: true },
+  // NOTE: index is declared explicitly below (UserSchema.index) — do NOT add sparse/index here
+  referral_code:  { type: String },
   referral_count: { type: Number, default: 0 },
   referred_by:    { type: String },   // referral_code of the person who referred this user
   // Attribution — which channel drove this sign-up (from UTM params at sign-up)

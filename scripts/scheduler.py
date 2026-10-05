@@ -140,9 +140,32 @@ def run_pipeline(scrapers: list[str] | None = None) -> dict:
         "croma":    60,
     }
 
+    # PRE-03: ScraperAPI quota gate — check credits before running any ScraperAPI-dependent scraper.
+    # Amazon uses Playwright; Flipkart uses affiliate API. Only meesho/myntra/nykaa need the key.
+    SCRAPERAPI_SCRAPERS = {"meesho", "myntra", "nykaa"}
+    _quota_status = None  # lazy — checked only if a ScraperAPI scraper is in the run list
+
     for name in to_run:
         if name not in SCRAPER_MAP:
             continue
+
+        # Gate ScraperAPI-dependent scrapers behind quota check
+        if name in SCRAPERAPI_SCRAPERS:
+            if _quota_status is None:
+                try:
+                    from utils.scraperapi_quota import check_scraperapi_quota, QUOTA_EMPTY
+                    _quota_status = check_scraperapi_quota(alert_telegram=True)
+                except Exception as _qe:
+                    logger.error(f"ScraperAPI quota check error: {_qe}")
+                    _quota_status = "unknown"
+            if _quota_status == "empty":
+                logger.warning(
+                    f"  [SKIP] {name}: ScraperAPI credits exhausted — "
+                    f"skipping to preserve remaining capacity"
+                )
+                scraper_stats[name] = 0
+                continue  # skip this scraper entirely this run
+
         module_path, class_name = SCRAPER_MAP[name]
         sc_start = datetime.utcnow()
         try:

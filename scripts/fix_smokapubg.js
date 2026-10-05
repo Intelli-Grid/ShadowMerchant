@@ -1,19 +1,29 @@
 /**
- * One-time fix: upsert smokapubg@gmail.com into MongoDB with Pro tier.
+ * One-time fix: upsert a user into MongoDB with Pro tier.
+ * Reads MONGODB_URI from environment — NO credentials in source.
  *
  * Steps:
- * 1. Go to https://dashboard.clerk.com → Users → search smokapubg@gmail.com
- * 2. Copy their user_XXXX ID and paste it below as CLERK_ID
- * 3. Run: node scripts/fix_smokapubg.js
+ * 1. Go to https://dashboard.clerk.com → Users → find the target user
+ * 2. Copy their user_XXXX ID
+ * 3. Run:
+ *    MONGODB_URI=<uri> CLERK_ID=<clerk_id> node scripts/fix_smokapubg.js
+ *    Or set MONGODB_URI in scripts/.env before running.
  */
+require('dotenv').config({ path: '.env' });
+
 const { MongoClient } = require('mongodb');
 
-const URI      = 'mongodb+srv://Shadow_Merchant_db:a3IiIkQMecHpUEZi@cluster0.fjnmtcq.mongodb.net/shadowmerchant?appName=Cluster0';
-const CLERK_ID = 'PASTE_CLERK_ID_HERE';   // ← REPLACE THIS
-const EMAIL    = 'smokapubg@gmail.com';
+const URI      = process.env.MONGODB_URI;
+const CLERK_ID = process.env.CLERK_ID || 'PASTE_CLERK_ID_HERE';
+const EMAIL    = process.env.USER_EMAIL || 'smokapubg@gmail.com';
+
+if (!URI) {
+  console.error('❌  MONGODB_URI environment variable is required.');
+  process.exit(1);
+}
 
 if (CLERK_ID === 'PASTE_CLERK_ID_HERE') {
-  console.error('❌  Set CLERK_ID before running this script.');
+  console.error('❌  Set CLERK_ID env var before running this script.');
   process.exit(1);
 }
 
@@ -24,7 +34,6 @@ async function run() {
 
   const col = client.db('shadowmerchant').collection('users');
 
-  // Check if record already exists
   const existing = await col.findOne({ clerk_id: CLERK_ID });
   console.log('Existing record:', existing
     ? { email: existing.email, tier: existing.subscription_tier }
@@ -44,7 +53,7 @@ async function run() {
       $setOnInsert: {
         created_at: new Date(),
         wishlist: [],
-        name: 'smokapubg',
+        name: EMAIL.split('@')[0],
       },
     },
     { upsert: true, returnDocument: 'after' }

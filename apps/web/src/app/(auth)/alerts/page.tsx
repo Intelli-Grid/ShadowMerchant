@@ -181,7 +181,7 @@ export default function AlertsPage() {
           className="w-full font-bold h-12 hover:scale-105 active:scale-95 transition-all"
           style={{ background: 'var(--gold)', color: '#0A0A0A' }}
         >
-          <Link href="/pro">Unlock with Pro — ₹99/month →</Link>
+          <Link href="/pro">Unlock with Pro — ₹199/month →</Link>
         </Button>
       </div>
     </main>

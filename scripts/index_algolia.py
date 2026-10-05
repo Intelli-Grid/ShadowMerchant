@@ -1,5 +1,6 @@
 """
-Algolia Indexer — pushes all active deals from MongoDB to the Algolia search index.
+Algolia Indexer — pushes all active deals from MongoDB to the Algolia search index,
+and removes records for deals that have become inactive (ghost-record prevention).
 Run after pipeline: python scripts/index_algolia.py
 """
 import sys
@@ -55,23 +56,40 @@ async def index_deals_async():
         return
 
     index_name = os.getenv("ALGOLIA_INDEX_NAME", "Shadow_Merchant")
+
+    # ── 1. Upsert active deals ──────────────────────────────────────────────
     deals = list(db.deals.find({"is_active": True}))
-    logging.info(f"Indexing {len(deals)} deals to Algolia index '{index_name}'")
+    logging.info(f"Indexing {len(deals)} active deals to Algolia index '{index_name}'")
 
-    if not deals:
-        logging.info("No deals to index.")
-        return
+    if deals:
+        records = [deal_to_record(d) for d in deals]
+        async with SearchClient(app_id, admin_key) as client:
+            batch_size = 1000
+            for i in range(0, len(records), batch_size):
+                batch = records[i:i + batch_size]
+                await client.save_objects(index_name=index_name, objects=batch)
+                logging.info(f"  Indexed batch {i // batch_size + 1} ({len(batch)} records)")
+        logging.info(f"Algolia upsert complete. {len(records)} active deals indexed.")
+    else:
+        logging.info("No active deals to index.")
 
-    records = [deal_to_record(d) for d in deals]
-
-    async with SearchClient(app_id, admin_key) as client:
-        batch_size = 1000
-        for i in range(0, len(records), batch_size):
-            batch = records[i:i + batch_size]
-            await client.save_objects(index_name=index_name, objects=batch)
-            logging.info(f"  Indexed batch {i // batch_size + 1} ({len(batch)} records)")
-
-    logging.info(f"Algolia indexing complete. {len(records)} deals indexed.")
+    # ── 2. Remove ghost records (deals deactivated since last sync) ─────────
+    # Fetch _id of all inactive deals and delete them from Algolia if present.
+    # This does NOT delete MongoDB records — only Algolia index entries.
+    inactive_deals = list(db.deals.find({"is_active": False}, {"_id": 1}))
+    if inactive_deals:
+        inactive_ids = [str(d["_id"]) for d in inactive_deals]
+        logging.info(f"Removing {len(inactive_ids)} inactive deal records from Algolia...")
+        async with SearchClient(app_id, admin_key) as client:
+            batch_size = 1000
+            removed = 0
+            for i in range(0, len(inactive_ids), batch_size):
+                batch = inactive_ids[i:i + batch_size]
+                await client.delete_objects(index_name=index_name, object_ids=batch)
+                removed += len(batch)
+            logging.info(f"  Removed {removed} inactive deal records from Algolia index.")
+    else:
+        logging.info("No inactive deals to remove from Algolia.")
 
 
 def index_deals():

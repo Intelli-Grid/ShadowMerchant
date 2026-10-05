@@ -34,6 +34,13 @@ const EXPOSED_SLUGS = [
   'nykaa-pink-friday',
 ];
 
+// SITEMAP-FIX-01: Report data is loaded from static JSON files that only change
+// when the pipeline writes new data. Using new Date() for every build makes Google
+// think every report changed on every crawl — the signal is ignored.
+// We use a stable date derived from the data file's last known update.
+// UPDATE THIS DATE when new report data is published.
+const REPORT_DATA_LAST_UPDATED = new Date('2026-08-28T00:00:00.000Z');
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE_URL, lastModified: new Date(), changeFrequency: 'hourly', priority: 1.0 },
@@ -124,50 +131,50 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const laptopReportRoutes: MetadataRoute.Sitemap = laptopData.map((report) => ({
     url: `${BASE_URL}/reports/laptops/${report.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
+    lastModified: REPORT_DATA_LAST_UPDATED,
+    changeFrequency: 'weekly' as const,
     priority: 0.7,
   }));
 
   const phoneReportRoutes: MetadataRoute.Sitemap = phoneData.map((report) => ({
     url: `${BASE_URL}/reports/smartphones/${report.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
+    lastModified: REPORT_DATA_LAST_UPDATED,
+    changeFrequency: 'weekly' as const,
     priority: 0.7,
   }));
 
   const monitorReportRoutes: MetadataRoute.Sitemap = monitorData.map((report) => ({
     url: `${BASE_URL}/reports/monitors/${report.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
+    lastModified: REPORT_DATA_LAST_UPDATED,
+    changeFrequency: 'weekly' as const,
     priority: 0.7,
   }));
 
   const audioReportRoutes: MetadataRoute.Sitemap = audioData.map((report) => ({
     url: `${BASE_URL}/reports/audio/${report.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
+    lastModified: REPORT_DATA_LAST_UPDATED,
+    changeFrequency: 'weekly' as const,
     priority: 0.7,
   }));
 
   const watchReportRoutes: MetadataRoute.Sitemap = watchData.map((report) => ({
     url: `${BASE_URL}/reports/smartwatches/${report.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
+    lastModified: REPORT_DATA_LAST_UPDATED,
+    changeFrequency: 'weekly' as const,
     priority: 0.7,
   }));
 
   const applianceReportRoutes: MetadataRoute.Sitemap = applianceData.map((report) => ({
     url: `${BASE_URL}/reports/appliances/${report.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
+    lastModified: REPORT_DATA_LAST_UPDATED,
+    changeFrequency: 'weekly' as const,
     priority: 0.7,
   }));
 
   const consoleReportRoutes: MetadataRoute.Sitemap = consoleData.map((report) => ({
     url: `${BASE_URL}/reports/consoles/${report.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
+    lastModified: REPORT_DATA_LAST_UPDATED,
+    changeFrequency: 'weekly' as const,
     priority: 0.7,
   }));
 

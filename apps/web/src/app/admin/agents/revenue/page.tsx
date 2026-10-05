@@ -61,7 +61,12 @@ async function getRevenueData() {
       .lean(),
   ]);
 
-  const estimatedMRR = activeSubUsers * 99;
+  // ₹199/month is the published price for new subscriptions.
+  // NOTE: The owner's test account (₹99 legacy plan) is included until it is cancelled.
+  // MongoDB User model has no admin/role flag, so owner exclusion requires manual action.
+  // estimatedMRR will be slightly overstated until the owner cancels their test sub.
+  const MONTHLY_PLAN_PRICE = 199;
+  const estimatedMRR = activeSubUsers * MONTHLY_PLAN_PRICE;
 
   return {
     users: { total: totalUsers, pro: proUsers, free: totalUsers - proUsers, newProLast30d },
@@ -97,7 +102,7 @@ export default async function RevenueAgentPage() {
         <KPICard
           label="Estimated MRR"
           value={`₹${data.estimatedMRR.toLocaleString('en-IN')}`}
-          sub="at ₹99/active Pro sub"
+          sub="at ₹199/active Pro sub (approx)"
           accent="gold"
         />
         <KPICard

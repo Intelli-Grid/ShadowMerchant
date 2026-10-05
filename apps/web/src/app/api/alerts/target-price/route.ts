@@ -64,6 +64,17 @@ export async function POST(req: NextRequest) {
 
   await connectDB();
 
+  // ENTITLEMENT-01: Target Price Alerts are a Pro feature (advertised on /pro page and pricing copy).
+  // Check subscription_tier before any DB writes. Same pattern as /api/alerts POST.
+  const User = (await import('@/models/User')).default;
+  const user = await User.findOne({ clerk_id: userId }, { subscription_tier: 1 }).lean() as any;
+  if (!user || user.subscription_tier !== 'pro') {
+    return NextResponse.json(
+      { error: 'ALERTS_PRO_REQUIRED', message: 'Target price alerts require a Pro subscription.' },
+      { status: 403 }
+    );
+  }
+
   // Verify the deal exists and get current price for context
   const deal = await Deal.findById(deal_id, {
     title: 1, discounted_price: 1, source_platform: 1, is_active: 1,
@@ -79,8 +90,8 @@ export async function POST(req: NextRequest) {
     { $set: { is_active: false } }
   );
 
-  // Cap: 10 active target-price alerts per user (applies to all tiers)
-  // Prevents scheduler performance degradation from unbounded alert creation
+  // Cap: 10 active target-price alerts per user (Pro only, so this applies within Pro tier)
+  // Prevents scheduler performance degradation from unbounded alert creation.
   const TARGET_ALERT_CAP = 10;
   const activeTargetCount = await Alert.countDocuments({
     user_id: userId,
@@ -128,6 +139,13 @@ export async function DELETE(req: NextRequest) {
 
   const { alert_id } = await req.json();
   if (!alert_id) return NextResponse.json({ error: 'alert_id required' }, { status: 400 });
+
+  // BUG-06 (same fix as alerts/route.ts): Validate ObjectId format before Mongoose query
+  // to prevent CastError → unhandled 500 on malformed input.
+  const OBJECT_ID_REGEX = /^[a-f\d]{24}$/i;
+  if (!OBJECT_ID_REGEX.test(String(alert_id))) {
+    return NextResponse.json({ error: 'Invalid alert ID format' }, { status: 400 });
+  }
 
   await connectDB();
 

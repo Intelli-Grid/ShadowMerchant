@@ -102,7 +102,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
         isOpen={showUpgradeModal} 
         onClose={() => setShowUpgradeModal(false)} 
         title="Wishlist Limit Reached"
-        description="Free users are limited to 5 wishlist saves to prevent abuse. Upgrade to Pro for unlimited saves and Deal Alerts."
+        description="Free users are limited to 5 wishlist saves. Upgrade to Pro for up to 200 saves and Deal Alerts."
       />
     </WishlistContext.Provider>
   );
