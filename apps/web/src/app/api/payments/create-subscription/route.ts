@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     // as a fallback — eliminating the race condition.
     const subscription = await razorpay.subscriptions.create({
       plan_id: planId,
-      total_count: plan === 'annual' ? 1 : 12,
+      total_count: plan === 'annual' ? 1 : 1200,
       quantity: 1,
       customer_notify: 1,
       notes: { clerk_id: userId },

@@ -230,3 +230,76 @@ export async function sendDealAlertEmail(
   return sendEmail(email, name, subject, html)
 }
 
+
+
+/**
+ * Annual renewal reminder — sent ~7 days before annual subscription completes.
+ * Called by the subscription-expiry-check GitHub Actions workflow (not on subscription.completed).
+ * Must never throw — callers use fire-and-forget .catch().
+ */
+export async function sendAnnualRenewalReminderEmail(
+  email: string,
+  firstName?: string,
+  expiryDate?: Date
+): Promise<boolean> {
+  const name = firstName?.trim() || 'there'
+  const formattedDate = expiryDate
+    ? expiryDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+    : 'soon'
+  const html = wrap(`
+    <h2 style="color:#f1f5f9;font-size:22px;margin:0 0 8px;">Your Pro access expires ${formattedDate}</h2>
+    <p style="color:#94a3b8;font-size:15px;line-height:1.6;margin:0 0 24px;">
+      Hi ${name}, your ShadowMerchant Pro annual subscription ends on <strong style="color:#c4b5fd;">${formattedDate}</strong>.
+      After this date your account returns to the Free tier.
+    </p>
+    <div style="background:rgba(109,40,217,0.08);border:1px solid rgba(109,40,217,0.2);border-radius:12px;padding:20px;margin-bottom:24px;">
+      <div style="font-size:14px;font-weight:600;color:#c4b5fd;margin-bottom:12px;">What you will lose when Pro ends:</div>
+      <ul style="color:#94a3b8;font-size:14px;line-height:2;padding-left:20px;margin:0;">
+        <li>Target price alerts (up to 10 rules)</li>
+        <li>Observed price history charts</li>
+        <li>Wishlist tracking up to 200 products</li>
+        <li>Flash sale alerts before they go public</li>
+      </ul>
+    </div>
+    <p style="color:#94a3b8;font-size:14px;line-height:1.6;margin:0 0 20px;">
+      Your subscription does <strong style="color:#f1f5f9;">not</strong> renew automatically.
+      To continue enjoying Pro, subscribe again before your access ends.
+    </p>
+    <a href="${APP_URL}/pro"
+       style="display:block;background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;text-align:center;padding:14px 24px;border-radius:10px;font-weight:600;font-size:15px;text-decoration:none;margin-bottom:16px;">
+      Renew Pro &mdash; Rs 1,799/year
+    </a>
+    <p style="color:#475569;font-size:12px;line-height:1.6;margin:0;text-align:center;">
+      No automatic charges. Renewal is always your choice.
+    </p>
+  `)
+  return sendEmail(email, name, `Your ShadowMerchant Pro expires ${formattedDate} - renew to keep access`, html)
+}
+
+/**
+ * Pro subscription ended notification — called from webhook subscription.completed handler.
+ * Fire-and-forget: failure MUST NOT prevent entitlement downgrade or webhook 200 response.
+ */
+export async function sendProExpiredEmail(
+  email: string,
+  firstName?: string
+): Promise<boolean> {
+  const name = firstName?.trim() || 'there'
+  const html = wrap(`
+    <h2 style="color:#f1f5f9;font-size:22px;margin:0 0 8px;">Your Pro access has ended</h2>
+    <p style="color:#94a3b8;font-size:15px;line-height:1.6;margin:0 0 24px;">
+      Hi ${name}, your ShadowMerchant Pro subscription has ended and your account has returned to the Free tier.
+    </p>
+    <p style="color:#94a3b8;font-size:14px;line-height:1.6;margin:0 0 24px;">
+      Your deals, wishlist, and account data are safe. Subscribe again at any time to restore Pro access instantly.
+    </p>
+    <a href="${APP_URL}/pro"
+       style="display:block;background:linear-gradient(135deg,#7c3aed,#4c1d95);color:#fff;text-align:center;padding:14px 24px;border-radius:10px;font-weight:600;font-size:15px;text-decoration:none;margin-bottom:16px;">
+      Subscribe Again &mdash; from Rs 199/month
+    </a>
+    <p style="color:#475569;font-size:12px;line-height:1.6;margin:0;text-align:center;">
+      Thank you for being a Pro member.
+    </p>
+  `)
+  return sendEmail(email, name, 'Your ShadowMerchant Pro subscription has ended', html)
+}

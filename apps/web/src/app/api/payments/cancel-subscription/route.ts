@@ -16,8 +16,10 @@ export async function POST() {
       return NextResponse.json({ error: 'No active subscription found.' }, { status: 400 });
     }
 
-    // Cancel the subscription at period end (not immediately)
-    await razorpay.subscriptions.cancel(user.subscription_id, false);
+    // Cancel at end of current billing cycle (not immediately).
+    // This matches the customer-facing promise: "Your benefits will remain active
+    // until the end of your current billing period." (CancelSubscriptionButton.tsx)
+    await razorpay.subscriptions.cancel(user.subscription_id, true);
 
     // Mark user as scheduled for cancellation
     await User.updateOne(

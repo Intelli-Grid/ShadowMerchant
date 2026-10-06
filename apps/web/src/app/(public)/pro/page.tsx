@@ -171,17 +171,17 @@ export default function ProPage() {
           >
             <div>
               <p className="text-sm font-black" style={{ color: 'var(--gold)' }}>
-                Annual Plan
+                Annual Plan — Save 25%
               </p>
               <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                ₹1,799/year
+                ₹1,799/year · billed once · no auto-renewal
               </p>
             </div>
             <RazorpayButton plan="annual" className="!py-2 !px-5 text-sm" />
           </div>
 
           <p className="text-center text-xs mt-4" style={{ color: 'var(--text-muted)' }}>
-            Cancel anytime. Powered by Razorpay.
+            Monthly plan: cancel anytime. Annual plan: billed once, no automatic renewal. Powered by Razorpay.
           </p>
         </div>
       </div>
@@ -228,7 +228,7 @@ export default function ProPage() {
           {[
             { q: 'What is the difference between Free and Pro?', a: 'Free gives you full access to all deals, categories, and direct store links, plus up to 5 wishlist saves. Pro gives you the intelligence layer: 30-day pricing history charts, background price-drop alerts, and up to 200 wishlist saves so you can track an entire shopping list.' },
             { q: 'Are deals locked anymore?', a: "No! All deals, links, and content are now 100% free and open. Pro gives you the intelligence layer—pricing history, custom deal alerts, and drop notifications—so you know *when* to buy." },
-            { q: 'How does billing work?', a: 'We use Razorpay for secure Indian payments. You can pay via UPI, credit/debit card, or net banking. Monthly plan is ₹199/month; Annual plan is ₹1,799/year (billed once). You can cancel your monthly plan anytime from your Dashboard.' },
+            { q: 'How does billing work?', a: 'We use Razorpay for secure Indian payments. You can pay via UPI, credit/debit card, or net banking. Monthly plan is ₹199/month and recurs automatically each month until you cancel. Annual plan is ₹1,799/year, billed once — it does not auto-renew. You will receive a renewal reminder email before your annual subscription ends, and you can renew manually at any time from the /pro page.' },
             { q: 'Can I cancel anytime?', a: 'Yes, absolutely. You can cancel your subscription from your Dashboard at any time. Your Pro benefits remain active until the end of the current billing period.' },
             { q: 'Do deals expire?', a: "Yes! Flash and lightning deals are time-limited by the platforms themselves. We timestamp all deals when scraped, but we can't guarantee a price is still live when you click." },
           ].map(({ q, a }) => (

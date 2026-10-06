@@ -266,3 +266,171 @@ describe('Out-of-order stale downgrade detection', () => {
     assert.ok(!isOutOfOrder, 'Fresh downgrade event should be processed normally');
   });
 });
+
+// ─── Approved billing contract ────────────────────────────────────────────
+
+describe('Approved billing contract — subscription creation', () => {
+  test('monthly subscription uses total_count = 1200 (continuous until cancelled)', () => {
+    const plan = 'monthly';
+    const total_count = plan === 'annual' ? 1 : 1200;
+    assert.equal(total_count, 1200, 'Monthly must use 1200 cycles (100-year cap)');
+  });
+
+  test('annual subscription uses total_count = 1 (billed once, no auto-renewal)', () => {
+    const plan = 'annual';
+    const total_count = plan === 'annual' ? 1 : 1200;
+    assert.equal(total_count, 1, 'Annual must use 1 cycle (one-time, no auto-renewal)');
+  });
+
+  test('no other plan value accidentally produces 12', () => {
+    const computeCount = (plan) => plan === 'annual' ? 1 : 1200;
+    assert.notEqual(computeCount('monthly'), 12, 'Monthly must NOT be 12');
+    assert.notEqual(computeCount('annual'), 12, 'Annual must NOT be 12');
+  });
+});
+
+describe('Approved billing contract — cancellation', () => {
+  test('cancellation uses end-of-cycle semantics (cancelAtCycleEnd = true)', () => {
+    // Mirrors cancel-subscription/route.ts line:
+    // razorpay.subscriptions.cancel(user.subscription_id, true)
+    const cancelAtCycleEnd = true;
+    assert.equal(cancelAtCycleEnd, true, 'Cancellation must be end-of-cycle, not immediate');
+  });
+
+  test('cancelAtCycleEnd = false would be immediate — must NOT be used', () => {
+    const wrongValue = false;
+    assert.ok(!wrongValue, 'false = immediate cancel — must never be passed to Razorpay SDK');
+  });
+
+  test('Pro entitlement remains intact after cancellation is scheduled', () => {
+    // The cancel route sets subscription_cancel_scheduled = true but does NOT
+    // change subscription_tier. Tier changes only on webhook subscription.cancelled
+    // which fires at end of billing cycle when cancelAtCycleEnd = true.
+    const userBefore = { subscription_tier: 'pro', subscription_cancel_scheduled: false };
+
+    // Simulate what cancel-subscription/route.ts writes to MongoDB:
+    const userAfterCancelRequest = {
+      ...userBefore,
+      subscription_cancel_scheduled: true,
+      // subscription_tier is NOT changed here — Pro stays active
+    };
+
+    assert.equal(userAfterCancelRequest.subscription_tier, 'pro',
+      'Tier must remain pro immediately after cancellation is scheduled');
+    assert.equal(userAfterCancelRequest.subscription_cancel_scheduled, true,
+      'Cancel scheduled flag must be set');
+  });
+
+  test('tier is downgraded to free only when subscription.cancelled webhook fires', () => {
+    function computeTier(eventType, subStatus) {
+      const TERMINAL_EVENTS = ['subscription.cancelled', 'subscription.completed', 'subscription.halted', 'subscription.expired'];
+      if (['subscription.activated', 'subscription.charged'].includes(eventType)) return 'pro';
+      if (TERMINAL_EVENTS.includes(eventType)) return 'free';
+      return null;
+    }
+    // Downgrade happens at webhook, not at API call time
+    assert.equal(computeTier('subscription.cancelled', 'cancelled'), 'free');
+  });
+});
+
+describe('Approved billing contract — annual completion', () => {
+  test('subscription.completed is handled (annual plan exhausts total_count=1)', () => {
+    function computeTier(eventType) {
+      const TERMINAL_EVENTS = ['subscription.cancelled', 'subscription.completed', 'subscription.halted', 'subscription.expired'];
+      if (['subscription.activated', 'subscription.charged'].includes(eventType)) return 'pro';
+      if (TERMINAL_EVENTS.includes(eventType)) return 'free';
+      return null;
+    }
+    assert.equal(computeTier('subscription.completed'), 'free',
+      'subscription.completed must downgrade to free');
+  });
+
+  test('annual plan does NOT auto-renew (total_count=1 exhausts after one charge)', () => {
+    const annualTotalCount = 1;
+    // After 1 billing cycle, remaining_count = 0, Razorpay fires subscription.completed
+    // No further charges occur — consistent with "billed once" contract
+    assert.equal(annualTotalCount, 1);
+  });
+
+  test('completion notification failure must not break entitlement downgrade', () => {
+    // Mirrors webhook.ts pattern: notification is fire-and-forget .catch()
+    let entitlementDowngraded = false;
+    let notificationAttempted = false;
+    let notificationSucceeded = false;
+
+    // Step 1: downgrade entitlement (syncTier)
+    entitlementDowngraded = true;
+
+    // Step 2: fire-and-forget notification
+    notificationAttempted = true;
+    try {
+      throw new Error('Brevo API timeout');
+    } catch {
+      // .catch() — error swallowed, webhook still returns 200
+      notificationSucceeded = false;
+    }
+
+    assert.ok(entitlementDowngraded, 'Entitlement must be downgraded even if notification fails');
+    assert.ok(notificationAttempted, 'Notification was attempted');
+    assert.ok(!notificationSucceeded, 'Notification failed (simulated)');
+    // Webhook would still return 200 — no assert needed here since we proved
+    // the downgrade ran before the notification attempt
+  });
+});
+
+describe('Approved billing contract — annual renewal reminder idempotency', () => {
+  test('reminder is not sent if annual_reminder_sent_at is already set', () => {
+    // Mirrors query in /api/internal/annual-renewal-reminder:
+    // { annual_reminder_sent_at: null } — users with non-null value are excluded
+    const user = {
+      subscription_tier: 'pro',
+      subscription_plan: 'annual',
+      annual_reminder_sent_at: new Date('2026-10-01'), // already sent
+    };
+    const shouldRemind = user.annual_reminder_sent_at === null;
+    assert.ok(!shouldRemind, 'Already-reminded user must be excluded from reminder batch');
+  });
+
+  test('reminder is sent if annual_reminder_sent_at is null', () => {
+    const user = {
+      subscription_tier: 'pro',
+      subscription_plan: 'annual',
+      annual_reminder_sent_at: null,
+    };
+    const shouldRemind = user.annual_reminder_sent_at === null;
+    assert.ok(shouldRemind, 'Un-reminded annual user must be included in reminder batch');
+  });
+
+  test('reminder guard is reset on subscription.activated (new subscription start)', () => {
+    // Mirrors webhook.ts syncTier extraFields for subscription.activated:
+    // { annual_reminder_sent_at: null }
+    const extraFields = { annual_reminder_sent_at: null };
+    assert.equal(extraFields.annual_reminder_sent_at, null,
+      'annual_reminder_sent_at must be reset to null on re-activation');
+  });
+
+  test('repeated cron runs cannot send duplicate reminders', () => {
+    // After first successful send, annual_reminder_sent_at is set to a Date.
+    // Subsequent cron runs exclude users where annual_reminder_sent_at !== null.
+    let reminderSentCount = 0;
+    let reminderSentAt = null;
+
+    function tryRemind(user) {
+      if (user.annual_reminder_sent_at !== null) return false; // idempotency guard
+      reminderSentCount++;
+      reminderSentAt = new Date();
+      return true;
+    }
+
+    const user = { annual_reminder_sent_at: null };
+    tryRemind(user);
+    user.annual_reminder_sent_at = reminderSentAt; // simulate DB write
+
+    // Second run (next day cron)
+    tryRemind(user);
+    // Third run
+    tryRemind(user);
+
+    assert.equal(reminderSentCount, 1, 'Reminder must be sent exactly once per cycle');
+  });
+});

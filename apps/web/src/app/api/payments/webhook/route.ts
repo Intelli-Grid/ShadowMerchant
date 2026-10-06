@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { connectDB } from '@/lib/db';
 import User from '@/models/User';
-import { sendProConfirmationEmail } from '@/lib/email';
+import { sendProConfirmationEmail, sendProExpiredEmail } from '@/lib/email';
 import { redis } from '@/lib/redis';
 // clerkClient is imported dynamically inside the handler to avoid
 // Clerk SDK initialization overhead on cold starts for non-subscription events.
@@ -257,6 +257,8 @@ export async function POST(req: NextRequest) {
           ? new Date(sub.current_end * 1000)
           : null,
         subscription_cancel_scheduled: false,
+        // Reset reminder guard so a returning subscriber gets a fresh reminder next cycle.
+        annual_reminder_sent_at: null,
         ...(detectedPlan ? { subscription_plan: detectedPlan } : {}),
       });
 
@@ -306,7 +308,6 @@ export async function POST(req: NextRequest) {
 
     // ── Subscription ended (any terminal state) ───────────────────────────────
     case 'subscription.cancelled':
-    case 'subscription.completed':
     case 'subscription.halted':
     case 'subscription.expired': {
       await syncTier(sub.id, 'free', {
@@ -316,6 +317,28 @@ export async function POST(req: NextRequest) {
           : null,
         subscription_cancel_scheduled: false,
       });
+      break;
+    }
+
+    // ── Annual subscription natural completion ────────────────────────────────
+    // Fired when total_count billing cycles are exhausted (annual plan = 1 cycle).
+    // Must downgrade Pro AND notify the customer so they can manually renew.
+    case 'subscription.completed': {
+      const completedUser = await syncTier(sub.id, 'free', {
+        subscription_expires_at: sub.current_end
+          ? new Date(sub.current_end * 1000)
+          : null,
+        subscription_cancel_scheduled: false,
+      });
+      // Fire-and-forget customer notification — failure MUST NOT break webhook delivery.
+      if (completedUser?.email) {
+        sendProExpiredEmail(completedUser.email, completedUser.name?.split(' ')[0])
+          .catch(err => console.error('[Webhook] sendProExpiredEmail failed (non-fatal):', err));
+      }
+      // Owner operational alert
+      notifyOwner(
+        `📋 *Subscription Completed*\nEmail: ${completedUser?.email ?? 'unknown'}\nSub ID: ${sub.id}\nPlan: ${completedUser?.subscription_plan ?? 'unknown'}\nCustomer has been notified to renew manually.`
+      );
       break;
     }
 

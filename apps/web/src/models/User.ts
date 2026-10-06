@@ -11,6 +11,11 @@ const UserSchema = new Schema({
   subscription_status: { type: String, enum: ['created', 'authenticated', 'active', 'pending', 'halted', 'cancelled', 'completed', 'expired', 'paused'] },
   subscription_expires_at: Date,
   subscription_cancel_scheduled: { type: Boolean, default: false },
+  // Guards the annual renewal reminder — set when reminder email is sent.
+  // Cleared by webhook on subscription.activated (new subscription cycle start).
+  // Ensures the GitHub Actions expiry-check cron is idempotent: it will not
+  // send a second reminder even if it runs multiple days in a row.
+  annual_reminder_sent_at: { type: Date, default: null },
   wishlist: {
     type: [{ type: String }], // MongoDB ObjectId hex strings (deal._id)
     validate: {

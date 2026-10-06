@@ -46,8 +46,8 @@ export default function TermsPage() {
         <section>
           <h2 className="text-xl font-bold text-white mb-3">4. Pro Subscription</h2>
           <ul className="list-disc list-inside space-y-2 text-gray-400">
-            <li>Pro plans (Monthly ₹199/mo or Annual ₹1,799/yr) are processed via Razorpay and auto-renew unless cancelled.</li>
-            <li>You may cancel your subscription at any time via your Dashboard. Access continues until the end of the current billing period.</li>
+            <li>Monthly Pro plan (₹199/month) recurs automatically each month and is processed via Razorpay. Annual Pro plan (₹1,799/year) is billed once and does not automatically renew.</li>
+            <li>You may cancel your monthly subscription at any time via your Dashboard. Access continues until the end of the current billing period. Annual plan access ends when the paid period expires; you can renew manually at any time.</li>
             <li>Refunds are not provided for partially used subscription periods, except where required by applicable law.</li>
             <li>We reserve the right to modify Pro plan pricing with 30 days&apos; notice to subscribers.</li>
           </ul>
